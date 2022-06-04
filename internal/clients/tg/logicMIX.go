@@ -1,9 +1,8 @@
 package Tg
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"kz_bot/pkg/models"
+	"kz_bot/internal/models"
 )
 
 func logicMixTelegram(m *tgbotapi.Message) {
@@ -30,6 +29,7 @@ func logicMixTelegram(m *tgbotapi.Message) {
 		}
 		//logicRs(in)
 		//тут нужно передавать в логику бота
-		fmt.Println(in)
+		//fmt.Println(in)
+		models.ChTg <- in
 	}
 }

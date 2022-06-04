@@ -27,7 +27,7 @@ func InitTG(tokent string) *tgbotapi.BotAPI {
 				} else if update.Message.IsCommand() {
 					//updatesComand(update.Message)	//если сообщение является командой
 				} else { //остальные сообщения
-					fmt.Println("test", update.Message.Text)
+					//fmt.Println("test", update.Message.Text)
 					logicMixTelegram(update.Message)
 				}
 

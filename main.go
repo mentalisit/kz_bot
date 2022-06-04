@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/config"
-	"kz_bot/pkg/bot"
-	discord "kz_bot/pkg/clients/ds"
-	telega "kz_bot/pkg/clients/tg"
+	"kz_bot/internal/bot"
+	discord "kz_bot/internal/clients/ds"
+	telega "kz_bot/internal/clients/tg"
 	"time"
 )
 
@@ -16,21 +15,21 @@ func main() {
 	cfg := config.InitConfig()
 
 	var tg *tgbotapi.BotAPI
-	var ds *discordgo.Session
-
+	//var ds *discordgo.Session
+	ds := &discord.Ds{}
 	go func() {
 		tg = telega.InitTG(cfg.TokenT)
 	}()
 
 	go func() {
-		ds = discord.InitDS(cfg.TokenD)
+		discord.InitDS(cfg.TokenD)
 	}()
 
 	time.Sleep(time.Second * 5)
-	bot.NewBot(*tg, ds).SendIF()
+	bot.NewBot(*tg, *ds).SendIF()
 
 	fmt.Println("35", tg.Self.UserName)
-	fmt.Println("36", ds.StateEnabled)
+	fmt.Println("36", ds.NameBot())
 
 	<-make(chan struct{})
 	return

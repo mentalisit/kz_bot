@@ -5,6 +5,9 @@ import (
 	"sync"
 )
 
+var ChDs = make(chan InMessage, 10)
+var ChTg = make(chan InMessage, 10)
+
 type InMessage struct {
 	Mutex         sync.Mutex
 	Mtext         string
@@ -36,8 +39,8 @@ type Tg struct {
 
 type Configs struct {
 	DelMesComplite int
-	mesidDsHelp    string
-	mesidTgHelp    int
+	MesidDsHelp    string
+	MesidTgHelp    int
 	Primer         string
 	Guildid        string
 }
