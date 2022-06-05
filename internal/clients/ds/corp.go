@@ -1,5 +1,6 @@
 package ds
 
+/*
 import (
 	"github.com/bwmarrin/discordgo"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
@@ -53,3 +54,6 @@ func accessDelChannelDs(chatid string) { //удаление с бд и маси�
 		go dsSendChannelDel1m(chatid, "вы отключили мои возможности")
 	}
 }
+
+
+*/

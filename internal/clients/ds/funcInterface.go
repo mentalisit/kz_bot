@@ -17,7 +17,9 @@ const (
 
 var mesContentNil string
 
-type Ds struct{}
+type Ds struct {
+	d discordgo.Session
+}
 
 type Discord interface {
 	Send(chatid, text string) string
@@ -29,7 +31,7 @@ type Discord interface {
 	RoleToIdPing(rolePing, guildid string) string
 	AddEnojiRsQueue(chatid, mesid string)
 	CheckAdmin(nameid string, chatid string) bool
-	NameBot() string
+	BotName() string
 }
 
 func EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
@@ -57,7 +59,7 @@ func EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.Mess
 }
 
 func (d Ds) CheckAdmin(nameid string, chatid string) bool {
-	perms, err := DSBot.UserChannelPermissions(nameid, chatid)
+	perms, err := d.d.UserChannelPermissions(nameid, chatid)
 	if err != nil {
 		fmt.Println("ошибка проверки админ ли ", err)
 	}
@@ -69,49 +71,45 @@ func (d Ds) CheckAdmin(nameid string, chatid string) bool {
 		return false
 	}
 }
-
 func (d Ds) AddEnojiRsQueue(chatid, mesid string) {
-	DSBot.MessageReactionAdd(chatid, mesid, emOK)
-	DSBot.MessageReactionAdd(chatid, mesid, emCancel)
-	DSBot.MessageReactionAdd(chatid, mesid, emRsStart)
-	DSBot.MessageReactionAdd(chatid, mesid, emPl30)
+	d.d.MessageReactionAdd(chatid, mesid, emOK)
+	d.d.MessageReactionAdd(chatid, mesid, emCancel)
+	d.d.MessageReactionAdd(chatid, mesid, emRsStart)
+	d.d.MessageReactionAdd(chatid, mesid, emPl30)
 
 }
-
 func (d Ds) DeleteMessage(chatid, mesid string) {
-	DSBot.ChannelMessageDelete(chatid, mesid)
+	d.d.ChannelMessageDelete(chatid, mesid)
 }
-
 func (d Ds) SendChannelDelSecond(chatid, text string, second int) {
-	message, err := DSBot.ChannelMessageSend(chatid, text)
+	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
 		fmt.Println("ошибка отправки сообщения SendChannelDelSecond", err)
 	}
 	go func() {
 		time.Sleep(time.Duration(second) * time.Second)
-		DSBot.ChannelMessageDelete(chatid, message.ID)
+		d.d.ChannelMessageDelete(chatid, message.ID)
 	}()
 
 }
-
 func (d Ds) RoleToIdPing(rolePing, guildid string) string {
 	//создаю переменную
 	rolPing := "кз" + rolePing // добавляю буквы
-	g, err := DSBot.Guild(guildid)
+	g, err := d.d.Guild(guildid)
 	if err != nil {
 		fmt.Println("ошибка получении гильдии при получении роли", err)
 	}
-	exist, role := roleExists(g, rolPing)
+	exist, role := d.roleExists(g, rolPing)
 	if !exist {
 		//создаем роль и возврашаем пинг
-		newRole, err := DSBot.GuildRoleCreate(guildid)
+		newRole, err := d.d.GuildRoleCreate(guildid)
 		if err != nil {
 			fmt.Println("ошибка создании новой роли ", err)
 		}
-		role, err = DSBot.GuildRoleEdit(guildid, newRole.ID, rolPing, newRole.Color, newRole.Hoist, 37080064, true)
+		role, err = d.d.GuildRoleEdit(guildid, newRole.ID, rolPing, newRole.Color, newRole.Hoist, 37080064, true)
 		if err != nil {
 			fmt.Println("Ошибка изменения новой роли", err)
-			err = DSBot.GuildRoleDelete(guildid, newRole.ID)
+			err = d.d.GuildRoleDelete(guildid, newRole.ID)
 			if err != nil {
 				fmt.Println("ошибка удаления новой роли ", err)
 			}
@@ -121,7 +119,7 @@ func (d Ds) RoleToIdPing(rolePing, guildid string) string {
 		return role.Mention()
 	}
 
-	r, err := DSBot.GuildRoles(guildid)
+	r, err := d.d.GuildRoles(guildid)
 	if err != nil {
 		fmt.Println("Ошибка чтения ролей ", err)
 	}
@@ -138,19 +136,17 @@ func (d Ds) RoleToIdPing(rolePing, guildid string) string {
 	}
 	return "(роль не найдена)" // если не нашол нужной роли
 }
-
 func (d Ds) DeleteMesageSecond(chatid, mesid string, second int) {
 	if second > 60 {
 		//timerInsert(mesid, chatid, 0, 0, second)
 	} else {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			DSBot.ChannelMessageDelete(chatid, mesid)
+			d.d.ChannelMessageDelete(chatid, mesid)
 		}()
 	}
 
 }
-
 func (d Ds) EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed) {
 	a := &discordgo.MessageEdit{
 		Content: &mesContentNil,
@@ -158,27 +154,25 @@ func (d Ds) EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed
 		ID:      dsmesid,
 		Channel: dschatid,
 	}
-	_, err := DSBot.ChannelMessageEditComplex(a)
+	_, err := d.d.ChannelMessageEditComplex(a)
 	if err != nil {
 		fmt.Println("Ошибка редактирования комплексного сообщения ", err)
 	}
 }
-func (d Ds) NameBot() string { //получаем имя бота
-	u, _ := DSBot.User("@me")
+func (d Ds) BotName() string { //получаем имя бота
+	u, _ := d.d.User("@me")
 	return u.Username
 }
-
 func (d Ds) SendComplexContent(chatid, text string) string { //отправка текста комплексного сообщения
-	mesCompl, err := DSBot.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
+	mesCompl, err := d.d.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 		Content: text})
 	if err != nil {
 		fmt.Println("Ошибка отправки комплексного сообщения ", err)
 	}
 	return mesCompl.ID
 }
-
 func (d Ds) Send(chatid, text string) string { //отправка текста
-	message, err := DSBot.ChannelMessageSend(chatid, text)
+	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
 		fmt.Println("ошибка отправки текста ", err)
 	}

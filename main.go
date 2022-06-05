@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/config"
 	"kz_bot/internal/bot"
 	discord "kz_bot/internal/clients/ds"
 	telega "kz_bot/internal/clients/tg"
+	db_Mysql "kz_bot/internal/dbase/dbaseMysql"
 	"time"
 )
 
@@ -14,22 +14,29 @@ func main() {
 	fmt.Println("ЗАПУСК БОТА")
 	cfg := config.InitConfig()
 
-	var tg *tgbotapi.BotAPI
-	//var ds *discordgo.Session
+	tg := &telega.Telegram{}
 	ds := &discord.Ds{}
+	db := &db_Mysql.Db{}
+
 	go func() {
-		tg = telega.InitTG(cfg.TokenT)
+		tg.InitTG(cfg.TokenT)
 	}()
 
 	go func() {
-		discord.InitDS(cfg.TokenD)
+		ds.InitDS(cfg.TokenD)
+	}()
+
+	go func() {
+		db.DbConnection()
 	}()
 
 	time.Sleep(time.Second * 5)
-	bot.NewBot(*tg, *ds).SendIF()
+	bot.NewBot(*tg, *ds, *db)
 
-	fmt.Println("35", tg.Self.UserName)
-	fmt.Println("36", ds.NameBot())
+	db.ReadBotCorpConfig()
+
+	fmt.Println("35", tg.BotName())
+	fmt.Println("36", ds.BotName())
 
 	<-make(chan struct{})
 	return

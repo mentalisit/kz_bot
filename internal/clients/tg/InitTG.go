@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func InitTG(tokent string) *tgbotapi.BotAPI {
+func (t *Telegram) InitTG(tokent string) {
 	//подключение к телеграм
 	TgBot, Err := tgbotapi.NewBotAPI(tokent)
 	if Err != nil {
@@ -25,10 +25,10 @@ func InitTG(tokent string) *tgbotapi.BotAPI {
 				if update.Message.Chat.IsPrivate() { //если пишут боту в личку
 					//tgSendChannel(update.Message.Chat.ID, "сорян это в разработке ")
 				} else if update.Message.IsCommand() {
-					//updatesComand(update.Message)	//если сообщение является командой
+					t.updatesComand(update.Message) //если сообщение является командой
 				} else { //остальные сообщения
-					//fmt.Println("test", update.Message.Text)
-					logicMixTelegram(update.Message)
+					fmt.Println("test", update.Message.Text)
+					t.logicMixTelegram(update.Message)
 				}
 
 			} else if update.MyChatMember != nil {
@@ -42,5 +42,5 @@ func InitTG(tokent string) *tgbotapi.BotAPI {
 		}
 	}()
 
-	return TgBot
+	t.t = *TgBot
 }

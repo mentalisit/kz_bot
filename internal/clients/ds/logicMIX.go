@@ -8,8 +8,8 @@ import (
 	"log"
 )
 
-func readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
-	user, err := DSBot.User(r.UserID)
+func (d Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
+	user, err := d.d.User(r.UserID)
 	if err != nil {
 		fmt.Println("Ошибка получения Юзера по реакции ", err)
 	}
@@ -77,8 +77,8 @@ func readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Messa
 	}
 }
 
-func reactionUserRemove(r *discordgo.MessageReactionAdd) {
-	err := DSBot.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+func (d Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
+	err := d.d.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if err != nil {
 		log.Println("Ошибка удаления эмоджи", err)
 	}

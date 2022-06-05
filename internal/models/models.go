@@ -52,3 +52,15 @@ type BotConfig struct {
 	WaChannel string
 	Config    Configs
 }
+
+type TableConfig struct {
+	Id             int
+	Corpname       string
+	Dschannel      string
+	Tgchannel      int64
+	Wachannel      string
+	Mesiddshelp    string
+	Mesidtghelp    int
+	Delmescomplite int
+	Guildid        string
+}

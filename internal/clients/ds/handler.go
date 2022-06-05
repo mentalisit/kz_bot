@@ -19,7 +19,7 @@ func (d Ds) cleanChat(m *discordgo.MessageCreate) {
 }
 
 //получаем есть ли роль и саму роль
-func roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
+func (d Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
 	nameRoles = strings.ToLower(nameRoles)
 
 	for _, role := range g.Roles {
@@ -33,8 +33,8 @@ func roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
 	return false, nil
 }
 
-func dsChatName(guildid string) string {
-	g, err := DSBot.Guild(guildid)
+func (d Ds) dsChatName(guildid string) string {
+	g, err := d.d.Guild(guildid)
 	if err != nil {
 		fmt.Println("Ошибка проверка имени канала ", err)
 	}
