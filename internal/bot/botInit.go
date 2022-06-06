@@ -17,17 +17,19 @@ type Bot struct {
 func NewBot(tg Tg.Telegram, ds ds.Ds, db dbaseMysql.Db) *Bot {
 	return &Bot{Tg: &tg, Ds: &ds, Db: &db}
 }
-func (b *Bot) SendIF() {
-	name := b.Tg.BotName()
-
-	fmt.Println(" tg", name)
-	fmt.Println(" ds", b.Ds.BotName())
-}
 func (b *Bot) InitBot() {
-	in := <-models.ChTg
-	fmt.Println(in.Tip)
+	for {
+		select {
+		case in := <-models.ChTg:
+			b.LogicRs(in)
+		case in := <-models.ChDs:
+			b.LogicRs(in)
+
+		}
+	}
 }
 
-func LogicRs() {
+func (b Bot) LogicRs(in models.InMessage) {
+	fmt.Println(in.Name, "пишет")
 
 }

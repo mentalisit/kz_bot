@@ -27,7 +27,7 @@ func (t *Telegram) InitTG(tokent string) {
 				} else if update.Message.IsCommand() {
 					t.updatesComand(update.Message) //если сообщение является командой
 				} else { //остальные сообщения
-					fmt.Println("test", update.Message.Text)
+					//fmt.Println("test", update.Message.Text)
 					t.logicMixTelegram(update.Message)
 				}
 

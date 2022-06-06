@@ -84,14 +84,29 @@ func (d Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	}
 }
 
-func logicMixDiscord(m *discordgo.MessageCreate) {
+func (d Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 	c := corpsConfig.CorpConfig{}
 	ok, config := c.CheckChannelConfigDS(m.ChannelID)
+	d.AccesChatDS(m)
 	if ok {
+		if len(m.Attachments) > 0 {
+			for _, attach := range m.Attachments { //вложеные файлы
+				m.Content = m.Content + "\n" + attach.URL
+			}
+		}
+		member, e := d.d.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
+		if e != nil {
+			fmt.Println("Ошибка получения ника пользователя", e)
+		}
+		name := m.Author.Username
+		if member.Nick != "" {
+			name = member.Nick
+		}
+
 		in := models.InMessage{
 			Mtext:       m.Content,
 			Tip:         "ds",
-			Name:        m.Author.Username,
+			Name:        name,
 			NameMention: m.Author.Mention(),
 			Ds: models.Ds{
 				Mesid:   m.ID,
@@ -108,7 +123,7 @@ func logicMixDiscord(m *discordgo.MessageCreate) {
 		}
 		//logicRs(in)
 		//тут нужно передавать в логику бота
-		fmt.Println(in)
+		models.ChDs <- in
 
 	}
 }

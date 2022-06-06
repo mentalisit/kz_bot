@@ -37,7 +37,7 @@ func (t Telegram) accessDelChannelTg(chatid int64) { //удаление с бд 
 		go t.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
 		db := db_Mysql.Db{}
-		db.DeleteTgchannel(chatid)
+		db.DeleteTgChannel(chatid)
 		c.ReloadConfig()
 		db.ReadBotCorpConfig()
 		go t.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)

@@ -18,20 +18,12 @@ func main() {
 	ds := &discord.Ds{}
 	db := &db_Mysql.Db{}
 
-	go func() {
-		tg.InitTG(cfg.TokenT)
-	}()
-
-	go func() {
-		ds.InitDS(cfg.TokenD)
-	}()
-
-	go func() {
-		db.DbConnection()
-	}()
+	go tg.InitTG(cfg.TokenT)
+	go ds.InitDS(cfg.TokenD)
+	go db.DbConnection()
 
 	time.Sleep(time.Second * 5)
-	bot.NewBot(*tg, *ds, *db)
+	go bot.NewBot(*tg, *ds, *db).InitBot()
 
 	db.ReadBotCorpConfig()
 

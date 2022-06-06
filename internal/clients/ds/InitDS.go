@@ -18,6 +18,7 @@ func (d *Ds) InitDS(TokenD string) {
 	err = DSBot.Open()
 	if err != nil {
 		log.Println("Ошибка открытия ДС", err)
+		panic(err)
 	}
 	fmt.Println("Бот DISCORD запущен!!!")
 	d.d = *DSBot
@@ -28,7 +29,7 @@ func (d *Ds) messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	logicMixDiscord(m)
+	d.logicMixDiscord(m)
 
 }
 

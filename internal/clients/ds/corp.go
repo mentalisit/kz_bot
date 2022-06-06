@@ -1,9 +1,9 @@
 package ds
 
-/*
 import (
 	"github.com/bwmarrin/discordgo"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
+	"kz_bot/internal/dbase/dbaseMysql"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ func (d Ds) AccesChatDS(m *discordgo.MessageCreate) {
 		d.accessAddChannelDs(m.ChannelID, m.GuildID)
 	} else if res == true && m.Content == ".del" {
 		go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
-		accessDelChannelDs(m.ChannelID)
+		d.accessDelChannelDs(m.ChannelID)
 	}
 }
 
@@ -25,35 +25,22 @@ func (d Ds) accessAddChannelDs(chatid, guildid string) { // внесение в 
 		go d.SendChannelDelSecond(chatid, "Я уже могу работать на вашем канале\n"+
 			"повторная активация не требуется.\nнапиши Справка1", 30)
 	} else {
-		chatName := dsChatName(guildid)
-		insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid) VALUES (?,?,?,?,?,?,?,?)`
-		statement, err := db.Prepare(insertConfig)
-		if err != nil {
-			logrus.Println(err)
-		}
-		_, err = statement.Exec(chatName, chatid, 0, "", "", 0, 0, guildid)
-		if err != nil {
-			logrus.Println(err.Error())
-		}
-		//db.Close()
-		addCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
-		go dsSendChannelDel1m(chatid, "Спасибо за активацию.\nпиши Справка1")
+		chatName := d.dsChatName(guildid)
+		db := dbaseMysql.Db{}
+		db.AddDsCorpConfig(chatName, chatid, guildid)
+		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка1", 60)
 	}
 }
-func accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки
-	ok, _ := checkChannelConfigDS(chatid)
+func (d Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки
+	c := corpsConfig.CorpConfig{}
+	ok, _ := c.CheckChannelConfigDS(chatid)
 	if !ok {
-		go dsSendChannelDel1m(chatid, "ваш канал и так не подключен к логике бота ")
+		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		_, err := db.Exec("delete from config where dschannel = ? ", chatid)
-		if err != nil {
-			logrus.Println(err)
-		}
-		*P = *New()
-		readBotConfig()
-		go dsSendChannelDel1m(chatid, "вы отключили мои возможности")
+		db := dbaseMysql.Db{}
+		db.DeleteDsChannel(chatid)
+		c.ReloadConfig()
+		db.ReadBotCorpConfig()
+		go d.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
 	}
 }
-
-
-*/

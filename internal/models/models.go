@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"sync"
 )
 
@@ -26,10 +25,9 @@ type Option struct {
 	Update   bool
 }
 type Ds struct {
-	Mesid       string
-	Nameid      string
-	Guildid     string
-	Attachments *discordgo.MessageAttachment
+	Mesid   string
+	Nameid  string
+	Guildid string
 }
 
 type Tg struct {
