@@ -1,4 +1,4 @@
-package Tg
+package telegramClient
 
 import (
 	"fmt"

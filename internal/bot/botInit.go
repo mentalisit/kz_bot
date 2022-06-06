@@ -2,24 +2,20 @@ package bot
 
 import (
 	"fmt"
-	"kz_bot/internal/clients"
-	"kz_bot/internal/clients/ds"
-	Tg "kz_bot/internal/clients/tg"
+	"kz_bot/internal/clients/discordClient"
+	"kz_bot/internal/clients/telegramClient"
 	"kz_bot/internal/dbase/dbaseMysql"
 	"kz_bot/internal/models"
 )
 
 type Bot struct {
-	Tg *Tg.Telegram
-	Ds *ds.Ds
+	Tg telegramClient.TelegramInterface
+	Ds discordClient.DiscordInterface
 	Db *dbaseMysql.Db
-	ds clients.Discord
-	tg clients.Telega
-	db dbaseMysql.DbInterface
 }
 
-func NewBot(tg Tg.Telegram, ds ds.Ds, db dbaseMysql.Db) *Bot {
-	return &Bot{Tg: &tg, Ds: &ds, Db: &db}
+func NewBot(tg telegramClient.TelegramInterface, ds discordClient.DiscordInterface, db *dbaseMysql.Db) *Bot {
+	return &Bot{Tg: tg, Ds: ds, Db: db}
 }
 func (b *Bot) InitBot() {
 	for {
@@ -33,8 +29,8 @@ func (b *Bot) InitBot() {
 	}
 }
 
-func (b Bot) LogicRs(in models.InMessage) {
+func (b *Bot) LogicRs(in models.InMessage) {
 	fmt.Println(in.Name, "пишет")
-	b.tg.BotName()
+	fmt.Println(b.Ds.BotName(), b.Tg.BotName())
 
 }

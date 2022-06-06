@@ -1,4 +1,4 @@
-package ds
+package discordClient
 
 import (
 	"fmt"
@@ -19,6 +19,19 @@ var mesContentNil string
 
 type Ds struct {
 	d discordgo.Session
+}
+
+type DiscordInterface interface {
+	Send(chatid, text string) string
+	SendChannelDelSecond(chatid, text string, second int)
+	SendComplexContent(chatid, text string) string
+	EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed)
+	DeleteMesageSecond(chatid, mesid string, second int)
+	DeleteMessage(chatid, mesid string)
+	RoleToIdPing(rolePing, guildid string) string
+	AddEnojiRsQueue(chatid, mesid string)
+	CheckAdmin(nameid string, chatid string) bool
+	BotName() string
 }
 
 func EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
@@ -45,7 +58,7 @@ func EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.Mess
 	return *Embeds
 }
 
-func (d Ds) CheckAdmin(nameid string, chatid string) bool {
+func (d *Ds) CheckAdmin(nameid string, chatid string) bool {
 	perms, err := d.d.UserChannelPermissions(nameid, chatid)
 	if err != nil {
 		fmt.Println("ошибка проверки админ ли ", err)
@@ -58,17 +71,17 @@ func (d Ds) CheckAdmin(nameid string, chatid string) bool {
 		return false
 	}
 }
-func (d Ds) AddEnojiRsQueue(chatid, mesid string) {
+func (d *Ds) AddEnojiRsQueue(chatid, mesid string) {
 	d.d.MessageReactionAdd(chatid, mesid, emOK)
 	d.d.MessageReactionAdd(chatid, mesid, emCancel)
 	d.d.MessageReactionAdd(chatid, mesid, emRsStart)
 	d.d.MessageReactionAdd(chatid, mesid, emPl30)
 
 }
-func (d Ds) DeleteMessage(chatid, mesid string) {
+func (d *Ds) DeleteMessage(chatid, mesid string) {
 	d.d.ChannelMessageDelete(chatid, mesid)
 }
-func (d Ds) SendChannelDelSecond(chatid, text string, second int) {
+func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
 		fmt.Println("ошибка отправки сообщения SendChannelDelSecond", err)
@@ -79,7 +92,7 @@ func (d Ds) SendChannelDelSecond(chatid, text string, second int) {
 	}()
 
 }
-func (d Ds) RoleToIdPing(rolePing, guildid string) string {
+func (d *Ds) RoleToIdPing(rolePing, guildid string) string {
 	//создаю переменную
 	rolPing := "кз" + rolePing // добавляю буквы
 	g, err := d.d.Guild(guildid)
@@ -123,7 +136,7 @@ func (d Ds) RoleToIdPing(rolePing, guildid string) string {
 	}
 	return "(роль не найдена)" // если не нашол нужной роли
 }
-func (d Ds) DeleteMesageSecond(chatid, mesid string, second int) {
+func (d *Ds) DeleteMesageSecond(chatid, mesid string, second int) {
 	if second > 60 {
 		//timerInsert(mesid, chatid, 0, 0, second)
 	} else {
@@ -134,7 +147,7 @@ func (d Ds) DeleteMesageSecond(chatid, mesid string, second int) {
 	}
 
 }
-func (d Ds) EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed) {
+func (d *Ds) EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed) {
 	a := &discordgo.MessageEdit{
 		Content: &mesContentNil,
 		Embed:   Embeds,
@@ -146,11 +159,11 @@ func (d Ds) EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed
 		fmt.Println("Ошибка редактирования комплексного сообщения ", err)
 	}
 }
-func (d Ds) BotName() string { //получаем имя бота
+func (d *Ds) BotName() string { //получаем имя бота
 	u, _ := d.d.User("@me")
 	return u.Username
 }
-func (d Ds) SendComplexContent(chatid, text string) string { //отправка текста комплексного сообщения
+func (d *Ds) SendComplexContent(chatid, text string) string { //отправка текста комплексного сообщения
 	mesCompl, err := d.d.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 		Content: text})
 	if err != nil {
@@ -158,7 +171,7 @@ func (d Ds) SendComplexContent(chatid, text string) string { //отправка 
 	}
 	return mesCompl.ID
 }
-func (d Ds) Send(chatid, text string) string { //отправка текста
+func (d *Ds) Send(chatid, text string) string { //отправка текста
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
 		fmt.Println("ошибка отправки текста ", err)

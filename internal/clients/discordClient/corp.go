@@ -1,4 +1,4 @@
-package ds
+package discordClient
 
 import (
 	"github.com/bwmarrin/discordgo"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (d Ds) AccesChatDS(m *discordgo.MessageCreate) {
+func (d *Ds) AccesChatDS(m *discordgo.MessageCreate) {
 	res := strings.HasPrefix(m.Content, ".")
 	if res == true && m.Content == ".add" {
 		go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
@@ -18,7 +18,7 @@ func (d Ds) AccesChatDS(m *discordgo.MessageCreate) {
 	}
 }
 
-func (d Ds) accessAddChannelDs(chatid, guildid string) { // внесение в дб и добавление в масив
+func (d *Ds) accessAddChannelDs(chatid, guildid string) { // внесение в дб и добавление в масив
 	c := corpsConfig.CorpConfig{}
 	ok, _ := c.CheckChannelConfigDS(chatid)
 	if ok {
@@ -31,7 +31,7 @@ func (d Ds) accessAddChannelDs(chatid, guildid string) { // внесение в 
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка1", 60)
 	}
 }
-func (d Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки
+func (d *Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки
 	c := corpsConfig.CorpConfig{}
 	ok, _ := c.CheckChannelConfigDS(chatid)
 	if !ok {

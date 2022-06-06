@@ -1,4 +1,4 @@
-package ds
+package discordClient
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func (d Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
+func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
 	user, err := d.d.User(r.UserID)
 	if err != nil {
 		fmt.Println("Ошибка получения Юзера по реакции ", err)
@@ -28,7 +28,7 @@ func (d Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordg
 
 				in := inMessage{
 					mtext:       "",
-					tip:         "ds",
+					tip:         "discordClient",
 					name:        name,
 					nameMention: user.Mention(),
 					Ds: Ds{
@@ -77,14 +77,14 @@ func (d Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordg
 	}
 }
 
-func (d Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
+func (d *Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	err := d.d.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if err != nil {
 		log.Println("Ошибка удаления эмоджи", err)
 	}
 }
 
-func (d Ds) logicMixDiscord(m *discordgo.MessageCreate) {
+func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 	c := corpsConfig.CorpConfig{}
 	ok, config := c.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
@@ -105,7 +105,7 @@ func (d Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 
 		in := models.InMessage{
 			Mtext:       m.Content,
-			Tip:         "ds",
+			Tip:         "discordClient",
 			Name:        name,
 			NameMention: m.Author.Mention(),
 			Ds: models.Ds{

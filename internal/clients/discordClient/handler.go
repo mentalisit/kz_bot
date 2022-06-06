@@ -1,4 +1,4 @@
-package ds
+package discordClient
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (d Ds) cleanChat(m *discordgo.MessageCreate) {
+func (d *Ds) cleanChat(m *discordgo.MessageCreate) {
 	res := strings.HasPrefix(m.Content, ".")
 	if !res { //если нет префикса  то удалить через 3 минуты
 		go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
@@ -19,7 +19,7 @@ func (d Ds) cleanChat(m *discordgo.MessageCreate) {
 }
 
 //получаем есть ли роль и саму роль
-func (d Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
+func (d *Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
 	nameRoles = strings.ToLower(nameRoles)
 
 	for _, role := range g.Roles {
@@ -33,7 +33,7 @@ func (d Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.R
 	return false, nil
 }
 
-func (d Ds) dsChatName(guildid string) string {
+func (d *Ds) dsChatName(guildid string) string {
 	g, err := d.d.Guild(guildid)
 	if err != nil {
 		fmt.Println("Ошибка проверка имени канала ", err)

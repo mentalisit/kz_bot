@@ -1,4 +1,4 @@
-package Tg
+package telegramClient
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -14,7 +14,7 @@ func (t Telegram) logicMixTelegram(m *tgbotapi.Message) {
 	if ok {
 		in := models.InMessage{
 			Mtext:       m.Text,
-			Tip:         "tg",
+			Tip:         "telegramClient",
 			Name:        m.From.UserName,
 			NameMention: "@" + m.From.UserName,
 			Ds:          models.Ds{},
