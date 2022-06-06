@@ -21,19 +21,6 @@ type Ds struct {
 	d discordgo.Session
 }
 
-type Discord interface {
-	Send(chatid, text string) string
-	SendChannelDelSecond(chatid, text string, second int)
-	SendComplexContent(chatid, text string) string
-	EditComplex(dsmesid, dschatid string, Embeds *discordgo.MessageEmbed)
-	DeleteMesageSecond(chatid, mesid string, second int)
-	DeleteMessage(chatid, mesid string)
-	RoleToIdPing(rolePing, guildid string) string
-	AddEnojiRsQueue(chatid, mesid string)
-	CheckAdmin(nameid string, chatid string) bool
-	BotName() string
-}
-
 func EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
 	Embeds := &discordgo.MessageEmbed{
 		Author: &discordgo.MessageEmbedAuthor{},

@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"kz_bot/internal/clients"
 	"kz_bot/internal/clients/ds"
 	Tg "kz_bot/internal/clients/tg"
 	"kz_bot/internal/dbase/dbaseMysql"
@@ -12,6 +13,9 @@ type Bot struct {
 	Tg *Tg.Telegram
 	Ds *ds.Ds
 	Db *dbaseMysql.Db
+	ds clients.Discord
+	tg clients.Telega
+	db dbaseMysql.DbInterface
 }
 
 func NewBot(tg Tg.Telegram, ds ds.Ds, db dbaseMysql.Db) *Bot {
@@ -31,5 +35,6 @@ func (b *Bot) InitBot() {
 
 func (b Bot) LogicRs(in models.InMessage) {
 	fmt.Println(in.Name, "пишет")
+	b.tg.BotName()
 
 }

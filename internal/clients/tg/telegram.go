@@ -10,20 +10,6 @@ import (
 type Telegram struct {
 	t tgbotapi.BotAPI
 }
-type Telega interface {
-	SendChannel(chatid int64, text string) int
-	SendChannelDelSecond(chatid int64, text string, second int)
-	SendEmded(lvlkz string, chatid int64, text string) int
-	SendEmbedTime(chatid int64, text string) int
-	EditText(chatid int64, editMesId int, textEdit string)
-	EditMessageTextKey(chatid int64, editMesId int, textEdit string, lvlkz string)
-	DelMessage(chatid int64, idSendMessage int)
-	DelMessageSecond(chatid int64, idSendMessage int, second int)
-	CheckAdminTg(chatid int64, name string) bool
-	RemoveDuplicateElementInt(mesididid []int) []int
-	ChatName(chatid int64) string
-	BotName() string
-}
 
 func (t Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
