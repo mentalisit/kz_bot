@@ -62,3 +62,33 @@ type TableConfig struct {
 	Delmescomplite int
 	Guildid        string
 }
+type Users struct {
+	User1 Sborkz
+	User2 Sborkz
+	User3 Sborkz
+	User4 Sborkz
+}
+type Sborkz struct {
+	Id          int
+	Corpname    string
+	Name        string
+	Mention     string
+	Tip         string
+	Dsmesid     string
+	Tgmesid     int
+	Wamesid     string
+	Time        string
+	Date        string
+	Lvlkz       string
+	Numkzn      int
+	Numberkz    int
+	Numberevent int
+	Eventpoints int
+	Active      int
+	Timedown    int
+}
+
+type EmodjiUser struct {
+	Id                            int
+	Tip, Name, Em1, Em2, Em3, Em4 string
+}

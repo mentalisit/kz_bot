@@ -77,11 +77,3 @@ func (c CorpConfig) CheckCorpNameConfig(corpname string) (channelGood bool, conf
 	}
 	return channelGood, config
 }
-
-/*
-func readBotConfig() { // чтение с бд и добавление в масив
-
-}
-
-
-*/

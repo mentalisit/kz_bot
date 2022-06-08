@@ -105,7 +105,7 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 
 		in := models.InMessage{
 			Mtext:       m.Content,
-			Tip:         "discordClient",
+			Tip:         "ds",
 			Name:        name,
 			NameMention: m.Author.Mention(),
 			Ds: models.Ds{
@@ -124,6 +124,7 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 		//logicRs(in)
 		//тут нужно передавать в логику бота
 		models.ChDs <- in
+		d.cleanChat(m)
 
 	}
 }

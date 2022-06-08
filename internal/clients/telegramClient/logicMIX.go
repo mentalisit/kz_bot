@@ -14,7 +14,7 @@ func (t Telegram) logicMixTelegram(m *tgbotapi.Message) {
 	if ok {
 		in := models.InMessage{
 			Mtext:       m.Text,
-			Tip:         "telegramClient",
+			Tip:         "tg",
 			Name:        m.From.UserName,
 			NameMention: "@" + m.From.UserName,
 			Ds:          models.Ds{},
@@ -29,9 +29,6 @@ func (t Telegram) logicMixTelegram(m *tgbotapi.Message) {
 				Update:   false,
 			},
 		}
-		//logicRs(in)
-		//тут нужно передавать в логику бота
-
 		models.ChTg <- in
 	}
 }
