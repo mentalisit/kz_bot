@@ -2,10 +2,10 @@ package discordClient
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
-	"kz_bot/internal/clients/corpConfig"
-	"kz_bot/internal/models"
 	"log"
+
+	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/models"
 )
 
 func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
@@ -14,66 +14,64 @@ func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discord
 		fmt.Println("Ошибка получения Юзера по реакции ", err)
 	}
 	if user.ID != message.Author.ID {
-		/*
-			ok, config := checkChannelConfigDS(r.ChannelID)
-			if ok {
-				member, e := DSBot.GuildMember(config.Config.Guildid, user.ID)
-				if e != nil {
-					logrus.Println("ошибка в функдиск стр57", e)
-				}
-				name := user.Username
-				if member.Nick != "" {
-					name = member.Nick
-				}
+		ok, config := d.CorpConfig.CheckChannelConfigDS(r.ChannelID)
+		if ok {
+			member, e := d.d.GuildMember(config.Config.Guildid, user.ID)
+			if e != nil {
+				log.Println("Oшибка получения участника ", e)
+			}
+			name := user.Username
+			if member.Nick != "" {
+				name = member.Nick
+			}
 
-				in := inMessage{
-					mtext:       "",
-					tip:         "discordClient",
-					name:        name,
-					nameMention: user.Mention(),
-					Ds: Ds{
-						mesid:   r.MessageID,
-						nameid:  user.ID,
-						guildid: message.GuildID,
-					},
-					Tg: Tg{
-						mesid:  0,
-						nameid: 0,
-					},
-					config: config,
-					option: Option{
-						callback: true,
-						edit:     true,
-						update:   false,
-					},
-				}
-				reactionUserRemove(r)
-				if r.Emoji.Name == emPlus {
-					if in.Plus() {
-						dsDeleteMesage5s(in.config.DsChannel, in.Ds.mesid)
-					}
-				} else if r.Emoji.Name == emMinus {
-					if in.Minus() {
-						dsDelMessage(in.config.DsChannel, in.Ds.mesid)
-					}
-				} else if r.Emoji.Name == emOK || r.Emoji.Name == emCancel || r.Emoji.Name == emRsStart || r.Emoji.Name == emPl30 {
-					in.lvlkz, err = readMesID(r.MessageID)
-					if err == nil && in.lvlkz != "" {
-						if r.Emoji.Name == emOK {
-							in.timekz = "30"
-							in.RsPlus()
-						} else if r.Emoji.Name == emCancel {
-							in.RsMinus()
-						} else if r.Emoji.Name == emRsStart {
-							in.RsStart()
-						} else if r.Emoji.Name == emPl30 {
-							in.Pl30()
-						}
+			in := models.InMessage{
+				Mtext:       "",
+				Tip:         "ds",
+				Name:        name,
+				NameMention: user.Mention(),
+				Ds: struct {
+					Mesid   string
+					Nameid  string
+					Guildid string
+				}{Mesid: r.MessageID,
+					Nameid:  user.ID,
+					Guildid: message.GuildID},
+				Config: config,
+				Option: struct {
+					Callback bool
+					Edit     bool
+					Update   bool
+					Queue    bool
+				}{
+					Callback: true,
+					Edit:     true,
+					Update:   false,
+				},
+			}
+			d.reactionUserRemove(r)
+
+			if r.Emoji.Name == emPlus {
+				in.Mtext = "+"
+			} else if r.Emoji.Name == emMinus {
+				in.Mtext = "-"
+			} else if r.Emoji.Name == emOK || r.Emoji.Name == emCancel || r.Emoji.Name == emRsStart || r.Emoji.Name == emPl30 {
+				in.Lvlkz, err = d.dbase.ReadMesIdDS(r.MessageID)
+				if err == nil && in.Lvlkz != "" {
+					if r.Emoji.Name == emOK {
+						in.Timekz = "30"
+						in.Mtext = in.Lvlkz + "+"
+					} else if r.Emoji.Name == emCancel {
+						in.Mtext = in.Lvlkz + "-"
+					} else if r.Emoji.Name == emRsStart {
+						in.Mtext = in.Lvlkz + "++"
+					} else if r.Emoji.Name == emPl30 {
+						in.Mtext = in.Lvlkz + "+++"
 					}
 				}
 			}
-
-		*/
+			models.ChDs <- in
+		}
 	}
 }
 
@@ -85,8 +83,7 @@ func (d *Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 }
 
 func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
-	c := corpsConfig.CorpConfig{}
-	ok, config := c.CheckChannelConfigDS(m.ChannelID)
+	ok, config := d.CorpConfig.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
 	if ok {
 		if len(m.Attachments) > 0 {
@@ -103,19 +100,29 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 			name = member.Nick
 		}
 
+		fmt.Println(103, d.replaceChannelMentions(m.Content, m.GuildID))
+
 		in := models.InMessage{
 			Mtext:       m.Content,
 			Tip:         "ds",
 			Name:        name,
 			NameMention: m.Author.Mention(),
-			Ds: models.Ds{
+			Ds: struct {
+				Mesid   string
+				Nameid  string
+				Guildid string
+			}{
 				Mesid:   m.ID,
 				Nameid:  m.Author.ID,
 				Guildid: m.GuildID,
 			},
-			Tg:     models.Tg{},
 			Config: config,
-			Option: models.Option{
+			Option: struct {
+				Callback bool
+				Edit     bool
+				Update   bool
+				Queue    bool
+			}{
 				Callback: false,
 				Edit:     false,
 				Update:   false,
@@ -125,6 +132,5 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 		//тут нужно передавать в логику бота
 		models.ChDs <- in
 		d.cleanChat(m)
-
 	}
 }

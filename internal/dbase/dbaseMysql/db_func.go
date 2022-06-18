@@ -3,74 +3,23 @@ package dbaseMysql
 import (
 	"database/sql"
 	"fmt"
-	corpsConfig "kz_bot/internal/clients/corpConfig"
-	"kz_bot/internal/models"
 	"log"
 	"time"
+
+	"kz_bot/internal/models"
 )
 
 type Db struct {
-	db sql.DB
-}
-type DbInterface interface {
-	AddTgCorpConfig(chatName string, chatid int64)
-	DeleteTgchannel(chatid int64)
-	ReadBotCorpConfig()
+	Db *sql.DB
 }
 
-func (d *Db) ReadBotCorpConfig() {
-	c := corpsConfig.CorpConfig{}
-	results, err := d.db.Query("SELECT * FROM config")
-	if err != nil {
-		fmt.Println("Ошибка чтения крнфигурации корпораций", err)
-	}
-	var t models.TableConfig
-	for results.Next() {
-		err = results.Scan(&t.Id, &t.Corpname, &t.Dschannel, &t.Tgchannel, &t.Wachannel, &t.Mesiddshelp, &t.Mesidtghelp, &t.Delmescomplite, &t.Guildid)
-		c.AddCorp(t.Corpname, t.Dschannel, t.Tgchannel, t.Wachannel, t.Delmescomplite, t.Mesiddshelp, t.Mesidtghelp, t.Guildid)
-	}
-}
-func (d *Db) DeleteTgChannel(chatid int64) {
-	_, err := d.db.Exec("delete from config where tgchannel = ? ", chatid)
-	if err != nil {
-		fmt.Println("Ошибка удаления с бд корп телеги", err)
-	}
-}
-func (d *Db) DeleteDsChannel(chatid string) {
-	_, err := d.db.Exec("delete from config where dschannel = ? ", chatid)
-	if err != nil {
-		fmt.Println("Ошибка удаления с бд корп дискорд", err)
-	}
-}
-func (d *Db) AddTgCorpConfig(chatName string, chatid int64) {
-	insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite) VALUES (?,?,?,?,?,?,?)`
-	statement, err := d.db.Prepare(insertConfig)
-	if err != nil {
-		fmt.Println("Ошибка подготовки внесения в бд конфигурации ", err)
-	}
-	_, err = statement.Exec(chatName, "", chatid, "", "", 0, 0)
-	if err != nil {
-		fmt.Println("Ошибка внесения конфигурации ", err)
-	}
-	c := corpsConfig.CorpConfig{}
-	c.AddCorp(chatName, "", chatid, "", 1, "", 0, "")
-}
-func (d *Db) AddDsCorpConfig(chatName, chatid, guildid string) {
-	insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite) VALUES (?,?,?,?,?,?,?)`
-	statement, err := d.db.Prepare(insertConfig)
-	if err != nil {
-		fmt.Println("Ошибка подготовки внесения в бд конфигурации ", err)
-	}
-	_, err = statement.Exec(chatName, chatid, 0, "", "", 0, 0, guildid)
-	if err != nil {
-		fmt.Println("Ошибка внесения конфигурации ", err)
-	}
-	c := corpsConfig.CorpConfig{}
-	c.AddCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
-}
+//func NewDb(db *sql.DB) *Db {
+//	return &Db{Db: db}
+//}
+
 func (d *Db) СountName(name, lvlkz, corpName string) int {
 	var countNames int
-	row := d.db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND lvlkz = ? AND corpname = ? AND active = 0",
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND lvlkz = ? AND corpname = ? AND active = 0",
 		name, lvlkz, corpName)
 	err := row.Scan(&countNames)
 	if err != nil {
@@ -80,7 +29,7 @@ func (d *Db) СountName(name, lvlkz, corpName string) int {
 }
 func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка сколько игровок в очереди
 	var count int
-	row := d.db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0",
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0",
 		lvlkz, CorpName)
 	err := row.Scan(&count)
 	if err != nil {
@@ -90,7 +39,8 @@ func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка ско�
 }
 func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // выковыриваем из базы значение количества походов на кз
 	var countNumberNameActive1 int
-	row := d.db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE lvlkz = ? AND corpname = ? AND name = ? AND active = 1",
+	row := d.Db.QueryRow(
+		"SELECT  COUNT(*) as count FROM sborkz WHERE lvlkz = ? AND corpname = ? AND name = ? AND active = 1",
 		lvlkz, CorpName, name)
 	err := row.Scan(&countNumberNameActive1)
 	if err != nil {
@@ -100,7 +50,7 @@ func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // вы�
 }
 func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 	var number int
-	row := d.db.QueryRow("SELECT  number FROM numkz WHERE lvlkz = ? AND corpname = ?",
+	row := d.Db.QueryRow("SELECT  number FROM numkz WHERE lvlkz = ? AND corpname = ?",
 		lvlkz, CorpName)
 	err := row.Scan(&number)
 	if err != nil {
@@ -108,7 +58,7 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 	}
 	if number == 0 {
 		insertSmt := "INSERT INTO numkz(lvlkz, number,corpname) VALUES (?,?,?)"
-		statement, err := d.db.Prepare(insertSmt)
+		statement, err := d.Db.Prepare(insertSmt)
 		if err != nil {
 			fmt.Println("Ошибка подготовки внесения нумкз", err)
 		}
@@ -129,7 +79,7 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 		User4: models.Sborkz{},
 	}
 	user := 1
-	results, err := d.db.Query("SELECT * FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0",
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0",
 		lvlkz, CorpName)
 	if err != nil {
 		fmt.Println("Ошибка чтения активной очереди readall", err)
@@ -151,27 +101,6 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	}
 	return u
 }
-func (d *Db) SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChannel int64) string {
-	var name1, names, men string
-	var u models.Users
-	if tipPing == 3 {
-		u = d.ReadAll(lvlkz, CorpName)
-	}
-
-	if rows, err := d.db.Query("SELECT nameid FROM subscribe WHERE lvlkz = ? AND chatid = ? AND tip = ?",
-		lvlkz, TgChannel, tipPing); err == nil {
-		for rows.Next() {
-			rows.Scan(&name1)
-			if nameMention == name1 || u.User1.Mention == name1 || u.User2.Mention == name1 || u.User3.Mention == name1 {
-				continue
-			}
-			names = name1 + " "
-			men = names + men
-		}
-		rows.Close()
-	}
-	return men
-}
 func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) {
 	numevent := 0 //qweryNumevent1(in)
 	tm := time.Now()
@@ -181,25 +110,14 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	insertSborkztg1 := `INSERT INTO sborkz(corpname,name,mention,tip,dsmesid,tgmesid,wamesid,time,date,lvlkz,
                    numkzn,numberkz,numberevent,eventpoints,active,timedown) 
 				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
-	_, err := d.db.Exec(insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
+	_, err := d.Db.Exec(insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
 		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekz)
 	if err != nil {
 		fmt.Println("Ошибка записи старта очереди", err)
 	}
 }
-func (d *Db) EmReadUsers(name, tip string) models.EmodjiUser {
-	results, err := d.db.Query("SELECT * FROM users WHERE name = ? AND tip = ?", name, tip)
-	if err != nil {
-		fmt.Println("Ощибка чтения эмоджи с БД", err)
-	}
-	var t models.EmodjiUser
-	for results.Next() {
-		err = results.Scan(&t.Id, &t.Tip, &t.Name, &t.Em1, &t.Em2, &t.Em3, &t.Em4)
-	}
-	return t
-}
 func (d *Db) MesidTgUpdate(mesidtg int, lvlkz string, corpname string) {
-	_, err := d.db.Exec(
+	_, err := d.Db.Exec(
 		`update sborkz set tgmesid = ? where lvlkz = ? AND corpname = ? `,
 		mesidtg, lvlkz, corpname)
 	if err != nil {
@@ -207,7 +125,7 @@ func (d *Db) MesidTgUpdate(mesidtg int, lvlkz string, corpname string) {
 	}
 }
 func (d *Db) MesidDsUpdate(mesidds, lvlkz, corpname string) {
-	_, err := d.db.Exec(
+	_, err := d.Db.Exec(
 		`update sborkz set dsmesid = ? where lvlkz = ? AND corpname = ? `,
 		mesidds, lvlkz, corpname)
 	if err != nil {
@@ -215,7 +133,7 @@ func (d *Db) MesidDsUpdate(mesidds, lvlkz, corpname string) {
 	}
 }
 func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) {
-	_, err := d.db.Exec(
+	_, err := d.Db.Exec(
 		`update sborkz set active = 1,dsmesid = ?,tgmesid = ?,wamesid = ?,numberkz = ?,numberevent = ? 
 				where lvlkz = ? AND corpname = ? AND active = 0`,
 		dsmesid, tgmesid, wamesid, numberkz, numberevent, lvlkz, corpname)
@@ -223,7 +141,7 @@ func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid
 		fmt.Println("Ошибка сохранения закрытия очереди", err)
 	}
 	if numberevent > 0 {
-		_, err := d.db.Exec(
+		_, err := d.Db.Exec(
 			`update rsevent set number = number+1  where corpname = ? AND activeevent = 1`, corpname)
 		if err != nil {
 			log.Println("Ошибка обновления номера катки ивента ", err)
@@ -231,7 +149,7 @@ func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid
 	}
 }
 func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем есть ли игрок в других очередях
-	row := d.db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND active = 0", name)
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND active = 0", name)
 	err := row.Scan(&countNames)
 	if err != nil {
 		fmt.Println("Ошибка проверки игрока в других очередях ", err)
@@ -239,7 +157,7 @@ func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем
 	return countNames
 }
 func (d *Db) ElseTrue(name string) models.Sborkz {
-	results, err := d.db.Query("SELECT * FROM sborkz WHERE name = ? AND active = 0", name)
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND active = 0", name)
 	if err != nil {
 		fmt.Println("Ошибка извлечения игрока с других очередей ", err)
 	}
@@ -251,14 +169,14 @@ func (d *Db) ElseTrue(name string) models.Sborkz {
 	return t
 }
 func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
-	_, err := d.db.Exec("delete from sborkz where name = ? AND lvlkz = ? AND corpname = ? AND active = 0",
+	_, err := d.Db.Exec("delete from sborkz where name = ? AND lvlkz = ? AND corpname = ? AND active = 0",
 		name, lvlkz, CorpName)
 	if err != nil {
 		fmt.Println("Ошибка удаления из очереди ", err)
 	}
 }
 func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
-	results, err := d.db.Query("SELECT * FROM sborkz WHERE name = ? AND corpname = ? AND active = 0",
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND corpname = ? AND active = 0",
 		name, CorpName)
 	if err != nil {
 		fmt.Println("Ошибка проверки игрока в очереди для функции (-+) ", err)
@@ -270,7 +188,7 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 			&t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
 
 		if t.Name == name && t.Timedown <= 3 {
-			_, err := d.db.Exec("update sborkz set timedown = timedown + 30 where active = 0 AND name = ? AND corpname = ?",
+			_, err := d.Db.Exec("update sborkz set timedown = timedown + 30 where active = 0 AND name = ? AND corpname = ?",
 				t.Name, t.Corpname)
 			if err != nil {
 				fmt.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
@@ -280,28 +198,267 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 	}
 	return t
 }
-func (d *Db) CheckSubscribe(name, lvlkz string, TgChannel int64, tipPing int) int {
-	var counts int
-	row := d.db.QueryRow("SELECT  COUNT(*) as count FROM subscribe WHERE name = ? AND lvlkz = ? AND chatid = ? AND tip = ?",
-		name, lvlkz, TgChannel, tipPing)
-	err := row.Scan(&counts)
+func (d *Db) TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int) {
+	insertTimer := `INSERT INTO timer(dsmesid,dschatid,tgmesid,tgchatid,timed) VALUES (?,?,?,?,?)`
+	fmt.Println(d.Db)
+	_, err := d.Db.Exec(insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
 	if err != nil {
-		log.Println("Ошибка проврки активной подписки ", err)
-	}
-	return counts
-}
-func (d *Db) Subscribe(name, nameMention, lvlkz string, tipPing int, TgChannel int64) {
-	insertSubscribe := `INSERT INTO subscribe (name, nameid, lvlkz, tip, chatid, timestart, timeend) VALUES (?,?,?,?,?,?,?)`
-	statement, err := d.db.Prepare(insertSubscribe)
-	_, err = statement.Exec(name, nameMention, lvlkz, tipPing, TgChannel, 0, 0)
-	if err != nil {
-		log.Println("Ошибка внесения в таблицу подписок ", err)
+		log.Println("Ошибка внесения в бд для удаления ", err)
 	}
 }
-func (d *Db) Unsubscribe(name, lvlkz string, TgChannel int64, tipPing int) {
-	_, err := d.db.Exec("delete from subscribe where name = ? AND lvlkz = ? AND chatid = ? AND tip = ?",
-		name, lvlkz, TgChannel, tipPing)
+func (d *Db) TimerDeleteMessage() []models.Timer {
+	_, err := d.Db.Exec(`update timer set timed = timed - 60`)
 	if err != nil {
-		fmt.Println("Ошибка удаления подписки с БД", err)
+		fmt.Println("Ошибка удаления 60секунд", err)
 	}
+
+	results, err := d.Db.Query("SELECT * FROM timer WHERE timed < 60")
+	if err != nil {
+		fmt.Println("Ошибка чтения ид где меньше 60 секунд", err)
+	}
+	var timedown []models.Timer
+	for results.Next() {
+		var t models.Timer
+		err = results.Scan(&t.Id, &t.Dsmesid, &t.Dschatid, &t.Tgmesid, &t.Tgchatid, &t.Timed)
+		fmt.Println("prints ", t)
+		timedown = append(timedown, t)
+
+		_, err = d.Db.Exec("delete from timer where  id = ? ", t.Id)
+		if err != nil {
+			fmt.Println("Ошибка удаления по ид с таблицы таймера", err)
+		}
+	}
+	return timedown
+}
+func (d *Db) ReadMesIdDS(mesid string) (string, error) {
+	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE dsmesid = ? AND active = 0", mesid)
+	if err != nil {
+		log.Println("Ошибка получения уровня кз по меседж айди", err)
+	}
+	a := []string{}
+	var dsmesid string
+	for results.Next() {
+		var t models.Sborkz
+		err = results.Scan(&t.Lvlkz)
+		a = append(a, t.Lvlkz)
+	}
+	a = d.removeDuplicateElementString(a)
+	if len(a) > 0 {
+		dsmesid = a[0]
+		return dsmesid, err
+	} else {
+		return "", err
+	}
+}
+func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
+	var timedown int
+	results, err := d.Db.Query("SELECT timedown FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0 AND name = ?",
+		lvlkz, CorpName, name)
+	if err != nil {
+		fmt.Println("Ошибка получения оставшегося времени ", err)
+	}
+	for results.Next() {
+		err = results.Scan(&timedown)
+	}
+	return timedown
+}
+func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
+	_, err := d.Db.Exec(`update sborkz set timedown = timedown+30 where lvlkz = ? AND corpname = ? AND name = ?`,
+		lvlkz, CorpName, name)
+	if err != nil {
+		log.Println("Ошибка обновления времени ", err)
+	}
+}
+func (d *Db) Queue(corpname string) []string {
+	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE corpname = ?", corpname)
+	if err != nil {
+		fmt.Println("Ошибка чтения левелов для очереди", err)
+	}
+	var lvl []string
+	for results.Next() {
+		var t models.Sborkz
+		err = results.Scan(&t.Lvlkz)
+
+		lvl = append(lvl, t.Lvlkz)
+
+	}
+
+	return lvl
+}
+func (d *Db) AutoHelp() []models.BotConfig {
+	results, err := d.Db.Query("SELECT dschannel,mesiddshelp FROM config")
+	if err != nil {
+		log.Println("Ошибка получения автосправки с бд", err)
+	}
+	h := models.BotConfig{}
+	var a []models.BotConfig
+	for results.Next() {
+		err = results.Scan(&h.DsChannel, &h.Config.MesidDsHelp)
+		a = append(a, h)
+
+	}
+	return a
+}
+func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
+	_, err := d.Db.Exec(`update config set mesiddshelp = ? where dschannel = ? `, newMesidHelp, dschannel)
+	if err != nil {
+		log.Println("ОШибка обновления месИд для автосправки ", err)
+	}
+}
+func (d *Db) MinusMin() []models.Sborkz {
+	_, err := d.Db.Exec(`update sborkz set timedown = timedown - 1 where active = 0`)
+	if err != nil {
+		fmt.Println("Ошибка удаления минуты ", err)
+	}
+
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE active = 0")
+	if err != nil {
+		fmt.Println("Ошибка чтения после удаления минуты", err)
+	}
+	var tt []models.Sborkz
+	for results.Next() {
+		var t models.Sborkz
+		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
+		tt = append(tt, t)
+
+	}
+	return tt
+}
+func (d *Db) OneMinutsTimer() []string {
+	var count int //количество активных игроков
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE active = 0")
+	err := row.Scan(&count)
+	if err != nil {
+		fmt.Println("Ошибка подсчета активных игроков в очередях", err)
+	}
+	var CorpActive0 []string
+	if count > 0 {
+		a := []string{}
+		aa := []string{}
+		results, err := d.Db.Query("SELECT corpname FROM sborkz WHERE active = 0")
+		if err != nil {
+			fmt.Println("Ошибка чтения корпораций где есть активные очереди ", err)
+		}
+		var corpname string // ищим корпорации
+		for results.Next() {
+			err = results.Scan(&corpname)
+			a = append(a, corpname)
+		}
+		a = d.removeDuplicateElementString(a)
+
+		for _, corp := range a {
+			skip := false
+			for _, u := range aa {
+				if corp == u {
+					skip = true
+					break
+				}
+			}
+			if !skip {
+				CorpActive0 = append(CorpActive0, corp)
+			}
+		}
+	}
+	return CorpActive0
+}
+func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
+	var countCorp int
+	ds := []string{}
+	tg := []int{}
+	wa := []string{}
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE corpname = ? AND active = 0", corpname)
+	err := row.Scan(&countCorp)
+	if err != nil {
+		fmt.Println("Ошибка получения активных очередей корпорации ", err)
+	}
+	if countCorp > 0 {
+		results, err := d.Db.Query("SELECT * FROM sborkz WHERE corpname = ? AND active = 0", corpname)
+		if err != nil {
+			fmt.Println("Ошибка получения активных очередей корпорации2 ", err)
+		}
+		for results.Next() {
+			var t models.Sborkz
+			err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
+			ds = append(ds, t.Dsmesid)
+			tg = append(tg, t.Tgmesid)
+			wa = append(wa, t.Wamesid)
+		}
+	}
+	ds = d.removeDuplicateElementString(ds)
+	tg = d.removeDuplicateElementInt(tg)
+	wa = d.removeDuplicateElementString(wa)
+	return ds, tg, wa
+}
+func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InMessage {
+	var in models.InMessage
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE dsmesid = ? AND active = 0", dsmesid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var t models.Sborkz
+	for results.Next() {
+		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
+	}
+	in = models.InMessage{
+		Tip:         "ds",
+		Name:        t.Name,
+		NameMention: t.Mention,
+		Lvlkz:       t.Lvlkz,
+		Ds: struct {
+			Mesid   string
+			Nameid  string
+			Guildid string
+		}{
+			Mesid:   t.Dsmesid,
+			Nameid:  "",
+			Guildid: config.Config.Guildid,
+		},
+		Config: config,
+		Option: struct {
+			Callback bool
+			Edit     bool
+			Update   bool
+			Queue    bool
+		}{
+			Callback: true,
+			Edit:     true,
+			Update:   false,
+		},
+	}
+
+	return in
+}
+func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage {
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE tgmesid = ? AND active = 0", tgmesid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var t models.Sborkz
+	for results.Next() {
+		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
+	}
+	in := models.InMessage{
+		Tip:         "tg",
+		Name:        t.Name,
+		NameMention: t.Mention,
+		Lvlkz:       t.Lvlkz,
+		Tg: struct {
+			Mesid  int
+			Nameid int64
+		}{
+			Mesid:  t.Tgmesid,
+			Nameid: 0},
+		Config: config,
+		Option: struct {
+			Callback bool
+			Edit     bool
+			Update   bool
+			Queue    bool
+		}{
+			Callback: true,
+			Edit:     true,
+			Update:   false,
+		},
+	}
+	return in
 }

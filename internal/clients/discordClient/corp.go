@@ -1,10 +1,9 @@
 package discordClient
 
 import (
-	"github.com/bwmarrin/discordgo"
-	corpsConfig "kz_bot/internal/clients/corpConfig"
-	"kz_bot/internal/dbase/dbaseMysql"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 func (d *Ds) AccesChatDS(m *discordgo.MessageCreate) {
@@ -19,28 +18,24 @@ func (d *Ds) AccesChatDS(m *discordgo.MessageCreate) {
 }
 
 func (d *Ds) accessAddChannelDs(chatid, guildid string) { // внесение в дб и добавление в масив
-	c := corpsConfig.CorpConfig{}
-	ok, _ := c.CheckChannelConfigDS(chatid)
+	ok, _ := d.CorpConfig.CheckChannelConfigDS(chatid)
 	if ok {
 		go d.SendChannelDelSecond(chatid, "Я уже могу работать на вашем канале\n"+
 			"повторная активация не требуется.\nнапиши Справка1", 30)
 	} else {
 		chatName := d.dsChatName(guildid)
-		db := dbaseMysql.Db{}
-		db.AddDsCorpConfig(chatName, chatid, guildid)
+		d.dbase.AddDsCorpConfig(chatName, chatid, guildid)
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка1", 60)
 	}
 }
 func (d *Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки
-	c := corpsConfig.CorpConfig{}
-	ok, _ := c.CheckChannelConfigDS(chatid)
+	ok, _ := d.CorpConfig.CheckChannelConfigDS(chatid)
 	if !ok {
 		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		db := dbaseMysql.Db{}
-		db.DeleteDsChannel(chatid)
-		c.ReloadConfig()
-		db.ReadBotCorpConfig()
+		d.dbase.DeleteDsChannel(chatid)
+		d.CorpConfig.ReloadConfig()
+		d.dbase.ReadBotCorpConfig()
 		go d.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
 	}
 }

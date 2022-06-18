@@ -2,13 +2,17 @@ package telegramClient
 
 import (
 	"fmt"
+	"time"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
-	"time"
+	"kz_bot/internal/dbase/dbaseMysql"
 )
 
 type Telegram struct {
 	t tgbotapi.BotAPI
+	corpsConfig.CorpConfig
+	dbase dbaseMysql.Db
 }
 
 func (t Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
@@ -17,7 +21,7 @@ func (t Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+", lvlkz+"+"),
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"-", lvlkz+"-"),
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"++", lvlkz+"++"),
-			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+30"),
+			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+++"),
 		),
 	)
 	msg := tgbotapi.NewMessage(chatid, text)
@@ -49,24 +53,27 @@ func (t Telegram) SendChannel(chatid int64, text string) int {
 }
 func (t Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 	tMessage, _ := t.t.Send(tgbotapi.NewMessage(chatid, text))
-	if second < 60 {
+	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
 			t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, tMessage.MessageID)))
 		}()
 	} else {
-		fmt.Println("нужно удалять через бд")
+		t.dbase.TimerInsert("", "", tMessage.MessageID, chatid, second)
 	}
-
 }
 func (t Telegram) DelMessage(chatid int64, idSendMessage int) {
 	t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, idSendMessage)))
 }
 func (t Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int) {
-	go func() {
-		time.Sleep(time.Duration(second) * time.Second)
-		t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, idSendMessage)))
-	}()
+	if second <= 60 {
+		go func() {
+			time.Sleep(time.Duration(second) * time.Second)
+			t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, idSendMessage)))
+		}()
+	} else {
+		t.dbase.TimerInsert("", "", idSendMessage, chatid, second)
+	}
 }
 func (t Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit string, lvlkz string) {
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -123,8 +130,7 @@ func (t Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
 	return result
 }
 func (t Telegram) updatesComand(c *tgbotapi.Message) {
-	conf := corpsConfig.CorpConfig{}
-	ok, config := conf.CheckChannelConfigTG(c.Chat.ID)
+	ok, config := t.CorpConfig.CheckChannelConfigTG(c.Chat.ID)
 	if ok {
 		switch c.Command() {
 		case "help":
@@ -142,9 +148,10 @@ func (t Telegram) updatesComand(c *tgbotapi.Message) {
 		}
 	} else {
 		switch c.Command() {
-		case "help": //отправить справку о боте и способ активации
-		default: //отправить спарвка в этом чате не доступна
-
+		case "help":
+			t.SendChannelDelSecond(c.Chat.ID, "Активируйте бота командой \n.add", 60)
+		default:
+			t.SendChannelDelSecond(c.Chat.ID, "Вам не доступна данная команда \n \\help", 60)
 		}
 	}
 }

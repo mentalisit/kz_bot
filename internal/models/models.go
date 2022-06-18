@@ -1,38 +1,30 @@
 package models
 
-import (
-	"sync"
-)
-
 var ChDs = make(chan InMessage, 10)
 var ChTg = make(chan InMessage, 10)
 
 type InMessage struct {
-	Mutex         sync.Mutex
 	Mtext         string
 	Tip           string
 	Name          string
 	NameMention   string
 	Lvlkz, Timekz string
-	Ds            Ds
-	Tg            Tg
-	Config        BotConfig
-	Option        Option
-}
-type Option struct {
-	Callback bool
-	Edit     bool
-	Update   bool
-}
-type Ds struct {
-	Mesid   string
-	Nameid  string
-	Guildid string
-}
-
-type Tg struct {
-	Mesid  int
-	Nameid int64
+	Ds            struct {
+		Mesid   string
+		Nameid  string
+		Guildid string
+	}
+	Tg struct {
+		Mesid  int
+		Nameid int64
+	}
+	Config BotConfig
+	Option struct {
+		Callback bool
+		Edit     bool
+		Update   bool
+		Queue    bool
+	}
 }
 
 type Configs struct {
@@ -91,4 +83,20 @@ type Sborkz struct {
 type EmodjiUser struct {
 	Id                            int
 	Tip, Name, Em1, Em2, Em3, Em4 string
+}
+
+type Timer struct {
+	Id       int
+	Dsmesid  string
+	Dschatid string
+	Tgmesid  int
+	Tgchatid int64
+	Timed    int
+}
+
+type Names struct {
+	Name1 string
+	Name2 string
+	Name3 string
+	Name4 string
 }

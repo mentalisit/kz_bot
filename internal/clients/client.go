@@ -21,6 +21,7 @@ type DiscordInterface interface {
 	Send(chatid, text string) string
 	SendChannelDelSecond(chatid, text string, second int)
 	SendComplexContent(chatid, text string) string
+	SendEmbedText(chatid, title, text string) *discordgo.Message
 	SendComplex(chatid string, embeds discordgo.MessageEmbed) string
 	EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed)
 	DeleteMesageSecond(chatid, mesid string, second int)
@@ -32,4 +33,6 @@ type DiscordInterface interface {
 	CheckAdmin(nameid string, chatid string) bool
 	BotName() string
 	EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed
+	EditMessage(chatID, messageID, content string)
+	SendEmbedTime(chatid, text string) string
 }

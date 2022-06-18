@@ -3,6 +3,8 @@ package bot
 import "C"
 import (
 	"fmt"
+	"time"
+
 	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/models"
 )
@@ -28,6 +30,13 @@ func (b *Bot) ifTipSendMentionText(text string) {
 		go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.NameMention+text, 10)
 	} else if b.in.Tip == tg {
 		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.NameMention+text, 10)
+	}
+}
+func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
+	if b.in.Tip == ds {
+		go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, time)
+	} else if b.in.Tip == tg {
+		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, time)
 	}
 }
 func (b *Bot) emReadName(name, tip string) string { // склеиваем имя и эмоджи
@@ -63,14 +72,27 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 			NameMention: t.Mention,
 			Lvlkz:       t.Lvlkz,
 			Timekz:      string(t.Timedown),
-			Ds: models.Ds{
-				Mesid: t.Dsmesid,
-			},
-			Tg: models.Tg{
-				Mesid: t.Tgmesid,
-			},
+			Ds: struct {
+				Mesid   string
+				Nameid  string
+				Guildid string
+			}{
+				Mesid:   t.Dsmesid,
+				Nameid:  "",
+				Guildid: ""},
+			Tg: struct {
+				Mesid  int
+				Nameid int64
+			}{
+				Mesid:  t.Tgmesid,
+				Nameid: 0},
 			Config: config,
-			Option: models.Option{
+			Option: struct {
+				Callback bool
+				Edit     bool
+				Update   bool
+				Queue    bool
+			}{
 				Callback: false,
 				Edit:     true,
 				Update:   false,
@@ -94,4 +116,32 @@ func (b *Bot) SubscribePing(tipPing int) {
 		men = fmt.Sprintf("Сбор на кз%s\n%s", b.in.Lvlkz, men)
 		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, men, 600)
 	}
+}
+func (b *Bot) checkAdmin() bool {
+	admin := false
+	if b.in.Tip == "ds" {
+		admin = b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)
+	} else if b.in.Tip == "tg" {
+		admin = b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)
+	}
+	return admin
+}
+func (b *Bot) removeDuplicateElementString(mesididid []string) []string {
+	result := make([]string, 0, len(mesididid))
+	temp := map[string]struct{}{}
+	for _, item := range mesididid {
+		if _, ok := temp[item]; !ok {
+			temp[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	return result
+}
+func (b *Bot) currentTime() (string, string) {
+	tm := time.Now()
+	mdate := (tm.Format("2006-01-02"))
+	mtime := (tm.Format("15:04"))
+
+	return mdate, mtime
+
 }

@@ -2,9 +2,12 @@ package discordClient
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	corpsConfig "kz_bot/internal/clients/corpConfig"
+	"kz_bot/internal/dbase/dbaseMysql"
 )
 
 const (
@@ -20,6 +23,8 @@ var mesContentNil string
 
 type Ds struct {
 	d discordgo.Session
+	corpsConfig.CorpConfig
+	dbase *dbaseMysql.Db
 }
 
 func (d *Ds) EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
@@ -45,6 +50,16 @@ func (d *Ds) EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discor
 	}
 	return *Embeds
 }
+func (d *Ds) SendEmbedText(chatid, title, text string) *discordgo.Message {
+	Emb := &discordgo.MessageEmbed{
+		Author:      &discordgo.MessageEmbedAuthor{},
+		Color:       16711680,
+		Description: text,
+		Title:       title,
+	}
+	m, _ := d.d.ChannelMessageSendEmbed(chatid, Emb)
+	return m
+}
 func (d *Ds) CheckAdmin(nameid string, chatid string) bool {
 	perms, err := d.d.UserChannelPermissions(nameid, chatid)
 	if err != nil {
@@ -66,17 +81,27 @@ func (d *Ds) AddEnojiRsQueue(chatid, mesid string) {
 
 }
 func (d *Ds) DeleteMessage(chatid, mesid string) {
-	d.d.ChannelMessageDelete(chatid, mesid)
+	err := d.d.ChannelMessageDelete(chatid, mesid)
+	if err != nil {
+		fmt.Println("Ошибка удаления дискорд сообщения ", err)
+	}
 }
 func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
 		fmt.Println("ошибка отправки сообщения SendChannelDelSecond", err)
 	}
-	go func() {
-		time.Sleep(time.Duration(second) * time.Second)
-		d.d.ChannelMessageDelete(chatid, message.ID)
-	}()
+	if second <= 60 {
+		go func() {
+			time.Sleep(time.Duration(second) * time.Second)
+			err := d.d.ChannelMessageDelete(chatid, message.ID)
+			if err != nil {
+				fmt.Println("Ошибка удаления через секунды ", err)
+			}
+		}()
+	} else {
+		d.dbase.TimerInsert(message.ID, chatid, 0, 0, second)
+	}
 
 }
 func (d *Ds) RoleToIdPing(rolePing, guildid string) string {
@@ -112,7 +137,7 @@ func (d *Ds) CreateRole(rolPing, guildid string) *discordgo.Role {
 }
 func (d *Ds) DeleteMesageSecond(chatid, mesid string, second int) {
 	if second > 60 {
-		//timerInsert(mesid, chatid, 0, 0, second)
+		d.dbase.TimerInsert(mesid, chatid, 0, 0, second)
 	} else {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
@@ -251,4 +276,25 @@ func (d *Ds) Unsubscribe(nameid, argRoles, guildid string) string {
 		text = "ошибка: недостаточно прав для снятия роли  " + role.Name
 	}
 	return text
+}
+func (d *Ds) EditMessage(chatID, messageID, content string) {
+	_, err := d.d.ChannelMessageEdit(chatID, messageID, content)
+	if err != nil {
+		fmt.Println("Ошибка изменения текса сообщения ", err)
+	}
+}
+func (d *Ds) SendEmbedTime(chatid, text string) string { //отправка текста с двумя реакциями
+	message, err := d.d.ChannelMessageSend(chatid, text)
+	if err != nil {
+		fmt.Println("ошибка отправки текста ", err)
+	}
+	err = d.d.MessageReactionAdd(chatid, message.ID, emPlus)
+	if err != nil {
+		log.Println("Ошибка добавления эмоджи ", emPlus, err)
+	}
+	err = d.d.MessageReactionAdd(chatid, message.ID, emMinus)
+	if err != nil {
+		log.Println("Ошибка добавления эмоджи ", emMinus, err)
+	}
+	return message.ID
 }

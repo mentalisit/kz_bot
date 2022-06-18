@@ -2,11 +2,14 @@ package bot
 
 import (
 	"fmt"
+
+	corpsConfig "kz_bot/internal/clients/corpConfig"
+	"kz_bot/internal/models"
 )
 
 func (b *Bot) RsPlus() {
-	b.in.Mutex.Lock()
-	defer b.in.Mutex.Unlock()
+	b.Mutex.Lock()
+	defer b.Mutex.Unlock()
 	go b.iftipdelete()
 	if b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) == 1 { //проверяем есть ли игрок в очереди
 		b.ifTipSendMentionText(" ты уже в очереди")
@@ -188,7 +191,7 @@ func (b *Bot) RsPlus() {
 	}
 }
 func (b *Bot) RsMinus() {
-	b.in.Mutex.Lock()
+	b.Mutex.Lock()
 	b.callbackNo()
 	CountNames := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if CountNames == 0 {
@@ -218,26 +221,25 @@ func (b *Bot) RsMinus() {
 		if b.in.Config.WaChannel != "" {
 			//тут логика ватса
 		}
-		b.in.Mutex.Unlock()
+		b.Mutex.Unlock()
 		if countQueue > 0 {
-			b.Queue()
+			b.QueueLevel()
 		}
 	}
 }
-func (b *Bot) Queue() {
-	b.in.Mutex.Lock()
-	defer b.in.Mutex.Unlock()
+func (b *Bot) QueueLevel() {
+	b.Mutex.Lock()
+	defer b.Mutex.Unlock()
 	b.callbackNo()
 	count := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
 	// совподения количество  условие
-	if count == 0 {
+	if count == 0 && !b.in.Option.Queue {
 		text := "Очередь КЗ " + b.in.Lvlkz + " пуста "
-		if b.in.Tip == "ds" {
-			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-		} else if b.in.Tip == "tg" {
-			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
-		}
+		b.ifTipSendTextDelSecond(text, 10)
+	} else if b.in.Option.Queue && count == 0 {
+		b.ifTipSendTextDelSecond("Нет активных очередей ", 10)
+
 	} else if count == 1 {
 		u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 		if b.in.Config.DsChannel != "" {
@@ -350,9 +352,28 @@ func (b *Bot) Queue() {
 		}
 	}
 }
+func (b *Bot) QueueAll() {
+	lvl := b.Db.Queue(b.in.Config.CorpName)
+	lvlk := b.removeDuplicateElementString(lvl)
+	var aa []string
+	for _, corp := range lvlk {
+		skip := false
+		for _, u := range aa {
+			if corp == u {
+				skip = true
+				break
+			}
+		}
+		if !skip {
+			b.in.Option.Queue = true
+			b.in.Lvlkz = corp
+			b.QueueLevel()
+		}
+	}
+}
 func (b *Bot) RsStart() {
-	b.in.Mutex.Lock()
-	defer b.in.Mutex.Unlock()
+	b.Mutex.Lock()
+	defer b.Mutex.Unlock()
 	b.callbackNo()
 	countName := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if countName == 0 {
@@ -493,6 +514,26 @@ func (b *Bot) RsStart() {
 		}
 	}
 }
+func (b *Bot) Pl30() {
+	countName := b.Db.CountNameQueue(b.in.Name)
+	text := ""
+	if countName == 0 {
+		text = b.in.NameMention + " ты не в очереди "
+	} else if countName > 0 {
+		timedown := b.Db.P30Pl(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name)
+		if timedown >= 150 {
+			text = fmt.Sprintf("%s максимальное время в очереди ограничено на 180 минут\n твое время %d мин.  ",
+				b.in.NameMention, timedown)
+		} else {
+			text = b.in.NameMention + " время обновлено +30"
+			b.Db.UpdateTimedown(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name)
+			b.in.Option.Callback = true
+			b.in.Option.Edit = true
+			b.QueueLevel()
+		}
+	}
+	b.ifTipSendTextDelSecond(text, 20)
+}
 func (b *Bot) Plus() bool {
 	b.callbackNo()
 	countName := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
@@ -509,7 +550,7 @@ func (b *Bot) Plus() bool {
 		} else if t.Timedown <= 3 {
 			message = t.Mention + " время обновлено "
 			b.in.Lvlkz = t.Lvlkz
-			b.Queue()
+			b.QueueLevel()
 		}
 	}
 	if b.in.Tip == "ds" {
@@ -592,5 +633,259 @@ func (b *Bot) Unsubscribe(tipPing int) {
 			b.Db.Unsubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		}
 		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
+	}
+}
+
+func (b *Bot) emodjiadd(slot, emo string) {
+	b.iftipdelete()
+	if b.in.Tip == "ds" {
+		t := b.Db.EmReadUsers(b.in.Name, b.in.Tip)
+		if len(t.Name) > 0 {
+			b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
+		} else {
+			b.Db.EmInsertEmpty(b.in.Tip, b.in.Name)
+			b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
+		}
+	} else if b.in.Tip == "tg" {
+		//нужно реализовать логику эмоджи для тг
+	}
+}
+func (b *Bot) emodjis() {
+	b.iftipdelete()
+	if b.in.Tip == ds {
+		e := b.Db.EmReadUsers(b.in.Name, ds)
+		text := "	Для установки эмоджи пиши текст \n" +
+			"Эмоджи пробел (номер ячейки1-4) пробел эмоджи \n" +
+			"	пример \n" +
+			"Эмоджи 1 🚀\n" +
+			"	Ваши слоты" +
+			"\n1" + e.Em1 +
+			"\n2" + e.Em2 +
+			"\n3" + e.Em3 +
+			"\n4" + e.Em4
+		b.Ds.SendEmbedText(b.in.Config.DsChannel, "Ваши эмоджи", text)
+	} else if b.in.Tip == tg {
+
+	}
+}
+
+func (b *Bot) EventStart() {
+	//проверяем, есть ли активный ивент
+	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	text := "Ивент запущен. После каждого похода на КЗ, " +
+		"один из участников КЗ вносит полученные очки в базу командой К (номер катки) (количество набраных очков)"
+	if event1 > 0 {
+		b.ifTipSendTextDelSecond("Режим ивента уже активирован.", 10)
+	} else {
+		if b.in.Tip == "ds" && (b.in.Name == "Mentalisit" || b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)) {
+			b.Db.EventStartInsert(b.in.Config.CorpName)
+			if b.in.Config.TgChannel != 0 {
+				b.Tg.SendChannel(b.in.Config.TgChannel, text)
+				b.Ds.Send(b.in.Config.DsChannel, text)
+			} else {
+				b.Ds.Send(b.in.Config.DsChannel, text)
+			}
+		} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
+			b.Db.EventStartInsert(b.in.Config.CorpName)
+			if b.in.Config.DsChannel != "" {
+				b.Ds.Send(b.in.Config.DsChannel, text)
+				b.Tg.SendChannel(b.in.Config.TgChannel, text)
+			} else {
+				b.Tg.SendChannel(b.in.Config.TgChannel, text)
+			}
+		} else {
+			text = "Запуск | Оcтановка Ивента доступен Администратору канала."
+			b.ifTipSendTextDelSecond(text, 60)
+		}
+	}
+}
+func (b *Bot) EventStop() {
+	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	eventStop := "Ивент остановлен."
+	eventNull := "Ивент и так не активен. Нечего останавливать "
+	if b.in.Tip == "ds" && (b.in.Name == "Mentalisit" || b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)) {
+		if event1 > 0 {
+			b.Db.UpdateActiveEvent0(b.in.Config.CorpName, event1)
+			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, eventStop, 60)
+		} else {
+			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, eventNull, 10)
+		}
+	} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
+		if event1 > 0 {
+			b.Db.UpdateActiveEvent0(b.in.Config.CorpName, event1)
+			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, eventStop, 60)
+		} else {
+			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, eventNull, 10)
+		}
+	} else {
+		text := "Запуск|Остановка Ивента доступен Администратору канала."
+		b.ifTipSendTextDelSecond(text, 20)
+	}
+}
+func (b *Bot) EventPoints(numKZ, points int) {
+	b.iftipdelete()
+	// проверяем активен ли ивент
+	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	message := ""
+	if event1 > 0 {
+		CountEventNames := b.Db.CountEventNames(b.in.Config.CorpName, b.in.Name, numKZ, event1)
+		admin := b.checkAdmin()
+		if CountEventNames > 0 || admin {
+			pointsGood := b.Db.CountEventsPoints(b.in.Config.CorpName, numKZ, event1)
+			if pointsGood > 0 && !admin {
+				message = "данные о кз уже внесены "
+			} else if pointsGood == 0 || admin {
+				countEvent := b.Db.UpdatePoints(b.in.Config.CorpName, numKZ, points, event1)
+				message = fmt.Sprintf("%s Очки %d внесены в базу", b.in.Name, points)
+				b.changeMessageEvent(points, countEvent, numKZ, event1)
+			}
+		} else {
+			message = fmt.Sprintf("%s Вы не являетесь участником КЗ под номером %d добавление очков невозможно.", b.in.NameMention, numKZ)
+		}
+
+	} else {
+		message = "Ивент не запущен."
+	}
+	b.ifTipSendTextDelSecond(message, 20)
+}
+
+func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) {
+	nd, nt, t := b.Db.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
+	mes1 := fmt.Sprintf("ивент игра №%d\n", t.Numberkz)
+	mesOld := fmt.Sprintf("внесено %d", points)
+	if countEvent == 1 {
+		if b.in.Config.DsChannel != "" {
+			b.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld))
+		}
+		if b.in.Config.TgChannel != 0 {
+			b.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, fmt.Sprintf("%s %s \n%s", mes1, nt.Name1, mesOld))
+		}
+	} else if countEvent == 2 {
+		if b.in.Config.DsChannel != "" {
+			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nd.Name1, nd.Name2, mesOld)
+			b.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+		}
+		if b.in.Config.TgChannel != 0 {
+			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nt.Name1, nt.Name2, mesOld)
+			b.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
+		}
+	} else if countEvent == 3 {
+		if b.in.Config.DsChannel != "" {
+			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, mesOld)
+			b.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+		}
+		if b.in.Config.TgChannel != 0 {
+			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, mesOld)
+			b.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
+		}
+	} else if countEvent == 4 {
+		if b.in.Config.DsChannel != "" {
+			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, nd.Name4, mesOld)
+			b.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+		}
+		if b.in.Config.TgChannel != 0 {
+			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, nt.Name4, mesOld)
+			b.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
+		}
+	}
+}
+func (b *Bot) MinusMin() {
+	tt := b.Db.MinusMin()
+	c := corpsConfig.CorpConfig{}
+	if len(tt) > 0 {
+		for _, t := range tt {
+			if t.Corpname != "" {
+				ok, config := c.CheckCorpNameConfig(t.Corpname)
+				if ok {
+					in := models.InMessage{
+						Mtext:       "",
+						Tip:         t.Tip,
+						Name:        t.Name,
+						NameMention: t.Mention,
+						Lvlkz:       t.Lvlkz,
+						Ds: struct {
+							Mesid   string
+							Nameid  string
+							Guildid string
+						}{
+							Mesid:   t.Dsmesid,
+							Nameid:  "",
+							Guildid: config.Config.Guildid,
+						},
+						Tg: struct {
+							Mesid  int
+							Nameid int64
+						}{
+							Mesid:  t.Tgmesid,
+							Nameid: 0,
+						},
+						Config: config,
+					}
+					b.in = in
+				}
+			}
+
+			if t.Timedown == 3 {
+				text := t.Mention + " время почти вышло  ...\n если ты еще тут пиши +"
+				if t.Tip == "ds" {
+					mID := b.Ds.SendEmbedTime(b.in.Config.DsChannel, text)
+					go b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 180)
+				} else if t.Tip == "tg" {
+					mID := b.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
+					go b.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 180)
+				}
+			} else if t.Timedown == 0 {
+				b.RsMinus()
+			} else if t.Timedown <= -1 {
+				b.RsMinus()
+			}
+
+		}
+	}
+	corpActive0 := b.Db.OneMinutsTimer()
+	for _, corp := range corpActive0 {
+
+		_, config := c.CheckCorpNameConfig(corp)
+
+		ds, tg, wa := b.Db.MessageUpdateMin(corp)
+
+		if config.DsChannel != "" {
+			var aa []string
+			for _, dsmesid := range ds {
+				skip := false
+				for _, u := range aa {
+					if dsmesid == u {
+						skip = true
+						break
+					}
+				}
+
+				if !skip {
+					in := b.Db.MessageupdateDS(dsmesid, config)
+					b.in = in
+					b.QueueLevel()
+				}
+			}
+
+		}
+		if config.TgChannel != 0 {
+			var aa []int
+			for _, tgmesid := range tg {
+				skip := false
+				for _, u := range aa {
+					if tgmesid == u {
+						skip = true
+						break
+					}
+				}
+				if !skip {
+					b.Db.MessageupdateTG(tgmesid, config)
+				}
+			}
+			if config.WaChannel != "" {
+				//тут будет логика ватса
+				fmt.Println(wa)
+			}
+		}
 	}
 }
