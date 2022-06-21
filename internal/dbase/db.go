@@ -28,6 +28,7 @@ type Event interface {
 	CountEventsPoints(CorpName string, numberkz, numberEvent int) int
 	UpdatePoints(CorpName string, numberkz, points, event1 int) int
 	ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, nt models.Names, t models.Sborkz)
+	NumberQueueEvents(CorpName string) int
 }
 type Subscribe interface {
 	CheckSubscribe(name, lvlkz string, TgChannel int64, tipPing int) int                //проверка активной подписки

@@ -2,6 +2,7 @@ package watsappClient
 
 import (
 	"strings"
+	"time"
 
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
@@ -10,8 +11,10 @@ import (
 )
 
 type Watsapp struct {
-	cli *whatsmeow.Client
-	log waLog.Logger
+	cli           *whatsmeow.Client
+	log           waLog.Logger
+	historySyncID int32
+	startupTime   time.Time
 }
 
 func (w *Watsapp) Send(args []string) {

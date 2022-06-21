@@ -100,8 +100,6 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 			name = member.Nick
 		}
 
-		fmt.Println(103, d.replaceChannelMentions(m.Content, m.GuildID))
-
 		in := models.InMessage{
 			Mtext:       m.Content,
 			Tip:         "ds",

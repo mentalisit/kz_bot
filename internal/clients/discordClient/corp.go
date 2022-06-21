@@ -25,7 +25,8 @@ func (d *Ds) accessAddChannelDs(chatid, guildid string) { // внесение в
 	} else {
 		chatName := d.dsChatName(guildid)
 		d.dbase.AddDsCorpConfig(chatName, chatid, guildid)
-		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка1", 60)
+		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.", 60)
+
 	}
 }
 func (d *Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки

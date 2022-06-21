@@ -1,13 +1,14 @@
 package discordClient
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func (d *Ds) InitDS(TokenD string) {
+func (d *Ds) InitDS(TokenD string, db *sql.DB) {
 	DSBot, err := discordgo.New("Bot " + TokenD)
 	if err != nil {
 		fmt.Println(err)
@@ -27,6 +28,7 @@ func (d *Ds) InitDS(TokenD string) {
 	}
 	fmt.Println("Бот DISCORD запущен!!!")
 	d.d = *DSBot
+	d.dbase.Db = db
 	return
 }
 

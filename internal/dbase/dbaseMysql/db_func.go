@@ -6,11 +6,13 @@ import (
 	"log"
 	"time"
 
+	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/models"
 )
 
 type Db struct {
 	Db *sql.DB
+	corpsConfig.CorpConfig
 }
 
 //func NewDb(db *sql.DB) *Db {
@@ -54,22 +56,23 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 		lvlkz, CorpName)
 	err := row.Scan(&number)
 	if err != nil {
-		fmt.Println("Ошибка чтения нумкз", err)
-	}
-	if number == 0 {
-		insertSmt := "INSERT INTO numkz(lvlkz, number,corpname) VALUES (?,?,?)"
-		statement, err := d.Db.Prepare(insertSmt)
-		if err != nil {
-			fmt.Println("Ошибка подготовки внесения нумкз", err)
+		if err == sql.ErrNoRows {
+			number = 0
+			insertSmt := "INSERT INTO numkz(lvlkz, number,corpname) VALUES (?,?,?)"
+			statement, err := d.Db.Prepare(insertSmt)
+			if err != nil {
+				fmt.Println("Ошибка подготовки внесения нумкз", err)
+			}
+			_, err = statement.Exec(lvlkz, number, CorpName)
+			if err != nil {
+				fmt.Println("Ошибка внесения нумкз", err)
+			}
+			return number + 1
+		} else {
+			fmt.Println("Ошибка чтения нумкз", err)
 		}
-		_, err = statement.Exec(lvlkz, number, CorpName)
-		if err != nil {
-			fmt.Println("Ошибка внесения нумкз", err)
-		}
-	} else {
-		return number
 	}
-	return number
+	return number + 1
 }
 func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	u := models.Users{
@@ -140,6 +143,10 @@ func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid
 	if err != nil {
 		fmt.Println("Ошибка сохранения закрытия очереди", err)
 	}
+	_, err = d.Db.Exec(`update numkz set number=number+1 where lvlkz = ? AND corpname = ?`, lvlkz, corpname)
+	if err != nil {
+		fmt.Println(err)
+	}
 	if numberevent > 0 {
 		_, err := d.Db.Exec(
 			`update rsevent set number = number+1  where corpname = ? AND activeevent = 1`, corpname)
@@ -148,6 +155,16 @@ func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid
 		}
 	}
 }
+func (d *Db) NumberQueueEvents(CorpName string) int {
+	var number int
+	row := d.Db.QueryRow("SELECT  number FROM rsevent WHERE activeevent = 1 AND corpname = ? ", CorpName)
+	err := row.Scan(&number)
+	if err != nil {
+		fmt.Println("Ошибка получения номера очереди с таблицы rsevent", err)
+	}
+	return number
+}
+
 func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем есть ли игрок в других очередях
 	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND active = 0", name)
 	err := row.Scan(&countNames)
@@ -200,7 +217,6 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 }
 func (d *Db) TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int) {
 	insertTimer := `INSERT INTO timer(dsmesid,dschatid,tgmesid,tgchatid,timed) VALUES (?,?,?,?,?)`
-	fmt.Println(d.Db)
 	_, err := d.Db.Exec(insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
 	if err != nil {
 		log.Println("Ошибка внесения в бд для удаления ", err)
@@ -220,7 +236,6 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 	for results.Next() {
 		var t models.Timer
 		err = results.Scan(&t.Id, &t.Dsmesid, &t.Dschatid, &t.Tgmesid, &t.Tgchatid, &t.Timed)
-		fmt.Println("prints ", t)
 		timedown = append(timedown, t)
 
 		_, err = d.Db.Exec("delete from timer where  id = ? ", t.Id)

@@ -14,7 +14,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"syscall"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mdp/qrterminal/v3"
@@ -31,12 +30,10 @@ import (
 )
 
 var (
-	logLevel      = "INFO"
-	debugLogs     = flag.Bool("error", false, "Enable debug logs?")
-	dbDialect     = flag.String("db-dialect", "sqlite3", "Database dialect (sqlite3 or postgres)")
-	dbAddress     = flag.String("db-address", "file:./config/mdtest.db?_foreign_keys=on", "Database address")
-	historySyncID int32
-	startupTime   = time.Now().Unix()
+	logLevel  = "INFO"
+	debugLogs = flag.Bool("error", false, "Enable debug logs?")
+	dbDialect = flag.String("db-dialect", "sqlite3", "Database dialect (sqlite3 or postgres)")
+	dbAddress = flag.String("db-address", "file:./config/mdtest.db?_foreign_keys=on", "Database address")
 )
 
 func (w *Watsapp) InitWA() {
@@ -390,7 +387,7 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 			if err != nil {
 				w.log.Warnf("Failed to send available presence: %v", err)
 			} else {
-				w.log.Infof("Marked self as available")
+				//w.log.Infof("Marked self as available")
 			}
 		}
 	case *events.Connected, *events.PushNameSetting:
@@ -403,51 +400,69 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		if err != nil {
 			w.log.Warnf("Failed to send available presence: %v", err)
 		} else {
-			w.log.Infof("Marked self as available")
+			//w.log.Infof("Marked self as available")
 		}
 	case *events.StreamReplaced:
 		os.Exit(0)
 	case *events.Message:
 		metaParts := []string{
-			fmt.Sprintf("pushname: %s", evt.Info.PushName),
-			fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
+			fmt.Sprintf("410pushname: %s", evt.Info.PushName),
+			fmt.Sprintf("411timestamp: %s", evt.Info.Timestamp)}
 		if evt.Info.Type != "" {
-			metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))
+			metaParts = append(metaParts, fmt.Sprintf("413type: %s", evt.Info.Type))
 		}
 		if evt.Info.Category != "" {
-			metaParts = append(metaParts, fmt.Sprintf("category: %s", evt.Info.Category))
+			metaParts = append(metaParts, fmt.Sprintf("416category: %s", evt.Info.Category))
 		}
 		if evt.IsViewOnce {
-			metaParts = append(metaParts, "view once")
+			metaParts = append(metaParts, "419view once")
 		}
 		if evt.IsViewOnce {
-			metaParts = append(metaParts, "ephemeral")
+			metaParts = append(metaParts, "422ephemeral")
+		}
+		name := evt.Info.PushName
+		psend := evt.Info.Sender.String()
+		chatid := evt.Info.Chat.String()
+		text := *evt.Message.Conversation
+		fmt.Println("отправитель:", name)
+		fmt.Println("номер отправителя:", psend)
+		fmt.Println("chatid", chatid)
+		fmt.Println("text", text)
+
+		msg := evt.Message
+		switch {
+		case msg == nil, evt.Info.IsFromMe, evt.Info.Timestamp.Before(w.startupTime):
+			return
+		}
+		switch {
+		case msg.Conversation != nil || msg.ExtendedTextMessage != nil:
+			w.handleTextMessage(evt.Info, msg)
 		}
 
-		w.log.Infof("Received message %s from %s (%s): %+v", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
-		fmt.Println("chatID432", evt.Message.Chat.GetId())
-		fmt.Println("chatID433", evt.RawMessage.GetChat().GetId())
+		//w.log.Infof("425Received message %s from %s (%s): %+v", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
+		fmt.Println("426chatID432", evt.Message.Chat.GetId())
+		fmt.Println("427chatID433", evt.RawMessage.GetChat().GetId())
 		img := evt.Message.GetImageMessage()
 		if img != nil {
 			data, err := w.cli.Download(img)
 			if err != nil {
-				w.log.Errorf("Failed to download image: %v", err)
+				w.log.Errorf("432Failed to download image: %v", err)
 				return
 			}
 			exts, _ := mime.ExtensionsByType(img.GetMimetype())
-			path := fmt.Sprintf("%s%s", evt.Info.ID, exts[0])
+			path := fmt.Sprintf("436%s%s", evt.Info.ID, exts[0])
 			err = os.WriteFile(path, data, 0600)
 			if err != nil {
-				w.log.Errorf("Failed to save image: %v", err)
+				w.log.Errorf("439Failed to save image: %v", err)
 				return
 			}
-			w.log.Infof("Saved image in message to %s", path)
+			w.log.Infof("442Saved image in message to %s", path)
 		}
 	case *events.Receipt:
 		if evt.Type == events.ReceiptTypeRead || evt.Type == events.ReceiptTypeReadSelf {
 			w.log.Infof("%v was read by %s at %s", evt.MessageIDs, evt.SourceString(), evt.Timestamp)
 		} else if evt.Type == events.ReceiptTypeDelivered {
-			w.log.Infof("%s was delivered to %s at %s", evt.MessageIDs[0], evt.SourceString(), evt.Timestamp)
+			//w.log.Infof("%s was delivered to %s at %s", evt.MessageIDs[0], evt.SourceString(), evt.Timestamp)
 		}
 	case *events.Presence:
 		if evt.Unavailable {
@@ -460,8 +475,8 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 			w.log.Infof("%s is now online", evt.From)
 		}
 	case *events.HistorySync:
-		id := atomic.AddInt32(&historySyncID, 1)
-		fileName := fmt.Sprintf("history-%d-%d.json", startupTime, id)
+		id := atomic.AddInt32(&w.historySyncID, 1)
+		fileName := fmt.Sprintf(".history/history-%d-%d.json", w.startupTime, id)
 		file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
 		if err != nil {
 			w.log.Errorf("Failed to open file to write history sync: %v", err)

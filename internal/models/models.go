@@ -2,6 +2,7 @@ package models
 
 var ChDs = make(chan InMessage, 10)
 var ChTg = make(chan InMessage, 10)
+var ChWa = make(chan InMessage, 10)
 
 type InMessage struct {
 	Mtext         string

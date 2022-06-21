@@ -15,6 +15,21 @@ const (
 	nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
 )
 
+func (b *Bot) EventText() (string, int) {
+	text := ""
+	numE := 0
+	//проверяем, есть ли активный ивент
+	numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	if numberevent == 0 { //ивент не активен
+		return "", 0
+	} else if numberevent > 0 { //активный ивент
+		numE = b.Db.NumberQueueEvents(b.in.Config.CorpName) //номер кз number FROM rsevent
+		text = fmt.Sprintf("\nID %d для ивента ", numE)
+		return text, numE
+	}
+	return text, numE
+}
+
 func (b *Bot) iftipdelete() {
 	if b.in.Tip == ds && !b.in.Option.Callback {
 		b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)

@@ -1,12 +1,13 @@
 package telegramClient
 
 import (
+	"database/sql"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (t *Telegram) InitTG(tokent string) {
+func (t *Telegram) InitTG(tokent string, db *sql.DB) {
 	//подключение к телеграм
 	TgBot, Err := tgbotapi.NewBotAPI(tokent)
 	if Err != nil {
@@ -48,4 +49,5 @@ func (t *Telegram) InitTG(tokent string) {
 	}()
 
 	t.t = *TgBot
+	t.dbase.Db = db
 }

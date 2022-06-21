@@ -24,7 +24,7 @@ var mesContentNil string
 type Ds struct {
 	d discordgo.Session
 	corpsConfig.CorpConfig
-	dbase *dbaseMysql.Db
+	dbase dbaseMysql.Db
 }
 
 func (d *Ds) EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {

@@ -81,7 +81,7 @@ func (t Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit strin
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+", lvlkz+"+"),
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"-", lvlkz+"-"),
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"++", lvlkz+"++"),
-			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+30"),
+			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+++"),
 		),
 	)
 	tgbotapi.NewEditMessageText(chatid, editMesId, textEdit)
@@ -151,7 +151,7 @@ func (t Telegram) updatesComand(c *tgbotapi.Message) {
 		case "help":
 			t.SendChannelDelSecond(c.Chat.ID, "Активируйте бота командой \n.add", 60)
 		default:
-			t.SendChannelDelSecond(c.Chat.ID, "Вам не доступна данная команда \n \\help", 60)
+			t.SendChannelDelSecond(c.Chat.ID, "Вам не доступна данная команда \n /help", 60)
 		}
 	}
 }

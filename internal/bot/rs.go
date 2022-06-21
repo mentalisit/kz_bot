@@ -111,8 +111,8 @@ func (b *Bot) RsPlus() {
 
 		} else if countQueue == 3 {
 			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
-			textEvent, numkzEvent := "event(in)", 0
-			numberevent := 0 //qweryNumevent1(in) //получаем номер ивета если он активен
+			textEvent, numkzEvent := b.EventText()
+			numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName) //получаем номер ивета если он активен
 			if numberevent > 0 {
 				numkzL = numkzEvent
 			}
@@ -378,11 +378,7 @@ func (b *Bot) RsStart() {
 	countName := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if countName == 0 {
 		text := "Принудительный старт доступен участникам очереди."
-		if b.in.Tip == ds {
-			b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-		} else if b.in.Tip == "tg" {
-			b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
-		}
+		b.ifTipSendTextDelSecond(text, 10)
 	} else if countName == 1 {
 		numberkz := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
 		count := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
@@ -392,8 +388,8 @@ func (b *Bot) RsStart() {
 		wamesid := ""
 		if count > 0 {
 			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
-			textEvent, numkzEvent := "event(in)", 0
-			numberevent := 0 //qweryNumevent1(in)
+			textEvent, numkzEvent := b.EventText()
+			numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName)
 			if numberevent > 0 {
 				numberkz = numkzEvent
 			}
@@ -619,7 +615,8 @@ func (b *Bot) Unsubscribe(tipPing int) {
 		if tipPing == 3 {
 			argRoles = "кз" + b.in.Lvlkz + "+"
 		}
-		b.Ds.Unsubscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
+		text := b.Ds.Unsubscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
+		b.Ds.Send(b.in.Config.DsChannel, text)
 	} else if b.in.Tip == "tg" {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
