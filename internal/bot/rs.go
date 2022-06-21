@@ -36,7 +36,7 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.TgChannel != 0 {
 				text := fmt.Sprintf("Очередь кз%s (%d)\n1. %s - %sмин. (%d) \n\n%s++ - принудительный старт",
-					b.in.Lvlkz, numkzL, b.in.Name, b.in.Timekz, numkzN, b.in.Lvlkz)
+					b.in.Lvlkz, numkzL, b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN, b.in.Lvlkz)
 				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
 				b.SubscribePing(1)
 			}
@@ -63,8 +63,8 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.TgChannel != 0 {
 				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
-				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", u.User1.Name, u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %sмин. (%d) \n", b.in.Name, b.in.Timekz, numkzN)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("2. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
 				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
 				text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
 				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
@@ -94,9 +94,9 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.TgChannel != 0 {
 				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
-				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", u.User1.Name, u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", u.User2.Name, u.User2.Timedown, u.User2.Numkzn)
-				name3 := fmt.Sprintf("3. %s - %sмин. (%d) \n", b.in.Name, b.in.Timekz, numkzN)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
+				name3 := fmt.Sprintf("3. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
 				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
 				text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
 				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
@@ -261,7 +261,7 @@ func (b *Bot) QueueLevel() {
 		}
 		if b.in.Config.TgChannel != 0 {
 			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", u.User1.Name, u.User1.Timedown, u.User1.Numkzn)
+			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
 			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
 			text := fmt.Sprintf("%s %s %s", text1, name1, text2)
 			if b.in.Option.Edit {
@@ -297,8 +297,8 @@ func (b *Bot) QueueLevel() {
 		}
 		if b.in.Config.TgChannel != 0 {
 			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", u.User1.Name, u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", u.User2.Name, u.User2.Timedown, u.User2.Numkzn)
+			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
 			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
 			text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
 			if b.in.Option.Edit {
@@ -334,9 +334,9 @@ func (b *Bot) QueueLevel() {
 		}
 		if b.in.Config.TgChannel != 0 {
 			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", u.User1.Name, u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", u.User2.Name, u.User2.Timedown, u.User2.Numkzn)
-			name3 := fmt.Sprintf("3. %s - %dмин. (%d) \n", u.User3.Name, u.User3.Timedown, u.User3.Numkzn)
+			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
+			name3 := fmt.Sprintf("3. %s - %dмин. (%d) \n", b.emReadName(u.User3.Name, tg), u.User3.Timedown, u.User3.Numkzn)
 			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
 			text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
 			if b.in.Option.Edit {
@@ -355,21 +355,20 @@ func (b *Bot) QueueLevel() {
 func (b *Bot) QueueAll() {
 	lvl := b.Db.Queue(b.in.Config.CorpName)
 	lvlk := b.removeDuplicateElementString(lvl)
-	var aa []string
-	for _, corp := range lvlk {
-		skip := false
-		for _, u := range aa {
-			if corp == u {
-				skip = true
-				break
+	if len(lvlk) > 0 {
+		for _, corp := range lvlk {
+			if corp != "" {
+				b.in.Option.Queue = true
+				b.in.Lvlkz = corp
+				b.QueueLevel()
+
 			}
 		}
-		if !skip {
-			b.in.Option.Queue = true
-			b.in.Lvlkz = corp
-			b.QueueLevel()
-		}
+	} else {
+		b.ifTipSendTextDelSecond("Нет активных очередей ", 10)
+		b.iftipdelete()
 	}
+
 }
 func (b *Bot) RsStart() {
 	b.Mutex.Lock()
@@ -549,12 +548,7 @@ func (b *Bot) Plus() bool {
 			b.QueueLevel()
 		}
 	}
-	if b.in.Tip == "ds" {
-		go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, message, 10)
-	} else if b.in.Tip == "tg" {
-		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, message, 10)
-	}
-
+	b.ifTipSendTextDelSecond(message, 10)
 	return ins
 }
 func (b *Bot) Minus() bool {
@@ -574,11 +568,7 @@ func (b *Bot) Minus() bool {
 			b.RsMinus()
 		}
 	}
-	if b.in.Tip == "ds" {
-		go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, message, 10)
-	} else if b.in.Tip == "tg" {
-		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, message, 10)
-	}
+	b.ifTipSendTextDelSecond(message, 10)
 	return true
 }
 func (b *Bot) Subscribe(tipPing int) {
@@ -616,7 +606,7 @@ func (b *Bot) Unsubscribe(tipPing int) {
 			argRoles = "кз" + b.in.Lvlkz + "+"
 		}
 		text := b.Ds.Unsubscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
-		b.Ds.Send(b.in.Config.DsChannel, text)
+		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 	} else if b.in.Tip == "tg" {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
@@ -635,35 +625,32 @@ func (b *Bot) Unsubscribe(tipPing int) {
 
 func (b *Bot) emodjiadd(slot, emo string) {
 	b.iftipdelete()
-	if b.in.Tip == "ds" {
-		t := b.Db.EmReadUsers(b.in.Name, b.in.Tip)
-		if len(t.Name) > 0 {
-			b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
-		} else {
-			b.Db.EmInsertEmpty(b.in.Tip, b.in.Name)
-			b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
-		}
-	} else if b.in.Tip == "tg" {
-		//нужно реализовать логику эмоджи для тг
+	t := b.Db.EmReadUsers(b.in.Name, b.in.Tip)
+	if len(t.Name) == 0 {
+		b.Db.EmInsertEmpty(b.in.Tip, b.in.Name)
 	}
+	text := b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
+	b.ifTipSendTextDelSecond(text, 20)
 }
 func (b *Bot) emodjis() {
 	b.iftipdelete()
+	var e models.EmodjiUser
 	if b.in.Tip == ds {
-		e := b.Db.EmReadUsers(b.in.Name, ds)
-		text := "	Для установки эмоджи пиши текст \n" +
-			"Эмоджи пробел (номер ячейки1-4) пробел эмоджи \n" +
-			"	пример \n" +
-			"Эмоджи 1 🚀\n" +
-			"	Ваши слоты" +
-			"\n1" + e.Em1 +
-			"\n2" + e.Em2 +
-			"\n3" + e.Em3 +
-			"\n4" + e.Em4
-		b.Ds.SendEmbedText(b.in.Config.DsChannel, "Ваши эмоджи", text)
+		e = b.Db.EmReadUsers(b.in.Name, ds)
 	} else if b.in.Tip == tg {
-
+		e = b.Db.EmReadUsers(b.in.Name, tg)
 	}
+
+	text := "	Для установки эмоджи пиши текст \n" +
+		"Эмоджи пробел (номер ячейки1-4) пробел эмоджи \n" +
+		"	пример \n" +
+		"Эмоджи 1 🚀\n" +
+		"	Ваши слоты" +
+		"\n1" + e.Em1 +
+		"\n2" + e.Em2 +
+		"\n3" + e.Em3 +
+		"\n4" + e.Em4
+	b.ifTipSendTextDelSecond("Ваши эмоджи\n"+text, 20)
 }
 
 func (b *Bot) EventStart() {

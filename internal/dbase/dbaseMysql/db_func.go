@@ -285,7 +285,7 @@ func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
 	}
 }
 func (d *Db) Queue(corpname string) []string {
-	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE corpname = ?", corpname)
+	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE corpname = ? AND active = 0", corpname)
 	if err != nil {
 		fmt.Println("Ошибка чтения левелов для очереди", err)
 	}

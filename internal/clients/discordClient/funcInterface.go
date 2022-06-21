@@ -83,7 +83,7 @@ func (d *Ds) AddEnojiRsQueue(chatid, mesid string) {
 func (d *Ds) DeleteMessage(chatid, mesid string) {
 	err := d.d.ChannelMessageDelete(chatid, mesid)
 	if err != nil {
-		fmt.Println("Ошибка удаления дискорд сообщения ", err)
+		fmt.Println("Ошибка удаления дискорд сообщения ", chatid, mesid, err)
 	}
 }
 func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {

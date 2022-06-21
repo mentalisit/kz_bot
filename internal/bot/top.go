@@ -58,8 +58,12 @@ func (b *Bot) TopAll() {
 		if good {
 			b.ifTipSendTextDelSecond(formlist, 5)
 			message2 := b.Db.TopTemp()
-			mesage = mesage + message2
-			b.ifTipSendTextDelSecond(mesage, 60)
+			if b.in.Tip == ds {
+				m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, message2)
+				b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 60)
+			} else if b.in.Tip == tg {
+				b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, mesage+message2, 60)
+			}
 		} else if !good {
 			b.ifTipSendTextDelSecond(nohistory, 10)
 		}
