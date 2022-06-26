@@ -1,9 +1,6 @@
 package discordClient
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 )
@@ -11,14 +8,14 @@ import (
 func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
 	user, err := d.d.User(r.UserID)
 	if err != nil {
-		fmt.Println("Ошибка получения Юзера по реакции ", err)
+		d.log.Println("Ошибка получения Юзера по реакции ", err)
 	}
 	if user.ID != message.Author.ID {
 		ok, config := d.CorpConfig.CheckChannelConfigDS(r.ChannelID)
 		if ok {
 			member, e := d.d.GuildMember(config.Config.Guildid, user.ID)
 			if e != nil {
-				log.Println("Oшибка получения участника ", e)
+				d.log.Println("Oшибка получения участника ", e)
 			}
 			name := user.Username
 			if member.Nick != "" {
@@ -78,7 +75,7 @@ func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discord
 func (d *Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	err := d.d.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if err != nil {
-		log.Println("Ошибка удаления эмоджи", err)
+		d.log.Println("Ошибка удаления эмоджи", err)
 	}
 }
 
@@ -93,7 +90,7 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 		}
 		member, e := d.d.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
 		if e != nil {
-			fmt.Println("Ошибка получения ника пользователя", e)
+			d.log.Println("Ошибка получения ника пользователя", e)
 		}
 		name := m.Author.Username
 		if member.Nick != "" {
@@ -126,8 +123,6 @@ func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
 				Update:   false,
 			},
 		}
-		//logicRs(in)
-		//тут нужно передавать в логику бота
 		models.ChDs <- in
 		d.cleanChat(m)
 	}

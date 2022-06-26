@@ -2,8 +2,6 @@ package telegramClient
 
 import (
 	"fmt"
-	"log"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/internal/models"
 )
@@ -44,7 +42,7 @@ func (t *Telegram) logicMixTelegram(m *tgbotapi.Message) {
 func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	callback := tgbotapi.NewCallback(cb.ID, cb.Data)
 	if _, err := t.t.Request(callback); err != nil {
-		log.Println("ошибка запроса калбек телеги ", err)
+		t.log.Println("ошибка запроса калбек телеги ", err)
 	}
 	ok, config := t.CorpConfig.CheckChannelConfigTG(cb.Message.Chat.ID)
 	if ok {

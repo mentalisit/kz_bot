@@ -436,7 +436,7 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		}
 		switch {
 		case msg.Conversation != nil || msg.ExtendedTextMessage != nil:
-			w.handleTextMessage(evt.Info, msg)
+			//w.handleTextMessage(evt.Info, msg)
 		}
 
 		//w.log.Infof("425Received message %s from %s (%s): %+v", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)

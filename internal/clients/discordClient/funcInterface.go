@@ -2,12 +2,9 @@ package discordClient
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	corpsConfig "kz_bot/internal/clients/corpConfig"
-	"kz_bot/internal/dbase/dbaseMysql"
 )
 
 const (
@@ -20,12 +17,6 @@ const (
 )
 
 var mesContentNil string
-
-type Ds struct {
-	d discordgo.Session
-	corpsConfig.CorpConfig
-	dbase dbaseMysql.Db
-}
 
 func (d *Ds) EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
 	Embeds := &discordgo.MessageEmbed{
@@ -57,46 +48,59 @@ func (d *Ds) SendEmbedText(chatid, title, text string) *discordgo.Message {
 		Description: text,
 		Title:       title,
 	}
-	m, _ := d.d.ChannelMessageSendEmbed(chatid, Emb)
+	m, err := d.d.ChannelMessageSendEmbed(chatid, Emb)
+	if err != nil {
+		d.log.Println("Ошибка отправки сообщения со вставкой ", err)
+	}
 	return m
 }
 func (d *Ds) CheckAdmin(nameid string, chatid string) bool {
 	perms, err := d.d.UserChannelPermissions(nameid, chatid)
 	if err != nil {
-		fmt.Println("ошибка проверки админ ли ", err)
+		d.log.Println("ошибка проверки админ ли ", err)
 	}
 	if perms&discordgo.PermissionAdministrator != 0 {
-		//logrus.Println("админ")
 		return true
 	} else {
-		//logrus.Println("не админ")
 		return false
 	}
 }
 func (d *Ds) AddEnojiRsQueue(chatid, mesid string) {
-	d.d.MessageReactionAdd(chatid, mesid, emOK)
-	d.d.MessageReactionAdd(chatid, mesid, emCancel)
-	d.d.MessageReactionAdd(chatid, mesid, emRsStart)
-	d.d.MessageReactionAdd(chatid, mesid, emPl30)
+	err := d.d.MessageReactionAdd(chatid, mesid, emOK)
+	if err != nil {
+		d.log.Println("Ошибка добавления реакции на сообщения "+emOK, err)
+	}
+	err = d.d.MessageReactionAdd(chatid, mesid, emCancel)
+	if err != nil {
+		d.log.Println("Ошибка добавления реакции на сообщения "+emCancel, err)
+	}
+	err = d.d.MessageReactionAdd(chatid, mesid, emRsStart)
+	if err != nil {
+		d.log.Println("Ошибка добавления реакции на сообщения "+emRsStart, err)
+	}
+	err = d.d.MessageReactionAdd(chatid, mesid, emPl30)
+	if err != nil {
+		d.log.Println("Ошибка добавления реакции на сообщения "+emPl30, err)
+	}
 
 }
 func (d *Ds) DeleteMessage(chatid, mesid string) {
 	err := d.d.ChannelMessageDelete(chatid, mesid)
 	if err != nil {
-		fmt.Println("Ошибка удаления дискорд сообщения ", chatid, mesid, err)
+		d.log.Println("Ошибка удаления дискорд сообщения ", chatid, mesid, err)
 	}
 }
 func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
-		fmt.Println("ошибка отправки сообщения SendChannelDelSecond", err)
+		d.log.Println("ошибка отправки сообщения SendChannelDelSecond", err)
 	}
 	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			err := d.d.ChannelMessageDelete(chatid, message.ID)
+			err = d.d.ChannelMessageDelete(chatid, message.ID)
 			if err != nil {
-				fmt.Println("Ошибка удаления через секунды ", err)
+				d.log.Println("Ошибка удаления через секунды ", err)
 			}
 		}()
 	} else {
@@ -109,7 +113,7 @@ func (d *Ds) RoleToIdPing(rolePing, guildid string) string {
 	rolPing := "кз" + rolePing // добавляю буквы
 	g, err := d.d.Guild(guildid)
 	if err != nil {
-		fmt.Println("ошибка получении гильдии при получении роли", err)
+		d.log.Println("ошибка получении гильдии при получении роли", err)
 	}
 	exist, role := d.roleExists(g, rolPing)
 	if !exist {
@@ -123,14 +127,14 @@ func (d *Ds) RoleToIdPing(rolePing, guildid string) string {
 func (d *Ds) CreateRole(rolPing, guildid string) *discordgo.Role {
 	newRole, err := d.d.GuildRoleCreate(guildid)
 	if err != nil {
-		fmt.Println("ошибка создании новой роли ", err)
+		d.log.Println("ошибка создании новой роли ", err)
 	}
 	role, err := d.d.GuildRoleEdit(guildid, newRole.ID, rolPing, newRole.Color, newRole.Hoist, 37080064, true)
 	if err != nil {
-		fmt.Println("Ошибка изменения новой роли", err)
+		d.log.Println("Ошибка изменения новой роли", err)
 		err = d.d.GuildRoleDelete(guildid, newRole.ID)
 		if err != nil {
-			fmt.Println("ошибка удаления новой роли ", err)
+			d.log.Println("ошибка удаления новой роли ", err)
 		}
 	}
 	return role
@@ -144,7 +148,6 @@ func (d *Ds) DeleteMesageSecond(chatid, mesid string, second int) {
 			d.d.ChannelMessageDelete(chatid, mesid)
 		}()
 	}
-
 }
 func (d *Ds) EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed) {
 	a := &discordgo.MessageEdit{
@@ -155,18 +158,21 @@ func (d *Ds) EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed
 	}
 	_, err := d.d.ChannelMessageEditComplex(a)
 	if err != nil {
-		fmt.Println("Ошибка редактирования комплексного сообщения ", err)
+		d.log.Println("Ошибка редактирования комплексного сообщения ", err)
 	}
 }
 func (d *Ds) BotName() string { //получаем имя бота
-	u, _ := d.d.User("@me")
+	u, err := d.d.User("@me")
+	if err != nil {
+		d.log.Println("Ошибка получения имени бота", err)
+	}
 	return u.Username
 }
 func (d *Ds) SendComplexContent(chatid, text string) string { //отправка текста комплексного сообщения
 	mesCompl, err := d.d.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 		Content: text})
 	if err != nil {
-		fmt.Println("Ошибка отправки комплексного сообщения ", err)
+		d.log.Println("Ошибка отправки комплексного сообщения ", err)
 	}
 	return mesCompl.ID
 }
@@ -176,24 +182,24 @@ func (d *Ds) SendComplex(chatid string, embeds discordgo.MessageEmbed) string { 
 		Embed:   &embeds,
 	})
 	if err != nil {
-		fmt.Println("Ошибка отправки комплексного сообщения ", err)
+		d.log.Println("Ошибка отправки комплексного сообщения ", err)
 	}
 	return mesCompl.ID
 }
 func (d *Ds) Send(chatid, text string) string { //отправка текста
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
-		fmt.Println("ошибка отправки текста ", err)
+		d.log.Println("ошибка отправки текста ", err)
 	}
 	return message.ID
 }
 func (d *Ds) Subscribe(nameid, argRoles, guildid string) string {
 	g, err := d.d.State.Guild(guildid)
 	if err != nil {
-		fmt.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
+		d.log.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
 		g, err = d.d.Guild(guildid)
 		if err != nil {
-			log.Println("Ошибка чтения гуилд ... паниковать ", err)
+			d.log.Println("Ошибка чтения гуилд ... паниковать ", err)
 		}
 	}
 
@@ -205,7 +211,7 @@ func (d *Ds) Subscribe(nameid, argRoles, guildid string) string {
 
 	member, err := d.d.GuildMember(guildid, nameid)
 	if err != nil {
-		fmt.Println("Ошибка чтения участников гуилд", err)
+		d.log.Println("Ошибка чтения участников гуилд", err)
 	}
 	var subscribe int = 0
 	if exist {
@@ -218,7 +224,7 @@ func (d *Ds) Subscribe(nameid, argRoles, guildid string) string {
 
 	err = d.d.GuildMemberRoleAdd(guildid, nameid, role.ID)
 	if err != nil {
-		fmt.Println("Ошибка выдачи роли ", err)
+		d.log.Println("Ошибка выдачи роли ", err)
 		subscribe = 2
 	}
 	var text string
@@ -235,10 +241,10 @@ func (d *Ds) Unsubscribe(nameid, argRoles, guildid string) string {
 	var unsubscribe int = 0
 	g, err := d.d.State.Guild(guildid)
 	if err != nil {
-		fmt.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
+		d.log.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
 		g, err = d.d.Guild(guildid)
 		if err != nil {
-			log.Println("Ошибка чтения гуилд ... паниковать ", err)
+			d.log.Println("Ошибка чтения гуилд ... паниковать ", err)
 		}
 	}
 
@@ -249,7 +255,7 @@ func (d *Ds) Unsubscribe(nameid, argRoles, guildid string) string {
 
 	member, err := d.d.GuildMember(guildid, nameid)
 	if err != nil {
-		fmt.Println("Ошибка чтения участников гуилд", err)
+		d.log.Println("Ошибка чтения участников гуилд", err)
 	}
 	if exist {
 		for _, _role := range member.Roles {
@@ -261,7 +267,7 @@ func (d *Ds) Unsubscribe(nameid, argRoles, guildid string) string {
 	if unsubscribe == 2 {
 		err = d.d.GuildMemberRoleRemove(guildid, nameid, role.ID)
 		if err != nil {
-			fmt.Println("Ошибка снятия роли ", err)
+			d.log.Println("Ошибка снятия роли ", err)
 			unsubscribe = 3
 		}
 	}
@@ -280,21 +286,21 @@ func (d *Ds) Unsubscribe(nameid, argRoles, guildid string) string {
 func (d *Ds) EditMessage(chatID, messageID, content string) {
 	_, err := d.d.ChannelMessageEdit(chatID, messageID, content)
 	if err != nil {
-		fmt.Println("Ошибка изменения текса сообщения ", err)
+		d.log.Println("Ошибка изменения текса сообщения ", err)
 	}
 }
 func (d *Ds) SendEmbedTime(chatid, text string) string { //отправка текста с двумя реакциями
 	message, err := d.d.ChannelMessageSend(chatid, text)
 	if err != nil {
-		fmt.Println("ошибка отправки текста ", err)
+		d.log.Println("ошибка отправки текста ", err)
 	}
 	err = d.d.MessageReactionAdd(chatid, message.ID, emPlus)
 	if err != nil {
-		log.Println("Ошибка добавления эмоджи ", emPlus, err)
+		d.log.Println("Ошибка добавления эмоджи ", emPlus, err)
 	}
 	err = d.d.MessageReactionAdd(chatid, message.ID, emMinus)
 	if err != nil {
-		log.Println("Ошибка добавления эмоджи ", emMinus, err)
+		d.log.Println("Ошибка добавления эмоджи ", emMinus, err)
 	}
 	return message.ID
 }

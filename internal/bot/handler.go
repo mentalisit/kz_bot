@@ -3,6 +3,7 @@ package bot
 import "C"
 import (
 	"fmt"
+	"regexp"
 	"time"
 
 	corpsConfig "kz_bot/internal/clients/corpConfig"
@@ -158,5 +159,36 @@ func (b *Bot) currentTime() (string, string) {
 	mtime := (tm.Format("15:04"))
 
 	return mdate, mtime
+}
 
+func (b *Bot) SendALLChannel() (bb bool) {
+	if b.in.Name == "Mentalisit" {
+		re := regexp.MustCompile(`^(Всем|всем)\s([А-Яа-я\s.]+)$`)
+		arr := (re.FindAllStringSubmatch(b.in.Mtext, -1))
+		if len(arr) > 0 {
+			fmt.Println(arr[0])
+			bb = true
+
+			text := arr[0][2]
+
+			c := corpsConfig.CorpConfig{}
+			d, t, w := c.ReadAllChannel()
+			if len(d) > 0 {
+				for _, chatds := range d {
+					b.Ds.Send(chatds, text)
+				}
+			}
+			if len(t) > 0 {
+				for _, chattg := range t {
+					b.Tg.SendChannel(chattg, text)
+				}
+			}
+			if len(w) > 0 {
+				for _, chatwa := range w {
+					fmt.Println("тут нужно сделать отправку на ватс ", chatwa)
+				}
+			}
+		}
+	}
+	return bb
 }

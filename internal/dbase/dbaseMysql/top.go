@@ -2,7 +2,6 @@ package dbaseMysql
 
 import (
 	"fmt"
-	"log"
 )
 
 func (d *Db) TopLevel(CorpName, lvlkz string) bool {
@@ -10,7 +9,7 @@ func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND active=1  AND lvlkz = ? GROUP BY name ASC LIMIT 40",
 		CorpName, lvlkz)
 	if err != nil {
-		fmt.Println("Ошибка получения списка участников топа ", err)
+		d.log.Println("Ошибка получения списка участников топа ", err)
 	}
 
 	var name string
@@ -23,11 +22,11 @@ func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				fmt.Println("Ошибка внесения топа ", err)
+				d.log.Println("Ошибка внесения топа ", err)
 			}
 			_, err = statement.Exec(name, countNames, 0)
 			if err != nil {
-				fmt.Println("Ошибка внесения сохранения топа ", err.Error())
+				d.log.Println("Ошибка внесения сохранения топа ", err.Error())
 			}
 		}
 	}
@@ -39,7 +38,7 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 		"SELECT name FROM sborkz WHERE corpname=? AND active=1  AND lvlkz = ? AND numberevent = ?GROUP BY name ASC LIMIT 40",
 		CorpName, lvlkz, numEvent)
 	if err != nil {
-		fmt.Println("Ошибка получения списка участников топа ивента ", err)
+		d.log.Println("Ошибка получения списка участников топа ивента ", err)
 	}
 	var name string
 	for results.Next() {
@@ -51,7 +50,7 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 				name, CorpName, numEvent, lvlkz)
 			err := row.Scan(&countNames)
 			if err != nil {
-				fmt.Println("Ошибка подсчета количества походов", err)
+				d.log.Println("Ошибка подсчета количества походов", err)
 			}
 
 			var points int
@@ -60,17 +59,17 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 				name, CorpName, numEvent, lvlkz)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
-				fmt.Println("Ошибка подсчета очков ивента ", err4)
+				d.log.Println("Ошибка подсчета очков ивента ", err4)
 			}
 
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				fmt.Println("Ошибка внесения данных во временную таблицу", err)
+				d.log.Println("Ошибка внесения данных во временную таблицу", err)
 			}
 			_, err = statement.Exec(name, countNames, points)
 			if err != nil {
-				fmt.Println("Ошибка внесения д в в т ", err)
+				d.log.Println("Ошибка внесения д в в т ", err)
 			}
 		}
 	}
@@ -85,7 +84,7 @@ func (d *Db) TopTemp() string {
 
 	results, err := d.Db.Query("SELECT * FROM temptopevent ORDER BY numkz DESC")
 	if err != nil {
-		fmt.Println("Ошибка чтения темпТоп ", err)
+		d.log.Println("Ошибка чтения темпТоп ", err)
 	}
 
 	for results.Next() {
@@ -96,7 +95,7 @@ func (d *Db) TopTemp() string {
 
 	_, err = d.Db.Exec("DELETE FROM temptopevent")
 	if err != nil {
-		fmt.Println("Ошибка удаления временной таблицы ", err)
+		d.log.Println("Ошибка удаления временной таблицы ", err)
 	}
 	return message2
 }
@@ -109,7 +108,7 @@ func (d *Db) TopTempEvent() string {
 
 	results, err := d.Db.Query("SELECT * FROM temptopevent ORDER BY poins DESC")
 	if err != nil {
-		fmt.Println("Ошибка чтения темпТопEvent ", err)
+		d.log.Println("Ошибка чтения темпТопEvent ", err)
 	}
 
 	for results.Next() {
@@ -120,7 +119,7 @@ func (d *Db) TopTempEvent() string {
 
 	_, err = d.Db.Exec("DELETE FROM temptopevent")
 	if err != nil {
-		fmt.Println("Ошибка удаления временной таблицы ", err)
+		d.log.Println("Ошибка удаления временной таблицы ", err)
 	}
 	return message2
 }
@@ -129,7 +128,7 @@ func (d *Db) TopAll(CorpName string) bool {
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND active=1 GROUP BY name ASC LIMIT 40",
 		CorpName)
 	if err != nil {
-		log.Println("Ошибка сканирования имен общего топа ", err)
+		d.log.Println("Ошибка сканирования имен общего топа ", err)
 	}
 	var name string
 	for results.Next() {
@@ -141,17 +140,17 @@ func (d *Db) TopAll(CorpName string) bool {
 				name, CorpName)
 			err := row.Scan(&countNames)
 			if err != nil {
-				log.Println("Ошибка сканирования количества имен в общем топе ", err)
+				d.log.Println("Ошибка сканирования количества имен в общем топе ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				log.Println("Ошибка внесения общего топа в временную таблицу ", err)
+				d.log.Println("Ошибка внесения общего топа в временную таблицу ", err)
 			}
 			_, err = statement.Exec(name, countNames, 0)
 			if err != nil {
-				log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
+				d.log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
 			}
 		}
 	}
@@ -162,7 +161,7 @@ func (d *Db) TopAllEvent(CorpName string, numberevent int) bool {
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND numberevent = ? AND active=1 GROUP BY name ASC LIMIT 40",
 		CorpName, numberevent)
 	if err != nil {
-		log.Println("Ошибка запроса топалл эвент", err)
+		d.log.Println("Ошибка запроса топалл эвент", err)
 	}
 
 	var name string
@@ -175,24 +174,24 @@ func (d *Db) TopAllEvent(CorpName string, numberevent int) bool {
 				name, CorpName, numberevent)
 			err := row.Scan(&countNames)
 			if err != nil {
-				log.Println("Ошибка запроса топалл эвент количество ", err)
+				d.log.Println("Ошибка запроса топалл эвент количество ", err)
 			}
 			var points int
 			row4 := d.Db.QueryRow("SELECT  SUM(eventpoints) FROM sborkz WHERE name = ? AND corpname = ? AND active = 1 AND numberevent = ?",
 				name, CorpName, numberevent)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
-				log.Println("Ошибка запроса топалл points", err)
+				d.log.Println("Ошибка запроса топалл points", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				fmt.Println("Ошибка запроса топалл эвент подготовка", err)
+				d.log.Println("Ошибка запроса топалл эвент подготовка", err)
 			}
 			_, err = statement.Exec(name, countNames, points)
 			if err != nil {
-				fmt.Println("Ошибка топалл внесение", err)
+				d.log.Println("Ошибка топалл внесение", err)
 			}
 		}
 	}
@@ -203,7 +202,7 @@ func (d *Db) TopAllDay(CorpName string, oldDate string) bool {
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND date>? AND active=1 GROUP BY name ASC LIMIT 40",
 		CorpName, oldDate)
 	if err != nil {
-		log.Println("Ошибка сканирования имен общего топа ", err)
+		d.log.Println("Ошибка сканирования имен общего топа ", err)
 	}
 	var name string
 	for results.Next() {
@@ -215,17 +214,17 @@ func (d *Db) TopAllDay(CorpName string, oldDate string) bool {
 				name, CorpName, oldDate)
 			err := row.Scan(&countNames)
 			if err != nil {
-				log.Println("Ошибка сканирования количества имен в общем топе ", err)
+				d.log.Println("Ошибка сканирования количества имен в общем топе ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				log.Println("Ошибка внесения общего топа в временную таблицу ", err)
+				d.log.Println("Ошибка внесения общего топа в временную таблицу ", err)
 			}
 			_, err = statement.Exec(name, countNames, 0)
 			if err != nil {
-				log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
+				d.log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
 			}
 		}
 	}
@@ -236,7 +235,7 @@ func (d *Db) TopLevelDay(CorpName, lvlkz string, oldDate string) bool {
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND active=1  AND lvlkz = ? AND date>? GROUP BY name ASC LIMIT 40",
 		CorpName, lvlkz, oldDate)
 	if err != nil {
-		fmt.Println("Ошибка получения списка участников топа ", err)
+		d.log.Println("Ошибка получения списка участников топа ", err)
 	}
 
 	var name string
@@ -249,17 +248,17 @@ func (d *Db) TopLevelDay(CorpName, lvlkz string, oldDate string) bool {
 				name, CorpName, lvlkz, oldDate)
 			err := row.Scan(&countNames)
 			if err != nil {
-				log.Println("Ошибка сканирования количества имен в топе уровня за дату ", err)
+				d.log.Println("Ошибка сканирования количества имен в топе уровня за дату ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO temptopevent(name,numkz,points) VALUES (?,?,?)`
 			statement, err := d.Db.Prepare(insertTempTopEvent)
 			if err != nil {
-				fmt.Println("Ошибка внесения топа ", err)
+				d.log.Println("Ошибка внесения топа ", err)
 			}
 			_, err = statement.Exec(name, countNames, 0)
 			if err != nil {
-				fmt.Println("Ошибка внесения сохранения топа ", err.Error())
+				d.log.Println("Ошибка внесения сохранения топа ", err.Error())
 			}
 		}
 	}

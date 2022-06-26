@@ -19,6 +19,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
+	github.com/krasun/logrus2telegram v1.0.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	go.mau.fi/libsignal v0.0.0-20211109153248-a67163214910 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect

@@ -24,6 +24,7 @@ func (d *Ds) accessAddChannelDs(chatid, guildid string) { // внесение в
 			"повторная активация не требуется.\nнапиши Справка1", 30)
 	} else {
 		chatName := d.dsChatName(guildid)
+		d.log.Println("новая активация корпорации ", chatName)
 		d.dbase.AddDsCorpConfig(chatName, chatid, guildid)
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.", 60)
 
@@ -35,6 +36,7 @@ func (d *Ds) accessDelChannelDs(chatid string) { //удаление с бд и �
 		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
 		d.dbase.DeleteDsChannel(chatid)
+		d.log.Println("отключение корпорации ", d.dsChatName(chatid))
 		d.CorpConfig.ReloadConfig()
 		d.dbase.ReadBotCorpConfig()
 		go d.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)

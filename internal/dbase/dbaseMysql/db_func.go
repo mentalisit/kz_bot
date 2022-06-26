@@ -2,22 +2,10 @@ package dbaseMysql
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 	"time"
 
-	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/models"
 )
-
-type Db struct {
-	Db *sql.DB
-	corpsConfig.CorpConfig
-}
-
-//func NewDb(db *sql.DB) *Db {
-//	return &Db{Db: db}
-//}
 
 func (d *Db) СountName(name, lvlkz, corpName string) int {
 	var countNames int
@@ -25,7 +13,7 @@ func (d *Db) СountName(name, lvlkz, corpName string) int {
 		name, lvlkz, corpName)
 	err := row.Scan(&countNames)
 	if err != nil {
-		fmt.Println("Ошибка проверки в очереди ли игрок  ", err)
+		d.log.Println("Ошибка проверки в очереди ли игрок  ", err)
 	}
 	return countNames
 }
@@ -35,7 +23,7 @@ func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка ско�
 		lvlkz, CorpName)
 	err := row.Scan(&count)
 	if err != nil {
-		fmt.Println("Ошибка проверки количества игроков в очереди", err)
+		d.log.Println("Ошибка проверки количества игроков в очереди", err)
 	}
 	return count
 }
@@ -46,7 +34,7 @@ func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // вы�
 		lvlkz, CorpName, name)
 	err := row.Scan(&countNumberNameActive1)
 	if err != nil {
-		fmt.Println("Ошибка чтения количества игр", err)
+		d.log.Println("Ошибка чтения количества игр", err)
 	}
 	return countNumberNameActive1
 }
@@ -61,15 +49,15 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 			insertSmt := "INSERT INTO numkz(lvlkz, number,corpname) VALUES (?,?,?)"
 			statement, err := d.Db.Prepare(insertSmt)
 			if err != nil {
-				fmt.Println("Ошибка подготовки внесения нумкз", err)
+				d.log.Println("Ошибка подготовки внесения нумкз", err)
 			}
 			_, err = statement.Exec(lvlkz, number, CorpName)
 			if err != nil {
-				fmt.Println("Ошибка внесения нумкз", err)
+				d.log.Println("Ошибка внесения нумкз", err)
 			}
 			return number + 1
 		} else {
-			fmt.Println("Ошибка чтения нумкз", err)
+			d.log.Println("Ошибка чтения нумкз", err)
 		}
 	}
 	return number + 1
@@ -85,7 +73,7 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0",
 		lvlkz, CorpName)
 	if err != nil {
-		fmt.Println("Ошибка чтения активной очереди readall", err)
+		d.log.Println("Ошибка чтения активной очереди readall", err)
 	}
 	for results.Next() {
 		var t models.Sborkz
@@ -116,7 +104,7 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	_, err := d.Db.Exec(insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
 		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekz)
 	if err != nil {
-		fmt.Println("Ошибка записи старта очереди", err)
+		d.log.Println("Ошибка записи старта очереди", err)
 	}
 }
 func (d *Db) MesidTgUpdate(mesidtg int, lvlkz string, corpname string) {
@@ -124,7 +112,7 @@ func (d *Db) MesidTgUpdate(mesidtg int, lvlkz string, corpname string) {
 		`update sborkz set tgmesid = ? where lvlkz = ? AND corpname = ? `,
 		mesidtg, lvlkz, corpname)
 	if err != nil {
-		fmt.Println("Ошибка измениния месайди телеги", err)
+		d.log.Println("Ошибка измениния месайди телеги", err)
 	}
 }
 func (d *Db) MesidDsUpdate(mesidds, lvlkz, corpname string) {
@@ -132,7 +120,7 @@ func (d *Db) MesidDsUpdate(mesidds, lvlkz, corpname string) {
 		`update sborkz set dsmesid = ? where lvlkz = ? AND corpname = ? `,
 		mesidds, lvlkz, corpname)
 	if err != nil {
-		log.Println("Ошибка измениния месайди дискорда ", err)
+		d.log.Println("Ошибка измениния месайди дискорда ", err)
 	}
 }
 func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) {
@@ -141,17 +129,17 @@ func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid
 				where lvlkz = ? AND corpname = ? AND active = 0`,
 		dsmesid, tgmesid, wamesid, numberkz, numberevent, lvlkz, corpname)
 	if err != nil {
-		fmt.Println("Ошибка сохранения закрытия очереди", err)
+		d.log.Println("Ошибка сохранения закрытия очереди", err)
 	}
 	_, err = d.Db.Exec(`update numkz set number=number+1 where lvlkz = ? AND corpname = ?`, lvlkz, corpname)
 	if err != nil {
-		fmt.Println(err)
+		d.log.Println("Ошибка обновления нумкзз", err)
 	}
 	if numberevent > 0 {
 		_, err := d.Db.Exec(
 			`update rsevent set number = number+1  where corpname = ? AND activeevent = 1`, corpname)
 		if err != nil {
-			log.Println("Ошибка обновления номера катки ивента ", err)
+			d.log.Println("Ошибка обновления номера катки ивента ", err)
 		}
 	}
 }
@@ -160,7 +148,7 @@ func (d *Db) NumberQueueEvents(CorpName string) int {
 	row := d.Db.QueryRow("SELECT  number FROM rsevent WHERE activeevent = 1 AND corpname = ? ", CorpName)
 	err := row.Scan(&number)
 	if err != nil {
-		fmt.Println("Ошибка получения номера очереди с таблицы rsevent", err)
+		d.log.Println("Ошибка получения номера очереди с таблицы rsevent", err)
 	}
 	return number
 }
@@ -169,14 +157,14 @@ func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем
 	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND active = 0", name)
 	err := row.Scan(&countNames)
 	if err != nil {
-		fmt.Println("Ошибка проверки игрока в других очередях ", err)
+		d.log.Println("Ошибка проверки игрока в других очередях ", err)
 	}
 	return countNames
 }
 func (d *Db) ElseTrue(name string) models.Sborkz {
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND active = 0", name)
 	if err != nil {
-		fmt.Println("Ошибка извлечения игрока с других очередей ", err)
+		d.log.Println("Ошибка извлечения игрока с других очередей ", err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -189,14 +177,14 @@ func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
 	_, err := d.Db.Exec("delete from sborkz where name = ? AND lvlkz = ? AND corpname = ? AND active = 0",
 		name, lvlkz, CorpName)
 	if err != nil {
-		fmt.Println("Ошибка удаления из очереди ", err)
+		d.log.Println("Ошибка удаления из очереди ", err)
 	}
 }
 func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND corpname = ? AND active = 0",
 		name, CorpName)
 	if err != nil {
-		fmt.Println("Ошибка проверки игрока в очереди для функции (-+) ", err)
+		d.log.Println("Ошибка проверки игрока в очереди для функции (-+) ", err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -208,7 +196,7 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 			_, err := d.Db.Exec("update sborkz set timedown = timedown + 30 where active = 0 AND name = ? AND corpname = ?",
 				t.Name, t.Corpname)
 			if err != nil {
-				fmt.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
+				d.log.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
 			}
 			return t
 		}
@@ -219,18 +207,18 @@ func (d *Db) TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, 
 	insertTimer := `INSERT INTO timer(dsmesid,dschatid,tgmesid,tgchatid,timed) VALUES (?,?,?,?,?)`
 	_, err := d.Db.Exec(insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
 	if err != nil {
-		log.Println("Ошибка внесения в бд для удаления ", err)
+		d.log.Println("Ошибка внесения в бд для удаления ", err)
 	}
 }
 func (d *Db) TimerDeleteMessage() []models.Timer {
 	_, err := d.Db.Exec(`update timer set timed = timed - 60`)
 	if err != nil {
-		fmt.Println("Ошибка удаления 60секунд", err)
+		d.log.Println("Ошибка удаления 60секунд", err)
 	}
 
 	results, err := d.Db.Query("SELECT * FROM timer WHERE timed < 60")
 	if err != nil {
-		fmt.Println("Ошибка чтения ид где меньше 60 секунд", err)
+		d.log.Println("Ошибка чтения ид где меньше 60 секунд", err)
 	}
 	var timedown []models.Timer
 	for results.Next() {
@@ -240,7 +228,7 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 
 		_, err = d.Db.Exec("delete from timer where  id = ? ", t.Id)
 		if err != nil {
-			fmt.Println("Ошибка удаления по ид с таблицы таймера", err)
+			d.log.Println("Ошибка удаления по ид с таблицы таймера", err)
 		}
 	}
 	return timedown
@@ -248,7 +236,7 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 func (d *Db) ReadMesIdDS(mesid string) (string, error) {
 	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE dsmesid = ? AND active = 0", mesid)
 	if err != nil {
-		log.Println("Ошибка получения уровня кз по меседж айди", err)
+		d.log.Println("Ошибка получения уровня кз по меседж айди", err)
 	}
 	a := []string{}
 	var dsmesid string
@@ -270,7 +258,7 @@ func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
 	results, err := d.Db.Query("SELECT timedown FROM sborkz WHERE lvlkz = ? AND corpname = ? AND active = 0 AND name = ?",
 		lvlkz, CorpName, name)
 	if err != nil {
-		fmt.Println("Ошибка получения оставшегося времени ", err)
+		d.log.Println("Ошибка получения оставшегося времени ", err)
 	}
 	for results.Next() {
 		err = results.Scan(&timedown)
@@ -281,13 +269,13 @@ func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
 	_, err := d.Db.Exec(`update sborkz set timedown = timedown+30 where lvlkz = ? AND corpname = ? AND name = ?`,
 		lvlkz, CorpName, name)
 	if err != nil {
-		log.Println("Ошибка обновления времени ", err)
+		d.log.Println("Ошибка обновления времени ", err)
 	}
 }
 func (d *Db) Queue(corpname string) []string {
 	results, err := d.Db.Query("SELECT lvlkz FROM sborkz WHERE corpname = ? AND active = 0", corpname)
 	if err != nil {
-		fmt.Println("Ошибка чтения левелов для очереди", err)
+		d.log.Println("Ошибка чтения левелов для очереди", err)
 	}
 	var lvl []string
 	for results.Next() {
@@ -303,7 +291,7 @@ func (d *Db) Queue(corpname string) []string {
 func (d *Db) AutoHelp() []models.BotConfig {
 	results, err := d.Db.Query("SELECT dschannel,mesiddshelp FROM config")
 	if err != nil {
-		log.Println("Ошибка получения автосправки с бд", err)
+		d.log.Println("Ошибка получения автосправки с бд", err)
 	}
 	h := models.BotConfig{}
 	var a []models.BotConfig
@@ -317,18 +305,18 @@ func (d *Db) AutoHelp() []models.BotConfig {
 func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
 	_, err := d.Db.Exec(`update config set mesiddshelp = ? where dschannel = ? `, newMesidHelp, dschannel)
 	if err != nil {
-		log.Println("ОШибка обновления месИд для автосправки ", err)
+		d.log.Println("ОШибка обновления месИд для автосправки ", err)
 	}
 }
 func (d *Db) MinusMin() []models.Sborkz {
 	_, err := d.Db.Exec(`update sborkz set timedown = timedown - 1 where active = 0`)
 	if err != nil {
-		fmt.Println("Ошибка удаления минуты ", err)
+		d.log.Println("Ошибка удаления минуты ", err)
 	}
 
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE active = 0")
 	if err != nil {
-		fmt.Println("Ошибка чтения после удаления минуты", err)
+		d.log.Println("Ошибка чтения после удаления минуты", err)
 	}
 	var tt []models.Sborkz
 	for results.Next() {
@@ -344,7 +332,7 @@ func (d *Db) OneMinutsTimer() []string {
 	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE active = 0")
 	err := row.Scan(&count)
 	if err != nil {
-		fmt.Println("Ошибка подсчета активных игроков в очередях", err)
+		d.log.Println("Ошибка подсчета активных игроков в очередях", err)
 	}
 	var CorpActive0 []string
 	if count > 0 {
@@ -352,7 +340,7 @@ func (d *Db) OneMinutsTimer() []string {
 		aa := []string{}
 		results, err := d.Db.Query("SELECT corpname FROM sborkz WHERE active = 0")
 		if err != nil {
-			fmt.Println("Ошибка чтения корпораций где есть активные очереди ", err)
+			d.log.Println("Ошибка чтения корпораций где есть активные очереди ", err)
 		}
 		var corpname string // ищим корпорации
 		for results.Next() {
@@ -384,12 +372,12 @@ func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
 	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE corpname = ? AND active = 0", corpname)
 	err := row.Scan(&countCorp)
 	if err != nil {
-		fmt.Println("Ошибка получения активных очередей корпорации ", err)
+		d.log.Println("Ошибка получения активных очередей корпорации ", err)
 	}
 	if countCorp > 0 {
 		results, err := d.Db.Query("SELECT * FROM sborkz WHERE corpname = ? AND active = 0", corpname)
 		if err != nil {
-			fmt.Println("Ошибка получения активных очередей корпорации2 ", err)
+			d.log.Println("Ошибка получения активных очередей корпорации2 ", err)
 		}
 		for results.Next() {
 			var t models.Sborkz
@@ -408,7 +396,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 	var in models.InMessage
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE dsmesid = ? AND active = 0", dsmesid)
 	if err != nil {
-		fmt.Println(err)
+		d.log.Println(err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -446,7 +434,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage {
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE tgmesid = ? AND active = 0", tgmesid)
 	if err != nil {
-		fmt.Println(err)
+		d.log.Println(err)
 	}
 	var t models.Sborkz
 	for results.Next() {

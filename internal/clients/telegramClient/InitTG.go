@@ -3,20 +3,29 @@ package telegramClient
 import (
 	"database/sql"
 	"fmt"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sirupsen/logrus"
+	corpsConfig "kz_bot/internal/clients/corpConfig"
+	"kz_bot/internal/dbase/dbaseMysql"
 )
 
-func (t *Telegram) InitTG(tokent string, db *sql.DB) {
+type Telegram struct {
+	t tgbotapi.BotAPI
+	corpsConfig.CorpConfig
+	dbase dbaseMysql.Db
+	log   *logrus.Logger
+}
+
+func (t *Telegram) InitTG(tokent string, db *sql.DB, log *logrus.Logger) {
+	t.dbase.Db = db
+	t.log = log
 	//подключение к телеграм
 	TgBot, Err := tgbotapi.NewBotAPI(tokent)
 	if Err != nil {
-		fmt.Println(Err)
-		return //временная мера пока нет интернета
-		//log.Panic("ошибка подключения к телеграм ", Err)
+		t.log.Panic("ошибка подключения к телеграм ", Err)
 	}
 	TgBot.Debug = false
-	fmt.Printf("Бот TELEGRAM загружен  %s\n", TgBot.Self.UserName)
+	t.log.Printf("Бот TELEGRAM загружен  %s\n", TgBot.Self.UserName)
 	ut := tgbotapi.NewUpdate(0)
 	ut.Timeout = 60
 	go func() { //получаем обновления от телеграм
@@ -49,5 +58,5 @@ func (t *Telegram) InitTG(tokent string, db *sql.DB) {
 	}()
 
 	t.t = *TgBot
-	t.dbase.Db = db
+
 }

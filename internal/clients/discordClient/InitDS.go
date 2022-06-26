@@ -2,18 +2,25 @@ package discordClient
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-
 	"github.com/bwmarrin/discordgo"
+	"github.com/sirupsen/logrus"
+	corpsConfig "kz_bot/internal/clients/corpConfig"
+	"kz_bot/internal/dbase/dbaseMysql"
 )
 
-func (d *Ds) InitDS(TokenD string, db *sql.DB) {
+type Ds struct {
+	d discordgo.Session
+	corpsConfig.CorpConfig
+	dbase dbaseMysql.Db
+	log   *logrus.Logger
+}
+
+func (d *Ds) InitDS(TokenD string, db *sql.DB, log *logrus.Logger) {
+	d.dbase.Db = db
+	d.log = log
 	DSBot, err := discordgo.New("Bot " + TokenD)
 	if err != nil {
-		fmt.Println(err)
-		return
-		//panic(err)
+		d.log.Panic("Ошибка запуска дискорда", err)
 	}
 
 	DSBot.AddHandler(d.messageHandler)
@@ -21,15 +28,10 @@ func (d *Ds) InitDS(TokenD string, db *sql.DB) {
 
 	err = DSBot.Open()
 	if err != nil {
-		log.Println("Ошибка открытия ДС", err)
-		fmt.Println(err)
-		return
-		//panic(err)
+		d.log.Panic("Ошибка открытия ДС", err)
 	}
-	fmt.Println("Бот DISCORD запущен!!!")
+	d.log.Println("Бот DISCORD запущен!!!")
 	d.d = *DSBot
-	d.dbase.Db = db
-	return
 }
 
 func (d *Ds) messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -44,7 +46,7 @@ func (d *Ds) messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 func (d *Ds) MessageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := d.d.ChannelMessage(r.ChannelID, r.MessageID)
 	if err != nil {
-		fmt.Println("Ошибка чтения реакции в ДС", err)
+		d.log.Println("Ошибка чтения реакции в ДС", err)
 	}
 	if message.Author.ID == s.State.User.ID {
 		d.readReactionQueue(r, message)

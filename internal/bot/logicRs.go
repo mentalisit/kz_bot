@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -17,7 +16,7 @@ func (b *Bot) lRsPlus() bool {
 		kzb = arr[0][2]
 		timekzz, err := strconv.Atoi(arr[0][3])
 		if err != nil {
-			fmt.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преоразования atoi", err)
 		}
 		if timekzz > 180 {
 			timekzz = 180
@@ -64,7 +63,7 @@ func (b *Bot) lSubs() (bb bool) {
 		} else if subs == "U" || subs == "u" {
 			subs = "-"
 		}
-		fmt.Println("Тестирование подписок совместимости")
+		b.log.Println("Тестирование подписок совместимости")
 	}
 	re6 := regexp.MustCompile(`^([\+][\+]|[-][-])([4-9]|[1][0-2])$`) // две переменные
 	arr6 := (re6.FindAllStringSubmatch(b.in.Mtext, -1))              // для добавления или удаления подписок 3/4
@@ -84,7 +83,7 @@ func (b *Bot) lSubs() (bb bool) {
 			} else if subs == "U" || subs == "u" {
 				subs = "--"
 			}
-			fmt.Println("проверка совместимости подписок 3 из 4")
+			b.log.Println("проверка совместимости подписок 3 из 4")
 		}
 	}
 	switch subs {
@@ -132,7 +131,7 @@ func (b *Bot) lRsStart() (bb bool) {
 			bb = true
 			b.in.Lvlkz = arr5[0][3]
 			rss = "++"
-			fmt.Println("Проверка совместимости принудительного старта ")
+			b.log.Println("Проверка совместимости принудительного старта ")
 		}
 	}
 	reP := regexp.MustCompile(`^([4-9]|[1][0-2])([\+][\+][\+])$`) //p30pl
@@ -155,11 +154,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			fmt.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преоразования atoi", err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][2])
 		if err != nil {
-			fmt.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преоразования atoi", err)
 		}
 		b.EventPoints(numkz, points)
 	}
@@ -169,11 +168,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][4])
 		if err != nil {
-			fmt.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преоразования atoi", err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			fmt.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преоразования atoi", err)
 		}
 		b.EventPoints(numkz, points)
 	}

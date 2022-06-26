@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/sirupsen/logrus"
 	"kz_bot/config"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients/discordClient"
 	"kz_bot/internal/clients/telegramClient"
 	"kz_bot/internal/dbase/dbaseMysql"
+	"kz_bot/internal/logger"
 )
 
 func main() {
 	fmt.Println("ЗАПУСК БОТА")
-	log := logrus.New()
 	cfg := config.InitConfig()
-	log.Println("загрузка")
+	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
+	log.Println("🚀  загрузка  🚀")
 
 	db := &dbaseMysql.Db{}
 	tg := &telegramClient.Telegram{}
@@ -24,13 +23,14 @@ func main() {
 
 	//go wa.InitWA()
 
-	db.DbConnection()
+	db.InitDB(log, cfg)
 
-	tg.InitTG(cfg.TokenT, db.Db)
-	ds.InitDS(cfg.TokenD, db.Db)
+	tg.InitTG(cfg.TokenT, db.Db, log)
+	ds.InitDS(cfg.TokenD, db.Db, log)
 
 	db.ReadBotCorpConfig()
-	go bot.NewBot(tg, ds, db).InitBot()
+
+	go bot.NewBot(tg, ds, db, log).InitBot()
 
 	<-make(chan struct{})
 	//return

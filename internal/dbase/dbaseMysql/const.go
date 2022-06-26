@@ -62,11 +62,15 @@ const (
 		tgchatid BIGINT(50) NULL DEFAULT NULL,
 		timed INT(11) NULL DEFAULT '0'
 		)`
-	temptop = `CREATE TABLE IF NOT EXISTS temptop(
+	users = `CREATE TABLE IF NOT EXISTS users(
 		id int primary key auto_increment,
+		tip VARCHAR(30) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 		name VARCHAR(30) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-		numkz INT(11) NULL DEFAULT NULL
-	)`
+		em1 VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+		em2 VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+		em3 VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+		em4 VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci'
+		)`
 	temptopevent = `CREATE TABLE IF NOT EXISTS temptopevent(
 		id int primary key auto_increment,
 		name VARCHAR(30) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',

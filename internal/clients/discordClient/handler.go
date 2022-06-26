@@ -1,7 +1,6 @@
 package discordClient
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -18,7 +17,7 @@ func (d *Ds) cleanChat(m *discordgo.MessageCreate) {
 	}
 }
 
-//получаем есть ли роль и саму роль
+// получаем есть ли роль и саму роль
 func (d *Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.Role) {
 	nameRoles = strings.ToLower(nameRoles)
 
@@ -36,7 +35,7 @@ func (d *Ds) roleExists(g *discordgo.Guild, nameRoles string) (bool, *discordgo.
 func (d *Ds) dsChatName(guildid string) string {
 	g, err := d.d.Guild(guildid)
 	if err != nil {
-		fmt.Println("Ошибка проверка имени канала ", err)
+		d.log.Println("Ошибка проверка имени канала ", err)
 	}
 	return g.Name
 }

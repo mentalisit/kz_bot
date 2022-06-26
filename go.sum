@@ -21,6 +21,8 @@ github.com/ilyakaznacheev/cleanenv v1.2.6/go.mod h1:C3bB+MJ+LjECYlw2k7CSagKGfL1Y
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
 github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+github.com/krasun/logrus2telegram v1.0.0 h1:rqDFhdj+X7fa9rX24fwl8pYbTGEqJxT9STRGIy1s5HU=
+github.com/krasun/logrus2telegram v1.0.0/go.mod h1:qHuAkjpU6xP8lJ/05Upm0+0dX3ZJhGKA/1kSQbS116g=
 github.com/mattn/go-colorable v0.1.2/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
 github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
 github.com/mattn/go-sqlite3 v1.14.11 h1:gt+cp9c0XGqe9S/wAHTL3n/7MqY+siPWgWJgqdsFrzQ=

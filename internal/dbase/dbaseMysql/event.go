@@ -2,9 +2,7 @@ package dbaseMysql
 
 import (
 	"database/sql"
-	"fmt"
 	"kz_bot/internal/models"
-	"log"
 )
 
 func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
@@ -14,14 +12,14 @@ func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 		event1, CorpName, numberkz)
 	err := row.Scan(&countEvent)
 	if err != nil {
-		fmt.Println("Ошибка получения количествой участников катки ", err)
+		d.log.Println("Ошибка получения количествой участников катки ", err)
 	}
 	pointsq := points / countEvent
 	//вносим очки
 	_, err = d.Db.Exec(`update sborkz set eventpoints=? WHERE numberevent = ? AND corpname =? AND numberkz=? AND active=1`,
 		pointsq, event1, CorpName, numberkz)
 	if err != nil {
-		log.Println("Ошибка внесения очков катки ", err)
+		d.log.Println("Ошибка внесения очков катки ", err)
 	}
 	return countEvent
 }
@@ -30,7 +28,7 @@ func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, n
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE corpname=? AND numberkz=? AND numberevent = ? AND active=1",
 		CorpName, numberkz, numberEvent)
 	if err != nil {
-		fmt.Println("ошибка извлечения для изменения сообщения катки ", err)
+		d.log.Println("ошибка извлечения для изменения сообщения катки ", err)
 	}
 
 	num := 1
@@ -73,7 +71,7 @@ func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (cou
 		CorpName, numberkz, name, numEvent)
 	err := row.Scan(&countEventNames)
 	if err != nil {
-		fmt.Println("Ошибка получения количества участников определенной кз для ивента ", err)
+		d.log.Println("Ошибка получения количества участников определенной кз для ивента ", err)
 	}
 	return countEventNames
 }
@@ -83,7 +81,7 @@ func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
 		CorpName, numberkz, numberEvent)
 	err := row.Scan(&countEventPoints)
 	if err != nil {
-		fmt.Println("Ошибка проверки внесены ли очки по катке ивента ", err)
+		d.log.Println("Ошибка проверки внесены ли очки по катке ивента ", err)
 	}
 	return countEventPoints
 }
@@ -95,7 +93,7 @@ func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос но�
 		if err == sql.ErrNoRows {
 			event1 = 0
 		} else {
-			fmt.Println("Ошибка получения номера ивента ", err)
+			d.log.Println("Ошибка получения номера ивента ", err)
 		}
 	}
 	return event1
@@ -105,7 +103,7 @@ func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос но
 		CorpName)
 	err := row.Scan(&event0)
 	if err != nil {
-		fmt.Println("Ошибка проверки прошлого номера ивента ", err)
+		d.log.Println("Ошибка проверки прошлого номера ивента ", err)
 	}
 	return event0
 }
@@ -113,7 +111,7 @@ func (d *Db) UpdateActiveEvent0(CorpName string, event1 int) {
 	_, err := d.Db.Exec("UPDATE rsevent SET activeevent=0 WHERE corpname=? AND numevent=?",
 		CorpName, event1)
 	if err != nil {
-		fmt.Println("Ошибка обновления активИвент ", err)
+		d.log.Println("Ошибка обновления активИвент ", err)
 	}
 }
 func (d *Db) EventStartInsert(CorpName string) {
@@ -123,13 +121,13 @@ func (d *Db) EventStartInsert(CorpName string) {
 		insertEvent := `INSERT INTO rsevent (corpname,numevent,activeevent,number) VALUES (?,?,?,?)`
 		_, err := d.Db.Exec(insertEvent, CorpName, numberevent, 1, 1)
 		if err != nil {
-			log.Println("Ошибка внесения старта ивента ", err)
+			d.log.Println("Ошибка внесения старта ивента ", err)
 		}
 	} else {
 		insertEvent := `INSERT INTO rsevent (corpname,numevent,activeevent,number) VALUES (?,?,?,?)`
 		_, err := d.Db.Exec(insertEvent, CorpName, 1, 1, 1)
 		if err != nil {
-			log.Println("Ошибка внесения старта ивента0 ", err)
+			d.log.Println("Ошибка внесения старта ивента0 ", err)
 		}
 	}
 }

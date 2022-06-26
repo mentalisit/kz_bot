@@ -1,9 +1,7 @@
 package dbaseMysql
 
 import (
-	"fmt"
 	"kz_bot/internal/models"
-	"log"
 )
 
 func (d *Db) SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChannel int64) string {
@@ -33,7 +31,7 @@ func (d *Db) CheckSubscribe(name, lvlkz string, TgChannel int64, tipPing int) in
 		name, lvlkz, TgChannel, tipPing)
 	err := row.Scan(&counts)
 	if err != nil {
-		log.Println("Ошибка проврки активной подписки ", err)
+		d.log.Println("Ошибка проврки активной подписки ", err)
 	}
 	return counts
 }
@@ -42,13 +40,13 @@ func (d *Db) Subscribe(name, nameMention, lvlkz string, tipPing int, TgChannel i
 	statement, err := d.Db.Prepare(insertSubscribe)
 	_, err = statement.Exec(name, nameMention, lvlkz, tipPing, TgChannel, 0, 0)
 	if err != nil {
-		log.Println("Ошибка внесения в таблицу подписок ", err)
+		d.log.Println("Ошибка внесения в таблицу подписок ", err)
 	}
 }
 func (d *Db) Unsubscribe(name, lvlkz string, TgChannel int64, tipPing int) {
 	_, err := d.Db.Exec("delete from subscribe where name = ? AND lvlkz = ? AND chatid = ? AND tip = ?",
 		name, lvlkz, TgChannel, tipPing)
 	if err != nil {
-		fmt.Println("Ошибка удаления подписки с БД", err)
+		d.log.Println("Ошибка удаления подписки с БД", err)
 	}
 }

@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 
@@ -17,13 +18,14 @@ type Bot struct {
 	Db    dbase.DbInterface
 	in    models.InMessage
 	Mutex sync.Mutex
+	log   *logrus.Logger
 }
 
-func NewBot(tg clients.TelegramInterface, ds clients.DiscordInterface, db *dbaseMysql.Db) *Bot {
-	return &Bot{Tg: tg, Ds: ds, Db: db}
+func NewBot(tg clients.TelegramInterface, ds clients.DiscordInterface, db *dbaseMysql.Db, log *logrus.Logger) *Bot {
+	return &Bot{Tg: tg, Ds: ds, Db: db, log: log}
 }
 func (b *Bot) InitBot() {
-	fmt.Println("Бот загружен и готов к работе ")
+	b.log.Println("Бот загружен и готов к работе ")
 	go func() {
 		for {
 			if time.Now().Second() == 0 {
@@ -62,7 +64,6 @@ func (b *Bot) InitBot() {
 
 func (b *Bot) LogicRs() {
 	if len(b.in.Mtext) > 0 {
-
 		if b.lRsPlus() {
 		} else if b.lSubs() {
 		} else if b.lQueue() {
@@ -71,9 +72,10 @@ func (b *Bot) LogicRs() {
 		} else if b.lTop() {
 		} else if b.lEmoji() {
 		} else if b.logicIfText() {
+		} else if b.SendALLChannel() {
 			//пробуем мост между месенджерами
 		} else if b.in.Config.TgChannel != 0 && b.in.Config.DsChannel != "" {
-			//	go bridge(in)
+			b.bridge()
 		}
 	}
 }
@@ -91,4 +93,13 @@ func (b *Bot) logicIfText() bool {
 		iftext = false
 	}
 	return iftext
+}
+func (b *Bot) bridge() {
+	if b.in.Tip == ds {
+		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
+		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
+	} else if b.in.Tip == tg {
+		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
+		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
+	}
 }
