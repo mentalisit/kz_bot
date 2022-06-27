@@ -15,6 +15,7 @@ type TelegramInterface interface {
 	RemoveDuplicateElementInt(mesididid []int) []int
 	ChatName(chatid int64) string
 	BotName() string
+	Help(Channel int64)
 }
 
 type DiscordInterface interface {
@@ -35,4 +36,6 @@ type DiscordInterface interface {
 	EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed
 	EditMessage(chatID, messageID, content string)
 	SendEmbedTime(chatid, text string) string
+	Help(Channel string)
+	Autohelp()
 }

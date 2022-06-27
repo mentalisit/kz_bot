@@ -47,8 +47,9 @@ type DbInterface interface {
 	Event
 	Subscribe
 	Emoji
-	СountName(name, lvlkz, corpName string) int                                                                                 //проверка состоит ли игрок уже в очереди
-	CountQueue(lvlkz, CorpName string) int                                                                                      //проверка сколько игроков в очереди
+	СountName(name, lvlkz, corpName string) int //проверка состоит ли игрок уже в очереди
+	CountQueue(lvlkz, CorpName string) int      //проверка сколько игроков в очереди
+	CountNameQueueCorp(name, corp string) (countNames int)
 	CountNumberNameActive1(lvlkz, CorpName, name string) int                                                                    //проверка количество выполненых игр
 	NumberQueueLvl(lvlkz, CorpName string) int                                                                                  //Номер катки по уровню
 	ReadAll(lvlkz, CorpName string) (users models.Users)                                                                        //чтение игроков в очереди

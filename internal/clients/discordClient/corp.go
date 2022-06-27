@@ -21,13 +21,13 @@ func (d *Ds) accessAddChannelDs(chatid, guildid string) { // внесение в
 	ok, _ := d.CorpConfig.CheckChannelConfigDS(chatid)
 	if ok {
 		go d.SendChannelDelSecond(chatid, "Я уже могу работать на вашем канале\n"+
-			"повторная активация не требуется.\nнапиши Справка1", 30)
+			"повторная активация не требуется.\nнапиши Справка", 30)
 	} else {
 		chatName := d.dsChatName(guildid)
 		d.log.Println("новая активация корпорации ", chatName)
 		d.dbase.AddDsCorpConfig(chatName, chatid, guildid)
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.", 60)
-
+		d.HelpChannelUpdate(chatid)
 	}
 }
 func (d *Ds) accessDelChannelDs(chatid string) { //удаление с бд и масива для блокировки

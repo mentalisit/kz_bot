@@ -109,7 +109,7 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 				Update   bool
 				Queue    bool
 			}{
-				Callback: false,
+				Callback: true,
 				Edit:     true,
 				Update:   false,
 			},
@@ -191,4 +191,12 @@ func (b *Bot) SendALLChannel() (bb bool) {
 		}
 	}
 	return bb
+}
+func (b *Bot) hhelp() {
+	b.iftipdelete()
+	if b.in.Tip == "ds" {
+		b.Ds.Help(b.in.Config.DsChannel)
+	} else if b.in.Tip == "tg" {
+		b.Tg.Help(b.in.Config.TgChannel)
+	}
 }

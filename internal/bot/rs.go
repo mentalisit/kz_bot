@@ -531,7 +531,7 @@ func (b *Bot) Pl30() {
 }
 func (b *Bot) Plus() bool {
 	b.callbackNo()
-	countName := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	countName := b.Db.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
 	ins := true
 	if countName == 0 {
@@ -554,11 +554,13 @@ func (b *Bot) Plus() bool {
 func (b *Bot) Minus() bool {
 	b.callbackNo()
 	message := ""
-	countNames := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	bb := false
+	countNames := b.Db.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	if countNames == 0 {
 		message = b.in.NameMention + " ты не в очереди"
-		return false
+		bb = false
 	} else if countNames > 0 {
+		bb = true
 		t := b.Db.UpdateMitutsQueue(b.in.Name, b.in.Config.CorpName)
 		if t.Name == b.in.Name && t.Timedown > 3 {
 			message = fmt.Sprintf("%s рановато минус жмешь, ты в очереди на кз%s будешь еще %dмин",
@@ -569,7 +571,7 @@ func (b *Bot) Minus() bool {
 		}
 	}
 	b.ifTipSendTextDelSecond(message, 10)
-	return true
+	return bb
 }
 func (b *Bot) Subscribe(tipPing int) {
 	if b.in.Tip == "ds" {

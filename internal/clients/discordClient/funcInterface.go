@@ -85,10 +85,9 @@ func (d *Ds) AddEnojiRsQueue(chatid, mesid string) {
 
 }
 func (d *Ds) DeleteMessage(chatid, mesid string) {
-	err := d.d.ChannelMessageDelete(chatid, mesid)
-	if err != nil {
-		d.log.Println("Ошибка удаления дискорд сообщения ", chatid, mesid, err)
-	}
+	_ = d.d.ChannelMessageDelete(chatid, mesid)
+	//надо разобраться как игнорировать ошибку сообщение не найдено
+	//if err != nil {d.log.Println("Ошибка удаления дискорд сообщения ", chatid, mesid, err)}
 }
 func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 	message, err := d.d.ChannelMessageSend(chatid, text)
@@ -98,10 +97,8 @@ func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			err = d.d.ChannelMessageDelete(chatid, message.ID)
-			if err != nil {
-				d.log.Println("Ошибка удаления через секунды ", err)
-			}
+			_ = d.d.ChannelMessageDelete(chatid, message.ID)
+			//if err != nil { d.log.Println("Ошибка удаления через секунды ", err) }
 		}()
 	} else {
 		d.dbase.TimerInsert(message.ID, chatid, 0, 0, second)
@@ -111,6 +108,10 @@ func (d *Ds) SendChannelDelSecond(chatid, text string, second int) {
 func (d *Ds) RoleToIdPing(rolePing, guildid string) string {
 	//создаю переменную
 	rolPing := "кз" + rolePing // добавляю буквы
+	if guildid == "" {
+		d.log.Panic("почему то нет гуилд ид")
+		panic("почему то нет гуилд ид")
+	}
 	g, err := d.d.Guild(guildid)
 	if err != nil {
 		d.log.Println("ошибка получении гильдии при получении роли", err)

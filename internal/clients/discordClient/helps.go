@@ -1,4 +1,4 @@
-package bot
+package discordClient
 
 import (
 	"fmt"
@@ -19,41 +19,40 @@ const hhelpText = "В боте используются только кирил�
 	" +9 получить роль КЗ 9ур.\n" +
 	" -9 снять роль "
 
-func (b *Bot) hhelp() {
-	b.iftipdelete()
-	if b.in.Tip == "ds" {
-		m := b.Ds.SendEmbedText(b.in.Config.DsChannel, "Справка",
-			fmt.Sprintf("ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+hhelpText))
-		b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 180)
-	} else if b.in.Tip == "tg" {
-		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, "Справка\n"+hhelpText+"\n/help", 180)
-	}
+func (d *Ds) Help(Channel string) {
+	m := d.SendEmbedText(Channel, "Справка",
+		fmt.Sprintf("ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+hhelpText))
+	d.DeleteMesageSecond(Channel, m.ID, 180)
 }
 
-func (b *Bot) autohelp() {
+func (d *Ds) Autohelp() {
 	tm := time.Now()
 	mtime := tm.Format("15:04")
 	if mtime == "12:00" {
-		a := b.Db.AutoHelp()
+		a := d.dbase.AutoHelp()
 		for _, s := range a {
-			if s.Config.MesidDsHelp != "" {
-				go b.Ds.DeleteMessage(s.DsChannel, s.Config.MesidDsHelp)
-				b.helpChannelUpdate(s.DsChannel)
-			} else {
-				b.helpChannelUpdate(s.DsChannel)
+			if s.DsChannel != "" {
+				if s.Config.MesidDsHelp != "" {
+					go d.DeleteMessage(s.DsChannel, s.Config.MesidDsHelp)
+					d.HelpChannelUpdate(s.DsChannel)
+				} else {
+					d.HelpChannelUpdate(s.DsChannel)
+				}
 			}
+
 		}
+		time.Sleep(time.Minute)
 	}
 }
 
-func (b *Bot) helpChannelUpdate(dschannel string) {
-	newMesidHelp := b.hhelp1(dschannel)
-	b.Db.AutoHelpUpdateMesid(newMesidHelp, dschannel)
+func (d *Ds) HelpChannelUpdate(dschannel string) {
+	newMesidHelp := d.hhelp1(dschannel)
+	d.dbase.AutoHelpUpdateMesid(newMesidHelp, dschannel)
 
 }
-func (b *Bot) hhelp1(chatid string) string {
-	mes := b.Ds.Send(chatid, fmt.Sprintf("Справка \n"+
+func (d *Ds) hhelp1(chatid string) string {
+	mes := d.SendEmbedText(chatid, "Справка", fmt.Sprintf(" \n"+
 		"ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+
 		hhelpText))
-	return mes
+	return mes.ID
 }

@@ -161,6 +161,14 @@ func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем
 	}
 	return countNames
 }
+func (d *Db) CountNameQueueCorp(name, corp string) (countNames int) { //проверяем есть ли игрок в других очередях
+	row := d.Db.QueryRow("SELECT  COUNT(*) as count FROM sborkz WHERE name = ? AND corpname = ? AND active = 0", name, corp)
+	err := row.Scan(&countNames)
+	if err != nil {
+		d.log.Println("Ошибка проверки игрока в других очередях этой корпы ", err)
+	}
+	return countNames
+}
 func (d *Db) ElseTrue(name string) models.Sborkz {
 	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND active = 0", name)
 	if err != nil {
@@ -298,7 +306,6 @@ func (d *Db) AutoHelp() []models.BotConfig {
 	for results.Next() {
 		err = results.Scan(&h.DsChannel, &h.Config.MesidDsHelp)
 		a = append(a, h)
-
 	}
 	return a
 }

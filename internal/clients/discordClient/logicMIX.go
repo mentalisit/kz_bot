@@ -33,7 +33,7 @@ func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discord
 					Guildid string
 				}{Mesid: r.MessageID,
 					Nameid:  user.ID,
-					Guildid: message.GuildID},
+					Guildid: config.Config.Guildid}, //message.GuildID},
 				Config: config,
 				Option: struct {
 					Callback bool

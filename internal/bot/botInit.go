@@ -39,8 +39,8 @@ func (b *Bot) InitBot() {
 					}
 				}
 				b.MinusMin()
+				b.Ds.Autohelp()
 			}
-			b.autohelp()
 
 			time.Sleep(1 * time.Second)
 		}
