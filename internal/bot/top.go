@@ -13,16 +13,16 @@ const (
 
 func (b *Bot) TopLevel() {
 	b.iftipdelete()
-	numEvent := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	numEvent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numEvent == 0 {
 		mesage := "\xF0\x9F\x93\x96 ТОП Участников кз" + b.in.Lvlkz + "\n"
 		b.ifTipSendTextDelSecond(scan, 5)
-		good := b.Db.TopLevel(b.in.Config.CorpName, b.in.Lvlkz)
+		good := b.Db.Top.TopLevel(b.in.Config.CorpName, b.in.Lvlkz)
 		if !good {
 			b.ifTipSendTextDelSecond(nohistory, 20)
 		} else if good {
 			b.ifTipSendTextDelSecond(formlist, 5)
-			mest := b.Db.TopTemp()
+			mest := b.Db.Top.TopTemp()
 			if b.in.Tip == ds {
 				m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, mest)
 				b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 60)
@@ -33,12 +33,12 @@ func (b *Bot) TopLevel() {
 	} else {
 		mesage := "\xF0\x9F\x93\x96 ТОП Участников ивента кз:" + b.in.Lvlkz + "\n"
 		b.ifTipSendTextDelSecond(scan, 5)
-		good := b.Db.TopEventLevel(b.in.Config.CorpName, b.in.Lvlkz, numEvent)
+		good := b.Db.Top.TopEventLevel(b.in.Config.CorpName, b.in.Lvlkz, numEvent)
 		if !good {
 			b.ifTipSendTextDelSecond(nohistory, 20)
 		} else {
 			b.ifTipSendTextDelSecond(formlist, 5)
-			mest := b.Db.TopTempEvent()
+			mest := b.Db.Top.TopTempEvent()
 			if b.in.Tip == ds {
 				m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, mest)
 				b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 60)
@@ -50,14 +50,14 @@ func (b *Bot) TopLevel() {
 }
 func (b *Bot) TopAll() {
 	b.iftipdelete()
-	numEvent := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	numEvent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numEvent == 0 {
 		mesage := "\xF0\x9F\x93\x96 ТОП Участников:\n"
 		b.ifTipSendTextDelSecond(scan, 5)
-		good := b.Db.TopAll(b.in.Config.CorpName)
+		good := b.Db.Top.TopAll(b.in.Config.CorpName)
 		if good {
 			b.ifTipSendTextDelSecond(formlist, 5)
-			message2 := b.Db.TopTemp()
+			message2 := b.Db.Top.TopTemp()
 			if b.in.Tip == ds {
 				m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, message2)
 				b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 60)
@@ -70,10 +70,10 @@ func (b *Bot) TopAll() {
 	} else if numEvent > 0 {
 		mesage := "\xF0\x9F\x93\x96 ТОП Участников Ивента:\n"
 		b.ifTipSendTextDelSecond(scan, 10)
-		good := b.Db.TopAllEvent(b.in.Config.CorpName, numEvent)
+		good := b.Db.Top.TopAllEvent(b.in.Config.CorpName, numEvent)
 		if good {
 			b.ifTipSendTextDelSecond(formlist, 5)
-			message2 := b.Db.TopTempEvent()
+			message2 := b.Db.Top.TopTempEvent()
 			mesage = mesage + message2
 			b.ifTipSendTextDelSecond(mesage, 60)
 		} else if !good {
@@ -85,10 +85,10 @@ func (b *Bot) TopDate(oldDate string) {
 	b.iftipdelete()
 	mesage := fmt.Sprintf("\xF0\x9F\x93\x96 ТОП Участников начиная с %s \n", oldDate)
 	b.ifTipSendTextDelSecond(scan, 5)
-	good := b.Db.TopAllDay(b.in.Config.CorpName, oldDate)
+	good := b.Db.Top.TopAllDay(b.in.Config.CorpName, oldDate)
 	if good {
 		b.ifTipSendTextDelSecond(formlist, 5)
-		message2 := b.Db.TopTemp()
+		message2 := b.Db.Top.TopTemp()
 		mesage = mesage + message2
 		b.ifTipSendTextDelSecond(mesage, 60)
 	} else if !good {
@@ -100,12 +100,12 @@ func (b *Bot) TopDateLevel(oldDate string) {
 	b.iftipdelete()
 	mesage := "\xF0\x9F\x93\x96 ТОП Участников кз" + b.in.Lvlkz + "\n"
 	b.ifTipSendTextDelSecond(scan, 5)
-	good := b.Db.TopLevelDay(b.in.Config.CorpName, b.in.Lvlkz, oldDate)
+	good := b.Db.Top.TopLevelDay(b.in.Config.CorpName, b.in.Lvlkz, oldDate)
 	if !good {
 		b.ifTipSendTextDelSecond(nohistory, 20)
 	} else if good {
 		b.ifTipSendTextDelSecond(formlist, 5)
-		mest := b.Db.TopTemp()
+		mest := b.Db.Top.TopTemp()
 		if b.in.Tip == ds {
 			m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, mest)
 			b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m.ID, 60)

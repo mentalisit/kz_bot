@@ -4,6 +4,17 @@ import (
 	"fmt"
 )
 
+type Top interface {
+	TopTemp() string //временный топ
+	TopTempEvent() string
+	TopAll(CorpName string) bool
+	TopAllEvent(CorpName string, numberevent int) bool
+	TopLevel(CorpName, lvlkz string) bool                    //топ по уровню
+	TopEventLevel(CorpName, lvlkz string, numEvent int) bool //топ по уровню во время ивента
+	TopAllDay(CorpName string, oldDate string) bool
+	TopLevelDay(CorpName, lvlkz string, oldDate string) bool
+}
+
 func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 	var good = false
 	results, err := d.Db.Query("SELECT name FROM sborkz WHERE corpname=? AND active=1  AND lvlkz = ? GROUP BY name ASC LIMIT 40",

@@ -4,6 +4,13 @@ import (
 	"kz_bot/internal/models"
 )
 
+type Subscribe interface {
+	CheckSubscribe(name, lvlkz string, TgChannel int64, tipPing int) int                //проверка активной подписки
+	Subscribe(name, nameMention, lvlkz string, tipPing int, TgChannel int64)            //подписка
+	Unsubscribe(name, lvlkz string, TgChannel int64, tipPing int)                       //отписка
+	SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChannel int64) string //чтение для пинга игроков в телеграм
+}
+
 func (d *Db) SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChannel int64) string {
 	var name1, names, men string
 	var u models.Users

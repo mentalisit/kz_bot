@@ -19,13 +19,13 @@ const hhelpText = "В боте используются только кирил�
 	" +9 получить роль КЗ 9ур.\n" +
 	" -9 снять роль "
 
-func (d *Ds) Help(Channel string) {
+func (d *Discord) Help(Channel string) {
 	m := d.SendEmbedText(Channel, "Справка",
 		fmt.Sprintf("ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+hhelpText))
 	d.DeleteMesageSecond(Channel, m.ID, 180)
 }
 
-func (d *Ds) Autohelp() {
+func (d *Discord) Autohelp() {
 	tm := time.Now()
 	mtime := tm.Format("15:04")
 	if mtime == "12:00" {
@@ -45,12 +45,12 @@ func (d *Ds) Autohelp() {
 	}
 }
 
-func (d *Ds) HelpChannelUpdate(dschannel string) {
+func (d *Discord) HelpChannelUpdate(dschannel string) {
 	newMesidHelp := d.hhelp1(dschannel)
 	d.dbase.AutoHelpUpdateMesid(newMesidHelp, dschannel)
 
 }
-func (d *Ds) hhelp1(chatid string) string {
+func (d *Discord) hhelp1(chatid string) string {
 	mes := d.SendEmbedText(chatid, "Справка", fmt.Sprintf(" \n"+
 		"ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+
 		hhelpText))

@@ -3,6 +3,7 @@ package bot
 import "C"
 import (
 	"fmt"
+	"kz_bot/internal/telegraf"
 	"regexp"
 	"time"
 
@@ -20,11 +21,11 @@ func (b *Bot) EventText() (string, int) {
 	text := ""
 	numE := 0
 	//проверяем, есть ли активный ивент
-	numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	numberevent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numberevent == 0 { //ивент не активен
 		return "", 0
 	} else if numberevent > 0 { //активный ивент
-		numE = b.Db.NumberQueueEvents(b.in.Config.CorpName) //номер кз number FROM rsevent
+		numE = b.Db.Event.NumberQueueEvents(b.in.Config.CorpName) //номер кз number FROM rsevent
 		text = fmt.Sprintf("\nID %d для ивента ", numE)
 		return text, numE
 	}
@@ -56,7 +57,7 @@ func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
 	}
 }
 func (b *Bot) emReadName(name, tip string) string { // склеиваем имя и эмоджи
-	t := b.Db.EmReadUsers(name, tip)
+	t := b.Db.Emoji.EmReadUsers(name, tip)
 	newName := name
 	if tip == t.Tip {
 		newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
@@ -127,7 +128,7 @@ func (b *Bot) callbackNo() {
 	}
 }
 func (b *Bot) SubscribePing(tipPing int) {
-	men := b.Db.SubscPing(b.in.NameMention, b.in.Lvlkz, b.in.Config.CorpName, tipPing, b.in.Config.TgChannel)
+	men := b.Db.Subscribe.SubscPing(b.in.NameMention, b.in.Lvlkz, b.in.Config.CorpName, tipPing, b.in.Config.TgChannel)
 	if len(men) > 0 {
 		men = fmt.Sprintf("Сбор на кз%s\n%s", b.in.Lvlkz, men)
 		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, men, 600)
@@ -198,5 +199,34 @@ func (b *Bot) hhelp() {
 		b.Ds.Help(b.in.Config.DsChannel)
 	} else if b.in.Tip == "tg" {
 		b.Tg.Help(b.in.Config.TgChannel)
+	}
+}
+func (b *Bot) Statistic() {
+	b.Mutex.Lock()
+	b.iftipdelete()
+	tf := telegraf.Telegraf{}
+	tf.InitTelegraf(b.log)
+	st := fmt.Sprintf("Статистика игрока %s", b.in.Name)
+	content := b.Db.ReadStatistic(b.in.Name)
+	b.log.Println("content", content)
+	b.log.Println("st", st)
+	mes := tf.CreatePageUserStatistic(st, content)
+	if mes != "" {
+		b.ifTipSendTextDelSecond(mes, 30)
+	}
+	b.Mutex.Unlock()
+}
+func (b *Bot) StatisticA() {
+	b.iftipdelete()
+	tf := telegraf.Telegraf{}
+	tf.InitTelegraf(b.log)
+	st := fmt.Sprintf("Статистика игрока %s", "ApplePie")
+	content := b.Db.ReadStatistic("ApplePie")
+	fmt.Println("contentLEN", content)
+	b.log.Println("contentLEN", content)
+	b.log.Println("st", st)
+	mes := tf.CreatePageUserStatistic(st, content)
+	if mes != "" {
+		b.ifTipSendTextDelSecond(mes, 30)
 	}
 }

@@ -4,34 +4,57 @@ import (
 	"fmt"
 	"kz_bot/config"
 	"kz_bot/internal/bot"
-	"kz_bot/internal/clients/discordClient"
-	"kz_bot/internal/clients/telegramClient"
-	"kz_bot/internal/dbase/dbaseMysql"
+	"kz_bot/internal/clients"
+	"kz_bot/internal/dbase"
 	"kz_bot/internal/logger"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
 	fmt.Println("ЗАПУСК БОТА")
-	cfg := config.InitConfig()
+	err := Run()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//tg := &telegramClient.Telegram{}
+	//ds := &discordClient.Ds{}
+	//wa := &watsappClient.Watsapp{}
+	//tf := &telegraf.Telegraf{}
+	//tf.InitTelegraf(log)
+	//tf.TestingFunc()
+	//go wa.InitWA()
+	//tg.InitTG(cfg.TokenT, db.Db, log)
+	//ds.InitDS(cfg.TokenD, db.Db, log)
+}
+func Run() error {
+	cfg, err := config.InitConfig()
+	if err != nil {
+		return err
+	}
 	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
 	log.Println("🚀  загрузка  🚀")
 
-	db := &dbaseMysql.Db{}
-	tg := &telegramClient.Telegram{}
-	ds := &discordClient.Ds{}
-	//wa := &watsappClient.Watsapp{}
+	db, errd := dbase.NewDb(cfg, log)
+	if errd != nil {
+		return errd
+	}
 
-	//go wa.InitWA()
+	db.CorpConfig.ReadBotCorpConfig()
+	cl := clients.NewClient(cfg, db, log)
 
-	db.InitDB(log, cfg)
+	go bot.NewBot(*cl, db, log).InitBot()
 
-	tg.InitTG(cfg.TokenT, db.Db, log)
-	ds.InitDS(cfg.TokenD, db.Db, log)
-
-	db.ReadBotCorpConfig()
-
-	go bot.NewBot(tg, ds, db, log).InitBot()
-
-	<-make(chan struct{})
-	//return
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+	fmt.Println("остановка")
+	err = db.Shutdown()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }

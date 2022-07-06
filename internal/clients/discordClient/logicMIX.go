@@ -5,7 +5,7 @@ import (
 	"kz_bot/internal/models"
 )
 
-func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
+func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
 	user, err := d.d.User(r.UserID)
 	if err != nil {
 		d.log.Println("Ошибка получения Юзера по реакции ", err)
@@ -72,14 +72,14 @@ func (d *Ds) readReactionQueue(r *discordgo.MessageReactionAdd, message *discord
 	}
 }
 
-func (d *Ds) reactionUserRemove(r *discordgo.MessageReactionAdd) {
+func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	err := d.d.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if err != nil {
 		d.log.Println("Ошибка удаления эмоджи", err)
 	}
 }
 
-func (d *Ds) logicMixDiscord(m *discordgo.MessageCreate) {
+func (d *Discord) logicMixDiscord(m *discordgo.MessageCreate) {
 	ok, config := d.CorpConfig.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
 	if ok {

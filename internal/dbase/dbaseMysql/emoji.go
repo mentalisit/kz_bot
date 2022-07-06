@@ -5,6 +5,12 @@ import (
 	"kz_bot/internal/models"
 )
 
+type Emoji interface {
+	EmReadUsers(name, tip string) models.EmodjiUser    //чтение эмоджи игрока с бд
+	EmUpdateEmodji(name, tip, slot, emo string) string //обновление эмоджи игрока
+	EmInsertEmpty(tip, name string)                    // внесение имени для эмоджи
+}
+
 func (d *Db) EmReadUsers(name, tip string) models.EmodjiUser {
 	results, err := d.Db.Query("SELECT * FROM users WHERE name = ? AND tip = ?", name, tip)
 	if err != nil {

@@ -8,21 +8,19 @@ import (
 
 	"kz_bot/internal/clients"
 	"kz_bot/internal/dbase"
-	"kz_bot/internal/dbase/dbaseMysql"
 	"kz_bot/internal/models"
 )
 
 type Bot struct {
-	Tg    clients.TelegramInterface
-	Ds    clients.DiscordInterface
-	Db    dbase.DbInterface
+	clients.Client
+	Db    dbase.Db
 	in    models.InMessage
 	Mutex sync.Mutex
 	log   *logrus.Logger
 }
 
-func NewBot(tg clients.TelegramInterface, ds clients.DiscordInterface, db *dbaseMysql.Db, log *logrus.Logger) *Bot {
-	return &Bot{Tg: tg, Ds: ds, Db: db, log: log}
+func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger) *Bot {
+	return &Bot{Client: cl, Db: db, log: log}
 }
 func (b *Bot) InitBot() {
 	b.log.Println("Бот загружен и готов к работе ")
@@ -89,6 +87,11 @@ func (b *Bot) logicIfText() bool {
 		b.Minus()
 	case "Справка":
 		b.hhelp()
+	case "Статистика":
+		b.Statistic()
+	case "Статистика.":
+		b.log.Println("Case StatisticA")
+		b.StatisticA()
 	default:
 		iftext = false
 	}

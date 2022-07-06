@@ -23,7 +23,7 @@ func (t *Telegram) accessAddChannelTg(chatid int64) { // внесение в д�
 			"повторная активация не требуется.\nнапиши Справка", 20)
 	} else {
 		chatName := t.ChatName(chatid)
-		t.dbase.AddTgCorpConfig(chatName, chatid)
+		t.dbase.CorpConfig.AddTgCorpConfig(chatName, chatid)
 		t.log.Println("новая активация корпорации ", t.ChatName(chatid))
 		go t.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка", 60)
 	}
@@ -33,10 +33,10 @@ func (t *Telegram) accessDelChannelTg(chatid int64) { //удаление с бд
 	if !ok {
 		go t.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		t.dbase.DeleteTgChannel(chatid)
+		t.dbase.CorpConfig.DeleteTgChannel(chatid)
 		t.log.Println("отключение корпорации ", t.ChatName(chatid))
 		t.CorpConfig.ReloadConfig()
-		t.dbase.ReadBotCorpConfig()
+		t.dbase.CorpConfig.ReadBotCorpConfig()
 		go t.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
 	}
 }

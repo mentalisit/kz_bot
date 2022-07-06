@@ -4,6 +4,14 @@ import (
 	"kz_bot/internal/models"
 )
 
+type CorpConfig interface {
+	ReadBotCorpConfig()                               //Чтение из бд конфигураций корпораций при запуске бота
+	DeleteTgChannel(chatid int64)                     //отключение бота от чата в телеграм
+	DeleteDsChannel(chatid string)                    //отключение бота от чата в дискорд
+	AddTgCorpConfig(chatName string, chatid int64)    //добавление чата телеграм в конфиг корпораций
+	AddDsCorpConfig(chatName, chatid, guildid string) //добавление чата дискорд в конфиг корпораций
+}
+
 func (d *Db) ReadBotCorpConfig() {
 	//c := corpsConfig.CorpConfig{}
 	results, err := d.Db.Query("SELECT * FROM config")

@@ -2,10 +2,49 @@ package dbaseMysql
 
 import (
 	"database/sql"
+	"fmt"
+	"strconv"
 	"time"
 
 	"kz_bot/internal/models"
 )
+
+type DbInterface interface {
+	СountName(name, lvlkz, corpName string) int //проверка состоит ли игрок уже в очереди
+	CountQueue(lvlkz, CorpName string) int      //проверка сколько игроков в очереди
+	CountNameQueueCorp(name, corp string) (countNames int)
+	CountNumberNameActive1(lvlkz, CorpName, name string) int                                                                    //проверка количество выполненых игр
+	NumberQueueLvl(lvlkz, CorpName string) int                                                                                  //Номер катки по уровню
+	ReadAll(lvlkz, CorpName string) (users models.Users)                                                                        //чтение игроков в очереди
+	InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int)                  //внесение данных сбора
+	MesidTgUpdate(mesidtg int, lvlkz string, corpname string)                                                                   //изменение ид сообщения в бд
+	MesidDsUpdate(mesidds, lvlkz, corpname string)                                                                              //изменение ид сообщения в бд
+	UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) //закрытие очереди кз
+	CountNameQueue(name string) (countNames int)                                                                                //проверка игрока на наличие в очереди
+	ElseTrue(name string) models.Sborkz                                                                                         //для выхода из очереди при другом старте
+	DeleteQueue(name, lvlkz, CorpName string)                                                                                   //Если игрок покидает очередь
+	UpdateMitutsQueue(name, CorpName string) models.Sborkz                                                                      //проверка хочет ли игрок продолжить время в очереди
+	TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int)                                               //внесение ид сообщения в бд
+	TimerDeleteMessage() []models.Timer                                                                                         //удаление из таймера
+	P30Pl(lvlkz, CorpName, name string) int                                                                                     //+30 минут если в очереди
+	UpdateTimedown(lvlkz, CorpName, name string)                                                                                //при нажатии плюса при остатке меньше 3х минут
+	ReadMesIdDS(mesid string) (string, error)
+	Queue(corpname string) []string
+	AutoHelp() []models.BotConfig
+	AutoHelpUpdateMesid(newMesidHelp, dschannel string)
+	MinusMin() []models.Sborkz
+	OneMinutsTimer() []string
+	MessageUpdateMin(corpname string) ([]string, []int, []string)
+	MessageupdateDS(dsmesid string, config models.BotConfig) models.InMessage
+	MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage
+	ReadStatistic(Name string) string
+	Shutdown() error
+}
+
+func (d *Db) Shutdown() error {
+	err := d.Db.Close()
+	return err
+}
 
 func (d *Db) СountName(name, lvlkz, corpName string) int {
 	var countNames int
@@ -93,16 +132,20 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	return u
 }
 func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) {
-	numevent := 0 //qweryNumevent1(in)
+	numevent := d.NumActiveEvent(CorpName)
 	tm := time.Now()
 	mdate := (tm.Format("2006-01-02"))
 	mtime := (tm.Format("15:04"))
+	timekzz, errs := strconv.Atoi(timekz)
+	if timekzz == 0 {
+		d.log.Panic(errs)
+	}
 
 	insertSborkztg1 := `INSERT INTO sborkz(corpname,name,mention,tip,dsmesid,tgmesid,wamesid,time,date,lvlkz,
                    numkzn,numberkz,numberevent,eventpoints,active,timedown) 
 				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 	_, err := d.Db.Exec(insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
-		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekz)
+		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekzz)
 	if err != nil {
 		d.log.Println("Ошибка записи старта очереди", err)
 	}
@@ -471,4 +514,28 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 		},
 	}
 	return in
+}
+func (d *Db) ReadStatistic(Name string) string {
+	num := 1
+	str := "√ уровень кз время дата канал\n"
+	tmp := ""
+	results, err := d.Db.Query("SELECT * FROM sborkz WHERE name = ? AND active = 1", Name)
+	if err != nil {
+		d.log.Println("Ошибка чтения statistic", err)
+		if err == sql.ErrNoRows {
+			return "Информация не найдена "
+		}
+	}
+	for results.Next() {
+		var t models.Sborkz
+		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time,
+			&t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
+		tmp = fmt.Sprintf("%d. %s (%s %s) %s\n", num, t.Lvlkz, t.Time, t.Date, t.Corpname)
+		num++
+		str = str + tmp
+		if num == 40 {
+			break
+		}
+	}
+	return str
 }

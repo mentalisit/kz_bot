@@ -18,12 +18,10 @@ type ConfigBot struct {
 
 var cfg ConfigBot
 
-func InitConfig() ConfigBot {
+func InitConfig() (ConfigBot, error) {
 	err := cleanenv.ReadConfig(".env", &cfg)
 	if err != nil {
-		panic(err)
-
+		return ConfigBot{}, err
 	}
-	return cfg
-
+	return cfg, nil
 }

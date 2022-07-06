@@ -6,6 +6,22 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+type Tg interface {
+	SendChannel(chatid int64, text string) int
+	SendChannelDelSecond(chatid int64, text string, second int)
+	SendEmded(lvlkz string, chatid int64, text string) int
+	SendEmbedTime(chatid int64, text string) int
+	EditText(chatid int64, editMesId int, textEdit string)
+	EditMessageTextKey(chatid int64, editMesId int, textEdit string, lvlkz string)
+	DelMessage(chatid int64, idSendMessage int)
+	DelMessageSecond(chatid int64, idSendMessage int, second int)
+	CheckAdminTg(chatid int64, name string) bool
+	RemoveDuplicateElementInt(mesididid []int) []int
+	ChatName(chatid int64) string
+	BotName() string
+	Help(Channel int64)
+}
+
 func (t *Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -49,10 +65,7 @@ func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			_, err := t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, tMessage.MessageID)))
-			if err != nil {
-				t.log.Println("Ошибка удаления сообщения телеги отправленного  ", err)
-			}
+			t.DelMessage(chatid, tMessage.MessageID)
 		}()
 	} else {
 		t.dbase.TimerInsert("", "", tMessage.MessageID, chatid, second)

@@ -112,7 +112,7 @@ func (b *Bot) RsPlus() {
 		} else if countQueue == 3 {
 			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 			textEvent, numkzEvent := b.EventText()
-			numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName) //получаем номер ивета если он активен
+			numberevent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName) //получаем номер ивета если он активен
 			if numberevent > 0 {
 				numkzL = numkzEvent
 			}
@@ -388,7 +388,7 @@ func (b *Bot) RsStart() {
 		if count > 0 {
 			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 			textEvent, numkzEvent := b.EventText()
-			numberevent := b.Db.NumActiveEvent(b.in.Config.CorpName)
+			numberevent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 			if numberevent > 0 {
 				numberkz = numkzEvent
 			}
@@ -586,14 +586,14 @@ func (b *Bot) Subscribe(tipPing int) {
 	} else if b.in.Tip == "tg" {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
-		counts := b.Db.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
+		counts := b.Db.Subscribe.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		if counts == 1 {
 			text := fmt.Sprintf("%s ты уже подписан на кз%s %d/4\n для добавления в очередь напиши %s+",
 				b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Lvlkz)
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 60)
 		} else {
 			//добавление в оочередь пинга
-			b.Db.Subscribe(b.in.Name, b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Config.TgChannel)
+			b.Db.Subscribe.Subscribe(b.in.Name, b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Config.TgChannel)
 			text := fmt.Sprintf("%s вы подписались на пинг кз%s %d/4 \n для добавления в очередь напиши %s+",
 				b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Lvlkz)
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
@@ -613,13 +613,13 @@ func (b *Bot) Unsubscribe(tipPing int) {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		var text string
-		counts := b.Db.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
+		counts := b.Db.Subscribe.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		if counts == 0 {
 			text = fmt.Sprintf("%s ты не подписан на пинг кз%s %d/4", b.in.NameMention, b.in.Lvlkz, tipPing)
 		} else if counts == 1 {
 			//удаление с базы данных
 			text = fmt.Sprintf("%s отписался от пинга кз%s %d/4", b.in.NameMention, b.in.Lvlkz, tipPing)
-			b.Db.Unsubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
+			b.Db.Subscribe.Unsubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		}
 		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
 	}
@@ -627,20 +627,20 @@ func (b *Bot) Unsubscribe(tipPing int) {
 
 func (b *Bot) emodjiadd(slot, emo string) {
 	b.iftipdelete()
-	t := b.Db.EmReadUsers(b.in.Name, b.in.Tip)
+	t := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 	if len(t.Name) == 0 {
-		b.Db.EmInsertEmpty(b.in.Tip, b.in.Name)
+		b.Db.Emoji.EmInsertEmpty(b.in.Tip, b.in.Name)
 	}
-	text := b.Db.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
+	text := b.Db.Emoji.EmUpdateEmodji(b.in.Name, b.in.Tip, slot, emo)
 	b.ifTipSendTextDelSecond(text, 20)
 }
 func (b *Bot) emodjis() {
 	b.iftipdelete()
 	var e models.EmodjiUser
 	if b.in.Tip == ds {
-		e = b.Db.EmReadUsers(b.in.Name, ds)
+		e = b.Db.Emoji.EmReadUsers(b.in.Name, ds)
 	} else if b.in.Tip == tg {
-		e = b.Db.EmReadUsers(b.in.Name, tg)
+		e = b.Db.Emoji.EmReadUsers(b.in.Name, tg)
 	}
 
 	text := "	Для установки эмоджи пиши текст \n" +
@@ -657,14 +657,14 @@ func (b *Bot) emodjis() {
 
 func (b *Bot) EventStart() {
 	//проверяем, есть ли активный ивент
-	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	text := "Ивент запущен. После каждого похода на КЗ, " +
 		"один из участников КЗ вносит полученные очки в базу командой К (номер катки) (количество набраных очков)"
 	if event1 > 0 {
 		b.ifTipSendTextDelSecond("Режим ивента уже активирован.", 10)
 	} else {
 		if b.in.Tip == "ds" && (b.in.Name == "Mentalisit" || b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)) {
-			b.Db.EventStartInsert(b.in.Config.CorpName)
+			b.Db.Event.EventStartInsert(b.in.Config.CorpName)
 			if b.in.Config.TgChannel != 0 {
 				b.Tg.SendChannel(b.in.Config.TgChannel, text)
 				b.Ds.Send(b.in.Config.DsChannel, text)
@@ -672,7 +672,7 @@ func (b *Bot) EventStart() {
 				b.Ds.Send(b.in.Config.DsChannel, text)
 			}
 		} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
-			b.Db.EventStartInsert(b.in.Config.CorpName)
+			b.Db.Event.EventStartInsert(b.in.Config.CorpName)
 			if b.in.Config.DsChannel != "" {
 				b.Ds.Send(b.in.Config.DsChannel, text)
 				b.Tg.SendChannel(b.in.Config.TgChannel, text)
@@ -686,19 +686,19 @@ func (b *Bot) EventStart() {
 	}
 }
 func (b *Bot) EventStop() {
-	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	eventStop := "Ивент остановлен."
 	eventNull := "Ивент и так не активен. Нечего останавливать "
 	if b.in.Tip == "ds" && (b.in.Name == "Mentalisit" || b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)) {
 		if event1 > 0 {
-			b.Db.UpdateActiveEvent0(b.in.Config.CorpName, event1)
+			b.Db.Event.UpdateActiveEvent0(b.in.Config.CorpName, event1)
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, eventStop, 60)
 		} else {
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, eventNull, 10)
 		}
 	} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
 		if event1 > 0 {
-			b.Db.UpdateActiveEvent0(b.in.Config.CorpName, event1)
+			b.Db.Event.UpdateActiveEvent0(b.in.Config.CorpName, event1)
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, eventStop, 60)
 		} else {
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, eventNull, 10)
@@ -711,17 +711,17 @@ func (b *Bot) EventStop() {
 func (b *Bot) EventPoints(numKZ, points int) {
 	b.iftipdelete()
 	// проверяем активен ли ивент
-	event1 := b.Db.NumActiveEvent(b.in.Config.CorpName)
+	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	message := ""
 	if event1 > 0 {
-		CountEventNames := b.Db.CountEventNames(b.in.Config.CorpName, b.in.Name, numKZ, event1)
+		CountEventNames := b.Db.Event.CountEventNames(b.in.Config.CorpName, b.in.Name, numKZ, event1)
 		admin := b.checkAdmin()
 		if CountEventNames > 0 || admin {
-			pointsGood := b.Db.CountEventsPoints(b.in.Config.CorpName, numKZ, event1)
+			pointsGood := b.Db.Event.CountEventsPoints(b.in.Config.CorpName, numKZ, event1)
 			if pointsGood > 0 && !admin {
 				message = "данные о кз уже внесены "
 			} else if pointsGood == 0 || admin {
-				countEvent := b.Db.UpdatePoints(b.in.Config.CorpName, numKZ, points, event1)
+				countEvent := b.Db.Event.UpdatePoints(b.in.Config.CorpName, numKZ, points, event1)
 				message = fmt.Sprintf("%s Очки %d внесены в базу", b.in.Name, points)
 				b.changeMessageEvent(points, countEvent, numKZ, event1)
 			}
@@ -736,7 +736,7 @@ func (b *Bot) EventPoints(numKZ, points int) {
 }
 
 func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) {
-	nd, nt, t := b.Db.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
+	nd, nt, t := b.Db.Event.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
 	mes1 := fmt.Sprintf("ивент игра №%d\n", t.Numberkz)
 	mesOld := fmt.Sprintf("внесено %d", points)
 	if countEvent == 1 {

@@ -14,7 +14,7 @@ var (
 	emoteRE          = regexp.MustCompile(`<a?(:\w+:)\d+>`)
 )
 
-func (d *Ds) replaceChannelMentions(text string, guildID string) string {
+func (d *Discord) replaceChannelMentions(text string, guildID string) string {
 	replaceChannelMentionFunc := func(match string) string {
 		channelID := match[2 : len(match)-1]
 		channel := d.getChannel(channelID, guildID)
@@ -27,7 +27,7 @@ func (d *Ds) replaceChannelMentions(text string, guildID string) string {
 	return channelMentionRE.ReplaceAllStringFunc(text, replaceChannelMentionFunc)
 }
 
-func (d *Ds) getChannel(channelId, guildId string) *discordgo.Channel {
+func (d *Discord) getChannel(channelId, guildId string) *discordgo.Channel {
 	g, err := d.d.Guild(guildId)
 	if err != nil {
 		fmt.Println(err)
