@@ -47,7 +47,7 @@ func (d *Discord) Autohelp() {
 
 func (d *Discord) HelpChannelUpdate(dschannel string) {
 	newMesidHelp := d.hhelp1(dschannel)
-	d.dbase.AutoHelpUpdateMesid(newMesidHelp, dschannel)
+	d.dbase.CorpConfig.AutoHelpUpdateMesid(newMesidHelp, dschannel)
 
 }
 func (d *Discord) hhelp1(chatid string) string {

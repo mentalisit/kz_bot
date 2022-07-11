@@ -19,15 +19,11 @@ func main() {
 		panic(err.Error())
 	}
 
-	//tg := &telegramClient.Telegram{}
-	//ds := &discordClient.Ds{}
-	//wa := &watsappClient.Watsapp{}
+	//db := dbasePostgres.Db{}
+	//db.InitPostrges()
+
 	//tf := &telegraf.Telegraf{}
 	//tf.InitTelegraf(log)
-	//tf.TestingFunc()
-	//go wa.InitWA()
-	//tg.InitTG(cfg.TokenT, db.Db, log)
-	//ds.InitDS(cfg.TokenD, db.Db, log)
 }
 func Run() error {
 	cfg, err := config.InitConfig()
@@ -51,10 +47,6 @@ func Run() error {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 	fmt.Println("остановка")
-	err = db.Shutdown()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
+	db.Shutdown()
 	return nil
 }

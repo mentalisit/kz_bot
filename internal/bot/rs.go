@@ -11,12 +11,12 @@ func (b *Bot) RsPlus() {
 	b.Mutex.Lock()
 	defer b.Mutex.Unlock()
 	go b.iftipdelete()
-	if b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) == 1 { //проверяем есть ли игрок в очереди
+	if b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) == 1 { //проверяем есть ли игрок в очереди
 		b.ifTipSendMentionText(" ты уже в очереди")
 	} else {
-		countQueue := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)                    //проверяем, есть ли кто-то в очереди
-		numkzN := b.Db.CountNumberNameActive1(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name) //проверяем количество боёв по уровню кз игрока
-		numkzL := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)                    //проверяем какой номер боя определенной красной звезды
+		countQueue := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)                    //проверяем, есть ли кто-то в очереди
+		numkzN := b.Db.Count.CountNumberNameActive1(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name) //проверяем количество боёв по уровню кз игрока
+		numkzL := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)                          //проверяем какой номер боя определенной красной звезды
 
 		dsmesid := ""
 		tgmesid := 0
@@ -69,7 +69,7 @@ func (b *Bot) RsPlus() {
 				text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
 				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
 				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-				b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
@@ -101,7 +101,7 @@ func (b *Bot) RsPlus() {
 				text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
 				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
 				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-				b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				b.SubscribePing(3)
 			}
 			if b.in.Config.WaChannel != "" {
@@ -146,7 +146,7 @@ func (b *Bot) RsPlus() {
 				text := fmt.Sprintf("4/4 Очередь КЗ%s сформирована\n %s\n %s\n %s\n %s \nВ ИГРУ %s",
 					b.in.Lvlkz, b.emReadName(name1, ds), b.emReadName(name2, ds), b.emReadName(name3, ds), b.emReadName(name4, ds), textEvent)
 				dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
-				b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.DsChannel)
+				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.DsChannel)
 			}
 			if b.in.Config.TgChannel != 0 {
 				if u.User1.Tip == "tg" {
@@ -174,14 +174,14 @@ func (b *Bot) RsPlus() {
 				text := fmt.Sprintf("Очередь КЗ%s сформирована\n%s\n%s\n%s\n%s\n В ИГРУ \n%s",
 					b.in.Lvlkz, name1, name2, name3, name4, textEvent)
 				tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-				b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
 			}
 
 			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
-			b.Db.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numkzL, numberevent, b.in.Config.CorpName)
+			b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numkzL, numberevent, b.in.Config.CorpName)
 
 			//проверка есть ли игрок в других чатах
 			go b.elseChat(u, b.in.Name)
@@ -193,7 +193,7 @@ func (b *Bot) RsPlus() {
 func (b *Bot) RsMinus() {
 	b.Mutex.Lock()
 	b.callbackNo()
-	CountNames := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
+	CountNames := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if CountNames == 0 {
 		b.ifTipSendMentionText(" ты не в очереди")
 	} else if CountNames > 0 {
@@ -202,7 +202,7 @@ func (b *Bot) RsMinus() {
 		//удаление с БД
 		b.Db.DeleteQueue(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 		//проверяем очередь
-		countQueue := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		countQueue := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 		//numkzL := numberQueueLvl(in, lvlkz) + 1
 		if b.in.Config.DsChannel != "" {
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.Name+" покинул очередь", 10)
@@ -231,7 +231,7 @@ func (b *Bot) QueueLevel() {
 	b.Mutex.Lock()
 	defer b.Mutex.Unlock()
 	b.callbackNo()
-	count := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+	count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
 	// совподения количество  условие
 	if count == 0 && !b.in.Option.Queue {
@@ -256,7 +256,7 @@ func (b *Bot) QueueLevel() {
 				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
 				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 			}
 		}
 		if b.in.Config.TgChannel != 0 {
@@ -268,7 +268,7 @@ func (b *Bot) QueueLevel() {
 				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
 			} else if !b.in.Option.Edit {
 				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
 				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 			}
 		}
@@ -292,7 +292,7 @@ func (b *Bot) QueueLevel() {
 				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
 				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 			}
 		}
 		if b.in.Config.TgChannel != 0 {
@@ -305,7 +305,7 @@ func (b *Bot) QueueLevel() {
 				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
 			} else if !b.in.Option.Edit {
 				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
 				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 			}
 		}
@@ -329,7 +329,7 @@ func (b *Bot) QueueLevel() {
 				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
 				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 			}
 		}
 		if b.in.Config.TgChannel != 0 {
@@ -343,7 +343,7 @@ func (b *Bot) QueueLevel() {
 				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
 			} else if !b.in.Option.Edit {
 				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
 				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 			}
 		}
@@ -374,13 +374,13 @@ func (b *Bot) RsStart() {
 	b.Mutex.Lock()
 	defer b.Mutex.Unlock()
 	b.callbackNo()
-	countName := b.Db.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	countName := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if countName == 0 {
 		text := "Принудительный старт доступен участникам очереди."
 		b.ifTipSendTextDelSecond(text, 10)
 	} else if countName == 1 {
 		numberkz := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
-		count := b.Db.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 		var name1, name2, name3 string
 		dsmesid := ""
 		tgmesid := 0
@@ -403,7 +403,7 @@ func (b *Bot) RsStart() {
 						b.in.Lvlkz, numberkz, name1, textEvent)
 					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				if b.in.Config.TgChannel != 0 {
 					if u.User1.Tip == "tg" {
@@ -415,9 +415,9 @@ func (b *Bot) RsStart() {
 					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
 						b.in.Lvlkz, numberkz, name1, textEvent)
 					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
-				b.Db.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
+				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
 				b.elseChat(u, b.in.Name)
 			} else if count == 2 {
 				if b.in.Config.DsChannel != "" { //discord
@@ -436,7 +436,7 @@ func (b *Bot) RsStart() {
 					text := text1 + text2
 					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				if b.in.Config.TgChannel != 0 { //telegram
 					if u.User1.Tip == "tg" {
@@ -454,9 +454,9 @@ func (b *Bot) RsStart() {
 					text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
 					text := text1 + text2
 					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
-				b.Db.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
+				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
 				b.elseChat(u, b.in.Name)
 			} else if count == 3 {
 				if b.in.Config.DsChannel != "" { //discord
@@ -479,7 +479,7 @@ func (b *Bot) RsStart() {
 						b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
 					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				if b.in.Config.TgChannel != 0 { //telegram
 					if u.User1.Tip == "tg" {
@@ -501,16 +501,16 @@ func (b *Bot) RsStart() {
 					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
 						b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
 					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
-				b.Db.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
+				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
 				b.elseChat(u, b.in.Name)
 			}
 		}
 	}
 }
 func (b *Bot) Pl30() {
-	countName := b.Db.CountNameQueue(b.in.Name)
+	countName := b.Db.Count.CountNameQueue(b.in.Name)
 	text := ""
 	if countName == 0 {
 		text = b.in.NameMention + " ты не в очереди "
@@ -531,7 +531,7 @@ func (b *Bot) Pl30() {
 }
 func (b *Bot) Plus() bool {
 	b.callbackNo()
-	countName := b.Db.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
+	countName := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
 	ins := true
 	if countName == 0 {
@@ -555,7 +555,7 @@ func (b *Bot) Minus() bool {
 	b.callbackNo()
 	message := ""
 	bb := false
-	countNames := b.Db.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
+	countNames := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	if countNames == 0 {
 		message = b.in.NameMention + " ты не в очереди"
 		bb = false

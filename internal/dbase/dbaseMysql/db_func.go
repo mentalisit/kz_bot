@@ -53,6 +53,7 @@ func (d *Db) СountName(name, lvlkz, corpName string) int {
 	err := row.Scan(&countNames)
 	if err != nil {
 		d.log.Println("Ошибка проверки в очереди ли игрок  ", err)
+		return d.СountName(name, lvlkz, corpName)
 	}
 	return countNames
 }

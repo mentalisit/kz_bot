@@ -409,8 +409,7 @@ if (preg_match("/^(Message|message)\s(\"((?<=[\"'])[^\"']+)\")$/i", $mtext, $m))
 
 			$ccid = $row[chatid];
 
-	 $info = file_get_contents('https://api.telegram.org/bot1962860522:AAGZ0z5NHebzRLzeLe_69dYAnuzGuoaNPvM/sendmessage?
-	 chat_id='.$ccid.'&text='.$messsage.'&parse_mode=HTML');
+
 
 
 	   }

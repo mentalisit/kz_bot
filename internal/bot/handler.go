@@ -65,16 +65,16 @@ func (b *Bot) emReadName(name, tip string) string { // склеиваем имя
 	return newName
 }
 func (b *Bot) elseChat(u models.Users, name4 string) { //проверяем всех игроков этой очереди на присутствие в других очередях или корпорациях
-	if b.Db.CountNameQueue(u.User1.Name) > 0 {
+	if b.Db.Count.CountNameQueue(u.User1.Name) > 0 {
 		b.elsetrue(u.User1.Name)
 	}
-	if b.Db.CountNameQueue(u.User2.Name) > 0 {
+	if b.Db.Count.CountNameQueue(u.User2.Name) > 0 {
 		b.elsetrue(u.User2.Name)
 	}
-	if b.Db.CountNameQueue(u.User3.Name) > 0 {
+	if b.Db.Count.CountNameQueue(u.User3.Name) > 0 {
 		b.elsetrue(u.User3.Name)
 	}
-	if b.Db.CountNameQueue(name4) > 0 {
+	if b.Db.Count.CountNameQueue(name4) > 0 {
 		b.elsetrue(name4)
 	}
 }

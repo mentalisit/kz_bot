@@ -52,7 +52,7 @@ func (b *Bot) lSubs() (bb bool) {
 		subs = arr3[0][1]
 		bb = true
 	}
-	re3s := regexp.MustCompile(`^(Rs|rs)\s(S|s)\s([4-9]|[1][0-2])$`)
+	re3s := regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([4-9]|[1][0-2])$`)
 	arr3s := (re3s.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr3s) > 0 {
 		b.in.Lvlkz = arr3s[0][3]
@@ -63,7 +63,7 @@ func (b *Bot) lSubs() (bb bool) {
 		} else if subs == "U" || subs == "u" {
 			subs = "-"
 		}
-		b.log.Println("Тестирование подписок совместимости")
+		//b.log.Println("Тестирование подписок совместимости")
 	}
 	re6 := regexp.MustCompile(`^([\+][\+]|[-][-])([4-9]|[1][0-2])$`) // две переменные
 	arr6 := (re6.FindAllStringSubmatch(b.in.Mtext, -1))              // для добавления или удаления подписок 3/4
@@ -72,7 +72,7 @@ func (b *Bot) lSubs() (bb bool) {
 		b.in.Lvlkz = arr6[0][2]
 		subs = arr6[0][1]
 	} else {
-		re6 = regexp.MustCompile(`^(Rs|rs)\s(S|s)\s([4-9]|[1][0-2])(\+)$`)
+		re6 = regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([4-9]|[1][0-2])(\+)$`)
 		arr6 = (re6.FindAllStringSubmatch(b.in.Mtext, -1))
 		if len(arr6) > 0 {
 			bb = true
@@ -83,7 +83,7 @@ func (b *Bot) lSubs() (bb bool) {
 			} else if subs == "U" || subs == "u" {
 				subs = "--"
 			}
-			b.log.Println("проверка совместимости подписок 3 из 4")
+			//b.log.Println("проверка совместимости подписок 3 из 4")
 		}
 	}
 	switch subs {
@@ -107,11 +107,28 @@ func (b *Bot) lQueue() (bb bool) {
 		b.QueueLevel()
 		bb = true
 	}
+	if b.in.Mtext == "Очередь" {
+		bb = true
+		b.QueueAll()
+	}
+	if b.in.Mtext == "очередь" {
+		bb = true
+		b.QueueAll()
+	}
+
 	re4s := regexp.MustCompile(`^(Rs|rs)\s(Q|q)$`) // две переменные для чтения  очереди
 	arr4s := (re4s.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr4s) > 0 {
 		bb = true
 		b.QueueAll() //проверка совместимости
+	}
+
+	re4s = regexp.MustCompile(`^(Rs|rs)\s(Q|q)\s([4-9]|[1][0-2])$`)
+	arr4s = (re4s.FindAllStringSubmatch(b.in.Mtext, -1))
+	if len(arr4s) > 0 {
+		bb = true
+		b.in.Lvlkz = arr4s[0][3]
+		b.QueueLevel()
 	}
 	return bb
 }
@@ -131,7 +148,7 @@ func (b *Bot) lRsStart() (bb bool) {
 			bb = true
 			b.in.Lvlkz = arr5[0][3]
 			rss = "++"
-			b.log.Println("Проверка совместимости принудительного старта ")
+			//b.log.Println("Проверка совместимости принудительного старта ")
 		}
 	}
 	reP := regexp.MustCompile(`^([4-9]|[1][0-2])([\+][\+][\+])$`) //p30pl

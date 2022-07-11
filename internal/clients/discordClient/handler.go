@@ -1,6 +1,7 @@
 package discordClient
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -32,10 +33,19 @@ func (d *Discord) roleExists(g *discordgo.Guild, nameRoles string) (bool, *disco
 	return false, nil
 }
 
-func (d *Discord) dsChatName(guildid string) string {
+func (d *Discord) dsChatName(chatid, guildid string) string {
 	g, err := d.d.Guild(guildid)
 	if err != nil {
 		d.log.Println("Ошибка проверка имени канала ", err)
 	}
-	return g.Name
+	chatName := g.Name
+	channels, _ := d.d.GuildChannels(guildid)
+
+	for _, r := range channels {
+		if r.ID == chatid {
+			chatName = chatName + "." + r.Name
+			fmt.Println(chatName)
+		}
+	}
+	return chatName
 }
