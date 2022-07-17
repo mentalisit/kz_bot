@@ -102,9 +102,9 @@ func (b *Bot) TopDateLevel(oldDate string) {
 	b.ifTipSendTextDelSecond(scan, 5)
 	good := b.Db.Top.TopLevelDay(b.in.Config.CorpName, b.in.Lvlkz, oldDate)
 	if !good {
-		b.ifTipSendTextDelSecond(nohistory, 20)
+		go b.ifTipSendTextDelSecond(nohistory, 20)
 	} else if good {
-		b.ifTipSendTextDelSecond(formlist, 5)
+		go b.ifTipSendTextDelSecond(formlist, 5)
 		mest := b.Db.Top.TopTemp()
 		if b.in.Tip == ds {
 			m := b.Ds.SendEmbedText(b.in.Config.DsChannel, mesage, mest)

@@ -8,8 +8,8 @@ import (
 )
 
 func (b *Bot) RsPlus() {
-	b.Mutex.Lock()
-	defer b.Mutex.Unlock()
+	b.Mu.Lock()
+	defer b.Mu.Unlock()
 	go b.iftipdelete()
 	if b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) == 1 { //проверяем есть ли игрок в очереди
 		b.ifTipSendMentionText(" ты уже в очереди")
@@ -191,7 +191,7 @@ func (b *Bot) RsPlus() {
 	}
 }
 func (b *Bot) RsMinus() {
-	b.Mutex.Lock()
+	b.Mu.Lock()
 	b.callbackNo()
 	CountNames := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if CountNames == 0 {
@@ -221,15 +221,13 @@ func (b *Bot) RsMinus() {
 		if b.in.Config.WaChannel != "" {
 			//тут логика ватса
 		}
-		b.Mutex.Unlock()
+		b.Mu.Unlock()
 		if countQueue > 0 {
 			b.QueueLevel()
 		}
 	}
 }
 func (b *Bot) QueueLevel() {
-	b.Mutex.Lock()
-	defer b.Mutex.Unlock()
 	b.callbackNo()
 	count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
@@ -371,8 +369,8 @@ func (b *Bot) QueueAll() {
 
 }
 func (b *Bot) RsStart() {
-	b.Mutex.Lock()
-	defer b.Mutex.Unlock()
+	b.Mu.Lock()
+	defer b.Mu.Unlock()
 	b.callbackNo()
 	countName := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if countName == 0 {
@@ -812,7 +810,9 @@ func (b *Bot) MinusMin() {
 			}
 
 			if t.Timedown == 3 {
-				text := t.Mention + " время почти вышло  ...\n если ты еще тут пиши +"
+				text := t.Mention + " время почти вышло...\n" +
+					"Для продления времени ожидания на 30м напиши +\n" +
+					"Для выхода из очереди пиши -"
 				if t.Tip == "ds" {
 					mID := b.Ds.SendEmbedTime(b.in.Config.DsChannel, text)
 					go b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 180)
@@ -821,9 +821,9 @@ func (b *Bot) MinusMin() {
 					go b.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 180)
 				}
 			} else if t.Timedown == 0 {
-				b.RsMinus()
+				go b.RsMinus()
 			} else if t.Timedown <= -1 {
-				b.RsMinus()
+				go b.RsMinus()
 			}
 
 		}

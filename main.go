@@ -16,14 +16,9 @@ func main() {
 	fmt.Println("ЗАПУСК БОТА")
 	err := Run()
 	if err != nil {
+		fmt.Println("Ошибка запуска бота", err)
 		panic(err.Error())
 	}
-
-	//db := dbasePostgres.Db{}
-	//db.InitPostrges()
-
-	//tf := &telegraf.Telegraf{}
-	//tf.InitTelegraf(log)
 }
 func Run() error {
 	cfg, err := config.InitConfig()

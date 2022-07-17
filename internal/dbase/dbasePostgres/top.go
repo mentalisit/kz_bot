@@ -129,7 +129,7 @@ func (d *Db) TopTempEvent() string {
 }
 func (d *Db) TopAll(CorpName string) bool {
 	good := false
-	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1 GROUP BY name LIMIT 40"
+	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active>0 GROUP BY name LIMIT 40"
 	results, err := d.Db.Query(context.Background(), sel, CorpName)
 	if err != nil {
 		d.log.Println("Ошибка сканирования имен общего топа ", err)
@@ -140,8 +140,9 @@ func (d *Db) TopAll(CorpName string) bool {
 		if len(name) > 0 {
 			good = true
 			var countNames int
-			selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1"
-			row := d.Db.QueryRow(context.Background(), selC, name, CorpName)
+			selC := "SELECT COALESCE(SUM(active),0) FROM kzbot.sborkz WHERE corpname = $1 AND name = $2 AND active>0"
+			//selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1"
+			row := d.Db.QueryRow(context.Background(), selC, CorpName, name)
 			err = row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка сканирования количества имен в общем топе ", err)

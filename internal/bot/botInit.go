@@ -13,10 +13,10 @@ import (
 
 type Bot struct {
 	clients.Client
-	Db    dbase.Db
-	in    models.InMessage
-	Mutex sync.Mutex
-	log   *logrus.Logger
+	Db  dbase.Db
+	in  models.InMessage
+	Mu  sync.Mutex
+	log *logrus.Logger
 }
 
 func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger) *Bot {

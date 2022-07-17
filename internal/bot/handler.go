@@ -34,11 +34,11 @@ func (b *Bot) EventText() (string, int) {
 
 func (b *Bot) iftipdelete() {
 	if b.in.Tip == ds && !b.in.Option.Callback {
-		b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 	} else if b.in.Tip == tg && !b.in.Option.Callback {
-		b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
+		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		if b.in.NameMention == "@" {
-			b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, nickname, 60)
+			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, nickname, 60)
 		}
 	}
 }
@@ -66,16 +66,16 @@ func (b *Bot) emReadName(name, tip string) string { // склеиваем имя
 }
 func (b *Bot) elseChat(u models.Users, name4 string) { //проверяем всех игроков этой очереди на присутствие в других очередях или корпорациях
 	if b.Db.Count.CountNameQueue(u.User1.Name) > 0 {
-		b.elsetrue(u.User1.Name)
+		go b.elsetrue(u.User1.Name)
 	}
 	if b.Db.Count.CountNameQueue(u.User2.Name) > 0 {
-		b.elsetrue(u.User2.Name)
+		go b.elsetrue(u.User2.Name)
 	}
 	if b.Db.Count.CountNameQueue(u.User3.Name) > 0 {
-		b.elsetrue(u.User3.Name)
+		go b.elsetrue(u.User3.Name)
 	}
 	if b.Db.Count.CountNameQueue(name4) > 0 {
-		b.elsetrue(name4)
+		go b.elsetrue(name4)
 	}
 }
 func (b *Bot) elsetrue(name string) { //удаляем игрока с очереди
@@ -116,7 +116,7 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 			},
 		}
 		b.in = in
-		b.RsMinus()
+		go b.RsMinus()
 
 	}
 }
@@ -131,7 +131,7 @@ func (b *Bot) SubscribePing(tipPing int) {
 	men := b.Db.Subscribe.SubscPing(b.in.NameMention, b.in.Lvlkz, b.in.Config.CorpName, tipPing, b.in.Config.TgChannel)
 	if len(men) > 0 {
 		men = fmt.Sprintf("Сбор на кз%s\n%s", b.in.Lvlkz, men)
-		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, men, 600)
+		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, men, 600)
 	}
 }
 func (b *Bot) checkAdmin() bool {
@@ -196,25 +196,25 @@ func (b *Bot) SendALLChannel() (bb bool) {
 func (b *Bot) hhelp() {
 	b.iftipdelete()
 	if b.in.Tip == "ds" {
-		b.Ds.Help(b.in.Config.DsChannel)
+		go b.Ds.Help(b.in.Config.DsChannel)
 	} else if b.in.Tip == "tg" {
-		b.Tg.Help(b.in.Config.TgChannel)
+		go b.Tg.Help(b.in.Config.TgChannel)
 	}
 }
 func (b *Bot) Statistic() {
-	b.Mutex.Lock()
+	b.Mu.Lock()
+	defer b.Mu.Unlock()
+
 	b.iftipdelete()
 	tf := telegraf.Telegraf{}
 	tf.InitTelegraf(b.log)
 	st := fmt.Sprintf("Статистика игрока %s", b.in.Name)
 	content := b.Db.ReadStatistic(b.in.Name)
-	b.log.Println("content", content)
-	b.log.Println("st", st)
 	mes := tf.CreatePageUserStatistic(st, content)
 	if mes != "" {
-		b.ifTipSendTextDelSecond(mes, 30)
+		go b.ifTipSendTextDelSecond(mes, 30)
 	}
-	b.Mutex.Unlock()
+	b.Mu.Unlock()
 }
 func (b *Bot) StatisticA() {
 	b.iftipdelete()

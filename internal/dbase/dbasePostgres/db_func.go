@@ -97,7 +97,7 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	mtime := (tm.Format("15:04"))
 	timekzz, errs := strconv.Atoi(timekz)
 	if timekzz == 0 {
-		d.log.Panic(errs)
+		d.log.Println("Ошибка инсЕрта время кз не может быть нолем ", name, timekz, errs)
 	}
 
 	insertSborkztg1 := `INSERT INTO kzbot.sborkz(corpname,name,mention,tip,dsmesid,tgmesid,wamesid,time,date,lvlkz,
