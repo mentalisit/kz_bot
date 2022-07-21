@@ -9,8 +9,10 @@ type CorpConfig interface {
 	ReadBotCorpConfig()                                 //Чтение из бд конфигураций корпораций при запуске бота
 	DeleteTgChannel(chatid int64)                       //отключение бота от чата в телеграм
 	DeleteDsChannel(chatid string)                      //отключение бота от чата в дискорд
+	DeleteWaChannel(chatid string)                      //отключение бота от чата в Wa
 	AddTgCorpConfig(chatName string, chatid int64)      //добавление чата телеграм в конфиг корпораций
 	AddDsCorpConfig(chatName, chatid, guildid string)   //добавление чата дискорд в конфиг корпораций
+	AddWaCorpConfig(chatName, chatid string)            //добавление чата WA в конфиг корпораций
 	AutoHelpUpdateMesid(newMesidHelp, dschannel string) //обновления месидДсХелп
 }
 
@@ -40,6 +42,12 @@ func (d *Db) DeleteDsChannel(chatid string) {
 		d.log.Println("Ошибка удаления с бд корп дискорд", err)
 	}
 }
+func (d *Db) DeleteWaChannel(chatid string) {
+	_, err := d.Db.Exec(context.Background(), "delete from kzbot.config where wachannel = $1 ", chatid)
+	if err != nil {
+		d.log.Println("Ошибка удаления с бд корп wa", err)
+	}
+}
 func (d *Db) AddTgCorpConfig(chatName string, chatid int64) {
 	d.log.Println(chatName, "Добавлена в конфиг корпораций ")
 	insertConfig := `INSERT INTO kzbot.config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid) 
@@ -60,6 +68,16 @@ func (d *Db) AddDsCorpConfig(chatName, chatid, guildid string) {
 	}
 	//c := corpsConfig.CorpConfig{}
 	d.CorpConfig.AddCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
+}
+func (d *Db) AddWaCorpConfig(chatName, chatid string) {
+	insertConfig := `INSERT INTO kzbot.config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid)
+					VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`
+	_, err := d.Db.Exec(context.Background(), insertConfig, chatName, "", 0, chatid, "", 0, 0, "")
+	if err != nil {
+		d.log.Println("Ошибка внесения конфигурации ", err)
+	}
+	//c := corpsConfig.CorpConfig{}
+	d.CorpConfig.AddCorp(chatName, "", 0, chatid, 1, "", 0, "")
 }
 func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
 	updateString := `update kzbot.config set "mesiddshelp"=$1 where "dschannel"=$2`

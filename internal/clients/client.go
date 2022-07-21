@@ -5,13 +5,14 @@ import (
 	"kz_bot/config"
 	"kz_bot/internal/clients/discordClient"
 	"kz_bot/internal/clients/telegramClient"
+	"kz_bot/internal/clients/watsappClient"
 	"kz_bot/internal/dbase"
 )
 
 type Client struct {
 	Tg telegramClient.Tg
 	Ds discordClient.Ds
-	//Wa whatsappClient.Wa
+	Wa watsappClient.Wa
 }
 
 func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger) *Client {
@@ -21,5 +22,8 @@ func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger) *Client {
 	ds := discordClient.Discord{}
 	ds.InitDS(cfg.TokenD, db, log)
 
-	return &Client{Tg: &telegram, Ds: &ds}
+	wa := watsappClient.Watsapp{}
+	//wa.InitWA(db)
+
+	return &Client{Tg: &telegram, Ds: &ds, Wa: &wa}
 }

@@ -49,13 +49,13 @@ func (b *Bot) InitBot() {
 		select {
 		case in := <-models.ChTg:
 			b.in = in
-			b.LogicRs()
+			go b.LogicRs()
 		case in := <-models.ChDs:
 			b.in = in
-			b.LogicRs()
+			go b.LogicRs()
 		case in := <-models.ChWa:
-			//b.in = in
-			fmt.Println(in)
+			b.in = in
+			go b.LogicRs()
 		}
 	}
 }

@@ -14,6 +14,7 @@ import (
 const (
 	ds       = "ds"
 	tg       = "tg"
+	wa       = "wa"
 	nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
 )
 
@@ -47,6 +48,8 @@ func (b *Bot) ifTipSendMentionText(text string) {
 		go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.NameMention+text, 10)
 	} else if b.in.Tip == tg {
 		go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.NameMention+text, 10)
+	} else if b.in.Tip == wa {
+		go b.Wa.Send(b.in.Config.WaChannel, b.in.NameMention+text)
 	}
 }
 func (b *Bot) ifTipSendTextDelSecond(text string, time int) {

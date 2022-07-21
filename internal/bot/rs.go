@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-
 	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/models"
 )
@@ -634,12 +633,7 @@ func (b *Bot) emodjiadd(slot, emo string) {
 }
 func (b *Bot) emodjis() {
 	b.iftipdelete()
-	var e models.EmodjiUser
-	if b.in.Tip == ds {
-		e = b.Db.Emoji.EmReadUsers(b.in.Name, ds)
-	} else if b.in.Tip == tg {
-		e = b.Db.Emoji.EmReadUsers(b.in.Name, tg)
-	}
+	e := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 
 	text := "	Для установки эмоджи пиши текст \n" +
 		"Эмоджи пробел (номер ячейки1-4) пробел эмоджи \n" +

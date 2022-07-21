@@ -17,6 +17,7 @@ type ConfigCorp interface {
 	CheckCorpNameConfig(corpname string) (channelGood bool, config models.BotConfig)
 	CheckChannelConfigDS(chatid string) (channelGood bool, config models.BotConfig)
 	CheckChannelConfigTG(chatid int64) (channelGood bool, config models.BotConfig)
+	CheckChannelConfigWA(chatid string) (channelGood bool, config models.BotConfig)
 	AddCorp(CorpName string, DsChannel string, TgChannel int64, WaChannel string, DelMesComplite int, mesiddshelp string, mesidtghelp int, guildid string)
 	ReloadConfig()
 	ReadAllChannel() (chatDS []string, chatTG []int64, chatWA []string)
@@ -46,6 +47,18 @@ func (c CorpConfig) CheckChannelConfigDS(chatid string) (channelGood bool, confi
 	if chatid != "" {
 		for _, pp := range *P {
 			if chatid == pp.DsChannel {
+				channelGood = true
+				config = pp
+				break
+			}
+		}
+	}
+	return channelGood, config
+}
+func (c CorpConfig) CheckChannelConfigWA(chatid string) (channelGood bool, config models.BotConfig) {
+	if chatid != "" {
+		for _, pp := range *P {
+			if chatid == pp.WaChannel {
 				channelGood = true
 				config = pp
 				break

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4"
 	"kz_bot/internal/models"
+	"time"
 )
 
 type Event interface {
@@ -20,9 +21,11 @@ type Event interface {
 
 func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 	// считаем количество участников КЗ опр уровня
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var countEvent int
 	selec := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE numberevent = $1 AND corpname=$2 AND numberkz=$3  AND active=1"
-	row := d.Db.QueryRow(context.Background(), selec, event1, CorpName, numberkz)
+	row := d.Db.QueryRow(ctx, selec, event1, CorpName, numberkz)
 	err := row.Scan(&countEvent)
 	if err != nil {
 		d.log.Println("Ошибка получения количествой участников катки ", err)
@@ -30,16 +33,18 @@ func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 	pointsq := points / countEvent
 	//вносим очки
 	upd := `update kzbot.sborkz set eventpoints=$1 WHERE numberevent = $2 AND corpname =$3 AND numberkz=$4 AND active=1`
-	_, err = d.Db.Exec(context.Background(), upd, pointsq, event1, CorpName, numberkz)
+	_, err = d.Db.Exec(ctx, upd, pointsq, event1, CorpName, numberkz)
 	if err != nil {
 		d.log.Println("Ошибка внесения очков катки ", err)
 	}
 	return countEvent
 }
 func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, nt models.Names, t models.Sborkz) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var name string
 	sel := "SELECT * FROM kzbot.sborkz WHERE corpname=$1 AND numberkz=$2 AND numberevent = $3 AND active=1"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, numberkz, numberEvent)
+	results, err := d.Db.Query(ctx, sel, CorpName, numberkz, numberEvent)
 	if err != nil {
 		d.log.Println("ошибка извлечения для изменения сообщения катки ", err)
 	}
@@ -80,8 +85,10 @@ func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, n
 	return nd, nt, t
 }
 func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (countEventNames int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname = $1 AND numberkz=$2  AND active=1 AND name=$3 AND numberevent = $4"
-	row := d.Db.QueryRow(context.Background(), sel, CorpName, numberkz, name, numEvent)
+	row := d.Db.QueryRow(ctx, sel, CorpName, numberkz, name, numEvent)
 	err := row.Scan(&countEventNames)
 	if err != nil {
 		d.log.Println("Ошибка получения количества участников определенной кз для ивента ", err)
@@ -89,9 +96,11 @@ func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (cou
 	return countEventNames
 }
 func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var countEventPoints int
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname=$1 AND numberkz=$2 AND numberevent = $3 AND active=1 AND eventpoints > 0"
-	row := d.Db.QueryRow(context.Background(), sel, CorpName, numberkz, numberEvent)
+	row := d.Db.QueryRow(ctx, sel, CorpName, numberkz, numberEvent)
 	err := row.Scan(&countEventPoints)
 	if err != nil {
 		d.log.Println("Ошибка проверки внесены ли очки по катке ивента ", err)
@@ -99,8 +108,10 @@ func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
 	return countEventPoints
 }
 func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос номера ивента
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT numevent FROM kzbot.rsevent WHERE corpname=$1 AND activeevent=1 ORDER BY numevent DESC LIMIT 1"
-	row := d.Db.QueryRow(context.Background(), sel, CorpName)
+	row := d.Db.QueryRow(ctx, sel, CorpName)
 	err := row.Scan(&event1)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -112,8 +123,10 @@ func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос но�
 	return event1
 }
 func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос номера последнего ивента
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT numevent FROM kzbot.rsevent WHERE corpname=$1 AND activeevent=0 ORDER BY numevent DESC LIMIT 1"
-	row := d.Db.QueryRow(context.Background(), sel, CorpName)
+	row := d.Db.QueryRow(ctx, sel, CorpName)
 	err := row.Scan(&event0)
 	if err != nil {
 		d.log.Println("Ошибка проверки прошлого номера ивента ", err)
@@ -121,32 +134,38 @@ func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос но
 	return event0
 }
 func (d *Db) UpdateActiveEvent0(CorpName string, event1 int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	upd := "UPDATE kzbot.rsevent SET activeevent=0 WHERE corpname=$1 AND numevent=$2"
-	_, err := d.Db.Exec(context.Background(), upd, CorpName, event1)
+	_, err := d.Db.Exec(ctx, upd, CorpName, event1)
 	if err != nil {
 		d.log.Println("Ошибка обновления активИвент ", err)
 	}
 }
 func (d *Db) EventStartInsert(CorpName string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	event0 := d.NumDeactivEvent(CorpName)
 	insertEvent := `INSERT INTO kzbot.rsevent (corpname,numevent,activeevent,number) VALUES ($1,$2,$3,$4)`
 	if event0 > 0 {
 		numberevent := event0 + 1
-		_, err := d.Db.Exec(context.Background(), insertEvent, CorpName, numberevent, 1, 1)
+		_, err := d.Db.Exec(ctx, insertEvent, CorpName, numberevent, 1, 1)
 		if err != nil {
 			d.log.Println("Ошибка внесения старта ивента ", err)
 		}
 	} else {
-		_, err := d.Db.Exec(context.Background(), insertEvent, CorpName, 1, 1, 1)
+		_, err := d.Db.Exec(ctx, insertEvent, CorpName, 1, 1, 1)
 		if err != nil {
 			d.log.Println("Ошибка внесения старта ивента0 ", err)
 		}
 	}
 }
 func (d *Db) NumberQueueEvents(CorpName string) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var number int
 	sel := "SELECT  number FROM kzbot.rsevent WHERE activeevent = 1 AND corpname = $1 "
-	row := d.Db.QueryRow(context.Background(), sel, CorpName)
+	row := d.Db.QueryRow(ctx, sel, CorpName)
 	err := row.Scan(&number)
 	if err != nil {
 		d.log.Println("Ошибка получения номера очереди с таблицы rsevent", err)

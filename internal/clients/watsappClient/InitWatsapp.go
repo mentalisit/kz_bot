@@ -7,6 +7,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"kz_bot/internal/dbase"
 	"mime"
 	"net/http"
 	"os"
@@ -36,7 +37,9 @@ var (
 	dbAddress = flag.String("db-address", "file:./config/mdtest.db?_foreign_keys=on", "Database address")
 )
 
-func (w *Watsapp) InitWA() {
+func (w *Watsapp) InitWA(db dbase.Db) {
+	w.dbase = db
+
 	waBinary.IndentXML = true
 	flag.Parse()
 
@@ -421,13 +424,13 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 			metaParts = append(metaParts, "422ephemeral")
 		}
 		name := evt.Info.PushName
-		psend := evt.Info.Sender.String()
+		nameid := evt.Info.Sender.String()
 		chatid := evt.Info.Chat.String()
 		text := *evt.Message.Conversation
-		fmt.Println("отправитель:", name)
-		fmt.Println("номер отправителя:", psend)
-		fmt.Println("chatid", chatid)
-		fmt.Println("text", text)
+		//fmt.Println("отправитель:", name)
+		//fmt.Println("номер отправителя:", nameid)
+		//fmt.Println("chatid", chatid)
+		//fmt.Println("text", text)
 
 		msg := evt.Message
 		switch {
@@ -436,12 +439,15 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		}
 		switch {
 		case msg.Conversation != nil || msg.ExtendedTextMessage != nil:
+			if text != "" {
+				w.LogicMIXwa(text, name, nameid, chatid)
+			}
+
 			//w.handleTextMessage(evt.Info, msg)
 		}
 
 		//w.log.Infof("425Received message %s from %s (%s): %+v", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
-		fmt.Println("426chatID432", evt.Message.Chat.GetId())
-		fmt.Println("427chatID433", evt.RawMessage.GetChat().GetId())
+
 		img := evt.Message.GetImageMessage()
 		if img != nil {
 			data, err := w.cli.Download(img)

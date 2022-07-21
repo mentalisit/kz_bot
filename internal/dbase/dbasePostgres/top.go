@@ -3,6 +3,7 @@ package dbasePostgres
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 type Top interface {
@@ -17,9 +18,11 @@ type Top interface {
 }
 
 func (d *Db) TopLevel(CorpName, lvlkz string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var good = false
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1  AND lvlkz = $2 GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, lvlkz)
+	results, err := d.Db.Query(ctx, sel, CorpName, lvlkz)
 	if err != nil {
 		d.log.Println("Ошибка получения списка участников топа ", err)
 	}
@@ -32,7 +35,7 @@ func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 			countNames := d.CountNumberNameActive1(lvlkz, CorpName, name)
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, 0)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
 				d.log.Println("Ошибка внесения сохранения топа ", err.Error())
 			}
@@ -41,9 +44,11 @@ func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 	return good
 }
 func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var good = false
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1  AND lvlkz = $2 AND numberevent = $3 GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, lvlkz, numEvent)
+	results, err := d.Db.Query(ctx, sel, CorpName, lvlkz, numEvent)
 	if err != nil {
 		d.log.Println("Ошибка получения списка участников топа ивента ", err)
 	}
@@ -54,7 +59,7 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 			good = true
 			var countNames int
 			selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1 AND numberevent = $3 AND lvlkz = $4"
-			row := d.Db.QueryRow(context.Background(), selC, name, CorpName, numEvent, lvlkz)
+			row := d.Db.QueryRow(ctx, selC, name, CorpName, numEvent, lvlkz)
 			err := row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка подсчета количества походов", err)
@@ -62,14 +67,14 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 
 			var points int
 			selS := "SELECT  SUM(eventpoints) FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1 AND numberevent = $3 AND lvlkz = $4"
-			row4 := d.Db.QueryRow(context.Background(), selS, name, CorpName, numEvent, lvlkz)
+			row4 := d.Db.QueryRow(ctx, selS, name, CorpName, numEvent, lvlkz)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
 				d.log.Println("Ошибка подсчета очков ивента ", err4)
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, points)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, points)
 			if err != nil {
 				d.log.Println("Ошибка внесения д в в т ", err)
 			}
@@ -78,6 +83,8 @@ func (d *Db) TopEventLevel(CorpName, lvlkz string, numEvent int) bool {
 	return good
 }
 func (d *Db) TopTemp() string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	number := 1
 	var (
 		name, message2    string
@@ -85,7 +92,7 @@ func (d *Db) TopTemp() string {
 	)
 
 	sel := "SELECT * FROM kzbot.temptopevent ORDER BY numkz DESC"
-	results, err := d.Db.Query(context.Background(), sel)
+	results, err := d.Db.Query(ctx, sel)
 	if err != nil {
 		d.log.Println("Ошибка чтения темпТоп ", err)
 	}
@@ -96,13 +103,15 @@ func (d *Db) TopTemp() string {
 		number = number + 1
 	}
 
-	_, err = d.Db.Exec(context.Background(), "DELETE FROM kzbot.temptopevent")
+	_, err = d.Db.Exec(ctx, "DELETE FROM kzbot.temptopevent")
 	if err != nil {
 		d.log.Println("Ошибка удаления временной таблицы ", err)
 	}
 	return message2
 }
 func (d *Db) TopTempEvent() string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	number := 1
 	var (
 		name, message2    string
@@ -110,7 +119,7 @@ func (d *Db) TopTempEvent() string {
 	)
 
 	sel := "SELECT * FROM kzbot.temptopevent ORDER BY points DESC"
-	results, err := d.Db.Query(context.Background(), sel)
+	results, err := d.Db.Query(ctx, sel)
 	if err != nil {
 		d.log.Println("Ошибка чтения темпТопEvent ", err)
 	}
@@ -121,16 +130,18 @@ func (d *Db) TopTempEvent() string {
 		number = number + 1
 	}
 
-	_, err = d.Db.Exec(context.Background(), "DELETE FROM kzbot.temptopevent")
+	_, err = d.Db.Exec(ctx, "DELETE FROM kzbot.temptopevent")
 	if err != nil {
 		d.log.Println("Ошибка удаления временной таблицы ", err)
 	}
 	return message2
 }
 func (d *Db) TopAll(CorpName string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	good := false
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active>0 GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName)
+	results, err := d.Db.Query(ctx, sel, CorpName)
 	if err != nil {
 		d.log.Println("Ошибка сканирования имен общего топа ", err)
 	}
@@ -142,14 +153,14 @@ func (d *Db) TopAll(CorpName string) bool {
 			var countNames int
 			selC := "SELECT COALESCE(SUM(active),0) FROM kzbot.sborkz WHERE corpname = $1 AND name = $2 AND active>0"
 			//selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1"
-			row := d.Db.QueryRow(context.Background(), selC, CorpName, name)
+			row := d.Db.QueryRow(ctx, selC, CorpName, name)
 			err = row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка сканирования количества имен в общем топе ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, 0)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
 				d.log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
 			}
@@ -158,11 +169,13 @@ func (d *Db) TopAll(CorpName string) bool {
 	return good
 }
 func (d *Db) TopAllEvent(CorpName string, numberevent int) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	good := false
 
 	//синтаксична помилка в або поблизу \"ASC\"
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND numberevent = $2 AND active=1 GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, numberevent)
+	results, err := d.Db.Query(ctx, sel, CorpName, numberevent)
 	if err != nil {
 		d.log.Println("Ошибка запроса топалл эвент", err)
 	}
@@ -174,21 +187,21 @@ func (d *Db) TopAllEvent(CorpName string, numberevent int) bool {
 			good = true
 			var countNames int
 			selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1 AND numberevent = $3"
-			row := d.Db.QueryRow(context.Background(), selC, name, CorpName, numberevent)
+			row := d.Db.QueryRow(ctx, selC, name, CorpName, numberevent)
 			err = row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка запроса топалл эвент количество ", err)
 			}
 			var points int
 			selS := "SELECT  SUM(eventpoints) FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 1 AND numberevent = $3"
-			row4 := d.Db.QueryRow(context.Background(), selS, name, CorpName, numberevent)
+			row4 := d.Db.QueryRow(ctx, selS, name, CorpName, numberevent)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
 				d.log.Println("Ошибка запроса топалл points", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, points)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, points)
 			if err != nil {
 				d.log.Println("Ошибка топалл внесение", err)
 			}
@@ -197,9 +210,11 @@ func (d *Db) TopAllEvent(CorpName string, numberevent int) bool {
 	return good
 }
 func (d *Db) TopAllDay(CorpName string, oldDate string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	good := false
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND date>$2 AND active=1 GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, oldDate)
+	results, err := d.Db.Query(ctx, sel, CorpName, oldDate)
 	if err != nil {
 		d.log.Println("Ошибка сканирования имен общего топа ", err)
 	}
@@ -210,14 +225,14 @@ func (d *Db) TopAllDay(CorpName string, oldDate string) bool {
 			good = true
 			var countNames int
 			selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND date>$3 AND active = 1"
-			row := d.Db.QueryRow(context.Background(), selC, name, CorpName, oldDate)
+			row := d.Db.QueryRow(ctx, selC, name, CorpName, oldDate)
 			err = row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка сканирования количества имен в общем топе ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, 0)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
 				d.log.Println("Ошибка внесения общего топа в временную таблицуи ", err)
 			}
@@ -226,9 +241,11 @@ func (d *Db) TopAllDay(CorpName string, oldDate string) bool {
 	return good
 }
 func (d *Db) TopLevelDay(CorpName, lvlkz string, oldDate string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var good = false
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1  AND lvlkz = $2 AND date>? GROUP BY name LIMIT 40"
-	results, err := d.Db.Query(context.Background(), sel, CorpName, lvlkz, oldDate)
+	results, err := d.Db.Query(ctx, sel, CorpName, lvlkz, oldDate)
 	if err != nil {
 		d.log.Println("Ошибка получения списка участников топа ", err)
 	}
@@ -240,14 +257,14 @@ func (d *Db) TopLevelDay(CorpName, lvlkz string, oldDate string) bool {
 			good = true
 			var countNames int
 			selC := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND lvlkz=$3 AND date>$4 AND active = 1"
-			row := d.Db.QueryRow(context.Background(), selC, name, CorpName, lvlkz, oldDate)
+			row := d.Db.QueryRow(ctx, selC, name, CorpName, lvlkz, oldDate)
 			err = row.Scan(&countNames)
 			if err != nil {
 				d.log.Println("Ошибка сканирования количества имен в топе уровня за дату ", err)
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
-			_, err = d.Db.Exec(context.Background(), insertTempTopEvent, name, countNames, 0)
+			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
 				d.log.Println("Ошибка внесения сохранения топа ", err.Error())
 			}

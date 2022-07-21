@@ -15,23 +15,28 @@ type DbInterface interface {
 	NumberQueueLvl(lvlkz, CorpName string) int                                                                 //Номер катки по уровню
 	ReadAll(lvlkz, CorpName string) (users models.Users)                                                       //чтение игроков в очереди
 	InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) //внесение данных сбора
-	ElseTrue(name string) models.Sborkz                                                                        //для выхода из очереди при другом старте
-	DeleteQueue(name, lvlkz, CorpName string)                                                                  //Если игрок покидает очередь
-	UpdateMitutsQueue(name, CorpName string) models.Sborkz                                                     //проверка хочет ли игрок продолжить время в очереди
-	TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int)                              //внесение ид сообщения в бд
-	TimerDeleteMessage() []models.Timer                                                                        //удаление из таймера
-	P30Pl(lvlkz, CorpName, name string) int                                                                    //+30 минут если в очереди
-	UpdateTimedown(lvlkz, CorpName, name string)                                                               //при нажатии плюса при остатке меньше 3х минут
+
+	ElseTrue(name string) models.Sborkz                    //для выхода из очереди при другом старте
+	DeleteQueue(name, lvlkz, CorpName string)              //Если игрок покидает очередь
+	UpdateMitutsQueue(name, CorpName string) models.Sborkz //проверка хочет ли игрок продолжить время в очереди
+
+	TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int) //внесение ид сообщения в бд
+	TimerDeleteMessage() []models.Timer                                           //удаление из таймера
 	ReadMesIdDS(mesid string) (string, error)
+
+	P30Pl(lvlkz, CorpName, name string) int      //+30 минут если в очереди
+	UpdateTimedown(lvlkz, CorpName, name string) //при нажатии плюса при остатке меньше 3х минут
 	Queue(corpname string) []string
+
 	AutoHelp() []models.BotConfig
-	AutoHelpUpdateMesid(newMesidHelp, dschannel string)
 	MinusMin() []models.Sborkz
 	OneMinutsTimer() []string
+
 	MessageUpdateMin(corpname string) ([]string, []int, []string)
 	MessageupdateDS(dsmesid string, config models.BotConfig) models.InMessage
 	MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage
 	ReadStatistic(Name string) string
+
 	Shutdown()
 }
 
@@ -40,15 +45,17 @@ func (d *Db) Shutdown() {
 }
 
 func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var number int
 	sel := "SELECT  number FROM kzbot.numkz WHERE lvlkz = $1 AND corpname = $2"
-	row := d.Db.QueryRow(context.Background(), sel, lvlkz, CorpName)
+	row := d.Db.QueryRow(ctx, sel, lvlkz, CorpName)
 	err := row.Scan(&number)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			number = 0
 			insertSmt := "INSERT INTO kzbot.numkz(lvlkz, number,corpname) VALUES ($1,$2,$3)"
-			_, err = d.Db.Exec(context.Background(), insertSmt, lvlkz, number, CorpName)
+			_, err = d.Db.Exec(ctx, insertSmt, lvlkz, number, CorpName)
 			if err != nil {
 				d.log.Println("Ошибка внесения нумкз", err)
 			}
@@ -60,6 +67,8 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 	return number + 1
 }
 func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	u := models.Users{
 		User1: models.Sborkz{},
 		User2: models.Sborkz{},
@@ -68,7 +77,7 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	}
 	user := 1
 	sel := "SELECT * FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, lvlkz, CorpName)
+	results, err := d.Db.Query(ctx, sel, lvlkz, CorpName)
 	if err != nil {
 		d.log.Println("Ошибка чтения активной очереди readall", err)
 	}
@@ -91,6 +100,8 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	return u
 }
 func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	numevent := d.NumActiveEvent(CorpName)
 	tm := time.Now()
 	mdate := (tm.Format("2006-01-02"))
@@ -98,12 +109,13 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	timekzz, errs := strconv.Atoi(timekz)
 	if timekzz == 0 {
 		d.log.Println("Ошибка инсЕрта время кз не может быть нолем ", name, timekz, errs)
+		timekzz = 1
 	}
 
 	insertSborkztg1 := `INSERT INTO kzbot.sborkz(corpname,name,mention,tip,dsmesid,tgmesid,wamesid,time,date,lvlkz,
                    numkzn,numberkz,numberevent,eventpoints,active,timedown) 
 				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`
-	_, err := d.Db.Exec(context.Background(), insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
+	_, err := d.Db.Exec(ctx, insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
 		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekzz)
 	if err != nil {
 		d.log.Println("Ошибка записи старта очереди", err)
@@ -111,8 +123,10 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 }
 
 func (d *Db) ElseTrue(name string) models.Sborkz {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, name)
+	results, err := d.Db.Query(ctx, sel, name)
 	if err != nil {
 		d.log.Println("Ошибка извлечения игрока с других очередей ", err)
 	}
@@ -124,15 +138,19 @@ func (d *Db) ElseTrue(name string) models.Sborkz {
 	return t
 }
 func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	del := "delete from kzbot.sborkz where name = $1 AND lvlkz = $2 AND corpname = $3 AND active = 0"
-	_, err := d.Db.Exec(context.Background(), del, name, lvlkz, CorpName)
+	_, err := d.Db.Exec(ctx, del, name, lvlkz, CorpName)
 	if err != nil {
 		d.log.Println("Ошибка удаления из очереди ", err)
 	}
 }
 func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, name, CorpName)
+	results, err := d.Db.Query(ctx, sel, name, CorpName)
 	if err != nil {
 		d.log.Println("Ошибка проверки игрока в очереди для функции (-+) ", err)
 	}
@@ -144,7 +162,7 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 
 		if t.Name == name && t.Timedown <= 3 {
 			upd := "update kzbot.sborkz set timedown = timedown + 30 where active = 0 AND name = $1 AND corpname = $2"
-			_, err = d.Db.Exec(context.Background(), upd, t.Name, t.Corpname)
+			_, err = d.Db.Exec(ctx, upd, t.Name, t.Corpname)
 			if err != nil {
 				d.log.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
 			}
@@ -153,22 +171,27 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 	}
 	return t
 }
+
 func (d *Db) TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	insertTimer := `INSERT INTO kzbot.timer(dsmesid,dschatid,tgmesid,tgchatid,timed) VALUES ($1,$2,$3,$4,$5)`
-	_, err := d.Db.Exec(context.Background(), insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
+	_, err := d.Db.Exec(ctx, insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
 	if err != nil {
 		d.log.Println("Ошибка внесения в бд для удаления ", err)
 	}
 }
 func (d *Db) TimerDeleteMessage() []models.Timer {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	upd := `update kzbot.timer set timed = timed - 60`
-	_, err := d.Db.Exec(context.Background(), upd)
+	_, err := d.Db.Exec(ctx, upd)
 	if err != nil {
 		d.log.Println("Ошибка удаления 60секунд", err)
 	}
 
 	sel := "SELECT * FROM kzbot.timer WHERE timed < 60"
-	results, err := d.Db.Query(context.Background(), sel)
+	results, err := d.Db.Query(ctx, sel)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			d.log.Println("Ошибка чтения ид где меньше 60 секунд", err)
@@ -182,7 +205,7 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 		timedown = append(timedown, t)
 
 		del := "delete from kzbot.timer where  id = $1 "
-		_, err = d.Db.Exec(context.Background(), del, t.Id)
+		_, err = d.Db.Exec(ctx, del, t.Id)
 		if err != nil {
 			d.log.Println("Ошибка удаления по ид с таблицы таймера", err)
 		}
@@ -190,8 +213,10 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 	return timedown
 }
 func (d *Db) ReadMesIdDS(mesid string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, mesid)
+	results, err := d.Db.Query(ctx, sel, mesid)
 	if err != nil {
 		d.log.Println("Ошибка получения уровня кз по меседж айди", err)
 	}
@@ -210,10 +235,13 @@ func (d *Db) ReadMesIdDS(mesid string) (string, error) {
 		return "", err
 	}
 }
+
 func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var timedown int
 	sel := "SELECT timedown FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0 AND name = $3"
-	results, err := d.Db.Query(context.Background(), sel, lvlkz, CorpName, name)
+	results, err := d.Db.Query(ctx, sel, lvlkz, CorpName, name)
 	if err != nil {
 		d.log.Println("Ошибка получения оставшегося времени ", err)
 	}
@@ -223,15 +251,19 @@ func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
 	return timedown
 }
 func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	upd := `update kzbot.sborkz set timedown = timedown+30 where lvlkz = $1 AND corpname = $2 AND name = $3`
-	_, err := d.Db.Exec(context.Background(), upd, lvlkz, CorpName, name)
+	_, err := d.Db.Exec(ctx, upd, lvlkz, CorpName, name)
 	if err != nil {
 		d.log.Println("Ошибка обновления времени ", err)
 	}
 }
 func (d *Db) Queue(corpname string) []string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, corpname)
+	results, err := d.Db.Query(ctx, sel, corpname)
 	if err != nil {
 		d.log.Println("Ошибка чтения левелов для очереди", err)
 	}
@@ -246,9 +278,12 @@ func (d *Db) Queue(corpname string) []string {
 
 	return lvl
 }
+
 func (d *Db) AutoHelp() []models.BotConfig {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT dschannel,mesiddshelp FROM kzbot.config"
-	results, err := d.Db.Query(context.Background(), sel)
+	results, err := d.Db.Query(ctx, sel)
 	if err != nil {
 		d.log.Println("Ошибка получения автосправки с бд", err)
 	}
@@ -261,14 +296,16 @@ func (d *Db) AutoHelp() []models.BotConfig {
 	return a
 }
 func (d *Db) MinusMin() []models.Sborkz {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	upd := `update kzbot.sborkz set timedown = timedown - 1 where active = 0`
-	_, err := d.Db.Exec(context.Background(), upd)
+	_, err := d.Db.Exec(ctx, upd)
 	if err != nil {
 		d.log.Println("Ошибка удаления минуты ", err)
 	}
 
 	sel := "SELECT * FROM kzbot.sborkz WHERE active = 0"
-	results, err := d.Db.Query(context.Background(), sel)
+	results, err := d.Db.Query(ctx, sel)
 	if err != nil {
 		d.log.Println("Ошибка чтения после удаления минуты", err)
 	}
@@ -282,9 +319,11 @@ func (d *Db) MinusMin() []models.Sborkz {
 	return tt
 }
 func (d *Db) OneMinutsTimer() []string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var count int //количество активных игроков
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE active = 0"
-	row := d.Db.QueryRow(context.Background(), sel)
+	row := d.Db.QueryRow(ctx, sel)
 	err := row.Scan(&count)
 	if err != nil {
 		d.log.Println("Ошибка подсчета активных игроков в очередях", err)
@@ -294,7 +333,7 @@ func (d *Db) OneMinutsTimer() []string {
 		a := []string{}
 		aa := []string{}
 		selC := "SELECT corpname FROM kzbot.sborkz WHERE active = 0"
-		results, err := d.Db.Query(context.Background(), selC)
+		results, err := d.Db.Query(ctx, selC)
 		if err != nil {
 			d.log.Println("Ошибка чтения корпораций где есть активные очереди ", err)
 		}
@@ -320,20 +359,23 @@ func (d *Db) OneMinutsTimer() []string {
 	}
 	return CorpActive0
 }
+
 func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var countCorp int
 	ds := []string{}
 	tg := []int{}
 	wa := []string{}
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
-	row := d.Db.QueryRow(context.Background(), sel, corpname)
+	row := d.Db.QueryRow(ctx, sel, corpname)
 	err := row.Scan(&countCorp)
 	if err != nil {
 		d.log.Println("Ошибка получения активных очередей корпорации ", err)
 	}
 	if countCorp > 0 {
 		selS := "SELECT * FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
-		results, err1 := d.Db.Query(context.Background(), selS, corpname)
+		results, err1 := d.Db.Query(ctx, selS, corpname)
 		if err1 != nil {
 			d.log.Println("Ошибка получения активных очередей корпорации2 ", err1)
 		}
@@ -351,9 +393,11 @@ func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
 	return ds, tg, wa
 }
 func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InMessage {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var in models.InMessage
 	sel := "SELECT * FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, dsmesid)
+	results, err := d.Db.Query(ctx, sel, dsmesid)
 	if err != nil {
 		d.log.Println(err)
 	}
@@ -366,6 +410,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 		Name:        t.Name,
 		NameMention: t.Mention,
 		Lvlkz:       t.Lvlkz,
+		Timekz:      string(t.Timedown),
 		Ds: struct {
 			Mesid   string
 			Nameid  string
@@ -391,8 +436,10 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 	return in
 }
 func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT * FROM kzbot.sborkz WHERE tgmesid = $1 AND active = 0"
-	results, err := d.Db.Query(context.Background(), sel, tgmesid)
+	results, err := d.Db.Query(ctx, sel, tgmesid)
 	if err != nil {
 		d.log.Println(err)
 	}
@@ -405,6 +452,7 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 		Name:        t.Name,
 		NameMention: t.Mention,
 		Lvlkz:       t.Lvlkz,
+		Timekz:      string(t.Timedown),
 		Tg: struct {
 			Mesid  int
 			Nameid int64
@@ -426,11 +474,13 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 	return in
 }
 func (d *Db) ReadStatistic(Name string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	num := 1
 	str := "√ уровень кз время дата канал\n"
 	tmp := ""
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND active = 1"
-	results, err := d.Db.Query(context.Background(), sel, Name)
+	results, err := d.Db.Query(ctx, sel, Name)
 	if err != nil {
 		d.log.Println("Ошибка чтения statistic", err)
 		if err == sql.ErrNoRows {

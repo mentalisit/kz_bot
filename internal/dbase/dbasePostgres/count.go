@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
+	"time"
 )
 
 type Count interface {
@@ -15,9 +16,11 @@ type Count interface {
 }
 
 func (d *Db) СountName(name, lvlkz, corpName string) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var countNames int
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND lvlkz = $2 AND corpname = $3 AND active = 0"
-	row := d.Db.QueryRow(context.Background(), sel, name, lvlkz, corpName)
+	row := d.Db.QueryRow(ctx, sel, name, lvlkz, corpName)
 	err := row.Scan(&countNames)
 	if err != nil {
 		d.log.Println("Ошибка проверки в очереди ли игрок  ", err)
@@ -27,9 +30,11 @@ func (d *Db) СountName(name, lvlkz, corpName string) int {
 	return countNames
 }
 func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка сколько игровок в очереди
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var count int
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0"
-	row := d.Db.QueryRow(context.Background(), sel, lvlkz, CorpName)
+	row := d.Db.QueryRow(ctx, sel, lvlkz, CorpName)
 	err := row.Scan(&count)
 	if err != nil {
 		d.log.Println("Ошибка проверки количества игроков в очереди", err)
@@ -37,10 +42,12 @@ func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка ско�
 	return count
 }
 func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // выковыриваем из базы значение количества походов на кз
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	var countNumberNameActive1 int
 	sel := "SELECT COALESCE(SUM(active),0) FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND name = $3"
 	//COALESCE(SUM(value), 0)
-	row := d.Db.QueryRow(context.Background(), sel, lvlkz, CorpName, name)
+	row := d.Db.QueryRow(ctx, sel, lvlkz, CorpName, name)
 	err := row.Scan(&countNumberNameActive1)
 	if err != nil {
 		d.log.Println("Ошибка чтения количества игр", err)
@@ -49,8 +56,10 @@ func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // вы�
 }
 
 func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем есть ли игрок в других очередях
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND active = 0"
-	row := d.Db.QueryRow(context.Background(), sel, name)
+	row := d.Db.QueryRow(ctx, sel, name)
 	err := row.Scan(&countNames)
 	if err != nil {
 		d.log.Println("Ошибка проверки игрока в других очередях ", err)
@@ -58,8 +67,10 @@ func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем
 	return countNames
 }
 func (d *Db) CountNameQueueCorp(name, corp string) (countNames int) { //проверяем есть ли игрок в других очередях
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 0"
-	row := d.Db.QueryRow(context.Background(), sel, name, corp)
+	row := d.Db.QueryRow(ctx, sel, name, corp)
 	err := row.Scan(&countNames)
 	if err != nil {
 		d.log.Println("Ошибка проверки игрока в других очередях этой корпы ", err)

@@ -19,6 +19,9 @@ type InMessage struct {
 		Mesid  int
 		Nameid int64
 	}
+	Wa struct {
+		Nameid string
+	}
 	Config BotConfig
 	Option struct {
 		Callback bool
