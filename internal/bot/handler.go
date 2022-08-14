@@ -118,7 +118,7 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 				Update:   false,
 			},
 		}
-		b.in = in
+		b.in = &in
 		go b.RsMinus()
 
 	}

@@ -2,6 +2,7 @@ package discordClient
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -37,6 +38,7 @@ type Ds interface {
 	EditMessage(chatID, messageID, content string)
 	SendEmbedTime(chatid, text string) string
 	Help(Channel string)
+	CleanChat(chatid, mesid, text string)
 	Autohelp()
 }
 
@@ -324,4 +326,10 @@ func (d *Discord) SendEmbedTime(chatid, text string) string { //отправка
 		d.log.Println("Ошибка добавления эмоджи ", emMinus, err)
 	}
 	return message.ID
+}
+func (d *Discord) CleanChat(chatid, mesid, text string) {
+	res := strings.HasPrefix(text, ".")
+	if !res { //если нет префикса  то удалить через 3 минуты
+		go d.DeleteMesageSecond(chatid, mesid, 180)
+	}
 }

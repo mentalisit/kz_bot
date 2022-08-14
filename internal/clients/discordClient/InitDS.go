@@ -16,11 +16,13 @@ type Discord struct {
 	corpsConfig.CorpConfig
 	dbase dbase.Db
 	log   *logrus.Logger
+	debug bool
 }
 
-func (d *Discord) InitDS(TokenD string, db dbase.Db, log *logrus.Logger) {
+func (d *Discord) InitDS(TokenD string, db dbase.Db, log *logrus.Logger, debug bool) {
 	d.dbase = db
 	d.log = log
+	d.debug = debug
 	DSBot, err := discordgo.New("Bot " + TokenD)
 	if err != nil {
 		d.log.Panic("Ошибка запуска дискорда", err)

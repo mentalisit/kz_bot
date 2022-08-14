@@ -21,22 +21,31 @@ func main() {
 	}
 }
 func Run() error {
+	//читаем конфигурацию с ENV
 	cfg, err := config.InitConfig()
 	if err != nil {
 		return err
 	}
+
+	//создаем логгер в телегу
 	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
 	log.Println("🚀  загрузка  🚀")
 
-	db, errd := dbase.NewDb(cfg, log)
+	debug := true //нужно переделать
+
+	//подключаюсь к базе ланных
+	db, errd := dbase.NewDb(cfg, log, debug)
 	if errd != nil {
 		return errd
 	}
 
+	//читаю конфиг корпораций
 	db.CorpConfig.ReadBotCorpConfig()
-	cl := clients.NewClient(cfg, db, log)
+	//запускаю месенджеры
+	cl := clients.NewClient(cfg, db, log, debug)
 
-	go bot.NewBot(*cl, db, log).InitBot()
+	//запускаю основную логику бота
+	go bot.NewBot(*cl, db, log, debug).InitBot()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

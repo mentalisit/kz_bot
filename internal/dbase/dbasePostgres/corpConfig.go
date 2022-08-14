@@ -2,6 +2,7 @@ package dbasePostgres
 
 import (
 	"context"
+	"fmt"
 	"kz_bot/internal/models"
 )
 
@@ -26,9 +27,9 @@ func (d *Db) ReadBotCorpConfig() {
 	for results.Next() {
 		err = results.Scan(&t.Id, &t.Corpname, &t.Dschannel, &t.Tgchannel, &t.Wachannel, &t.Mesiddshelp, &t.Mesidtghelp, &t.Delmescomplite, &t.Guildid)
 		d.CorpConfig.AddCorp(t.Corpname, t.Dschannel, t.Tgchannel, t.Wachannel, t.Delmescomplite, t.Mesiddshelp, t.Mesidtghelp, t.Guildid)
-		corp = append(corp, t.Corpname)
+		corp = append(corp, fmt.Sprintf("\n%s", t.Corpname))
 	}
-	d.log.Println("Конфиг корпораций", corp)
+	d.log.Printf("Конфиг корпораций%s", corp)
 }
 func (d *Db) DeleteTgChannel(chatid int64) {
 	_, err := d.Db.Exec(context.Background(), "delete from kzbot.config where tgchannel = $1 ", chatid)

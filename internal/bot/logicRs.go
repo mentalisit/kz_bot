@@ -104,8 +104,8 @@ func (b *Bot) lQueue() (bb bool) {
 	arr4 := (re4.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr4) > 0 {
 		b.in.Lvlkz = arr4[0][2]
-		b.QueueLevel()
 		bb = true
+		b.QueueLevel()
 	}
 	if b.in.Mtext == "Очередь" {
 		bb = true

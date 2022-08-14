@@ -13,18 +13,19 @@ import (
 
 type Bot struct {
 	clients.Client
-	Db  dbase.Db
-	in  models.InMessage
-	Mu  sync.Mutex
-	log *logrus.Logger
+	Db    dbase.Db
+	in    *models.InMessage
+	Mu    sync.Mutex
+	log   *logrus.Logger
+	debug bool
 }
 
-func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger) *Bot {
-	return &Bot{Client: cl, Db: db, log: log}
+func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger, debug bool) *Bot {
+	return &Bot{Client: cl, Db: db, log: log, debug: debug}
 }
 func (b *Bot) InitBot() {
 	b.log.Println("Бот загружен и готов к работе ")
-	go func() {
+	go func() { //цикл для ужаления сообщений
 		for {
 			if time.Now().Second() == 0 {
 				tt := b.Db.TimerDeleteMessage() //получаем ид сообщения для удаления
@@ -36,8 +37,8 @@ func (b *Bot) InitBot() {
 						b.Tg.DelMessageSecond(t.Tgchatid, t.Tgmesid, t.Timed)
 					}
 				}
-				b.MinusMin()
-				b.Ds.Autohelp()
+				b.MinusMin()    //ежеминутное обновление активной очереди
+				b.Ds.Autohelp() //автозапуск справки для дискорда
 			}
 
 			time.Sleep(1 * time.Second)
@@ -46,20 +47,33 @@ func (b *Bot) InitBot() {
 	}()
 
 	for {
+		//ПОЛУЧЕНИЕ СООБЩЕНИЙ ПО ГЛОБАЛЬНЫМ КАНАЛАМ ... НУЖНО ПЕРЕДЕЛАТЬ
 		select {
-		case in := <-models.ChTg:
-			b.in = in
-			go b.LogicRs()
-		case in := <-models.ChDs:
-			b.in = in
-			go b.LogicRs()
-		case in := <-models.ChWa:
-			b.in = in
-			go b.LogicRs()
+		case in := <-models.ChTg: //получение с телеги
+			b.in = &in
+			b.LogicRs()
+		case in := <-models.ChDs: //получение с дискорда
+			b.in = &in
+			b.LogicRs()
+		case in := <-models.ChWa: //получение с ватса
+			b.in = &in
+			b.LogicRs()
 		}
 	}
+	b.log.Panic("Ошибка в боте")
+
 }
 
+type LogicBotInterface interface {
+	LogicRSin(in models.InMessage)
+}
+
+func (b *Bot) LogicRSin(in models.InMessage) { //присваиваю входящае сообщение
+	b.in = &in
+	b.LogicRs()
+}
+
+// LogicRs логика игры
 func (b *Bot) LogicRs() {
 	if len(b.in.Mtext) > 0 {
 		if b.lRsPlus() {
@@ -74,7 +88,16 @@ func (b *Bot) LogicRs() {
 			//пробуем мост между месенджерами
 		} else if b.in.Config.TgChannel != 0 && b.in.Config.DsChannel != "" {
 			b.bridge()
+		} else {
+			b.cleanChat()
 		}
+
+	}
+}
+
+func (b *Bot) cleanChat() {
+	if b.in.Tip == ds {
+		b.Ds.CleanChat(b.in.Config.DsChannel, b.in.Ds.Mesid, b.in.Mtext)
 	}
 }
 

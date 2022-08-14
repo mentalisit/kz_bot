@@ -1,10 +1,10 @@
 package watsappClient
 
 import (
+	"context"
 	"go.mau.fi/whatsmeow/types"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/dbase"
-	"kz_bot/internal/models"
 	"strings"
 	"time"
 
@@ -23,52 +23,10 @@ type Watsapp struct {
 	startupTime   time.Time
 }
 type Wa interface {
-	Send(chatid, text string)
+	Send(chatid, text string) (string, error)
+	DeleteMessage(chatid, mesid string)
 }
 
-func (w *Watsapp) Send(chatid, text string) {
-	args := []string{chatid, text}
-	if len(args) < 2 {
-		w.log.Errorf("Usage: send <jid> <text>")
-		return
-	}
-	recipient, ok := w.parseJID(args[0])
-	if !ok {
-		return
-	}
-	msg := &waProto.Message{Conversation: proto.String(strings.Join(args[1:], " "))}
-	ts, err := w.cli.SendMessage(recipient, "", msg)
-	if err != nil {
-		w.log.Errorf("Error sending message: %v", err)
-	} else {
-		w.log.Infof("Message sent (server timestamp: %s)", ts)
-	}
-}
-func (w *Watsapp) LogicMIXwa(text, name, nameid, chatid string) {
-	ok, config := w.CorpConfig.CheckChannelConfigWA(chatid)
-	w.AccesChatWA(text, chatid)
-	if ok {
-		in := models.InMessage{
-			Mtext:       text,
-			Tip:         "wa",
-			Name:        name,
-			NameMention: name,
-			Wa: struct {
-				Nameid string
-			}{
-				Nameid: nameid},
-			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{},
-		}
-		models.ChWa <- in
-	}
-
-}
 func (w *Watsapp) ChatName(chatid string) string {
 	chatName := ""
 	group, ok := w.parseJID(chatid)
@@ -86,4 +44,42 @@ func (w *Watsapp) ChatName(chatid string) string {
 		chatName = resp.Name
 	}
 	return chatName
+}
+
+func (w *Watsapp) Send(chatid, text string) (string, error) {
+	args := []string{chatid, text}
+	if len(args) < 2 {
+
+		return "", nil
+	}
+	recipient, ok := w.parseJID(args[0])
+	if !ok {
+		return "", nil
+	}
+	//var a []string
+	//a = append(a, "380637157959@s.whatsapp.net")
+	conversation := proto.String(strings.Join(args[1:], " "))
+	//extendedTextMessage := &waProto.ExtendedTextMessage{Text: &text,		ContextInfo: &waProto.ContextInfo{MentionedJid: a,},}
+	msg := &waProto.Message{
+		Conversation: conversation,
+		//ExtendedTextMessage: extendedTextMessage,
+	}
+	resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
+	if err != nil {
+		w.log.Errorf("Error sending message: %v", err)
+	}
+
+	return resp.ID, nil
+}
+
+func (w *Watsapp) DeleteMessage(chatid, mesid string) {
+	groupJID, _ := types.ParseJID(chatid)
+	if mesid == "" {
+		return
+	}
+
+	_, err := w.cli.RevokeMessage(groupJID, mesid)
+	if err != nil {
+		return
+	}
 }

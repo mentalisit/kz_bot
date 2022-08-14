@@ -15,12 +15,12 @@ type Client struct {
 	Wa watsappClient.Wa
 }
 
-func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger) *Client {
+func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger, debug bool) *Client {
 	telegram := telegramClient.Telegram{}
 	telegram.InitTG(cfg.TokenT, db, log)
 
 	ds := discordClient.Discord{}
-	ds.InitDS(cfg.TokenD, db, log)
+	ds.InitDS(cfg.TokenD, db, log, debug)
 
 	wa := watsappClient.Watsapp{}
 	//wa.InitWA(db)

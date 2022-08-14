@@ -14,15 +14,19 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/mattn/go-sqlite3 v1.14.11
 	github.com/mdp/qrterminal/v3 v3.0.0
-	github.com/sirupsen/logrus v1.8.1
-	go.mau.fi/whatsmeow v0.0.0-20220221121825-c42eddb4f4ac
-	google.golang.org/protobuf v1.27.1
+	github.com/sirupsen/logrus v1.9.0
+	go.mau.fi/whatsmeow v0.0.0-20220715134127-5e6b9804193a
+	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c
+	google.golang.org/protobuf v1.28.0
+	gopkg.in/Iwark/spreadsheet.v2 v2.0.0-20220412131121-41eea1483964
 )
 
 require (
-	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
+	cloud.google.com/go/compute v1.7.0 // indirect
+	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -32,11 +36,12 @@ require (
 	github.com/jackc/puddle v1.2.1 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	go.mau.fi/libsignal v0.0.0-20211109153248-a67163214910 // indirect
-	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
-	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
+	go.mau.fi/libsignal v0.0.0-20220628090436-4d18b66b087e // indirect
+	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
+	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 	rsc.io/qr v0.2.0 // indirect

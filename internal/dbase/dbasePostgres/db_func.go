@@ -47,6 +47,9 @@ func (d *Db) Shutdown() {
 func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("NumberQueueLvl", lvlkz, CorpName)
+	}
 	var number int
 	sel := "SELECT  number FROM kzbot.numkz WHERE lvlkz = $1 AND corpname = $2"
 	row := d.Db.QueryRow(ctx, sel, lvlkz, CorpName)
@@ -64,11 +67,17 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 			d.log.Println("Ошибка чтения нумкз", err)
 		}
 	}
+	if d.debug {
+		fmt.Println("NumberQueueLvl", number)
+	}
 	return number + 1
 }
 func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("ReadAll lvlkz, CorpName", lvlkz, CorpName)
+	}
 	u := models.Users{
 		User1: models.Sborkz{},
 		User2: models.Sborkz{},
@@ -97,6 +106,9 @@ func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 		}
 		user = user + 1
 	}
+	if d.debug {
+		fmt.Println("ReadAll u", u.User1.Name, u.User2.Name, u.User3.Name, u.User4.Name)
+	}
 	return u
 }
 func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) {
@@ -106,6 +118,9 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	tm := time.Now()
 	mdate := (tm.Format("2006-01-02"))
 	mtime := (tm.Format("15:04"))
+	if d.debug {
+		fmt.Println("InsertQueue", CorpName, name, lvlkz, timekz)
+	}
 	timekzz, errs := strconv.Atoi(timekz)
 	if timekzz == 0 {
 		d.log.Println("Ошибка инсЕрта время кз не может быть нолем ", name, timekz, errs)
@@ -125,6 +140,9 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 func (d *Db) ElseTrue(name string) models.Sborkz {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("ElseTrue", name)
+	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, name)
 	if err != nil {
@@ -135,11 +153,17 @@ func (d *Db) ElseTrue(name string) models.Sborkz {
 		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
 
 	}
+	if d.debug {
+		fmt.Println("ElseTrue", name, t)
+	}
 	return t
 }
 func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("DeleteQueue", name, lvlkz, CorpName)
+	}
 	del := "delete from kzbot.sborkz where name = $1 AND lvlkz = $2 AND corpname = $3 AND active = 0"
 	_, err := d.Db.Exec(ctx, del, name, lvlkz, CorpName)
 	if err != nil {
@@ -149,6 +173,9 @@ func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
 func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("UpdateMitutsQueue", name, CorpName)
+	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, name, CorpName)
 	if err != nil {
@@ -166,8 +193,10 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 			if err != nil {
 				d.log.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
 			}
-			return t
 		}
+	}
+	if d.debug {
+		fmt.Println("UpdateMitutsQueue", name, CorpName, t)
 	}
 	return t
 }
@@ -175,6 +204,9 @@ func (d *Db) UpdateMitutsQueue(name, CorpName string) models.Sborkz {
 func (d *Db) TimerInsert(dsmesid, dschatid string, tgmesid int, tgchatid int64, timed int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("TimerInsert", dsmesid, dschatid, tgmesid, tgchatid, timed)
+	}
 	insertTimer := `INSERT INTO kzbot.timer(dsmesid,dschatid,tgmesid,tgchatid,timed) VALUES ($1,$2,$3,$4,$5)`
 	_, err := d.Db.Exec(ctx, insertTimer, dsmesid, dschatid, tgmesid, tgchatid, timed)
 	if err != nil {
@@ -196,7 +228,6 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 		if err != sql.ErrNoRows {
 			d.log.Println("Ошибка чтения ид где меньше 60 секунд", err)
 		}
-
 	}
 	var timedown []models.Timer
 	for results.Next() {
@@ -210,11 +241,19 @@ func (d *Db) TimerDeleteMessage() []models.Timer {
 			d.log.Println("Ошибка удаления по ид с таблицы таймера", err)
 		}
 	}
+	if d.debug {
+		if timedown != nil {
+			fmt.Println("TimerDeleteMessage", timedown)
+		}
+	}
 	return timedown
 }
 func (d *Db) ReadMesIdDS(mesid string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("ReadMesIdDS", mesid)
+	}
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, mesid)
 	if err != nil {
@@ -228,9 +267,12 @@ func (d *Db) ReadMesIdDS(mesid string) (string, error) {
 		a = append(a, t.Lvlkz)
 	}
 	a = d.removeDuplicateElementString(a)
+	if d.debug {
+		fmt.Println("ReadMesIdDS", a)
+	}
 	if len(a) > 0 {
 		dsmesid = a[0]
-		return dsmesid, err
+		return dsmesid, nil
 	} else {
 		return "", err
 	}
@@ -239,6 +281,9 @@ func (d *Db) ReadMesIdDS(mesid string) (string, error) {
 func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("P30Pl", lvlkz, CorpName, name)
+	}
 	var timedown int
 	sel := "SELECT timedown FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0 AND name = $3"
 	results, err := d.Db.Query(ctx, sel, lvlkz, CorpName, name)
@@ -248,11 +293,17 @@ func (d *Db) P30Pl(lvlkz, CorpName, name string) int {
 	for results.Next() {
 		err = results.Scan(&timedown)
 	}
+	if d.debug {
+		fmt.Println("P30Pl", timedown)
+	}
 	return timedown
 }
 func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("UpdateTimedown", lvlkz, CorpName, name)
+	}
 	upd := `update kzbot.sborkz set timedown = timedown+30 where lvlkz = $1 AND corpname = $2 AND name = $3`
 	_, err := d.Db.Exec(ctx, upd, lvlkz, CorpName, name)
 	if err != nil {
@@ -262,6 +313,9 @@ func (d *Db) UpdateTimedown(lvlkz, CorpName, name string) {
 func (d *Db) Queue(corpname string) []string {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("Queue corpname", corpname)
+	}
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, corpname)
 	if err != nil {
@@ -274,6 +328,9 @@ func (d *Db) Queue(corpname string) []string {
 
 		lvl = append(lvl, t.Lvlkz)
 
+	}
+	if d.debug {
+		fmt.Println("Queue lvl", lvl)
 	}
 
 	return lvl
@@ -316,8 +373,14 @@ func (d *Db) MinusMin() []models.Sborkz {
 		tt = append(tt, t)
 
 	}
+	if d.debug {
+		if len(tt) > 0 {
+			fmt.Println("MinusMin", tt)
+		}
+	}
 	return tt
 }
+
 func (d *Db) OneMinutsTimer() []string {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -357,12 +420,19 @@ func (d *Db) OneMinutsTimer() []string {
 			}
 		}
 	}
+	if d.debug {
+		if len(CorpActive0) > 0 {
+			fmt.Println("OneMinutsTimer", CorpActive0)
+		}
+	}
 	return CorpActive0
 }
-
 func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("MessageUpdateMin", corpname)
+	}
 	var countCorp int
 	ds := []string{}
 	tg := []int{}
@@ -390,12 +460,17 @@ func (d *Db) MessageUpdateMin(corpname string) ([]string, []int, []string) {
 	ds = d.removeDuplicateElementString(ds)
 	tg = d.removeDuplicateElementInt(tg)
 	wa = d.removeDuplicateElementString(wa)
+	if d.debug {
+		fmt.Println("MessageUpdateMin", "ds", ds, "tg", tg, "wa", wa)
+	}
 	return ds, tg, wa
 }
 func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InMessage {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	var in models.InMessage
+	if d.debug {
+		fmt.Println("MessageupdateDS", dsmesid, config)
+	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, dsmesid)
 	if err != nil {
@@ -405,7 +480,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 	for results.Next() {
 		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
 	}
-	in = models.InMessage{
+	in := models.InMessage{
 		Tip:         "ds",
 		Name:        t.Name,
 		NameMention: t.Mention,
@@ -432,12 +507,18 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 			Update:   false,
 		},
 	}
-
+	if d.debug {
+		fmt.Println("MessageupdateDS", in)
+	}
 	return in
+
 }
 func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMessage {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if d.debug {
+		fmt.Println("MessageupdateTG", tgmesid, config)
+	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE tgmesid = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, tgmesid)
 	if err != nil {
@@ -470,6 +551,9 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 			Edit:     true,
 			Update:   false,
 		},
+	}
+	if d.debug {
+		fmt.Println("MessageupdateTG", in)
 	}
 	return in
 }

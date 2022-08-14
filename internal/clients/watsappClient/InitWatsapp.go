@@ -3,18 +3,23 @@ package watsappClient
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	log "github.com/sirupsen/logrus"
+	"go.mau.fi/whatsmeow/store"
 	"kz_bot/internal/dbase"
 	"mime"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"syscall"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mdp/qrterminal/v3"
@@ -100,24 +105,27 @@ func (w *Watsapp) InitWA(db dbase.Db) {
 			}
 		}
 	}()
-	for {
-		select {
-		case <-c:
-			w.log.Infof("Interrupt received, exiting")
-			w.cli.Disconnect()
-			return
-		case cmd := <-input:
-			if len(cmd) == 0 {
-				w.log.Infof("Stdin closed, exiting")
+	go func() {
+		for {
+			select {
+			case <-c:
+				w.log.Infof("Interrupt received, exiting")
 				w.cli.Disconnect()
 				return
+			case cmd := <-input:
+				if len(cmd) == 0 {
+					w.log.Infof("Stdin closed, exiting")
+					w.cli.Disconnect()
+					return
+				}
+				args := strings.Fields(cmd)
+				cmd = args[0]
+				args = args[1:]
+				go w.handleCmd(strings.ToLower(cmd), args)
 			}
-			args := strings.Fields(cmd)
-			cmd = args[0]
-			args = args[1:]
-			go w.handleCmd(strings.ToLower(cmd), args)
 		}
-	}
+	}()
+
 }
 
 func (w *Watsapp) parseJID(arg string) (types.JID, bool) {
@@ -145,18 +153,18 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 		w.cli.Disconnect()
 		err := w.cli.Connect()
 		if err != nil {
-			w.log.Errorf("Failed to connect: %v", err)
+			log.Errorf("Failed to connect: %v", err)
 		}
 	case "logout":
 		err := w.cli.Logout()
 		if err != nil {
-			w.log.Errorf("Error logging out: %v", err)
+			log.Errorf("Error logging out: %v", err)
 		} else {
-			w.log.Infof("Successfully logged out")
+			log.Infof("Successfully logged out")
 		}
 	case "appstate":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: appstate <types...>")
+			log.Errorf("Usage: appstate <types...>")
 			return
 		}
 		names := []appstate.WAPatchName{appstate.WAPatchName(args[0])}
@@ -167,29 +175,58 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 		for _, name := range names {
 			err := w.cli.FetchAppState(name, resync, false)
 			if err != nil {
-				w.log.Errorf("Failed to sync app state: %v", err)
+				log.Errorf("Failed to sync app state: %v", err)
 			}
 		}
+	case "request-appstate-key":
+		if len(args) < 1 {
+			log.Errorf("Usage: request-appstate-key <ids...>")
+			return
+		}
+		var keyIDs = make([][]byte, len(args))
+		for i, id := range args {
+			decoded, err := hex.DecodeString(id)
+			if err != nil {
+				log.Errorf("Failed to decode %s as hex: %v", id, err)
+				return
+			}
+			keyIDs[i] = decoded
+		}
+		w.cli.DangerousInternals().RequestAppStateKeys(context.Background(), keyIDs)
 	case "checkuser":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: checkuser <phone numbers...>")
+			log.Errorf("Usage: checkuser <phone numbers...>")
 			return
 		}
 		resp, err := w.cli.IsOnWhatsApp(args)
 		if err != nil {
-			w.log.Errorf("Failed to check if users are on WhatsApp:", err)
+			log.Errorf("Failed to check if users are on WhatsApp:", err)
 		} else {
 			for _, item := range resp {
 				if item.VerifiedName != nil {
-					w.log.Infof("%s: on whatsapp: %t, JID: %s, business name: %s", item.Query, item.IsIn, item.JID, item.VerifiedName.Details.GetVerifiedName())
+					log.Infof("%s: on whatsapp: %t, JID: %s, business name: %s", item.Query, item.IsIn, item.JID, item.VerifiedName.Details.GetVerifiedName())
 				} else {
-					w.log.Infof("%s: on whatsapp: %t, JID: %s", item.Query, item.IsIn, item.JID)
+					log.Infof("%s: on whatsapp: %t, JID: %s", item.Query, item.IsIn, item.JID)
 				}
+			}
+		}
+	case "checkupdate":
+		resp, err := w.cli.CheckUpdate()
+		if err != nil {
+			log.Errorf("Failed to check for updates: %v", err)
+		} else {
+			log.Debugf("Version data: %#v", resp)
+			if resp.ParsedVersion == store.GetWAVersion() {
+				log.Infof("Client is up to date")
+			} else if store.GetWAVersion().LessThan(resp.ParsedVersion) {
+				log.Warnf("Client is outdated")
+			} else {
+				log.Infof("Client is newer than latest")
 			}
 		}
 	case "subscribepresence":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: subscribepresence <jid>")
+			log.Errorf("Usage: subscribepresence <jid>")
 			return
 		}
 		jid, ok := w.parseJID(args[0])
@@ -203,8 +240,14 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 	case "presence":
 		fmt.Println(w.cli.SendPresence(types.Presence(args[0])))
 	case "chatpresence":
-		jid, _ := types.ParseJID(args[1])
-		fmt.Println(w.cli.SendChatPresence(types.ChatPresence(args[0]), jid))
+		if len(args) == 2 {
+			args = append(args, "")
+		} else if len(args) < 2 {
+			log.Errorf("Usage: chatpresence <jid> <composing/paused> [audio]")
+			return
+		}
+		jid, _ := types.ParseJID(args[0])
+		fmt.Println(w.cli.SendChatPresence(jid, types.ChatPresence(args[1]), types.ChatPresenceMedia(args[2])))
 	case "privacysettings":
 		resp, err := w.cli.TryFetchPrivacySettings(false)
 		if err != nil {
@@ -214,7 +257,7 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 		}
 	case "getuser":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: getuser <jids...>")
+			log.Errorf("Usage: getuser <jids...>")
 			return
 		}
 		var jids []types.JID
@@ -227,110 +270,136 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 		}
 		resp, err := w.cli.GetUserInfo(jids)
 		if err != nil {
-			w.log.Errorf("Failed to get user info: %v", err)
+			log.Errorf("Failed to get user info: %v", err)
 		} else {
 			for jid, info := range resp {
-				w.log.Infof("%s: %+v", jid, info)
+				log.Infof("%s: %+v", jid, info)
 			}
 		}
 	case "getavatar":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: getavatar <jid>")
+			log.Errorf("Usage: getavatar <jid> [existing ID] [--preview]")
 			return
 		}
 		jid, ok := w.parseJID(args[0])
 		if !ok {
 			return
 		}
-		pic, err := w.cli.GetProfilePictureInfo(jid, len(args) > 1 && args[1] == "preview")
+		existingID := ""
+		if len(args) > 2 {
+			existingID = args[2]
+		}
+		pic, err := w.cli.GetProfilePictureInfo(jid, args[len(args)-1] == "--preview", existingID)
 		if err != nil {
-			w.log.Errorf("Failed to get avatar: %v", err)
+			log.Errorf("Failed to get avatar: %v", err)
 		} else if pic != nil {
-			w.log.Infof("Got avatar ID %s: %s", pic.ID, pic.URL)
+			log.Infof("Got avatar ID %s: %s", pic.ID, pic.URL)
 		} else {
-			w.log.Infof("No avatar found")
+			log.Infof("No avatar found")
 		}
 	case "getgroup":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: getgroup <jid>")
+			log.Errorf("Usage: getgroup <jid>")
 			return
 		}
 		group, ok := w.parseJID(args[0])
 		if !ok {
 			return
 		} else if group.Server != types.GroupServer {
-			w.log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
+			log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
 			return
 		}
 		resp, err := w.cli.GetGroupInfo(group)
 		if err != nil {
-			w.log.Errorf("Failed to get group info: %v", err)
+			log.Errorf("Failed to get group info: %v", err)
 		} else {
-			w.log.Infof("Group info: %+v", resp)
+			log.Infof("Group info: %+v", resp)
 		}
 	case "listgroups":
 		groups, err := w.cli.GetJoinedGroups()
 		if err != nil {
-			w.log.Errorf("Failed to get group list: %v", err)
+			log.Errorf("Failed to get group list: %v", err)
 		} else {
 			for _, group := range groups {
-				w.log.Infof("%+v", group)
+				log.Infof("%+v", group)
 			}
 		}
 	case "getinvitelink":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: getinvitelink <jid> [--reset]")
+			log.Errorf("Usage: getinvitelink <jid> [--reset]")
 			return
 		}
 		group, ok := w.parseJID(args[0])
 		if !ok {
 			return
 		} else if group.Server != types.GroupServer {
-			w.log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
+			log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
 			return
 		}
 		resp, err := w.cli.GetGroupInviteLink(group, len(args) > 1 && args[1] == "--reset")
 		if err != nil {
-			w.log.Errorf("Failed to get group invite link: %v", err)
+			log.Errorf("Failed to get group invite link: %v", err)
 		} else {
-			w.log.Infof("Group invite link: %s", resp)
+			log.Infof("Group invite link: %s", resp)
 		}
 	case "queryinvitelink":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: queryinvitelink <link>")
+			log.Errorf("Usage: queryinvitelink <link>")
 			return
 		}
 		resp, err := w.cli.GetGroupInfoFromLink(args[0])
 		if err != nil {
-			w.log.Errorf("Failed to resolve group invite link: %v", err)
+			log.Errorf("Failed to resolve group invite link: %v", err)
 		} else {
-			w.log.Infof("Group info: %+v", resp)
+			log.Infof("Group info: %+v", resp)
 		}
 	case "querybusinesslink":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: querybusinesslink <link>")
+			log.Errorf("Usage: querybusinesslink <link>")
 			return
 		}
 		resp, err := w.cli.ResolveBusinessMessageLink(args[0])
 		if err != nil {
-			w.log.Errorf("Failed to resolve business message link: %v", err)
+			log.Errorf("Failed to resolve business message link: %v", err)
 		} else {
-			w.log.Infof("Business info: %+v", resp)
+			log.Infof("Business info: %+v", resp)
 		}
 	case "joininvitelink":
 		if len(args) < 1 {
-			w.log.Errorf("Usage: acceptinvitelink <link>")
+			log.Errorf("Usage: acceptinvitelink <link>")
 			return
 		}
 		groupID, err := w.cli.JoinGroupWithLink(args[0])
 		if err != nil {
-			w.log.Errorf("Failed to join group via invite link: %v", err)
+			log.Errorf("Failed to join group via invite link: %v", err)
 		} else {
-			w.log.Infof("Joined %s", groupID)
+			log.Infof("Joined %s", groupID)
+		}
+	case "getstatusprivacy":
+		resp, err := w.cli.GetStatusPrivacy()
+		fmt.Println(err)
+		fmt.Println(resp)
+	case "setdisappeartimer":
+		if len(args) < 2 {
+			log.Errorf("Usage: setdisappeartimer <jid> <days>")
+			return
+		}
+		days, err := strconv.Atoi(args[1])
+		if err != nil {
+			log.Errorf("Invalid duration: %v", err)
+			return
+		}
+		recipient, ok := w.parseJID(args[0])
+		if !ok {
+			return
+		}
+		err = w.cli.SetDisappearingTimer(recipient, time.Duration(days)*24*time.Hour)
+		if err != nil {
+			log.Errorf("Failed to set disappearing timer: %v", err)
 		}
 	case "send":
 		if len(args) < 2 {
-			w.log.Errorf("Usage: send <jid> <text>")
+			log.Errorf("Usage: send <jid> <text>")
 			return
 		}
 		recipient, ok := w.parseJID(args[0])
@@ -338,15 +407,96 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 			return
 		}
 		msg := &waProto.Message{Conversation: proto.String(strings.Join(args[1:], " "))}
-		ts, err := w.cli.SendMessage(recipient, "", msg)
+		resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
 		if err != nil {
-			w.log.Errorf("Error sending message: %v", err)
+			log.Errorf("Error sending message: %v", err)
 		} else {
-			w.log.Infof("Message sent (server timestamp: %s)", ts)
+			log.Infof("Message sent (server timestamp: %s)", resp.Timestamp)
+		}
+	case "multisend":
+		if len(args) < 3 {
+			log.Errorf("Usage: multisend <jids...> -- <text>")
+			return
+		}
+		var recipients []types.JID
+		for len(args) > 0 && args[0] != "--" {
+			recipient, ok := w.parseJID(args[0])
+			args = args[1:]
+			if !ok {
+				return
+			}
+			recipients = append(recipients, recipient)
+		}
+		if len(args) == 0 {
+			log.Errorf("Usage: multisend <jids...> -- <text> (the -- is required)")
+			return
+		}
+		msg := &waProto.Message{Conversation: proto.String(strings.Join(args[1:], " "))}
+		for _, recipient := range recipients {
+			go func(recipient types.JID) {
+				resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
+				if err != nil {
+					log.Errorf("Error sending message to %s: %v", recipient, err)
+				} else {
+					log.Infof("Message sent to %s (server timestamp: %s)", recipient, resp.Timestamp)
+				}
+			}(recipient)
+		}
+	case "react":
+		if len(args) < 3 {
+			log.Errorf("Usage: react <jid> <message ID> <reaction>")
+			return
+		}
+		recipient, ok := w.parseJID(args[0])
+		if !ok {
+			return
+		}
+		messageID := args[1]
+		fromMe := false
+		if strings.HasPrefix(messageID, "me:") {
+			fromMe = true
+			messageID = messageID[len("me:"):]
+		}
+		reaction := args[2]
+		if reaction == "remove" {
+			reaction = ""
+		}
+		msg := &waProto.Message{
+			ReactionMessage: &waProto.ReactionMessage{
+				Key: &waProto.MessageKey{
+					RemoteJid: proto.String(recipient.String()),
+					FromMe:    proto.Bool(fromMe),
+					Id:        proto.String(messageID),
+				},
+				Text:              proto.String(reaction),
+				SenderTimestampMs: proto.Int64(time.Now().UnixMilli()),
+			},
+		}
+		resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
+		if err != nil {
+			log.Errorf("Error sending reaction: %v", err)
+		} else {
+			log.Infof("Reaction sent (server timestamp: %s)", resp.Timestamp)
+		}
+	case "revoke":
+		if len(args) < 2 {
+			log.Errorf("Usage: revoke <jid> <message ID>")
+			return
+		}
+		recipient, ok := w.parseJID(args[0])
+		if !ok {
+			return
+		}
+		messageID := args[1]
+		resp, err := w.cli.RevokeMessage(recipient, messageID)
+		if err != nil {
+			log.Errorf("Error sending revocation: %v", err)
+		} else {
+			log.Infof("Revocation sent (server timestamp: %s)", resp.Timestamp)
 		}
 	case "sendimg":
 		if len(args) < 2 {
-			w.log.Errorf("Usage: sendimg <jid> <image path> [caption]")
+			log.Errorf("Usage: sendimg <jid> <image path> [caption]")
 			return
 		}
 		recipient, ok := w.parseJID(args[0])
@@ -355,12 +505,12 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 		}
 		data, err := os.ReadFile(args[1])
 		if err != nil {
-			w.log.Errorf("Failed to read %s: %v", args[0], err)
+			log.Errorf("Failed to read %s: %v", args[0], err)
 			return
 		}
 		uploaded, err := w.cli.Upload(context.Background(), data, whatsmeow.MediaImage)
 		if err != nil {
-			w.log.Errorf("Failed to upload file: %v", err)
+			log.Errorf("Failed to upload file: %v", err)
 			return
 		}
 		msg := &waProto.Message{ImageMessage: &waProto.ImageMessage{
@@ -373,15 +523,25 @@ func (w *Watsapp) handleCmd(cmd string, args []string) {
 			FileSha256:    uploaded.FileSHA256,
 			FileLength:    proto.Uint64(uint64(len(data))),
 		}}
-		ts, err := w.cli.SendMessage(recipient, "", msg)
+		resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
 		if err != nil {
-			w.log.Errorf("Error sending image message: %v", err)
+			log.Errorf("Error sending image message: %v", err)
 		} else {
-			w.log.Infof("Image message sent (server timestamp: %s)", ts)
+			log.Infof("Image message sent (server timestamp: %s)", resp.Timestamp)
+		}
+	case "setstatus":
+		if len(args) == 0 {
+			log.Errorf("Usage: setstatus <message>")
+			return
+		}
+		err := w.cli.SetStatusMessage(strings.Join(args, " "))
+		if err != nil {
+			log.Errorf("Error setting status message: %v", err)
+		} else {
+			log.Infof("Status updated")
 		}
 	}
 }
-
 func (w *Watsapp) handler(rawEvt interface{}) {
 	switch evt := rawEvt.(type) {
 	case *events.AppStateSyncComplete:
@@ -426,7 +586,22 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		name := evt.Info.PushName
 		nameid := evt.Info.Sender.String()
 		chatid := evt.Info.Chat.String()
-		text := *evt.Message.Conversation
+		text := ""
+
+		if evt.Message.GetConversation() != "" {
+			text = *evt.Message.Conversation
+		} else {
+			for _, q := range evt.Message.GetExtendedTextMessage().ContextInfo.MentionedJid {
+				text = fmt.Sprintf(" %s ", q)
+			}
+
+		}
+		fmt.Println("text", text)
+		_, err := w.Send(chatid, text)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		//fmt.Println("отправитель:", name)
 		//fmt.Println("номер отправителя:", nameid)
 		//fmt.Println("chatid", chatid)
@@ -440,10 +615,8 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		switch {
 		case msg.Conversation != nil || msg.ExtendedTextMessage != nil:
 			if text != "" {
-				w.LogicMIXwa(text, name, nameid, chatid)
+				go w.LogicMIXwa(text, name, nameid, chatid)
 			}
-
-			//w.handleTextMessage(evt.Info, msg)
 		}
 
 		//w.log.Infof("425Received message %s from %s (%s): %+v", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
@@ -466,7 +639,7 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		}
 	case *events.Receipt:
 		if evt.Type == events.ReceiptTypeRead || evt.Type == events.ReceiptTypeReadSelf {
-			w.log.Infof("%v was read by %s at %s", evt.MessageIDs, evt.SourceString(), evt.Timestamp)
+			//w.log.Infof("%v was read by %s at %s", evt.MessageIDs, evt.SourceString(), evt.Timestamp)
 		} else if evt.Type == events.ReceiptTypeDelivered {
 			//w.log.Infof("%s was delivered to %s at %s", evt.MessageIDs[0], evt.SourceString(), evt.Timestamp)
 		}

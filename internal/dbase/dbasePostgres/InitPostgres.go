@@ -23,12 +23,14 @@ const (
 type Db struct {
 	Db *pgxpool.Pool
 	corpsConfig.CorpConfig
-	log *logrus.Logger
+	log   *logrus.Logger
+	debug bool
 }
 
-func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) error {
+func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot, debug bool) error {
 
 	d.log = log
+	d.debug = debug
 
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 

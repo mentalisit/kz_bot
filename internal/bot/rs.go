@@ -9,8 +9,15 @@ import (
 func (b *Bot) RsPlus() {
 	b.Mu.Lock()
 	defer b.Mu.Unlock()
+	if b.debug {
+		fmt.Println("in RsPlus", b.in)
+	}
 	go b.iftipdelete()
-	if b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) == 1 { //проверяем есть ли игрок в очереди
+	CountName, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	if err != nil {
+		return
+	}
+	if CountName == 1 { //проверяем есть ли игрок в очереди
 		b.ifTipSendMentionText(" ты уже в очереди")
 	} else {
 		countQueue := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)                    //проверяем, есть ли кто-то в очереди
@@ -191,8 +198,15 @@ func (b *Bot) RsPlus() {
 }
 func (b *Bot) RsMinus() {
 	b.Mu.Lock()
+	if b.debug {
+		fmt.Println("in RsMinus", b.in)
+	}
 	b.callbackNo()
-	CountNames := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
+
+	CountNames, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
+	if err != nil {
+		return
+	}
 	if CountNames == 0 {
 		b.ifTipSendMentionText(" ты не в очереди")
 	} else if CountNames > 0 {
@@ -226,7 +240,11 @@ func (b *Bot) RsMinus() {
 		}
 	}
 }
+
 func (b *Bot) QueueLevel() {
+	if b.debug {
+		fmt.Println("in QueueLevel", b.in)
+	}
 	b.callbackNo()
 	count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
@@ -350,6 +368,9 @@ func (b *Bot) QueueLevel() {
 	}
 }
 func (b *Bot) QueueAll() {
+	if b.debug {
+		fmt.Println("in QueueAll", b.in)
+	}
 	lvl := b.Db.Queue(b.in.Config.CorpName)
 	lvlk := b.removeDuplicateElementString(lvl)
 	if len(lvlk) > 0 {
@@ -367,11 +388,18 @@ func (b *Bot) QueueAll() {
 	}
 
 }
+
 func (b *Bot) RsStart() {
 	b.Mu.Lock()
 	defer b.Mu.Unlock()
+	if b.debug {
+		fmt.Println("in RsStart", b.in)
+	}
 	b.callbackNo()
-	countName := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	countName, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
+	if err != nil {
+		return
+	}
 	if countName == 0 {
 		text := "Принудительный старт доступен участникам очереди."
 		b.ifTipSendTextDelSecond(text, 10)
@@ -507,6 +535,9 @@ func (b *Bot) RsStart() {
 	}
 }
 func (b *Bot) Pl30() {
+	if b.debug {
+		fmt.Println("in Pl30", b.in)
+	}
 	countName := b.Db.Count.CountNameQueue(b.in.Name)
 	text := ""
 	if countName == 0 {
@@ -526,7 +557,11 @@ func (b *Bot) Pl30() {
 	}
 	b.ifTipSendTextDelSecond(text, 20)
 }
+
 func (b *Bot) Plus() bool {
+	if b.debug {
+		fmt.Println("in Plus", b.in)
+	}
 	b.callbackNo()
 	countName := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
@@ -549,6 +584,9 @@ func (b *Bot) Plus() bool {
 	return ins
 }
 func (b *Bot) Minus() bool {
+	if b.debug {
+		fmt.Println("in Minus", b.in)
+	}
 	b.callbackNo()
 	message := ""
 	bb := false
@@ -570,7 +608,11 @@ func (b *Bot) Minus() bool {
 	b.ifTipSendTextDelSecond(message, 10)
 	return bb
 }
+
 func (b *Bot) Subscribe(tipPing int) {
+	if b.debug {
+		fmt.Println("in Subscribe", b.in)
+	}
 	if b.in.Tip == "ds" {
 		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 		argRoles := "кз" + b.in.Lvlkz
@@ -598,6 +640,9 @@ func (b *Bot) Subscribe(tipPing int) {
 	}
 }
 func (b *Bot) Unsubscribe(tipPing int) {
+	if b.debug {
+		fmt.Println("in Unsubscribe", b.in)
+	}
 	if b.in.Tip == "ds" {
 		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 		argRoles := "кз" + b.in.Lvlkz
@@ -623,6 +668,9 @@ func (b *Bot) Unsubscribe(tipPing int) {
 }
 
 func (b *Bot) emodjiadd(slot, emo string) {
+	if b.debug {
+		fmt.Println("in emodjiadd", b.in)
+	}
 	b.iftipdelete()
 	t := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 	if len(t.Name) == 0 {
@@ -632,6 +680,9 @@ func (b *Bot) emodjiadd(slot, emo string) {
 	b.ifTipSendTextDelSecond(text, 20)
 }
 func (b *Bot) emodjis() {
+	if b.debug {
+		fmt.Println("in emodjis", b.in)
+	}
 	b.iftipdelete()
 	e := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 
@@ -648,6 +699,9 @@ func (b *Bot) emodjis() {
 }
 
 func (b *Bot) EventStart() {
+	if b.debug {
+		fmt.Println("in EventStart", b.in)
+	}
 	//проверяем, есть ли активный ивент
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	text := "Ивент запущен. После каждого похода на КЗ, " +
@@ -678,6 +732,9 @@ func (b *Bot) EventStart() {
 	}
 }
 func (b *Bot) EventStop() {
+	if b.debug {
+		fmt.Println("in EventStop", b.in)
+	}
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	eventStop := "Ивент остановлен."
 	eventNull := "Ивент и так не активен. Нечего останавливать "
@@ -701,6 +758,9 @@ func (b *Bot) EventStop() {
 	}
 }
 func (b *Bot) EventPoints(numKZ, points int) {
+	if b.debug {
+		fmt.Println("in EventPoints", b.in)
+	}
 	b.iftipdelete()
 	// проверяем активен ли ивент
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
@@ -726,8 +786,10 @@ func (b *Bot) EventPoints(numKZ, points int) {
 	}
 	b.ifTipSendTextDelSecond(message, 20)
 }
-
 func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) {
+	if b.debug {
+		fmt.Println("in changeMessageEvent ", b.in)
+	}
 	nd, nt, t := b.Db.Event.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
 	mes1 := fmt.Sprintf("ивент игра №%d\n", t.Numberkz)
 	mesOld := fmt.Sprintf("внесено %d", points)
@@ -767,6 +829,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 		}
 	}
 }
+
 func (b *Bot) MinusMin() {
 	tt := b.Db.MinusMin()
 	c := corpsConfig.CorpConfig{}
@@ -799,7 +862,10 @@ func (b *Bot) MinusMin() {
 						},
 						Config: config,
 					}
-					b.in = in
+					b.in = &in
+					if b.debug {
+						fmt.Printf("\n\n in MinusMin  %+v\n", b.in)
+					}
 				}
 			}
 
@@ -815,9 +881,11 @@ func (b *Bot) MinusMin() {
 					go b.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 180)
 				}
 			} else if t.Timedown == 0 {
-				go b.RsMinus()
-			} else if t.Timedown <= -1 {
-				go b.RsMinus()
+				b.RsMinus()
+			} else if t.Timedown < -1 {
+				b.RsMinus()
+			} else if t.Timedown < 0 {
+				b.RsMinus()
 			}
 
 		}
@@ -842,7 +910,7 @@ func (b *Bot) MinusMin() {
 
 				if !skip {
 					in := b.Db.MessageupdateDS(dsmesid, config)
-					b.in = in
+					b.in = &in
 					b.QueueLevel()
 				}
 			}

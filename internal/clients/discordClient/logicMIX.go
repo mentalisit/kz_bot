@@ -1,6 +1,7 @@
 package discordClient
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 )
@@ -67,6 +68,10 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 					}
 				}
 			}
+			if d.debug {
+				fmt.Printf("\n\nin readReactionQueue %+v\n ", in)
+			}
+
 			models.ChDs <- in
 		}
 	}
@@ -123,7 +128,10 @@ func (d *Discord) logicMixDiscord(m *discordgo.MessageCreate) {
 				Update:   false,
 			},
 		}
+		if d.debug {
+			fmt.Printf("\n\nin logicMixDiscord %+v\n", in)
+		}
+
 		models.ChDs <- in
-		d.cleanChat(m)
 	}
 }

@@ -17,8 +17,14 @@ func (w *Watsapp) AccesChatWA(text, chatid string) {
 func (w *Watsapp) accessAddChannelWA(chatid string) { // внесение в дб и добавление в масив
 	ok, _ := w.CorpConfig.CheckChannelConfigWA(chatid)
 	if ok {
-		go w.Send(chatid, "Я уже могу работать на вашем канале\n"+
-			"повторная активация не требуется.\nнапиши Справка")
+		go func() {
+			send, err := w.Send(chatid, "Я уже могу работать на вашем канале\n"+
+				"повторная активация не требуется.\nнапиши Справка")
+			if err != nil {
+				return
+			}
+			w.DeleteMessage(chatid, send)
+		}()
 	} else {
 		chatName := w.ChatName(chatid)
 		fmt.Println("новая активация корпорации ", chatName)
