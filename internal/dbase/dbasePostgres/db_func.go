@@ -373,11 +373,6 @@ func (d *Db) MinusMin() []models.Sborkz {
 		tt = append(tt, t)
 
 	}
-	if d.debug {
-		if len(tt) > 0 {
-			fmt.Println("MinusMin", tt)
-		}
-	}
 	return tt
 }
 
@@ -469,7 +464,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
-		fmt.Println("MessageupdateDS", dsmesid, config)
+		fmt.Println("MessageupdateDS", dsmesid, config.CorpName)
 	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, dsmesid)
@@ -507,9 +502,6 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 			Update:   false,
 		},
 	}
-	if d.debug {
-		fmt.Println("MessageupdateDS", in)
-	}
 	return in
 
 }
@@ -517,7 +509,7 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
-		fmt.Println("MessageupdateTG", tgmesid, config)
+		fmt.Println("MessageupdateTG", tgmesid, config.CorpName)
 	}
 	sel := "SELECT * FROM kzbot.sborkz WHERE tgmesid = $1 AND active = 0"
 	results, err := d.Db.Query(ctx, sel, tgmesid)
@@ -551,9 +543,6 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 			Edit:     true,
 			Update:   false,
 		},
-	}
-	if d.debug {
-		fmt.Println("MessageupdateTG", in)
 	}
 	return in
 }

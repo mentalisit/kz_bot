@@ -35,6 +35,9 @@ func (t *Telegram) logicMixTelegram(m *tgbotapi.Message) {
 				Update:   false,
 			},
 		}
+		if t.debug {
+			fmt.Printf("\n\nin logicMixTelegram %+v\n", in)
+		}
 		models.ChTg <- in
 	}
 }
@@ -69,6 +72,9 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 				Edit:     true,
 				Update:   false,
 			},
+		}
+		if t.debug {
+			fmt.Printf("\n\nin logicMixTelegramCallback %+v\n", in)
 		}
 		models.ChTg <- in
 	}

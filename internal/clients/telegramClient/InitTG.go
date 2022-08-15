@@ -13,11 +13,13 @@ type Telegram struct {
 	corpsConfig.CorpConfig
 	dbase dbase.Db
 	log   *logrus.Logger
+	debug bool
 }
 
-func (t *Telegram) InitTG(tokent string, db dbase.Db, log *logrus.Logger) {
+func (t *Telegram) InitTG(tokent string, db dbase.Db, log *logrus.Logger, debug bool) {
 	t.dbase = db
 	t.log = log
+	t.debug = debug
 	//подключение к телеграм
 	TgBot, Err := tgbotapi.NewBotAPI(tokent)
 	if Err != nil {

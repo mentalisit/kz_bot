@@ -18,6 +18,7 @@ type Bot struct {
 	Mu    sync.Mutex
 	log   *logrus.Logger
 	debug bool
+	wg    sync.WaitGroup
 }
 
 func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger, debug bool) *Bot {
@@ -42,6 +43,14 @@ func (b *Bot) InitBot() {
 			}
 
 			time.Sleep(1 * time.Second)
+			dsc := len(models.ChDs)
+			tgc := len(models.ChTg)
+			if dsc > 0 {
+				b.log.Println("len(models.ChDs)\nнадо паниковать ", dsc)
+			}
+			if tgc > 0 {
+				b.log.Println("len(models.ChTg)\nнадо паниковать", tgc)
+			}
 		}
 
 	}()
@@ -50,11 +59,15 @@ func (b *Bot) InitBot() {
 		//ПОЛУЧЕНИЕ СООБЩЕНИЙ ПО ГЛОБАЛЬНЫМ КАНАЛАМ ... НУЖНО ПЕРЕДЕЛАТЬ
 		select {
 		case in := <-models.ChTg: //получение с телеги
-			b.in = &in
-			b.LogicRs()
+			go func() {
+				b.in = &in
+				b.LogicRs()
+			}()
 		case in := <-models.ChDs: //получение с дискорда
-			b.in = &in
-			b.LogicRs()
+			go func() {
+				b.in = &in
+				b.LogicRs()
+			}()
 		case in := <-models.ChWa: //получение с ватса
 			b.in = &in
 			b.LogicRs()

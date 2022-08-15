@@ -10,7 +10,7 @@ func (b *Bot) RsPlus() {
 	b.Mu.Lock()
 	defer b.Mu.Unlock()
 	if b.debug {
-		fmt.Println("in RsPlus", b.in)
+		fmt.Printf("\n\nin RsPlus %+v\n", b.in)
 	}
 	go b.iftipdelete()
 	CountName, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
@@ -34,7 +34,7 @@ func (b *Bot) RsPlus() {
 				name2 := ""
 				name3 := ""
 				name4 := ""
-				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Ds.Guildid)
+				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
 				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
 				dsmesid = b.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+" запустил очередь "+lvlk)
 				b.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
@@ -61,7 +61,7 @@ func (b *Bot) RsPlus() {
 				name2 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
 				name3 := ""
 				name4 := ""
-				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Ds.Guildid)
+				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
 				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
 				text := lvlk + " 2/4 " + b.in.Name + " присоединился к очереди"
 				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
@@ -198,6 +198,7 @@ func (b *Bot) RsPlus() {
 }
 func (b *Bot) RsMinus() {
 	b.Mu.Lock()
+	defer b.Mu.Unlock()
 	if b.debug {
 		fmt.Println("in RsMinus", b.in)
 	}
@@ -234,7 +235,6 @@ func (b *Bot) RsMinus() {
 		if b.in.Config.WaChannel != "" {
 			//тут логика ватса
 		}
-		b.Mu.Unlock()
 		if countQueue > 0 {
 			b.QueueLevel()
 		}
@@ -242,9 +242,6 @@ func (b *Bot) RsMinus() {
 }
 
 func (b *Bot) QueueLevel() {
-	if b.debug {
-		fmt.Println("in QueueLevel", b.in)
-	}
 	b.callbackNo()
 	count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
 	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
@@ -369,7 +366,7 @@ func (b *Bot) QueueLevel() {
 }
 func (b *Bot) QueueAll() {
 	if b.debug {
-		fmt.Println("in QueueAll", b.in)
+		fmt.Printf("in QueueAll %+v", b.in)
 	}
 	lvl := b.Db.Queue(b.in.Config.CorpName)
 	lvlk := b.removeDuplicateElementString(lvl)
@@ -864,7 +861,7 @@ func (b *Bot) MinusMin() {
 					}
 					b.in = &in
 					if b.debug {
-						fmt.Printf("\n\n in MinusMin  %+v\n", b.in)
+						fmt.Printf("\n  MinusMin []models.Sborkz %+v\n\n", t)
 					}
 				}
 			}
@@ -898,42 +895,20 @@ func (b *Bot) MinusMin() {
 		ds, tg, wa := b.Db.MessageUpdateMin(corp)
 
 		if config.DsChannel != "" {
-			var aa []string
-			for _, dsmesid := range ds {
-				skip := false
-				for _, u := range aa {
-					if dsmesid == u {
-						skip = true
-						break
-					}
-				}
-
-				if !skip {
-					in := b.Db.MessageupdateDS(dsmesid, config)
-					b.in = &in
-					b.QueueLevel()
-				}
+			for _, d := range ds {
+				in := b.Db.MessageupdateDS(d, config)
+				b.in = &in
+				b.QueueLevel()
 			}
-
 		}
 		if config.TgChannel != 0 {
-			var aa []int
-			for _, tgmesid := range tg {
-				skip := false
-				for _, u := range aa {
-					if tgmesid == u {
-						skip = true
-						break
-					}
-				}
-				if !skip {
-					b.Db.MessageupdateTG(tgmesid, config)
-				}
+			for _, t := range tg {
+				b.Db.MessageupdateTG(t, config)
 			}
-			if config.WaChannel != "" {
-				//тут будет логика ватса
-				fmt.Println(wa)
-			}
+		}
+		if config.WaChannel != "" {
+			//тут будет логика ватса
+			fmt.Println(wa)
 		}
 	}
 }

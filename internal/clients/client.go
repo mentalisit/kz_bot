@@ -17,7 +17,7 @@ type Client struct {
 
 func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger, debug bool) *Client {
 	telegram := telegramClient.Telegram{}
-	telegram.InitTG(cfg.TokenT, db, log)
+	telegram.InitTG(cfg.TokenT, db, log, debug)
 
 	ds := discordClient.Discord{}
 	ds.InitDS(cfg.TokenD, db, log, debug)
