@@ -957,7 +957,9 @@ func (b *Bot) MinusMin() {
 		}
 		if config.TgChannel != 0 {
 			for _, t := range tgs {
-				b.Db.MessageupdateTG(t, config)
+				in := b.Db.MessageupdateTG(t, config)
+				b.in = &in
+				b.QueueLevel()
 			}
 		}
 		if config.WaChannel != "" {
