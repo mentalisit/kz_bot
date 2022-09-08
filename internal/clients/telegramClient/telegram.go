@@ -94,22 +94,14 @@ func (t *Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit stri
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+++"),
 		),
 	)
-	tgbotapi.NewEditMessageText(chatid, editMesId, textEdit)
-	_, err := t.t.Send(&tgbotapi.EditMessageTextConfig{
+	_, _ = t.t.Send(&tgbotapi.EditMessageTextConfig{
 		BaseEdit: tgbotapi.BaseEdit{
-			ChatID:          chatid,
-			ChannelUsername: "",
-			MessageID:       editMesId,
-			InlineMessageID: "",
-			ReplyMarkup:     &keyboardQueue,
+			ChatID:      chatid,
+			MessageID:   editMesId,
+			ReplyMarkup: &keyboardQueue,
 		},
-		Text:                  textEdit,
-		ParseMode:             "",
-		DisableWebPagePreview: false,
+		Text: textEdit,
 	})
-	if err != nil {
-		t.log.Println("Ошибка редактирования EditMessageTextKey ", err)
-	}
 }
 func (t *Telegram) EditText(chatid int64, editMesId int, textEdit string) {
 	_, err := t.t.Send(tgbotapi.NewEditMessageText(chatid, editMesId, textEdit))
