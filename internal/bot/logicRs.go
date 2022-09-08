@@ -8,7 +8,7 @@ import (
 func (b *Bot) lRsPlus() bool {
 	var kzb string
 	kz := false
-	re := regexp.MustCompile(`^([4-9]|[1][0-2])([\+]|[-])(\d|\d{2}|\d{3})$`) //три переменные
+	re := regexp.MustCompile(`^([3-9]|[1][0-2])([\+]|[-])(\d|\d{2}|\d{3})$`) //три переменные
 	arr := (re.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr) > 0 {
 		kz = true
@@ -23,7 +23,7 @@ func (b *Bot) lRsPlus() bool {
 		}
 		b.in.Timekz = strconv.Itoa(timekzz)
 	}
-	re2 := regexp.MustCompile(`^([4-9]|[1][0-2])([\+]|[-])$`) // две переменные
+	re2 := regexp.MustCompile(`^([3-9]|[1][0-2])([\+]|[-])$`) // две переменные
 	arr2 := (re2.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr2) > 0 {
 		kz = true
@@ -45,14 +45,14 @@ func (b *Bot) lRsPlus() bool {
 func (b *Bot) lSubs() (bb bool) {
 	bb = false
 	var subs string
-	re3 := regexp.MustCompile(`^([\+]|[-])([4-9]|[1][0-2])$`) // две переменные для добавления или удаления подписок
+	re3 := regexp.MustCompile(`^([\+]|[-])([3-9]|[1][0-2])$`) // две переменные для добавления или удаления подписок
 	arr3 := (re3.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr3) > 0 {
 		b.in.Lvlkz = arr3[0][2]
 		subs = arr3[0][1]
 		bb = true
 	}
-	re3s := regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([4-9]|[1][0-2])$`)
+	re3s := regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([3-9]|[1][0-2])$`)
 	arr3s := (re3s.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr3s) > 0 {
 		b.in.Lvlkz = arr3s[0][3]
@@ -65,14 +65,14 @@ func (b *Bot) lSubs() (bb bool) {
 		}
 		//b.log.Println("Тестирование подписок совместимости")
 	}
-	re6 := regexp.MustCompile(`^([\+][\+]|[-][-])([4-9]|[1][0-2])$`) // две переменные
+	re6 := regexp.MustCompile(`^([\+][\+]|[-][-])([3-9]|[1][0-2])$`) // две переменные
 	arr6 := (re6.FindAllStringSubmatch(b.in.Mtext, -1))              // для добавления или удаления подписок 3/4
 	if len(arr6) > 0 {
 		bb = true
 		b.in.Lvlkz = arr6[0][2]
 		subs = arr6[0][1]
 	} else {
-		re6 = regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([4-9]|[1][0-2])(\+)$`)
+		re6 = regexp.MustCompile(`^(Rs|rs)\s(S|s|u|U)\s([3-9]|[1][0-2])(\+)$`)
 		arr6 = (re6.FindAllStringSubmatch(b.in.Mtext, -1))
 		if len(arr6) > 0 {
 			bb = true
@@ -100,7 +100,7 @@ func (b *Bot) lSubs() (bb bool) {
 }
 
 func (b *Bot) lQueue() (bb bool) {
-	re4 := regexp.MustCompile(`^([о]|[О])([4-9]|[1][0-2])$`) // две переменные для чтения  очереди
+	re4 := regexp.MustCompile(`^([о]|[О])([3-9]|[1][0-2])$`) // две переменные для чтения  очереди
 	arr4 := (re4.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr4) > 0 {
 		b.in.Lvlkz = arr4[0][2]
@@ -123,7 +123,7 @@ func (b *Bot) lQueue() (bb bool) {
 		b.QueueAll() //проверка совместимости
 	}
 
-	re4s = regexp.MustCompile(`^(Rs|rs)\s(Q|q)\s([4-9]|[1][0-2])$`)
+	re4s = regexp.MustCompile(`^(Rs|rs)\s(Q|q)\s([3-9]|[1][0-2])$`)
 	arr4s = (re4s.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr4s) > 0 {
 		bb = true
@@ -135,14 +135,14 @@ func (b *Bot) lQueue() (bb bool) {
 
 func (b *Bot) lRsStart() (bb bool) {
 	var rss string
-	re5 := regexp.MustCompile(`^([4-9]|[1][0-2])([\+][\+])$`) //rs start
+	re5 := regexp.MustCompile(`^([3-9]|[1][0-2])([\+][\+])$`) //rs start
 	arr5 := (re5.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr5) > 0 {
 		bb = true
 		b.in.Lvlkz = arr5[0][1]
 		rss = arr5[0][2]
 	} else {
-		re5 = regexp.MustCompile(`^(Rs|rs)\s(Start|start)\s([4-9]|[1][0-2])$`) //rs start
+		re5 = regexp.MustCompile(`^(Rs|rs)\s(Start|start)\s([3-9]|[1][0-2])$`) //rs start
 		arr5 = (re5.FindAllStringSubmatch(b.in.Mtext, -1))
 		if len(arr5) > 0 {
 			bb = true
@@ -151,7 +151,7 @@ func (b *Bot) lRsStart() (bb bool) {
 			//b.log.Println("Проверка совместимости принудительного старта ")
 		}
 	}
-	reP := regexp.MustCompile(`^([4-9]|[1][0-2])([\+][\+][\+])$`) //p30pl
+	reP := regexp.MustCompile(`^([3-9]|[1][0-2])([\+][\+][\+])$`) //p30pl
 	arrP := (reP.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arrP) > 0 {
 		b.in.Lvlkz = arrP[0][1]
@@ -205,7 +205,7 @@ func (b *Bot) lEvent() (bb bool) {
 }
 
 func (b *Bot) lTop() (bb bool) {
-	re8 := regexp.MustCompile(`^(Топ)\s([4-9]|[1][0-2])$`) // запрос топа по уровню
+	re8 := regexp.MustCompile(`^(Топ)\s([3-9]|[1][0-2])$`) // запрос топа по уровню
 	arr8 := (re8.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr8) > 0 {
 		b.in.Lvlkz = arr8[0][2]
@@ -213,7 +213,7 @@ func (b *Bot) lTop() (bb bool) {
 		bb = true
 	}
 
-	re8d := regexp.MustCompile(`^(Топ)\s([4-9]|[1][0-2])\s([неделя]|[день])$`) // запрос топа по уровню за период
+	re8d := regexp.MustCompile(`^(Топ)\s([3-9]|[1][0-2])\s([неделя]|[день])$`) // запрос топа по уровню за период
 	arr8d := (re8d.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr8d) > 0 {
 		bb = true
