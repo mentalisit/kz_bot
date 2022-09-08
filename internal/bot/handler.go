@@ -33,15 +33,17 @@ func (b *Bot) EventText() (string, int) {
 	return text, numE
 }
 
-func (b *Bot) iftipdelete() {
+func (b *Bot) iftipdelete() bool {
 	if b.in.Tip == ds && !b.in.Option.Callback {
 		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 	} else if b.in.Tip == tg && !b.in.Option.Callback {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		if b.in.NameMention == "@" {
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, nickname, 60)
+			return false
 		}
 	}
+	return true
 }
 func (b *Bot) ifTipSendMentionText(text string) {
 	if b.in.Tip == ds {
@@ -121,13 +123,6 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 		b.in = &in
 		go b.RsMinus()
 
-	}
-}
-func (b *Bot) callbackNo() {
-	if b.in.Tip == "ds" && !b.in.Option.Callback {
-		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
-	} else if b.in.Tip == "tg" && !b.in.Option.Callback {
-		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 	}
 }
 func (b *Bot) SubscribePing(tipPing int) {

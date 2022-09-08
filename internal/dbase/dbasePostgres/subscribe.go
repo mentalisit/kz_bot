@@ -56,7 +56,7 @@ func (d *Db) Subscribe(name, nameMention, lvlkz string, tipPing int, TgChannel i
 	defer cancel()
 	TgChannelt := strconv.FormatInt(TgChannel, 10)
 	insertSubscribe := `INSERT INTO kzbot.subscribe (name, nameid, lvlkz, tip, chatid, timestart, timeend) VALUES ($1,$2,$3,$4,$5,$6,$7)`
-	_, err := d.Db.Exec(ctx, insertSubscribe, name, nameMention, lvlkz, tipPing, TgChannelt, 0, 0)
+	_, err := d.Db.Exec(ctx, insertSubscribe, name, nameMention, lvlkz, tipPing, TgChannelt, "0", "0")
 	if err != nil {
 		d.log.Println("Ошибка внесения в таблицу подписок ", err)
 	}

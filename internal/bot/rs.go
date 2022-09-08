@@ -12,7 +12,9 @@ func (b *Bot) RsPlus() {
 	if b.debug {
 		fmt.Printf("\n\nin RsPlus %+v\n", b.in)
 	}
-	go b.iftipdelete()
+	if !b.iftipdelete() {
+		return
+	}
 	CountName, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if err != nil {
 		return
@@ -20,9 +22,18 @@ func (b *Bot) RsPlus() {
 	if CountName == 1 { //проверяем есть ли игрок в очереди
 		b.ifTipSendMentionText(" ты уже в очереди")
 	} else {
-		countQueue := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)                    //проверяем, есть ли кто-то в очереди
-		numkzN := b.Db.Count.CountNumberNameActive1(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name) //проверяем количество боёв по уровню кз игрока
-		numkzL := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)                          //проверяем какой номер боя определенной красной звезды
+		countQueue, err1 := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName) //проверяем, есть ли кто-то в очереди
+		if err1 != nil {
+			return
+		}
+		numkzN, err2 := b.Db.Count.CountNumberNameActive1(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name) //проверяем количество боёв по уровню кз игрока
+		if err2 != nil {
+			return
+		}
+		numkzL, err3 := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName) //проверяем какой номер боя определенной красной звезды
+		if err3 != nil {
+			return
+		}
 
 		dsmesid := ""
 		tgmesid := 0
@@ -202,7 +213,9 @@ func (b *Bot) RsMinus() {
 	if b.debug {
 		fmt.Println("in RsMinus", b.in)
 	}
-	b.callbackNo()
+	if !b.iftipdelete() {
+		return
+	}
 
 	CountNames, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if err != nil {
@@ -216,7 +229,10 @@ func (b *Bot) RsMinus() {
 		//удаление с БД
 		b.Db.DeleteQueue(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 		//проверяем очередь
-		countQueue := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		countQueue, err2 := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		if err2 != nil {
+			return
+		}
 		//numkzL := numberQueueLvl(in, lvlkz) + 1
 		if b.in.Config.DsChannel != "" {
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.Name+" покинул очередь", 10)
@@ -242,9 +258,17 @@ func (b *Bot) RsMinus() {
 }
 
 func (b *Bot) QueueLevel() {
-	b.callbackNo()
-	count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
-	numberLvl := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
+	if !b.iftipdelete() {
+		return
+	}
+	count, err := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+	if err != nil {
+		return
+	}
+	numberLvl, err2 := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
+	if err2 != nil {
+		return
+	}
 	// совподения количество  условие
 	if count == 0 && !b.in.Option.Queue {
 		text := "Очередь КЗ " + b.in.Lvlkz + " пуста "
@@ -392,7 +416,9 @@ func (b *Bot) RsStart() {
 	if b.debug {
 		fmt.Println("in RsStart", b.in)
 	}
-	b.callbackNo()
+	if !b.iftipdelete() {
+		return
+	}
 	countName, err := b.Db.Count.СountName(b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if err != nil {
 		return
@@ -401,8 +427,14 @@ func (b *Bot) RsStart() {
 		text := "Принудительный старт доступен участникам очереди."
 		b.ifTipSendTextDelSecond(text, 10)
 	} else if countName == 1 {
-		numberkz := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
-		count := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		numberkz, err1 := b.Db.NumberQueueLvl(b.in.Lvlkz, b.in.Config.CorpName)
+		if err1 != nil {
+			return
+		}
+		count, err2 := b.Db.Count.CountQueue(b.in.Lvlkz, b.in.Config.CorpName)
+		if err2 != nil {
+			return
+		}
 		var name1, name2, name3 string
 		dsmesid := ""
 		tgmesid := 0
@@ -559,7 +591,9 @@ func (b *Bot) Plus() bool {
 	if b.debug {
 		fmt.Println("in Plus", b.in)
 	}
-	b.callbackNo()
+	if !b.iftipdelete() {
+		return false
+	}
 	countName := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
 	ins := true
@@ -584,7 +618,9 @@ func (b *Bot) Minus() bool {
 	if b.debug {
 		fmt.Println("in Minus", b.in)
 	}
-	b.callbackNo()
+	if !b.iftipdelete() {
+		return false
+	}
 	message := ""
 	bb := false
 	countNames := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
@@ -610,8 +646,11 @@ func (b *Bot) Subscribe(tipPing int) {
 	if b.debug {
 		fmt.Println("in Subscribe", b.in)
 	}
+	if !b.iftipdelete() {
+		return
+	}
 	if b.in.Tip == "ds" {
-		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		//go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 		argRoles := "кз" + b.in.Lvlkz
 		if tipPing == 3 {
 			argRoles = "кз" + b.in.Lvlkz + "+"
@@ -620,7 +659,7 @@ func (b *Bot) Subscribe(tipPing int) {
 		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 
 	} else if b.in.Tip == "tg" {
-		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
+		//go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		counts := b.Db.Subscribe.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		if counts == 1 {
@@ -640,8 +679,11 @@ func (b *Bot) Unsubscribe(tipPing int) {
 	if b.debug {
 		fmt.Println("in Unsubscribe", b.in)
 	}
+	if !b.iftipdelete() {
+		return
+	}
 	if b.in.Tip == "ds" {
-		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		//go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 		argRoles := "кз" + b.in.Lvlkz
 		if tipPing == 3 {
 			argRoles = "кз" + b.in.Lvlkz + "+"
@@ -649,7 +691,7 @@ func (b *Bot) Unsubscribe(tipPing int) {
 		text := b.Ds.Unsubscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
 		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 	} else if b.in.Tip == "tg" {
-		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
+		//go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		var text string
 		counts := b.Db.Subscribe.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
@@ -668,7 +710,9 @@ func (b *Bot) emodjiadd(slot, emo string) {
 	if b.debug {
 		fmt.Println("in emodjiadd", b.in)
 	}
-	b.iftipdelete()
+	if !b.iftipdelete() {
+		return
+	}
 	t := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 	if len(t.Name) == 0 {
 		b.Db.Emoji.EmInsertEmpty(b.in.Tip, b.in.Name)
@@ -680,7 +724,9 @@ func (b *Bot) emodjis() {
 	if b.debug {
 		fmt.Println("in emodjis", b.in)
 	}
-	b.iftipdelete()
+	if !b.iftipdelete() {
+		return
+	}
 	e := b.Db.Emoji.EmReadUsers(b.in.Name, b.in.Tip)
 
 	text := "	Для установки эмоджи пиши текст \n" +
@@ -698,6 +744,9 @@ func (b *Bot) emodjis() {
 func (b *Bot) EventStart() {
 	if b.debug {
 		fmt.Println("in EventStart", b.in)
+	}
+	if !b.iftipdelete() {
+		return
 	}
 	//проверяем, есть ли активный ивент
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
@@ -732,6 +781,9 @@ func (b *Bot) EventStop() {
 	if b.debug {
 		fmt.Println("in EventStop", b.in)
 	}
+	if !b.iftipdelete() {
+		return
+	}
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	eventStop := "Ивент остановлен."
 	eventNull := "Ивент и так не активен. Нечего останавливать "
@@ -758,7 +810,9 @@ func (b *Bot) EventPoints(numKZ, points int) {
 	if b.debug {
 		fmt.Println("in EventPoints", b.in)
 	}
-	b.iftipdelete()
+	if !b.iftipdelete() {
+		return
+	}
 	// проверяем активен ли ивент
 	event1 := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	message := ""
@@ -892,23 +946,23 @@ func (b *Bot) MinusMin() {
 
 		_, config := c.CheckCorpNameConfig(corp)
 
-		ds, tg, wa := b.Db.MessageUpdateMin(corp)
+		dss, tgs, was := b.Db.MessageUpdateMin(corp)
 
 		if config.DsChannel != "" {
-			for _, d := range ds {
+			for _, d := range dss {
 				in := b.Db.MessageupdateDS(d, config)
 				b.in = &in
 				b.QueueLevel()
 			}
 		}
 		if config.TgChannel != 0 {
-			for _, t := range tg {
+			for _, t := range tgs {
 				b.Db.MessageupdateTG(t, config)
 			}
 		}
 		if config.WaChannel != "" {
 			//тут будет логика ватса
-			fmt.Println(wa)
+			fmt.Println(was)
 		}
 	}
 }

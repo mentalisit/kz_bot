@@ -11,8 +11,8 @@ type Count interface {
 	СountName(name, lvlkz, corpName string) (int, error)
 	CountNameQueue(name string) (countNames int)
 	CountNameQueueCorp(name, corp string) (countNames int)
-	CountQueue(lvlkz, CorpName string) int
-	CountNumberNameActive1(lvlkz, CorpName, name string) int
+	CountQueue(lvlkz, CorpName string) (int, error)
+	CountNumberNameActive1(lvlkz, CorpName, name string) (int, error)
 }
 
 func (d *Db) СountName(name, lvlkz, corpName string) (int, error) {
@@ -36,7 +36,7 @@ func (d *Db) СountName(name, lvlkz, corpName string) (int, error) {
 	}
 	return countNames, nil
 }
-func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка сколько игровок в очереди
+func (d *Db) CountQueue(lvlkz, CorpName string) (int, error) { //проверка сколько игровок в очереди
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
@@ -48,13 +48,14 @@ func (d *Db) CountQueue(lvlkz, CorpName string) int { //проверка ско�
 	err := row.Scan(&count)
 	if err != nil {
 		d.log.Println("Ошибка проверки количества игроков в очереди", err)
+		return 0, err
 	}
 	if d.debug {
 		fmt.Println("CountQueue ", count)
 	}
-	return count
+	return count, nil
 }
-func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // выковыриваем из базы значение количества походов на кз
+func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) (int, error) { // выковыриваем из базы значение количества походов на кз
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
@@ -67,8 +68,9 @@ func (d *Db) CountNumberNameActive1(lvlkz, CorpName, name string) int { // вы�
 	err := row.Scan(&countNumberNameActive1)
 	if err != nil {
 		d.log.Println("Ошибка чтения количества игр", err)
+		return 0, err
 	}
-	return countNumberNameActive1
+	return countNumberNameActive1, nil
 }
 
 func (d *Db) CountNameQueue(name string) (countNames int) { //проверяем есть ли игрок в других очередях

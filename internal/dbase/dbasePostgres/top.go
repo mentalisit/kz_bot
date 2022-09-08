@@ -32,7 +32,10 @@ func (d *Db) TopLevel(CorpName, lvlkz string) bool {
 		err = results.Scan(&name)
 		if len(name) > 0 {
 			good = true
-			countNames := d.CountNumberNameActive1(lvlkz, CorpName, name)
+			countNames, err1 := d.CountNumberNameActive1(lvlkz, CorpName, name)
+			if err1 != nil {
+				return false
+			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
 			_, err = d.Db.Exec(ctx, insertTempTopEvent, name, countNames, 0)

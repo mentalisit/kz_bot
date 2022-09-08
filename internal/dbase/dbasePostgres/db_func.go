@@ -12,7 +12,7 @@ import (
 )
 
 type DbInterface interface {
-	NumberQueueLvl(lvlkz, CorpName string) int                                                                 //Номер катки по уровню
+	NumberQueueLvl(lvlkz, CorpName string) (int, error)                                                        //Номер катки по уровню
 	ReadAll(lvlkz, CorpName string) (users models.Users)                                                       //чтение игроков в очереди
 	InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) //внесение данных сбора
 
@@ -44,7 +44,7 @@ func (d *Db) Shutdown() {
 	d.Db.Close()
 }
 
-func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
+func (d *Db) NumberQueueLvl(lvlkz, CorpName string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
@@ -62,15 +62,16 @@ func (d *Db) NumberQueueLvl(lvlkz, CorpName string) int {
 			if err != nil {
 				d.log.Println("Ошибка внесения нумкз", err)
 			}
-			return number + 1
+			return number + 1, nil
 		} else {
 			d.log.Println("Ошибка чтения нумкз", err)
+			return 0, err
 		}
 	}
 	if d.debug {
 		fmt.Println("NumberQueueLvl", number)
 	}
-	return number + 1
+	return number + 1, nil
 }
 func (d *Db) ReadAll(lvlkz, CorpName string) (users models.Users) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
