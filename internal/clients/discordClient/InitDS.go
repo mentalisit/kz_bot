@@ -53,7 +53,7 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 func (d *Discord) MessageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := d.d.ChannelMessage(r.ChannelID, r.MessageID)
 	if err != nil {
-		d.log.Println("Ошибка чтения реакции в ДС", err)
+		d.log.Println("Ошибка чтения реакции в ДС", err, r)
 	}
 	if message.Author.ID == s.State.User.ID {
 		d.readReactionQueue(r, message)

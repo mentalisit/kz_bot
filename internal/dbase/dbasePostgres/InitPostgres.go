@@ -27,10 +27,10 @@ type Db struct {
 	debug bool
 }
 
-func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot, debug bool) error {
+func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) error {
 
 	d.log = log
-	d.debug = debug
+	d.debug = conf.Debug
 
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 

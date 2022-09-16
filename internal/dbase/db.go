@@ -20,12 +20,12 @@ type Db struct {
 	dbasePostgres.DbInterface
 }
 
-func NewDb(cfg config.ConfigBot, log *logrus.Logger, debug bool) (Db, error) {
+func NewDb(cfg config.ConfigBot, log *logrus.Logger) (Db, error) {
 	//db := dbaseMysql.Db{}
 	//err := db.InitDB(log, cfg)
 	//if err != nil {return Db{}, err}
 	dbp := dbasePostgres.Db{}
-	errp := dbp.InitPostrges(log, cfg, debug)
+	errp := dbp.InitPostrges(log, cfg)
 	if errp != nil {
 		return Db{}, errp
 	}
