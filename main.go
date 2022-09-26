@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"kz_bot/config"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
@@ -30,6 +31,11 @@ func Run() (err error) {
 	if err != nil {
 		return err
 	}
+
+	//создаем логгер в телегу
+	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
+	log.Println("🚀  загрузка  🚀")
+
 	if cfg.BotMode == "reserve" {
 		for {
 			ping := runPing(cfg)
@@ -40,24 +46,21 @@ func Run() (err error) {
 				go func() {
 					for {
 						if runPing(cfg) {
-							panic("Server ready")
+							log.Println("Сервер доступен, нужно переключится ")
 						}
 						time.Sleep(1 * time.Minute)
 					}
 				}()
-				err = runLogicBot(cfg)
+				err = runLogicBot(cfg, log)
 			}
 		}
 	} else {
-		err = runLogicBot(cfg)
+		err = runLogicBot(cfg, log)
 	}
 
 	return err
 }
-func runLogicBot(cfg config.ConfigBot) error {
-	//создаем логгер в телегу
-	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
-	log.Println("🚀  загрузка  🚀")
+func runLogicBot(cfg config.ConfigBot, log *logrus.Logger) error {
 
 	//подключаюсь к базе ланных
 	db, errd := dbase.NewDb(cfg, log)

@@ -32,7 +32,7 @@ func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) error {
 	d.log = log
 	d.debug = conf.Debug
 
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, conf.DbPassword, dbname)
 
 	// urlExample := "postgres://username:password@localhost:5432/database_name"
 	conn, err := pgx.Connect(context.Background(), psqlconn)

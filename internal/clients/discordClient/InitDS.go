@@ -45,6 +45,10 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+	if m.Message.WebhookID != "" {
+		return
+	}
+	//if m.Author.Bot {fmt.Println(m.Author.Bot) return}
 
 	d.logicMixDiscord(m)
 
@@ -53,7 +57,18 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 func (d *Discord) MessageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := d.d.ChannelMessage(r.ChannelID, r.MessageID)
 	if err != nil {
-		d.log.Println("Ошибка чтения реакции в ДС", err, r)
+		d.log.Println(fmt.Sprintf("Ошибка чтения реакции в ДС %+v", r), err)
+		channel, err1 := d.d.Channel(r.ChannelID)
+		if err1 != nil {
+			return
+		}
+		user, err2 := d.d.User(r.UserID)
+		if err2 != nil {
+			return
+		}
+		rrr := fmt.Sprintln(channel.Name, r.Emoji, user.Username)
+		d.log.Println(rrr)
+
 	}
 	if message.Author.ID == s.State.User.ID {
 		d.readReactionQueue(r, message)

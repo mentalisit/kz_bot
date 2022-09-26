@@ -2,6 +2,7 @@ package discordClient
 
 import (
 	"fmt"
+	"kz_bot/internal/clients/discordClient/transmitter"
 	"strings"
 	"time"
 
@@ -40,6 +41,7 @@ type Ds interface {
 	Help(Channel string)
 	CleanChat(chatid, mesid, text string)
 	Autohelp()
+	SendWebhook(text, username, chatid, guildId, Avatar string) string
 }
 
 func (d *Discord) EmbedDS(name1, name2, name3, name4, lvlkz string, numkz int) discordgo.MessageEmbed {
@@ -332,4 +334,19 @@ func (d *Discord) CleanChat(chatid, mesid, text string) {
 	if !res { //если нет префикса  то удалить через 3 минуты
 		go d.DeleteMesageSecond(chatid, mesid, 180)
 	}
+}
+
+func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) string {
+	web := transmitter.New(&d.d, guildId, "KzBot", true)
+	pp := discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+	}
+	mes, err := web.Send(chatid, &pp)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return mes.ID
 }

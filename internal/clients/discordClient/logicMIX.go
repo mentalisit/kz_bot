@@ -22,6 +22,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 			if member.Nick != "" {
 				name = member.Nick
 			}
+			Avatar := "https://cdn.discordapp.com/avatars/" + user.ID + "/" + user.Avatar + ".jpg"
 
 			in := models.InMessage{
 				Mtext:       "",
@@ -32,9 +33,14 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 					Mesid   string
 					Nameid  string
 					Guildid string
-				}{Mesid: r.MessageID,
+					Avatar  string
+				}{
+					Mesid:   r.MessageID,
 					Nameid:  user.ID,
-					Guildid: config.Config.Guildid}, //message.GuildID},
+					Guildid: config.Config.Guildid,
+					Avatar:  Avatar,
+				},
+
 				Config: config,
 				Option: struct {
 					Callback bool
@@ -95,12 +101,13 @@ func (d *Discord) logicMixDiscord(m *discordgo.MessageCreate) {
 		}
 		member, e := d.d.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
 		if e != nil {
-			d.log.Println("Ошибка получения ника пользователя", e)
+			d.log.Println("Ошибка получения ника пользователя", e, m.ID)
 		}
 		name := m.Author.Username
 		if member.Nick != "" {
 			name = member.Nick
 		}
+		Avatar := "https://cdn.discordapp.com/avatars/" + m.Author.ID + "/" + m.Author.Avatar + ".jpg"
 
 		in := models.InMessage{
 			Mtext:       m.Content,
@@ -111,10 +118,12 @@ func (d *Discord) logicMixDiscord(m *discordgo.MessageCreate) {
 				Mesid   string
 				Nameid  string
 				Guildid string
+				Avatar  string
 			}{
 				Mesid:   m.ID,
 				Nameid:  m.Author.ID,
 				Guildid: m.GuildID,
+				Avatar:  Avatar,
 			},
 			Config: config,
 			Option: struct {

@@ -98,6 +98,7 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 				Mesid   string
 				Nameid  string
 				Guildid string
+				Avatar  string
 			}{
 				Mesid:   t.Dsmesid,
 				Nameid:  "",

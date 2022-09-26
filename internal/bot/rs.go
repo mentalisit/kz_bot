@@ -162,7 +162,12 @@ func (b *Bot) RsPlus() {
 				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, " 4/4 "+b.in.Name+" присоединился к очереди", 10)
 				text := fmt.Sprintf("4/4 Очередь КЗ%s сформирована\n %s\n %s\n %s\n %s \nВ ИГРУ %s",
 					b.in.Lvlkz, b.emReadName(name1, ds), b.emReadName(name2, ds), b.emReadName(name3, ds), b.emReadName(name4, ds), textEvent)
-				dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+
+				if b.in.Tip == ds {
+					dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+				} else {
+					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+				}
 				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.DsChannel)
 			}
 			if b.in.Config.TgChannel != 0 {
@@ -455,7 +460,14 @@ func (b *Bot) RsStart() {
 					}
 					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
 						b.in.Lvlkz, numberkz, name1, textEvent)
-					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+
+					if b.in.Tip == ds {
+						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+
+					} else {
+						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					}
+
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
@@ -488,7 +500,11 @@ func (b *Bot) RsStart() {
 					text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
 					text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
 					text := text1 + text2
-					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					if b.in.Tip == ds {
+						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+					} else {
+						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					}
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
@@ -531,7 +547,11 @@ func (b *Bot) RsStart() {
 					}
 					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
 						b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
-					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					if b.in.Tip == ds {
+						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+					} else {
+						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					}
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
@@ -899,6 +919,7 @@ func (b *Bot) MinusMin() {
 							Mesid   string
 							Nameid  string
 							Guildid string
+							Avatar  string
 						}{
 							Mesid:   t.Dsmesid,
 							Nameid:  "",

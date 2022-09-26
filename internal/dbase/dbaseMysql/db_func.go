@@ -462,6 +462,7 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 			Mesid   string
 			Nameid  string
 			Guildid string
+			Avatar  string
 		}{
 			Mesid:   t.Dsmesid,
 			Nameid:  "",

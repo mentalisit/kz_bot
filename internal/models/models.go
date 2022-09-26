@@ -14,6 +14,7 @@ type InMessage struct {
 		Mesid   string
 		Nameid  string
 		Guildid string
+		Avatar  string
 	}
 	Tg struct {
 		Mesid  int
