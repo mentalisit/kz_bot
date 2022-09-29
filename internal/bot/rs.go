@@ -611,16 +611,17 @@ func (b *Bot) Plus() bool {
 	if b.debug {
 		fmt.Println("in Plus", b.in)
 	}
-	if !b.iftipdelete() {
-		return false
-	}
+
 	countName := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
-	ins := true
+	ins := false
 	if countName == 0 {
 		message = b.in.NameMention + " ты не в очереди"
-		ins = false
 	} else if countName > 0 {
+		if !b.iftipdelete() {
+			return false
+		}
+		ins = true
 		t := b.Db.UpdateMitutsQueue(b.in.Name, b.in.Config.CorpName)
 		if t.Timedown > 3 {
 			message = fmt.Sprintf("%s рановато плюсик жмешь, ты в очереди на кз%s будешь еще %dмин",
@@ -638,16 +639,15 @@ func (b *Bot) Minus() bool {
 	if b.debug {
 		fmt.Println("in Minus", b.in)
 	}
-	if !b.iftipdelete() {
-		return false
-	}
 	message := ""
 	bb := false
 	countNames := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	if countNames == 0 {
 		message = b.in.NameMention + " ты не в очереди"
-		bb = false
 	} else if countNames > 0 {
+		if !b.iftipdelete() {
+			return false
+		}
 		bb = true
 		t := b.Db.UpdateMitutsQueue(b.in.Name, b.in.Config.CorpName)
 		if t.Name == b.in.Name && t.Timedown > 3 {
@@ -685,7 +685,7 @@ func (b *Bot) Subscribe(tipPing int) {
 		if counts == 1 {
 			text := fmt.Sprintf("%s ты уже подписан на кз%s %d/4\n для добавления в очередь напиши %s+",
 				b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Lvlkz)
-			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 60)
+			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 10)
 		} else {
 			//добавление в оочередь пинга
 			b.Db.Subscribe.Subscribe(b.in.Name, b.in.NameMention, b.in.Lvlkz, tipPing, b.in.Config.TgChannel)
@@ -905,6 +905,8 @@ func (b *Bot) MinusMin() {
 	tt := b.Db.MinusMin()
 	c := corpsConfig.CorpConfig{}
 	if len(tt) > 0 {
+		b.Mu.Lock()
+		defer b.Mu.Unlock()
 		for _, t := range tt {
 			if t.Corpname != "" {
 				ok, config := c.CheckCorpNameConfig(t.Corpname)

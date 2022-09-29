@@ -31,7 +31,7 @@ func (d *Db) SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChann
 			if nameMention == name1 || u.User1.Mention == name1 || u.User2.Mention == name1 || u.User3.Mention == name1 {
 				continue
 			}
-			names = name1 + " "
+			names = name1 + ", "
 			men = names + men
 		}
 		rows.Close()

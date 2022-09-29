@@ -47,6 +47,7 @@ func Run() (err error) {
 					for {
 						if runPing(cfg) {
 							log.Println("Сервер доступен, нужно переключится ")
+							panic("Сервер доступен, нужно переключится ")
 						}
 						time.Sleep(1 * time.Minute)
 					}

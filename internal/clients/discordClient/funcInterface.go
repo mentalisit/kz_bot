@@ -173,7 +173,10 @@ func (d *Discord) DeleteMesageSecond(chatid, mesid string, second int) {
 	} else {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			d.d.ChannelMessageDelete(chatid, mesid)
+			err := d.d.ChannelMessageDelete(chatid, mesid)
+			if err != nil {
+				fmt.Println("Ошибка удаления сообщения дискорда ", chatid, mesid, second)
+			}
 		}()
 	}
 }

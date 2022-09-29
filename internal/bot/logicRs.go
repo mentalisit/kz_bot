@@ -86,6 +86,22 @@ func (b *Bot) lSubs() (bb bool) {
 			//b.log.Println("проверка совместимости подписок 3 из 4")
 		}
 	}
+
+	readd := regexp.MustCompile(`^(подписать)\s([3-9]|[1][0-2])\s(@\w+)\s([1]|[3])$`)
+	arradd := (readd.FindAllStringSubmatch(b.in.Mtext, -1))
+	if len(arradd) > 0 {
+		bb = true
+		atoi, err := strconv.Atoi(arradd[0][4])
+		if err != nil {
+			return false
+		}
+		b.in.NameMention = arradd[0][3]
+		b.in.Name = arradd[0][3]
+		b.in.Lvlkz = arradd[0][2]
+		b.Subscribe(atoi)
+
+	}
+
 	switch subs {
 	case "+":
 		b.Subscribe(1)

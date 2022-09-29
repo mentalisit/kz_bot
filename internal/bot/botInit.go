@@ -18,7 +18,6 @@ type Bot struct {
 	Mu    sync.Mutex
 	log   *logrus.Logger
 	debug bool
-	wg    sync.WaitGroup
 }
 
 func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger, debug bool) *Bot {
@@ -26,7 +25,7 @@ func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger, debug bool) *Bot
 }
 func (b *Bot) InitBot() {
 	b.log.Println("Бот загружен и готов к работе ")
-	go func() { //цикл для ужаления сообщений
+	go func() { //цикл для удаления сообщений
 		for {
 			if time.Now().Second() == 0 {
 				tt := b.Db.TimerDeleteMessage() //получаем ид сообщения для удаления
@@ -118,9 +117,13 @@ func (b *Bot) logicIfText() bool {
 	iftext := true
 	switch b.in.Mtext {
 	case "+":
-		b.Plus()
+		if !b.Plus() {
+			iftext = false
+		}
 	case "-":
-		b.Minus()
+		if !b.Minus() {
+			iftext = false
+		}
 	case "Справка":
 		b.hhelp()
 	case "Статистика":
@@ -137,6 +140,7 @@ func (b *Bot) bridge() {
 	if b.in.Tip == ds {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
 		b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
+		b.cleanChat()
 	} else if b.in.Tip == tg {
 		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
 		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
