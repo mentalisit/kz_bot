@@ -16,7 +16,7 @@ type DbInterface interface {
 	ReadAll(lvlkz, CorpName string) (users models.Users)                                                       //чтение игроков в очереди
 	InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvlkz, timekz string, tgmesid, numkzN int) //внесение данных сбора
 
-	ElseTrue(name string) models.Sborkz                    //для выхода из очереди при другом старте
+	ElseTrue(name string) []models.Sborkz                  //для выхода из очереди при другом старте
 	DeleteQueue(name, lvlkz, CorpName string)              //Если игрок покидает очередь
 	UpdateMitutsQueue(name, CorpName string) models.Sborkz //проверка хочет ли игрок продолжить время в очереди
 
@@ -138,7 +138,7 @@ func (d *Db) InsertQueue(dsmesid, wamesid, CorpName, name, nameMention, tip, lvl
 	}
 }
 
-func (d *Db) ElseTrue(name string) models.Sborkz {
+func (d *Db) ElseTrue(name string) []models.Sborkz {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {
@@ -149,15 +149,16 @@ func (d *Db) ElseTrue(name string) models.Sborkz {
 	if err != nil {
 		d.log.Println("Ошибка извлечения игрока с других очередей ", err)
 	}
+	var tt []models.Sborkz
 	var t models.Sborkz
 	for results.Next() {
 		err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
-
+		tt = append(tt, t)
 	}
 	if d.debug {
 		fmt.Println("ElseTrue", name, t)
 	}
-	return t
+	return tt
 }
 func (d *Db) DeleteQueue(name, lvlkz, CorpName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -392,8 +393,8 @@ func (d *Db) OneMinutsTimer() []string {
 		a := []string{}
 		aa := []string{}
 		selC := "SELECT corpname FROM kzbot.sborkz WHERE active = 0"
-		results, err := d.Db.Query(ctx, selC)
-		if err != nil {
+		results, err1 := d.Db.Query(ctx, selC)
+		if err1 != nil {
 			d.log.Println("Ошибка чтения корпораций где есть активные очереди ", err)
 		}
 		var corpname string // ищим корпорации
@@ -493,16 +494,9 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 			Guildid: config.Config.Guildid,
 		},
 		Config: config,
-		Option: struct {
-			Callback bool
-			Edit     bool
-			Update   bool
-			Queue    bool
-		}{
-			Callback: true,
-			Edit:     true,
-			Update:   false,
-		},
+		Option: models.Option{
+			Edit:   true,
+			Update: true},
 	}
 	return in
 
@@ -535,16 +529,9 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 			Mesid:  t.Tgmesid,
 			Nameid: 0},
 		Config: config,
-		Option: struct {
-			Callback bool
-			Edit     bool
-			Update   bool
-			Queue    bool
-		}{
-			Callback: true,
-			Edit:     true,
-			Update:   false,
-		},
+		Option: models.Option{
+			Edit:   true,
+			Update: true},
 	}
 	return in
 }

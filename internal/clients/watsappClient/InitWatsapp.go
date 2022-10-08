@@ -49,7 +49,7 @@ func (w *Watsapp) InitWA(db dbase.Db) {
 	flag.Parse()
 
 	if *debugLogs {
-		logLevel = "error"
+		logLevel = "ERROR"
 	}
 	w.log = waLog.Stdout("watsappClient", logLevel, true)
 
@@ -587,6 +587,7 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		nameid := evt.Info.Sender.String()
 		chatid := evt.Info.Chat.String()
 		text := ""
+		mesid := "evt.Info.ID"
 
 		if evt.Message.GetConversation() != "" {
 			text = *evt.Message.Conversation
@@ -595,11 +596,6 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 				text = fmt.Sprintf(" %s ", q)
 			}
 
-		}
-		fmt.Println("text", text)
-		_, err := w.Send(chatid, text)
-		if err != nil {
-			fmt.Println(err)
 		}
 
 		//fmt.Println("отправитель:", name)
@@ -615,7 +611,7 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 		switch {
 		case msg.Conversation != nil || msg.ExtendedTextMessage != nil:
 			if text != "" {
-				go w.LogicMIXwa(text, name, nameid, chatid)
+				go w.LogicMIXwa(text, name, nameid, chatid, mesid)
 			}
 		}
 

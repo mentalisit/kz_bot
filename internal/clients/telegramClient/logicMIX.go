@@ -24,20 +24,13 @@ func (t *Telegram) logicMixTelegram(m *tgbotapi.Message) {
 				Nameid: m.From.ID,
 			},
 			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{
-				Callback: false,
-				Edit:     false,
-				Update:   false,
+			Option: models.Option{
+				InClient: true,
 			},
 		}
-		if t.debug {
-			fmt.Printf("\n\nin logicMixTelegram %+v\n", in)
-		}
+		//if t.debug {
+		//	fmt.Printf("\n\nin logicMixTelegram %+v\n", in)
+		//}
 		models.ChTg <- in
 	}
 }
@@ -62,20 +55,12 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 				Nameid: cb.From.ID,
 			},
 			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{
-				Callback: true,
-				Edit:     true,
-				Update:   false,
-			},
+			Option: models.Option{
+				Reaction: true},
 		}
-		if t.debug {
-			fmt.Printf("\n\nin logicMixTelegramCallback %+v\n", in)
-		}
+		//if t.debug {
+		//	fmt.Printf("\n\nin logicMixTelegramCallback %+v\n", in)
+		//}
 		models.ChTg <- in
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/models"
+	"strconv"
 )
 
 func (b *Bot) RsPlus() {
@@ -41,172 +42,211 @@ func (b *Bot) RsPlus() {
 
 		if countQueue == 0 {
 			if b.in.Config.DsChannel != "" {
-				name1 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-				name2 := ""
-				name3 := ""
-				name4 := ""
-				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
-				dsmesid = b.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+" запустил очередь "+lvlk)
-				b.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
-				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+				b.wg.Add(1)
+				go func() {
+					name1 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
+					name2 := ""
+					name3 := ""
+					name4 := ""
+					lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+					emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
+					dsmesid = b.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+" запустил очередь "+lvlk)
+					b.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
+					b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.TgChannel != 0 {
-				text := fmt.Sprintf("Очередь кз%s (%d)\n1. %s - %sмин. (%d) \n\n%s++ - принудительный старт",
-					b.in.Lvlkz, numkzL, b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN, b.in.Lvlkz)
-				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.SubscribePing(1)
+				b.wg.Add(1)
+				go func() {
+					text := fmt.Sprintf("Очередь кз%s (%d)\n1. %s - %sмин. (%d) \n\n%s++ - принудительный старт",
+						b.in.Lvlkz, numkzL, b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN, b.in.Lvlkz)
+					tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					b.SubscribePing(1)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
 			}
 
-			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
+		}
 
-		} else if countQueue == 1 {
-			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
+		u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
+
+		if countQueue == 1 {
 			dsmesid = u.User1.Dsmesid
 
 			if b.in.Config.DsChannel != "" {
-				name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-				name3 := ""
-				name4 := ""
-				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
-				text := lvlk + " 2/4 " + b.in.Name + " присоединился к очереди"
-				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-				b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+				b.wg.Add(1)
+				go func() {
+					name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
+					name3 := ""
+					name4 := ""
+					lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+					emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
+					text := lvlk + " 2/4 " + b.in.Name + " присоединился к очереди"
+					go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
+					b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.TgChannel != 0 {
-				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
-				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
-				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-				text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
-				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.wg.Add(1)
+				go func() {
+					text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
+					name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("2. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
+					text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+					text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
+					tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
 			}
-			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
 
 		} else if countQueue == 2 {
-			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 			dsmesid = u.User1.Dsmesid
 
 			if b.in.Config.DsChannel != "" {
-				name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
-				name3 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.Tip), b.in.Timekz, numkzN)
-				name4 := ""
-				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-				lvlk3 := b.Ds.RoleToIdPing(b.in.Lvlkz+"+", b.in.Config.Config.Guildid)
-				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
-				text := lvlk + " 3/4 " + b.in.Name + " присоединился к очереди " + lvlk3 + " нужен еще один для фулки"
-				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-				b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+				b.wg.Add(1)
+				go func() {
+					name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
+					name3 := fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.Tip), b.in.Timekz, numkzN)
+					name4 := ""
+					lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+					lvlk3 := b.Ds.RoleToIdPing(b.in.Lvlkz+"+", b.in.Config.Config.Guildid)
+					emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numkzL)
+					text := lvlk + " 3/4 " + b.in.Name + " присоединился к очереди " + lvlk3 + " нужен еще один для фулки"
+					go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
+					b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.TgChannel != 0 {
-				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
-				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
-				name3 := fmt.Sprintf("3. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
-				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-				text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
-				tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
-				b.SubscribePing(3)
+				b.wg.Add(1)
+				go func() {
+					text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
+					name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
+					name3 := fmt.Sprintf("3. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, tg), b.in.Timekz, numkzN)
+					text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+					text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
+					tgmesid = b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.SubscribePing(3)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
 			}
-			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
 
-		} else if countQueue == 3 {
-			u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
+		}
+		if countQueue <= 2 {
+			b.wg.Wait()
+			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
+		}
+
+		if countQueue == 3 {
+			dsmesid = u.User1.Dsmesid
+
 			textEvent, numkzEvent := b.EventText()
 			numberevent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName) //получаем номер ивета если он активен
 			if numberevent > 0 {
 				numkzL = numkzEvent
 			}
-			var name1, name2, name3, name4 string
-
-			dsmesid = u.User1.Dsmesid
+			//var name1, name2, name3, name4 string
 
 			if b.in.Config.DsChannel != "" {
-				if u.User1.Tip == "ds" {
-					name1 = u.User1.Mention
-				} else {
-					name1 = u.User1.Name
-				}
-				if u.User2.Tip == "ds" {
-					name2 = u.User2.Mention
-				} else {
-					name2 = u.User2.Name
-				}
-				if u.User3.Tip == "ds" {
-					name3 = u.User3.Mention
-				} else {
-					name3 = u.User3.Name
-				}
-				if b.in.Tip == "ds" {
-					name4 = b.in.NameMention
-				} else {
-					name4 = b.in.Name
-				}
-				go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, " 4/4 "+b.in.Name+" присоединился к очереди", 10)
-				text := fmt.Sprintf("4/4 Очередь КЗ%s сформирована\n %s\n %s\n %s\n %s \nВ ИГРУ %s",
-					b.in.Lvlkz, b.emReadName(name1, ds), b.emReadName(name2, ds), b.emReadName(name3, ds), b.emReadName(name4, ds), textEvent)
+				b.wg.Add(1)
+				go func() {
+					n1, n2, n3, n4 := b.nameMention(u, "ds")
+					//if u.User1.Tip == "ds" {
+					//	name1 = u.User1.Mention
+					//} else {
+					//	name1 = u.User1.Name
+					//}
+					//if u.User2.Tip == "ds" {
+					//	name2 = u.User2.Mention
+					//} else {
+					//	name2 = u.User2.Name
+					//}
+					//if u.User3.Tip == "ds" {
+					//	name3 = u.User3.Mention
+					//} else {
+					//	name3 = u.User3.Name
+					//}
+					//if b.in.Tip == "ds" {
+					//	name4 = b.in.NameMention
+					//} else {
+					//	name4 = b.in.Name
+					//}
+					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+					go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, " 4/4 "+b.in.Name+" присоединился к очереди", 10)
+					text := fmt.Sprintf("4/4 Очередь КЗ%s сформирована\n %s\n %s\n %s\n %s \nВ ИГРУ %s",
+						b.in.Lvlkz, b.emReadName(n1, ds), b.emReadName(n2, ds), b.emReadName(n3, ds), b.emReadName(n4, ds), textEvent)
 
-				if b.in.Tip == ds {
-					dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
-				} else {
-					dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
-				}
-				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.DsChannel)
+					if b.in.Tip == ds {
+						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+					} else {
+						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+					}
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.DsChannel)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.TgChannel != 0 {
-				if u.User1.Tip == "tg" {
-					name1 = u.User1.Mention
-				} else {
-					name1 = u.User1.Name
-				}
-				if u.User2.Tip == "tg" {
-					name2 = u.User2.Mention
-				} else {
-					name2 = u.User2.Name
-				}
-				if u.User3.Tip == "tg" {
-					name3 = u.User3.Mention
-				} else {
-					name3 = u.User3.Name
-				}
-				if b.in.Tip == "tg" {
-					name4 = b.in.NameMention
-				} else {
-					name4 = b.in.Name
-				}
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-				go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.Name+" закрыл очередь кз"+b.in.Lvlkz, 10)
-				text := fmt.Sprintf("Очередь КЗ%s сформирована\n%s\n%s\n%s\n%s\n В ИГРУ \n%s",
-					b.in.Lvlkz, name1, name2, name3, name4, textEvent)
-				tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-				b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.wg.Add(1)
+				go func() {
+					n1, n2, n3, n4 := b.nameMention(u, "tg")
+					//if u.User1.Tip == "tg" {
+					//	name1 = u.User1.Mention
+					//} else {
+					//	name1 = u.User1.Name
+					//}
+					//if u.User2.Tip == "tg" {
+					//	name2 = u.User2.Mention
+					//} else {
+					//	name2 = u.User2.Name
+					//}
+					//if u.User3.Tip == "tg" {
+					//	name3 = u.User3.Mention
+					//} else {
+					//	name3 = u.User3.Name
+					//}
+					//if b.in.Tip == "tg" {
+					//	name4 = b.in.NameMention
+					//} else {
+					//	name4 = b.in.Name
+					//}
+					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+					go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.Name+" закрыл очередь кз"+b.in.Lvlkz, 10)
+					text := fmt.Sprintf("Очередь КЗ%s сформирована\n%s\n%s\n%s\n%s\n В ИГРУ \n%s",
+						b.in.Lvlkz, n1, n2, n3, n4, textEvent)
+					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
+					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Done()
+				}()
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
 			}
 
+			b.wg.Wait()
 			b.Db.InsertQueue(dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
 			b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numkzL, numberevent, b.in.Config.CorpName)
 
 			//проверка есть ли игрок в других чатах
-			go b.elseChat(u, b.in.Name)
+			user := []string{u.User1.Name, u.User2.Name, u.User3.Name, b.in.Name}
+			go b.elseChat(user)
 
 		}
 
@@ -216,7 +256,7 @@ func (b *Bot) RsMinus() {
 	b.Mu.Lock()
 	defer b.Mu.Unlock()
 	if b.debug {
-		fmt.Println("in RsMinus", b.in)
+		fmt.Printf("\n in RsMinus %+v\n", b.in)
 	}
 	if !b.iftipdelete() {
 		return
@@ -242,15 +282,15 @@ func (b *Bot) RsMinus() {
 		if b.in.Config.DsChannel != "" {
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.Name+" покинул очередь", 10)
 			if countQueue == 0 {
-				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, "Очередь КЗ была удалена.", 10)
-				b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+				go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, fmt.Sprintf("Очередь кз%s была удалена.", b.in.Lvlkz), 10)
+				go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 			}
 		}
 		if b.in.Config.TgChannel != 0 {
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.Name+" покинул очередь", 10)
 			if countQueue == 0 {
-				go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, "Очередь КЗ была удалена.", 10)
-				b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+				go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, fmt.Sprintf("Очередь кз%s была удалена.", b.in.Lvlkz), 10)
+				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 			}
 		}
 		if b.in.Config.WaChannel != "" {
@@ -275,123 +315,153 @@ func (b *Bot) QueueLevel() {
 		return
 	}
 	// совподения количество  условие
-	if count == 0 && !b.in.Option.Queue {
-		text := "Очередь КЗ " + b.in.Lvlkz + " пуста "
-		b.ifTipSendTextDelSecond(text, 10)
-	} else if b.in.Option.Queue && count == 0 {
-		b.ifTipSendTextDelSecond("Нет активных очередей ", 10)
+	if count == 0 {
+		if !b.in.Option.Queue {
+			text := "Очередь КЗ " + b.in.Lvlkz + " пуста "
+			b.ifTipSendTextDelSecond(text, 10)
+		} else if b.in.Option.Queue {
+			b.ifTipSendTextDelSecond("Нет активных очередей ", 10)
+		}
+	}
 
-	} else if count == 1 {
-		u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
+	u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
+
+	if count == 1 {
+
 		if b.in.Config.DsChannel != "" {
-			name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-			name2 := ""
-			name3 := ""
-			name4 := ""
-			lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-			emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
-			if b.in.Option.Edit {
-				b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
-			} else if !b.in.Option.Edit {
-				b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
+			b.wg.Add(1)
+			go func() {
+				name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
+				name2 := ""
+				name3 := ""
+				name4 := ""
+				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
+				if b.in.Option.Edit {
+					b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+				} else if !b.in.Option.Edit {
+					b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+					dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
-				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
-			}
+					b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.TgChannel != 0 {
-			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
-			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-			text := fmt.Sprintf("%s %s %s", text1, name1, text2)
-			if b.in.Option.Edit {
-				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
-			} else if !b.in.Option.Edit {
-				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-			}
+			b.wg.Add(1)
+			go func() {
+				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+				text := fmt.Sprintf("%s %s %s", text1, name1, text2)
+				if b.in.Option.Edit {
+					b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
+				} else if !b.in.Option.Edit {
+					mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.WaChannel != "" {
 
 		}
+
 	} else if count == 2 {
-		u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 
 		if b.in.Config.DsChannel != "" {
-			name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
-			name3 := ""
-			name4 := ""
-			lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-			emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
-			if b.in.Option.Edit {
-				b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
-			} else if !b.in.Option.Edit {
-				b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
+			b.wg.Add(1)
+			go func() {
+				name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
+				name3 := ""
+				name4 := ""
+				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
+				if b.in.Option.Edit {
+					b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+				} else if !b.in.Option.Edit {
+					b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+					dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
-				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
-			}
+					b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.TgChannel != 0 {
-			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
-			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-			text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
-			if b.in.Option.Edit {
-				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
-			} else if !b.in.Option.Edit {
-				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-			}
+			b.wg.Add(1)
+			go func() {
+				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
+				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+				text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
+				if b.in.Option.Edit {
+					b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
+				} else if !b.in.Option.Edit {
+					mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.WaChannel != "" {
 
 		}
+
 	} else if count == 3 {
-		u := b.Db.ReadAll(b.in.Lvlkz, b.in.Config.CorpName)
 
 		if b.in.Config.DsChannel != "" {
-			name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
-			name3 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, ds), u.User3.Timedown, u.User3.Numkzn)
-			name4 := ""
-			lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
-			emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
-			if b.in.Option.Edit {
-				b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
-			} else if !b.in.Option.Edit {
-				b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-				dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
+			b.wg.Add(1)
+			go func() {
+				name1 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
+				name3 := fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, ds), u.User3.Timedown, u.User3.Numkzn)
+				name4 := ""
+				lvlk := b.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Config.Guildid)
+				emb := b.Ds.EmbedDS(name1, name2, name3, name4, lvlk, numberLvl)
+				if b.in.Option.Edit {
+					b.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+				} else if !b.in.Option.Edit {
+					b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+					dsmesid := b.Ds.SendComplex(b.in.Config.DsChannel, emb)
 
-				b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
-				b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
-			}
+					b.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.TgChannel != 0 {
-			text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
-			name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
-			name3 := fmt.Sprintf("3. %s - %dмин. (%d) \n", b.emReadName(u.User3.Name, tg), u.User3.Timedown, u.User3.Numkzn)
-			text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-			text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
-			if b.in.Option.Edit {
-				b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
-			} else if !b.in.Option.Edit {
-				mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
-				b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
-				go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-			}
+			b.wg.Add(1)
+			go func() {
+				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, tg), u.User1.Timedown, u.User1.Numkzn)
+				name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, tg), u.User2.Timedown, u.User2.Numkzn)
+				name3 := fmt.Sprintf("3. %s - %dмин. (%d) \n", b.emReadName(u.User3.Name, tg), u.User3.Timedown, u.User3.Numkzn)
+				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+				text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
+				if b.in.Option.Edit {
+					b.Tg.EditMessageTextKey(b.in.Config.TgChannel, u.User1.Tgmesid, text, b.in.Lvlkz)
+				} else if !b.in.Option.Edit {
+					mesidTg := b.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
+					b.Db.Update.MesidTgUpdate(mesidTg, b.in.Lvlkz, b.in.Config.CorpName)
+					b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+				}
+				b.wg.Done()
+			}()
 		}
 		if b.in.Config.WaChannel != "" {
 
 		}
 	}
+	b.wg.Wait()
 }
 func (b *Bot) QueueAll() {
 	if b.debug {
@@ -440,7 +510,7 @@ func (b *Bot) RsStart() {
 		if err2 != nil {
 			return
 		}
-		var name1, name2, name3 string
+		//var name1, name2, name3 string
 		dsmesid := ""
 		tgmesid := 0
 		wamesid := ""
@@ -453,133 +523,166 @@ func (b *Bot) RsStart() {
 			}
 			if count == 1 {
 				if b.in.Config.DsChannel != "" {
-					if u.User1.Tip == "ds" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
-						b.in.Lvlkz, numberkz, name1, textEvent)
+					b.wg.Add(1)
+					go func() {
+						//if u.User1.Tip == "ds" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						name1, _, _, _ := b.nameMention(u, ds)
+						text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
+							b.in.Lvlkz, numberkz, name1, textEvent)
 
-					if b.in.Tip == ds {
-						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+						if b.in.Tip == ds {
+							dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
 
-					} else {
-						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
-					}
+						} else {
+							dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+						}
 
-					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+						b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
+
 				}
 				if b.in.Config.TgChannel != 0 {
-					if u.User1.Tip == "tg" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
-						b.in.Lvlkz, numberkz, name1, textEvent)
-					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Add(1)
+					go func() {
+						name1, _, _, _ := b.nameMention(u, tg)
+						//if u.User1.Tip == "tg" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+						text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n1. %s\nВ игру %s",
+							b.in.Lvlkz, numberkz, name1, textEvent)
+						tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
+						b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
+
 				}
-				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
-				b.elseChat(u, b.in.Name)
 			} else if count == 2 {
 				if b.in.Config.DsChannel != "" { //discord
-					if u.User1.Tip == "ds" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					if u.User2.Tip == "ds" {
-						name2 = u.User2.Mention
-					} else {
-						name2 = u.User2.Name
-					}
-					text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
-					text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
-					text := text1 + text2
-					if b.in.Tip == ds {
-						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
-					} else {
-						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
-					}
-					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Add(1)
+					go func() {
+						name1, name2, _, _ := b.nameMention(u, ds)
+						//if u.User1.Tip == "ds" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						//if u.User2.Tip == "ds" {
+						//	name2 = u.User2.Mention
+						//} else {
+						//	name2 = u.User2.Name
+						//}
+						text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
+						text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
+						text := text1 + text2
+						if b.in.Tip == ds {
+							dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+						} else {
+							dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+						}
+						go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+						b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
+
 				}
 				if b.in.Config.TgChannel != 0 { //telegram
-					if u.User1.Tip == "tg" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					if u.User2.Tip == "tg" {
-						name2 = u.User2.Mention
-					} else {
-						name2 = u.User2.Name
-					}
-					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-					text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
-					text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
-					text := text1 + text2
-					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Add(1)
+					go func() {
+						name1, name2, _, _ := b.nameMention(u, tg)
+						//if u.User1.Tip == "tg" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						//if u.User2.Tip == "tg" {
+						//	name2 = u.User2.Mention
+						//} else {
+						//	name2 = u.User2.Name
+						//}
+						go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+						text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
+						text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
+						text := text1 + text2
+						tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
+						b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
+
 				}
-				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
-				b.elseChat(u, b.in.Name)
 			} else if count == 3 {
 				if b.in.Config.DsChannel != "" { //discord
-					if u.User1.Tip == "ds" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					if u.User2.Tip == "ds" {
-						name2 = u.User2.Mention
-					} else {
-						name2 = u.User2.Name
-					}
-					if u.User3.Tip == "ds" {
-						name3 = u.User3.Mention
-					} else {
-						name3 = u.User3.Name
-					}
-					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
-						b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
-					if b.in.Tip == ds {
-						dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
-					} else {
-						dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
-					}
-					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Add(1)
+					go func() {
+						name1, name2, name3, _ := b.nameMention(u, ds)
+						//if u.User1.Tip == "ds" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						//if u.User2.Tip == "ds" {
+						//	name2 = u.User2.Mention
+						//} else {
+						//	name2 = u.User2.Name
+						//}
+						//if u.User3.Tip == "ds" {
+						//	name3 = u.User3.Mention
+						//} else {
+						//	name3 = u.User3.Name
+						//}
+						text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
+							b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
+						if b.in.Tip == ds {
+							dsmesid = b.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Config.Guildid, b.in.Ds.Avatar)
+						} else {
+							dsmesid = b.Ds.Send(b.in.Config.DsChannel, text)
+						}
+						go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
+						b.Db.Update.MesidDsUpdate(dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
 				}
 				if b.in.Config.TgChannel != 0 { //telegram
-					if u.User1.Tip == "tg" {
-						name1 = u.User1.Mention
-					} else {
-						name1 = u.User1.Name
-					}
-					if u.User2.Tip == "tg" {
-						name2 = u.User2.Mention
-					} else {
-						name2 = u.User2.Name
-					}
-					if u.User3.Tip == "tg" {
-						name3 = u.User3.Mention
-					} else {
-						name3 = u.User3.Name
-					}
-					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-					text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
-						b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
-					tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
-					b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Add(1)
+					go func() {
+						name1, name2, name3, _ := b.nameMention(u, tg)
+						//if u.User1.Tip == "tg" {
+						//	name1 = u.User1.Mention
+						//} else {
+						//	name1 = u.User1.Name
+						//}
+						//if u.User2.Tip == "tg" {
+						//	name2 = u.User2.Mention
+						//} else {
+						//	name2 = u.User2.Name
+						//}
+						//if u.User3.Tip == "tg" {
+						//	name3 = u.User3.Mention
+						//} else {
+						//	name3 = u.User3.Name
+						//}
+						go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
+						text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
+							b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
+						tgmesid = b.Tg.SendChannel(b.in.Config.TgChannel, text)
+						b.Db.Update.MesidTgUpdate(tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
+						b.wg.Done()
+					}()
+
 				}
-				b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
-				b.elseChat(u, b.in.Name)
 			}
+			b.wg.Wait()
+			b.Db.Update.UpdateCompliteRS(b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
+			user := []string{u.User1.Name, u.User2.Name, u.User3.Name, b.in.Name}
+			b.elseChat(user)
 		}
 	}
 }
@@ -599,7 +702,7 @@ func (b *Bot) Pl30() {
 		} else {
 			text = b.in.NameMention + " время обновлено +30"
 			b.Db.UpdateTimedown(b.in.Lvlkz, b.in.Config.CorpName, b.in.Name)
-			b.in.Option.Callback = true
+			b.in.Option.Pl30 = true
 			b.in.Option.Edit = true
 			b.QueueLevel()
 		}
@@ -615,9 +718,7 @@ func (b *Bot) Plus() bool {
 	countName := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	message := ""
 	ins := false
-	if countName == 0 {
-		message = b.in.NameMention + " ты не в очереди"
-	} else if countName > 0 {
+	if countName > 0 && b.in.Option.Reaction {
 		if !b.iftipdelete() {
 			return false
 		}
@@ -631,8 +732,8 @@ func (b *Bot) Plus() bool {
 			b.in.Lvlkz = t.Lvlkz
 			b.QueueLevel()
 		}
+		b.ifTipSendTextDelSecond(message, 10)
 	}
-	b.ifTipSendTextDelSecond(message, 10)
 	return ins
 }
 func (b *Bot) Minus() bool {
@@ -642,9 +743,7 @@ func (b *Bot) Minus() bool {
 	message := ""
 	bb := false
 	countNames := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
-	if countNames == 0 {
-		message = b.in.NameMention + " ты не в очереди"
-	} else if countNames > 0 {
+	if countNames > 0 && b.in.Option.Reaction {
 		if !b.iftipdelete() {
 			return false
 		}
@@ -657,8 +756,8 @@ func (b *Bot) Minus() bool {
 			b.in.Lvlkz = t.Lvlkz
 			b.RsMinus()
 		}
+		b.ifTipSendTextDelSecond(message, 10)
 	}
-	b.ifTipSendTextDelSecond(message, 10)
 	return bb
 }
 
@@ -905,18 +1004,19 @@ func (b *Bot) MinusMin() {
 	tt := b.Db.MinusMin()
 	c := corpsConfig.CorpConfig{}
 	if len(tt) > 0 {
-		b.Mu.Lock()
-		defer b.Mu.Unlock()
 		for _, t := range tt {
 			if t.Corpname != "" {
 				ok, config := c.CheckCorpNameConfig(t.Corpname)
 				if ok {
+					time := strconv.Itoa(t.Timedown)
+
 					in := models.InMessage{
 						Mtext:       "",
 						Tip:         t.Tip,
 						Name:        t.Name,
 						NameMention: t.Mention,
 						Lvlkz:       t.Lvlkz,
+						Timekz:      time,
 						Ds: struct {
 							Mesid   string
 							Nameid  string
@@ -935,35 +1035,52 @@ func (b *Bot) MinusMin() {
 							Nameid: 0,
 						},
 						Config: config,
+						Option: models.Option{
+							MinusMin: true,
+							Edit:     true},
 					}
-					b.in = &in
+					if t.Tip == ds {
+						models.ChDs <- in
+					} else if t.Tip == tg {
+						models.ChTg <- in
+					}
+					//b.in = in
 					if b.debug {
 						fmt.Printf("\n  MinusMin []models.Sborkz %+v\n\n", t)
 					}
 				}
 			}
-
-			if t.Timedown == 3 {
-				text := t.Mention + " время почти вышло...\n" +
-					"Для продления времени ожидания на 30м напиши +\n" +
-					"Для выхода из очереди пиши -"
-				if t.Tip == "ds" {
-					mID := b.Ds.SendEmbedTime(b.in.Config.DsChannel, text)
-					go b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 180)
-				} else if t.Tip == "tg" {
-					mID := b.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
-					go b.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 180)
-				}
-			} else if t.Timedown == 0 {
-				b.RsMinus()
-			} else if t.Timedown < -1 {
-				b.RsMinus()
-			} else if t.Timedown < 0 {
-				b.RsMinus()
-			}
-
 		}
+		b.UpdateMessage()
 	}
+}
+func (b *Bot) CheckTimeQueue() {
+	atoi, err := strconv.Atoi(b.in.Timekz)
+	if err != nil {
+		b.log.Println(err, 965)
+		return
+	}
+	if atoi == 3 {
+		text := b.in.NameMention + " время почти вышло...\n" +
+			"Для продления времени ожидания на 30м жми +\n" +
+			"Для выхода из очереди жми -"
+		if b.in.Tip == ds {
+			mID := b.Ds.SendEmbedTime(b.in.Config.DsChannel, text)
+			go b.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 180)
+		} else if b.in.Tip == tg {
+			mID := b.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
+			go b.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 180)
+		}
+	} else if atoi == 0 {
+		b.RsMinus()
+	} else if atoi < -1 {
+		b.RsMinus()
+	} else if atoi < 0 {
+		b.RsMinus()
+	}
+}
+func (b *Bot) UpdateMessage() {
+	c := corpsConfig.CorpConfig{}
 	corpActive0 := b.Db.OneMinutsTimer()
 	for _, corp := range corpActive0 {
 
@@ -973,16 +1090,18 @@ func (b *Bot) MinusMin() {
 
 		if config.DsChannel != "" {
 			for _, d := range dss {
-				in := b.Db.MessageupdateDS(d, config)
-				b.in = &in
-				b.QueueLevel()
+				a := b.Db.MessageupdateDS(d, config)
+				models.ChDs <- a
+				//b.in = in
+				//b.QueueLevel()
 			}
 		}
 		if config.TgChannel != 0 {
 			for _, t := range tgs {
-				in := b.Db.MessageupdateTG(t, config)
-				b.in = &in
-				b.QueueLevel()
+				a := b.Db.MessageupdateTG(t, config)
+				models.ChTg <- a
+				//b.in = in
+				//b.QueueLevel()
 			}
 		}
 		if config.WaChannel != "" {

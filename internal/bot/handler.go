@@ -34,9 +34,9 @@ func (b *Bot) EventText() (string, int) {
 }
 
 func (b *Bot) iftipdelete() bool {
-	if b.in.Tip == ds && !b.in.Option.Callback {
+	if b.in.Tip == ds && !b.in.Option.Reaction && !b.in.Option.Update {
 		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
-	} else if b.in.Tip == tg && !b.in.Option.Callback {
+	} else if b.in.Tip == tg && !b.in.Option.Reaction && !b.in.Option.Update {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		if b.in.NameMention == "@" {
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, nickname, 60)
@@ -69,61 +69,52 @@ func (b *Bot) emReadName(name, tip string) string { // склеиваем имя
 	}
 	return newName
 }
-func (b *Bot) elseChat(u models.Users, name4 string) { //проверяем всех игроков этой очереди на присутствие в других очередях или корпорациях
-	if b.Db.Count.CountNameQueue(u.User1.Name) > 0 {
-		go b.elsetrue(u.User1.Name)
-	}
-	if b.Db.Count.CountNameQueue(u.User2.Name) > 0 {
-		go b.elsetrue(u.User2.Name)
-	}
-	if b.Db.Count.CountNameQueue(u.User3.Name) > 0 {
-		go b.elsetrue(u.User3.Name)
-	}
-	if b.Db.Count.CountNameQueue(name4) > 0 {
-		go b.elsetrue(name4)
+func (b *Bot) elseChat(user []string) { //проверяем всех игроков этой очереди на присутствие в других очередях или корпорациях
+	user = b.removeDuplicateElementString(user)
+	for _, u := range user {
+		if b.Db.Count.CountNameQueue(u) > 0 {
+			b.elsetrue(u)
+		}
 	}
 }
-func (b *Bot) elsetrue(name string) { //удаляем игрока с очереди
-	t := b.Db.ElseTrue(name)
-	c := corpsConfig.CorpConfig{}
-	ok, config := c.CheckCorpNameConfig(t.Corpname)
-	if ok {
-		in := models.InMessage{
-			Tip:         t.Tip,
-			Name:        t.Name,
-			NameMention: t.Mention,
-			Lvlkz:       t.Lvlkz,
-			Timekz:      string(t.Timedown),
-			Ds: struct {
-				Mesid   string
-				Nameid  string
-				Guildid string
-				Avatar  string
-			}{
-				Mesid:   t.Dsmesid,
-				Nameid:  "",
-				Guildid: ""},
-			Tg: struct {
-				Mesid  int
-				Nameid int64
-			}{
-				Mesid:  t.Tgmesid,
-				Nameid: 0},
-			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{
-				Callback: true,
-				Edit:     true,
-				Update:   false,
-			},
-		}
-		b.in = &in
-		go b.RsMinus()
 
+func (b *Bot) elsetrue(name string) { //удаляем игрока с очереди
+	tt := b.Db.ElseTrue(name)
+	c := corpsConfig.CorpConfig{}
+	for _, t := range tt {
+		ok, config := c.CheckCorpNameConfig(t.Corpname)
+		if ok {
+			in := models.InMessage{
+				Mtext:       t.Lvlkz + "-",
+				Tip:         t.Tip,
+				Name:        t.Name,
+				NameMention: t.Mention,
+				Lvlkz:       t.Lvlkz,
+				Timekz:      string(t.Timedown),
+				Ds: struct {
+					Mesid   string
+					Nameid  string
+					Guildid string
+					Avatar  string
+				}{
+					Mesid:   t.Dsmesid,
+					Nameid:  "",
+					Guildid: ""},
+				Tg: struct {
+					Mesid  int
+					Nameid int64
+				}{
+					Mesid:  t.Tgmesid,
+					Nameid: 0},
+				Config: config,
+				Option: models.Option{Elsetrue: true},
+			}
+			if t.Tip == ds {
+				models.ChDs <- in
+			} else if t.Tip == tg {
+				models.ChTg <- in
+			}
+		}
 	}
 }
 func (b *Bot) SubscribePing(tipPing int) {
@@ -228,4 +219,27 @@ func (b *Bot) StatisticA() {
 	if mes != "" {
 		b.ifTipSendTextDelSecond(mes, 30)
 	}
+}
+func (b *Bot) nameMention(u models.Users, tip string) (n1, n2, n3, n4 string) {
+	if u.User1.Tip == tip {
+		n1 = u.User1.Mention
+	} else {
+		n1 = u.User1.Name
+	}
+	if u.User2.Tip == tip {
+		n2 = u.User2.Mention
+	} else {
+		n2 = u.User2.Name
+	}
+	if u.User3.Tip == tip {
+		n3 = u.User3.Mention
+	} else {
+		n3 = u.User3.Name
+	}
+	if b.in.Tip == tip {
+		n4 = b.in.NameMention
+	} else {
+		n4 = b.in.Name
+	}
+	return
 }

@@ -89,14 +89,15 @@ func (b *Bot) lSubs() (bb bool) {
 
 	readd := regexp.MustCompile(`^(подписать)\s([3-9]|[1][0-2])\s(@\w+)\s([1]|[3])$`)
 	arradd := (readd.FindAllStringSubmatch(b.in.Mtext, -1))
-	if len(arradd) > 0 {
+	if len(arradd) > 0 && b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name) {
 		bb = true
 		atoi, err := strconv.Atoi(arradd[0][4])
 		if err != nil {
 			return false
 		}
-		b.in.NameMention = arradd[0][3]
-		b.in.Name = arradd[0][3]
+		a := arradd[0][3]
+		b.in.NameMention = a
+		b.in.Name = a[1 : len(a)-1]
 		b.in.Lvlkz = arradd[0][2]
 		b.Subscribe(atoi)
 

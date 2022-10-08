@@ -1,7 +1,6 @@
 package discordClient
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 )
@@ -42,16 +41,8 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 				},
 
 				Config: config,
-				Option: struct {
-					Callback bool
-					Edit     bool
-					Update   bool
-					Queue    bool
-				}{
-					Callback: true,
-					Edit:     true,
-					Update:   false,
-				},
+				Option: models.Option{
+					Reaction: true},
 			}
 			d.reactionUserRemove(r)
 
@@ -74,9 +65,9 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 					}
 				}
 			}
-			if d.debug {
-				fmt.Printf("\n\nin readReactionQueue %+v\n ", in)
-			}
+			//if d.debug {
+			//	fmt.Printf("\n\nin readReactionQueue %+v\n ", in)
+			//}
 
 			models.ChDs <- in
 		}
@@ -126,20 +117,11 @@ func (d *Discord) logicMixDiscord(m *discordgo.MessageCreate) {
 				Avatar:  Avatar,
 			},
 			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{
-				Callback: false,
-				Edit:     false,
-				Update:   false,
-			},
+			Option: models.Option{InClient: true},
 		}
-		if d.debug {
-			fmt.Printf("\n\nin logicMixDiscord %+v\n", in)
-		}
+		//if d.debug {
+		//	fmt.Printf("\n\nin logicMixDiscord %+v\n", in)
+		//}
 
 		models.ChDs <- in
 	}

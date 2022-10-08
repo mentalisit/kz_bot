@@ -469,16 +469,9 @@ func (d *Db) MessageupdateDS(dsmesid string, config models.BotConfig) models.InM
 			Guildid: config.Config.Guildid,
 		},
 		Config: config,
-		Option: struct {
-			Callback bool
-			Edit     bool
-			Update   bool
-			Queue    bool
-		}{
-			Callback: true,
-			Edit:     true,
-			Update:   false,
-		},
+		Option: models.Option{
+			Edit:   true,
+			Update: true},
 	}
 
 	return in
@@ -504,16 +497,9 @@ func (d *Db) MessageupdateTG(tgmesid int, config models.BotConfig) models.InMess
 			Mesid:  t.Tgmesid,
 			Nameid: 0},
 		Config: config,
-		Option: struct {
-			Callback bool
-			Edit     bool
-			Update   bool
-			Queue    bool
-		}{
-			Callback: true,
-			Edit:     true,
-			Update:   false,
-		},
+		Option: models.Option{
+			Edit:   true,
+			Update: true},
 	}
 	return in
 }

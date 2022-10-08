@@ -22,16 +22,21 @@ type InMessage struct {
 	}
 	Wa struct {
 		Nameid string
+		Mesid  string
 	}
 	Config BotConfig
-	Option struct {
-		Callback bool
-		Edit     bool
-		Update   bool
-		Queue    bool
-	}
+	Option Option
 }
-
+type Option struct {
+	Reaction bool
+	InClient bool
+	Queue    bool
+	Pl30     bool
+	MinusMin bool
+	Edit     bool
+	Update   bool
+	Elsetrue bool
+}
 type Configs struct {
 	DelMesComplite int
 	MesidDsHelp    string

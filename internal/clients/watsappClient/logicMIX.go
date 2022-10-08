@@ -4,7 +4,7 @@ import (
 	"kz_bot/internal/models"
 )
 
-func (w *Watsapp) LogicMIXwa(text, name, nameid, chatid string) {
+func (w *Watsapp) LogicMIXwa(text, name, nameid, chatid, mesid string) {
 	ok, config := w.CorpConfig.CheckChannelConfigWA(chatid)
 	w.AccesChatWA(text, chatid)
 	if ok {
@@ -12,20 +12,16 @@ func (w *Watsapp) LogicMIXwa(text, name, nameid, chatid string) {
 			Mtext:       text,
 			Tip:         "wa",
 			Name:        name,
-			NameMention: name,
+			NameMention: "name",
 			Wa: struct {
 				Nameid string
+				Mesid  string
 			}{
-				Nameid: nameid},
+				Nameid: nameid,
+				Mesid:  mesid},
 			Config: config,
-			Option: struct {
-				Callback bool
-				Edit     bool
-				Update   bool
-				Queue    bool
-			}{},
+			Option: models.Option{InClient: true},
 		}
 		models.ChWa <- in
 	}
-
 }

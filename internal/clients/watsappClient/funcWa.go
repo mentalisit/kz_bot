@@ -2,6 +2,7 @@ package watsappClient
 
 import (
 	"context"
+	"fmt"
 	"go.mau.fi/whatsmeow/types"
 	corpsConfig "kz_bot/internal/clients/corpConfig"
 	"kz_bot/internal/dbase"
@@ -25,6 +26,7 @@ type Watsapp struct {
 type Wa interface {
 	Send(chatid, text string) (string, error)
 	DeleteMessage(chatid, mesid string)
+	ChatName(chatid string) string
 }
 
 func (w *Watsapp) ChatName(chatid string) string {
@@ -33,14 +35,14 @@ func (w *Watsapp) ChatName(chatid string) string {
 	if !ok {
 		return ""
 	} else if group.Server != types.GroupServer {
-		w.log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
+		//w.log.Errorf("Input must be a group JID (@%s)", types.GroupServer)
 		return ""
 	}
 	resp, err := w.cli.GetGroupInfo(group)
 	if err != nil {
 		w.log.Errorf("Failed to get group info: %v", err)
 	} else {
-		w.log.Infof("Group info: %+v", resp)
+		//w.log.Infof("Group info: %+v", resp)
 		chatName = resp.Name
 	}
 	return chatName
@@ -68,18 +70,19 @@ func (w *Watsapp) Send(chatid, text string) (string, error) {
 	if err != nil {
 		w.log.Errorf("Error sending message: %v", err)
 	}
-
 	return resp.ID, nil
 }
 
 func (w *Watsapp) DeleteMessage(chatid, mesid string) {
 	groupJID, _ := types.ParseJID(chatid)
 	if mesid == "" {
+		fmt.Println("mesid00000")
 		return
 	}
 
 	_, err := w.cli.RevokeMessage(groupJID, mesid)
 	if err != nil {
+		fmt.Println("err", err)
 		return
 	}
 }
