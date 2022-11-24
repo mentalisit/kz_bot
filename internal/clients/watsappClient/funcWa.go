@@ -49,6 +49,7 @@ func (w *Watsapp) ChatName(chatid string) string {
 }
 
 func (w *Watsapp) Send(chatid, text string) (string, error) {
+	//text = "@Павел"
 	args := []string{chatid, text}
 	if len(args) < 2 {
 
@@ -58,14 +59,16 @@ func (w *Watsapp) Send(chatid, text string) (string, error) {
 	if !ok {
 		return "", nil
 	}
+
 	//var a []string
-	//a = append(a, "380637157959@s.whatsapp.net")
+	//a = append(a, "@380989033544")
 	conversation := proto.String(strings.Join(args[1:], " "))
-	//extendedTextMessage := &waProto.ExtendedTextMessage{Text: &text,		ContextInfo: &waProto.ContextInfo{MentionedJid: a,},}
+	//extendedTextMessage := &waProto.ExtendedTextMessage{Text: &text, ContextInfo: &waProto.ContextInfo{MentionedJid: a}}
 	msg := &waProto.Message{
 		Conversation: conversation,
 		//ExtendedTextMessage: extendedTextMessage,
 	}
+	fmt.Println(msg)
 	resp, err := w.cli.SendMessage(context.Background(), recipient, "", msg)
 	if err != nil {
 		w.log.Errorf("Error sending message: %v", err)

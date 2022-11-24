@@ -6,16 +6,19 @@ import (
 	"kz_bot/internal/models"
 )
 
+const nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
+
 func (t *Telegram) logicMixTelegram(m *tgbotapi.Message) {
 	// тут я передаю чат айди и проверяю должен ли бот реагировать на этот чат
 	ok, config := t.CorpConfig.CheckChannelConfigTG(m.Chat.ID)
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 	if ok {
+		name := t.nameNick(m.From.UserName, m.From.FirstName, m.Chat.ID)
 		in := models.InMessage{
 			Mtext:       m.Text,
 			Tip:         "tg",
-			Name:        m.From.UserName,
-			NameMention: "@" + m.From.UserName,
+			Name:        name,
+			NameMention: "@" + name,
 			Tg: struct {
 				Mesid  int
 				Nameid int64
@@ -42,11 +45,12 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	}
 	ok, config := t.CorpConfig.CheckChannelConfigTG(cb.Message.Chat.ID)
 	if ok {
+		name := t.nameNick(cb.From.UserName, cb.From.FirstName, cb.Message.Chat.ID)
 		in := models.InMessage{
 			Mtext:       cb.Data,
 			Tip:         "tg",
-			Name:        cb.From.UserName,
-			NameMention: "@" + cb.From.UserName,
+			Name:        name,
+			NameMention: "@" + name,
 			Tg: struct {
 				Mesid  int
 				Nameid int64
@@ -80,4 +84,13 @@ func (t *Telegram) chatMember(chMember *tgbotapi.ChatMemberUpdated) {
 			60)
 	}
 
+}
+func (t *Telegram) nameNick(UserName, FirstName string, chatid int64) (name string) {
+	if UserName != "" {
+		name = UserName
+	} else {
+		name = FirstName
+		go t.SendChannelDelSecond(chatid, nickname, 60)
+	}
+	return name
 }

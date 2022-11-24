@@ -12,15 +12,12 @@ import (
 )
 
 const (
-	ds       = "ds"
-	tg       = "tg"
-	wa       = "wa"
-	nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
+	ds = "ds"
+	tg = "tg"
+	wa = "wa"
 )
 
-func (b *Bot) EventText() (string, int) {
-	text := ""
-	numE := 0
+func (b *Bot) EventText() (text string, numE int) {
 	//проверяем, есть ли активный ивент
 	numberevent := b.Db.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numberevent == 0 { //ивент не активен
@@ -38,10 +35,6 @@ func (b *Bot) iftipdelete() bool {
 		go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 	} else if b.in.Tip == tg && !b.in.Option.Reaction && !b.in.Option.Update {
 		go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
-		if b.in.NameMention == "@" {
-			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, nickname, 60)
-			return false
-		}
 	}
 	return true
 }
@@ -126,9 +119,9 @@ func (b *Bot) SubscribePing(tipPing int) {
 }
 func (b *Bot) checkAdmin() bool {
 	admin := false
-	if b.in.Tip == "ds" {
+	if b.in.Tip == ds {
 		admin = b.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)
-	} else if b.in.Tip == "tg" {
+	} else if b.in.Tip == tg {
 		admin = b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)
 	}
 	return admin
@@ -185,9 +178,9 @@ func (b *Bot) SendALLChannel() (bb bool) {
 }
 func (b *Bot) hhelp() {
 	b.iftipdelete()
-	if b.in.Tip == "ds" {
+	if b.in.Tip == ds {
 		go b.Ds.Help(b.in.Config.DsChannel)
-	} else if b.in.Tip == "tg" {
+	} else if b.in.Tip == tg {
 		go b.Tg.Help(b.in.Config.TgChannel)
 	}
 }

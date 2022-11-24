@@ -2,6 +2,7 @@ package discordClient
 
 import (
 	"fmt"
+	"io"
 	"kz_bot/internal/clients/discordClient/transmitter"
 	"strings"
 	"time"
@@ -22,6 +23,7 @@ var mesContentNil string
 
 type Ds interface {
 	Send(chatid, text string) string
+	SendFiles(chatid, fileName string, r io.Reader) string
 	SendChannelDelSecond(chatid, text string, second int)
 	SendComplexContent(chatid, text string) string
 	SendEmbedText(chatid, title, text string) *discordgo.Message
@@ -41,6 +43,7 @@ type Ds interface {
 	Help(Channel string)
 	CleanChat(chatid, mesid, text string)
 	Autohelp()
+	DMchannel(AuthorID string) (chatidDM string)
 	SendWebhook(text, username, chatid, guildId, Avatar string) string
 }
 
@@ -221,6 +224,21 @@ func (d *Discord) Send(chatid, text string) string { //отправка текс
 	}
 	return message.ID
 }
+func (d *Discord) DMchannel(AuthorID string) (chatidDM string) {
+	create, err := d.d.UserChannelCreate(AuthorID)
+	if err != nil {
+		return ""
+	}
+	chatidDM = create.ID
+	return chatidDM
+}
+func (d *Discord) SendFiles(chatid, fileName string, r io.Reader) string {
+	send, err := d.d.ChannelFileSend(chatid, fileName, r)
+	if err != nil {
+		return ""
+	}
+	return send.ID
+}
 func (d *Discord) Subscribe(nameid, argRoles, guildid string) string {
 	g, err := d.d.State.Guild(guildid)
 	if err != nil {
@@ -349,6 +367,7 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) st
 	mes, err := web.Send(chatid, &pp)
 	if err != nil {
 		fmt.Println(err)
+		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений")
 		return ""
 	}
 	return mes.ID

@@ -8,10 +8,7 @@ import (
 	"kz_bot/internal/clients"
 	"kz_bot/internal/dbase"
 	"kz_bot/internal/logger"
-	"log"
-	"net"
 	"os"
-	"os/exec"
 	"os/signal"
 	"syscall"
 	"time"
@@ -37,27 +34,12 @@ func Run() (err error) {
 	//создаем логгер в телегу
 	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
 
-	if cfg.BotMode == "reserve" {
-		for {
-			if runPing(cfg) {
-				fmt.Println(time.Now().UTC(), " ожидание")
-				time.Sleep(1 * time.Minute)
-			} else {
-				go func() {
-					for {
-						if runPing(cfg) {
-							log.Println("Сервер доступен, нужно переключится ")
-							ConnectRDP()
-						}
-						time.Sleep(1 * time.Minute)
-						panic("dostupen")
-					}
-				}()
-				err = runLogicBot(cfg, log)
-			}
-		}
-	} else {
-		err = runLogicBot(cfg, log)
+	//Если запуск на резервном сервере то блокируем выполнение
+	config.Reserv(log)
+
+	err = runLogicBot(cfg, log)
+	if err != nil {
+		return err
 	}
 
 	return err
@@ -84,25 +66,4 @@ func runLogicBot(cfg config.ConfigBot, log *logrus.Logger) error {
 	fmt.Println("остановка")
 	db.Shutdown()
 	return nil
-}
-func runPing(cfg config.ConfigBot) bool {
-	timeout := time.Duration(1 * time.Second)
-	var google, ping bool
-
-	_, err1 := net.DialTimeout("tcp", "8.8.8.8", timeout)
-	if err1 == nil {
-		google = true
-	}
-	if google {
-		_, err := net.DialTimeout("tcp", cfg.ServerAdrr, timeout)
-		if err == nil {
-			ping = true
-		}
-	}
-	return ping
-}
-func ConnectRDP() {
-	cmd := exec.Command("cmd.exe", "/C", "start", "D:\\config\\1.bat")
-	cmd.Start()
-	log.Printf("Пробуем перезапуск .")
 }

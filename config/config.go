@@ -15,7 +15,7 @@ type ConfigBot struct {
 	Dbusername string `yaml:"dbusername" env:"DBUSERNAME" env-default:"root"`
 	DbPassword string `yaml:"dbpassword" env:"DBPASSWORD"env-default:"root"`
 	DBmode     string `yaml:"DBmode"  env:"DBMODE" env-default:"postgres"`
-	BotMode    string `yaml:"botMode" env:"BOTMOD" env-default:"server"` //reserve
+	BotMode    string `yaml:"botMode" env:"BOTMOD" env-default:"server"` //reserve || server
 	ServerAdrr string `yaml:"serverAdrr" env:"SERVERADRR" env-default:"braut.com.ua:7733"`
 	Debug      bool   `yaml:"debug" env:"DEBUG" env-default:"false"`
 }

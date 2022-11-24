@@ -16,7 +16,7 @@ func (b *Bot) lRsPlus() bool {
 		kzb = arr[0][2]
 		timekzz, err := strconv.Atoi(arr[0][3])
 		if err != nil {
-			b.log.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преобразования Atoi", err)
 		}
 		if timekzz > 180 {
 			timekzz = 180
@@ -188,11 +188,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			b.log.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преобразования Аtoi", err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][2])
 		if err != nil {
-			b.log.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преобразования Аtoi", err)
 		}
 		b.EventPoints(numkz, points)
 	}
@@ -202,11 +202,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][4])
 		if err != nil {
-			b.log.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преобразования Аtoi", err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			b.log.Println("Ошибка преоразования atoi", err)
+			b.log.Println("Ошибка преобразования Аtoi", err)
 		}
 		b.EventPoints(numkz, points)
 	}

@@ -7,7 +7,8 @@ import (
 )
 
 type Update interface {
-	MesidTgUpdate(mesidtg int, lvlkz string, corpname string)                                                                   //изменение ид сообщения в бд
+	MesidTgUpdate(mesidtg int, lvlkz string, corpname string) //изменение ид сообщения в бд
+	MesidWaUpdate(mesidds, lvlkz, corpname string)
 	MesidDsUpdate(mesidds, lvlkz, corpname string)                                                                              //изменение ид сообщения в бд
 	UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) //закрытие очереди кз
 }
@@ -34,6 +35,18 @@ func (d *Db) MesidDsUpdate(mesidds, lvlkz, corpname string) {
 	_, err := d.Db.Exec(ctx, upd, mesidds, lvlkz, corpname)
 	if err != nil {
 		d.log.Println("Ошибка измениния месайди дискорда ", err)
+	}
+}
+func (d *Db) MesidWaUpdate(mesidwa, lvlkz, corpname string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if d.debug {
+		fmt.Println("MesidWAUpdate", "mesidwa", mesidwa, "lvlkz", lvlkz, "corpname", corpname)
+	}
+	upd := `update kzbot.sborkz set wamesid = $1 where lvlkz = $2 AND corpname = $3 `
+	_, err := d.Db.Exec(ctx, upd, mesidwa, lvlkz, corpname)
+	if err != nil {
+		d.log.Println("Ошибка измениния месайди watsa ", err)
 	}
 }
 func (d *Db) UpdateCompliteRS(lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) {

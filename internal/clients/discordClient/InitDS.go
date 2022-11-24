@@ -57,7 +57,7 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 func (d *Discord) MessageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := d.d.ChannelMessage(r.ChannelID, r.MessageID)
 	if err != nil {
-		d.log.Println(fmt.Sprintf("Ошибка чтения реакции в ДС %+v", r), err)
+		//d.log.Println(fmt.Sprintf("Ошибка чтения реакции в ДС %+v", r), err)
 		channel, err1 := d.d.Channel(r.ChannelID)
 		if err1 != nil {
 			return

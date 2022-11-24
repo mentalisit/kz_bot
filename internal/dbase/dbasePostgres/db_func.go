@@ -44,7 +44,11 @@ func (d *Db) Shutdown() {
 	d.Db.Close()
 }
 
-func (d *Db) NumberQueueLvl(lvlkz, CorpName string) (int, error) {
+func (d *Db) NumberQueueLvl(lvlkzs, CorpName string) (int, error) {
+	lvlkz, errc := strconv.Atoi(lvlkzs)
+	if errc != nil {
+		d.log.Println("ошибка преобразования в инт")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if d.debug {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"kz_bot/internal/models"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -36,6 +37,7 @@ func (d *Db) SubscPing(nameMention, lvlkz, CorpName string, tipPing int, TgChann
 		}
 		rows.Close()
 	}
+	men = strings.TrimSuffix(men, ", ")
 	return men
 }
 func (d *Db) CheckSubscribe(name, lvlkz string, TgChannel int64, tipPing int) int {

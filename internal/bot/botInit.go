@@ -26,26 +26,7 @@ func NewBot(cl clients.Client, db dbase.Db, log *logrus.Logger, debug bool) *Bot
 }
 func (b *Bot) InitBot() {
 	b.log.Println("Бот загружен и готов к работе ")
-	go func() { //цикл для удаления сообщений
-		for {
-			if time.Now().Second() == 0 {
-				tt := b.Db.TimerDeleteMessage() //получаем ид сообщения для удаления
-				for _, t := range tt {
-					if t.Dsmesid != "" {
-						b.Ds.DeleteMesageSecond(t.Dschatid, t.Dsmesid, t.Timed)
-					}
-					if t.Tgmesid != 0 {
-						b.Tg.DelMessageSecond(t.Tgchatid, t.Tgmesid, t.Timed)
-					}
-				}
-				b.MinusMin()    //ежеминутное обновление активной очереди
-				b.Ds.Autohelp() //автозапуск справки для дискорда
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-
-	}()
+	go b.RemoveMessage()
 
 	for {
 		//ПОЛУЧЕНИЕ СООБЩЕНИЙ ПО ГЛОБАЛЬНЫМ КАНАЛАМ ... НУЖНО ПЕРЕДЕЛАТЬ
@@ -63,6 +44,26 @@ func (b *Bot) InitBot() {
 		}
 	}
 	b.log.Panic("Ошибка в боте")
+
+}
+func (b *Bot) RemoveMessage() { //цикл для удаления сообщений
+	for {
+		if time.Now().Second() == 0 {
+			tt := b.Db.TimerDeleteMessage() //получаем ид сообщения для удаления
+			for _, t := range tt {
+				if t.Dsmesid != "" {
+					b.Ds.DeleteMesageSecond(t.Dschatid, t.Dsmesid, t.Timed)
+				}
+				if t.Tgmesid != 0 {
+					b.Tg.DelMessageSecond(t.Tgchatid, t.Tgmesid, t.Timed)
+				}
+			}
+			b.MinusMin()    //ежеминутное обновление активной очереди
+			b.Ds.Autohelp() //автозапуск справки для дискорда
+		}
+
+		time.Sleep(1 * time.Second)
+	}
 
 }
 
@@ -122,6 +123,7 @@ func (b *Bot) logicIfText() bool {
 	}
 	return iftext
 }
+
 func (b *Bot) bridge() {
 	if b.in.Tip == ds {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)

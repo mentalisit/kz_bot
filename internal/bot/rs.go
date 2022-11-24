@@ -68,6 +68,18 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
+				b.wg.Add(1)
+				go func() {
+					text := fmt.Sprintf("Очередь кз%s (%d)\n1. %s - %sмин. (%d) \n\n%s++ - принудительный старт",
+						b.in.Lvlkz, numkzL, b.emReadName(b.in.Name, wa), b.in.Timekz, numkzN, b.in.Lvlkz)
+					wamesid, err = b.Wa.Send(b.in.Config.WaChannel, text)
+					if err != nil {
+						b.log.Println("Ошибка отправки ватс rs+1 ")
+						return
+					}
+					//b.SubscribePing(1) ne telega
+					b.wg.Done()
+				}()
 			}
 
 		}
@@ -108,6 +120,22 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
+				b.wg.Add(1)
+				go func() {
+					text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
+					name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, wa), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("2. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, wa), b.in.Timekz, numkzN)
+					text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+					text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
+					wamesid, err = b.Wa.Send(b.in.Config.WaChannel, text)
+					if err != nil {
+						b.log.Println("Ошибка отправки ватс rs+2")
+						return
+					}
+					go b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+					b.Db.Update.MesidWaUpdate(wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Done()
+				}()
 			}
 
 		} else if countQueue == 2 {
@@ -147,6 +175,24 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
+				b.wg.Add(1)
+				go func() {
+					text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numkzL)
+					name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, wa), u.User1.Timedown, u.User1.Numkzn)
+					name2 := fmt.Sprintf("2. %s - %dмин. (%d) \n", b.emReadName(u.User2.Name, wa), u.User2.Timedown, u.User2.Numkzn)
+					name3 := fmt.Sprintf("3. %s - %sмин. (%d) \n", b.emReadName(b.in.Name, wa), b.in.Timekz, numkzN)
+					text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+					text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
+					wamesid, err = b.Wa.Send(b.in.Config.WaChannel, text)
+					if err != nil {
+						b.log.Println("Ошибка отправки ватс rs+3")
+						return
+					}
+					go b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+					b.Db.Update.MesidWaUpdate(wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+					//b.SubscribePing(3)
+					b.wg.Done()
+				}()
 			}
 
 		}
@@ -169,26 +215,6 @@ func (b *Bot) RsPlus() {
 				b.wg.Add(1)
 				go func() {
 					n1, n2, n3, n4 := b.nameMention(u, "ds")
-					//if u.User1.Tip == "ds" {
-					//	name1 = u.User1.Mention
-					//} else {
-					//	name1 = u.User1.Name
-					//}
-					//if u.User2.Tip == "ds" {
-					//	name2 = u.User2.Mention
-					//} else {
-					//	name2 = u.User2.Name
-					//}
-					//if u.User3.Tip == "ds" {
-					//	name3 = u.User3.Mention
-					//} else {
-					//	name3 = u.User3.Name
-					//}
-					//if b.in.Tip == "ds" {
-					//	name4 = b.in.NameMention
-					//} else {
-					//	name4 = b.in.Name
-					//}
 					go b.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, " 4/4 "+b.in.Name+" присоединился к очереди", 10)
 					text := fmt.Sprintf("4/4 Очередь КЗ%s сформирована\n %s\n %s\n %s\n %s \nВ ИГРУ %s",
@@ -206,27 +232,7 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.TgChannel != 0 {
 				b.wg.Add(1)
 				go func() {
-					n1, n2, n3, n4 := b.nameMention(u, "tg")
-					//if u.User1.Tip == "tg" {
-					//	name1 = u.User1.Mention
-					//} else {
-					//	name1 = u.User1.Name
-					//}
-					//if u.User2.Tip == "tg" {
-					//	name2 = u.User2.Mention
-					//} else {
-					//	name2 = u.User2.Name
-					//}
-					//if u.User3.Tip == "tg" {
-					//	name3 = u.User3.Mention
-					//} else {
-					//	name3 = u.User3.Name
-					//}
-					//if b.in.Tip == "tg" {
-					//	name4 = b.in.NameMention
-					//} else {
-					//	name4 = b.in.Name
-					//}
+					n1, n2, n3, n4 := b.nameMention(u, tg)
 					go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 					go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.Name+" закрыл очередь кз"+b.in.Lvlkz, 10)
 					text := fmt.Sprintf("Очередь КЗ%s сформирована\n%s\n%s\n%s\n%s\n В ИГРУ \n%s",
@@ -238,6 +244,16 @@ func (b *Bot) RsPlus() {
 			}
 			if b.in.Config.WaChannel != "" {
 				//Тут будет логика ватса
+				b.wg.Add(1)
+				go func() {
+					n1, n2, n3, n4 := b.nameMention(u, wa)
+					go b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+					text := fmt.Sprintf("Очередь КЗ%s сформирована\n%s\n%s\n%s\n%s\n В ИГРУ \n%s",
+						b.in.Lvlkz, n1, n2, n3, n4, textEvent)
+					wamesid, err = b.Wa.Send(b.in.Config.WaChannel, text)
+					b.Db.Update.MesidWaUpdate(wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+					b.wg.Done()
+				}()
 			}
 
 			b.wg.Wait()
@@ -295,6 +311,9 @@ func (b *Bot) RsMinus() {
 		}
 		if b.in.Config.WaChannel != "" {
 			//тут логика ватса
+			if countQueue == 0 {
+				go b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+			}
 		}
 		if countQueue > 0 {
 			b.QueueLevel()
@@ -367,7 +386,20 @@ func (b *Bot) QueueLevel() {
 			}()
 		}
 		if b.in.Config.WaChannel != "" {
-
+			b.wg.Add(1)
+			go func() {
+				text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
+				name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, wa), u.User1.Timedown, u.User1.Numkzn)
+				text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
+				text := fmt.Sprintf("%s %s %s", text1, name1, text2)
+				wamesid, errs := b.Wa.Send(b.in.Config.WaChannel, text)
+				if errs != nil {
+					b.log.Println("error sending rsQueue1")
+				}
+				b.Db.Update.MesidWaUpdate(wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+				b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+				b.wg.Done()
+			}()
 		}
 
 	} else if count == 2 {
@@ -551,7 +583,7 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, _, _, _ := b.nameMention(u, tg)
-						//if u.User1.Tip == "tg" {
+						//if u.User1.Tip == tg {
 						//	name1 = u.User1.Mention
 						//} else {
 						//	name1 = u.User1.Name
@@ -598,16 +630,6 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, name2, _, _ := b.nameMention(u, tg)
-						//if u.User1.Tip == "tg" {
-						//	name1 = u.User1.Mention
-						//} else {
-						//	name1 = u.User1.Name
-						//}
-						//if u.User2.Tip == "tg" {
-						//	name2 = u.User2.Mention
-						//} else {
-						//	name2 = u.User2.Name
-						//}
 						go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 						text1 := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n", b.in.Lvlkz, numberkz)
 						text2 := fmt.Sprintf("\n%s %s\nВ игру %s", name1, name2, textEvent)
@@ -654,21 +676,6 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, name2, name3, _ := b.nameMention(u, tg)
-						//if u.User1.Tip == "tg" {
-						//	name1 = u.User1.Mention
-						//} else {
-						//	name1 = u.User1.Name
-						//}
-						//if u.User2.Tip == "tg" {
-						//	name2 = u.User2.Mention
-						//} else {
-						//	name2 = u.User2.Name
-						//}
-						//if u.User3.Tip == "tg" {
-						//	name3 = u.User3.Mention
-						//} else {
-						//	name3 = u.User3.Name
-						//}
 						go b.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 						text := fmt.Sprintf("Очередь кз%s (%d) была \nзапущена не полной \n\n%s %s %s\nВ игру %s",
 							b.in.Lvlkz, numberkz, name1, name2, name3, textEvent)
@@ -730,6 +737,7 @@ func (b *Bot) Plus() bool {
 		} else if t.Timedown <= 3 {
 			message = t.Mention + " время обновлено "
 			b.in.Lvlkz = t.Lvlkz
+
 			b.QueueLevel()
 		}
 		b.ifTipSendTextDelSecond(message, 10)
@@ -740,7 +748,6 @@ func (b *Bot) Minus() bool {
 	if b.debug {
 		fmt.Println("in Minus", b.in)
 	}
-	message := ""
 	bb := false
 	countNames := b.Db.Count.CountNameQueueCorp(b.in.Name, b.in.Config.CorpName)
 	if countNames > 0 && b.in.Option.Reaction {
@@ -750,13 +757,14 @@ func (b *Bot) Minus() bool {
 		bb = true
 		t := b.Db.UpdateMitutsQueue(b.in.Name, b.in.Config.CorpName)
 		if t.Name == b.in.Name && t.Timedown > 3 {
-			message = fmt.Sprintf("%s рановато минус жмешь, ты в очереди на кз%s будешь еще %dмин",
+			message := fmt.Sprintf("%s рановато минус жмешь, ты в очереди на кз%s будешь еще %dмин",
 				t.Mention, t.Lvlkz, t.Timedown)
+			b.ifTipSendTextDelSecond(message, 10)
 		} else if t.Name == b.in.Name && t.Timedown <= 3 {
 			b.in.Lvlkz = t.Lvlkz
 			b.RsMinus()
 		}
-		b.ifTipSendTextDelSecond(message, 10)
+
 	}
 	return bb
 }
@@ -777,7 +785,7 @@ func (b *Bot) Subscribe(tipPing int) {
 		text := b.Ds.Subscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
 		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 
-	} else if b.in.Tip == "tg" {
+	} else if b.in.Tip == tg {
 		//go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		counts := b.Db.Subscribe.CheckSubscribe(b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
@@ -809,7 +817,7 @@ func (b *Bot) Unsubscribe(tipPing int) {
 		}
 		text := b.Ds.Unsubscribe(b.in.Ds.Nameid, argRoles, b.in.Config.Config.Guildid)
 		b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-	} else if b.in.Tip == "tg" {
+	} else if b.in.Tip == tg {
 		//go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		var text string
@@ -882,7 +890,7 @@ func (b *Bot) EventStart() {
 			} else {
 				b.Ds.Send(b.in.Config.DsChannel, text)
 			}
-		} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
+		} else if b.in.Tip == tg && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
 			b.Db.Event.EventStartInsert(b.in.Config.CorpName)
 			if b.in.Config.DsChannel != "" {
 				b.Ds.Send(b.in.Config.DsChannel, text)
@@ -913,7 +921,7 @@ func (b *Bot) EventStop() {
 		} else {
 			go b.Ds.SendChannelDelSecond(b.in.Config.DsChannel, eventNull, 10)
 		}
-	} else if b.in.Tip == "tg" && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
+	} else if b.in.Tip == tg && (b.in.Name == "Mentalisit" || b.Tg.CheckAdminTg(b.in.Config.TgChannel, b.in.Name)) {
 		if event1 > 0 {
 			b.Db.Event.UpdateActiveEvent0(b.in.Config.CorpName, event1)
 			go b.Tg.SendChannelDelSecond(b.in.Config.TgChannel, eventStop, 60)
@@ -1086,7 +1094,7 @@ func (b *Bot) UpdateMessage() {
 
 		_, config := c.CheckCorpNameConfig(corp)
 
-		dss, tgs, was := b.Db.MessageUpdateMin(corp)
+		dss, tgs, _ := b.Db.MessageUpdateMin(corp)
 
 		if config.DsChannel != "" {
 			for _, d := range dss {
@@ -1106,7 +1114,7 @@ func (b *Bot) UpdateMessage() {
 		}
 		if config.WaChannel != "" {
 			//тут будет логика ватса
-			fmt.Println(was)
+			//fmt.Println(was)
 		}
 	}
 }

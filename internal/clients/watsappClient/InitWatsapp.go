@@ -595,15 +595,58 @@ func (w *Watsapp) handler(rawEvt interface{}) {
 			for _, q := range evt.Message.GetExtendedTextMessage().ContextInfo.MentionedJid {
 				text = fmt.Sprintf(" %s ", q)
 			}
-
 		}
+
+		var msg = &waProto.Message{
+			ExtendedTextMessage: &waProto.ExtendedTextMessage{
+				Text: proto.String("Metioning"),
+				ContextInfo: &waProto.ContextInfo{
+					MentionedJid: []string{
+						evt.Info.Sender.ToNonAD().String(),
+					},
+				},
+			},
+		}
+		w.cli.SendMessage(context.Background(), evt.Info.Chat.ToNonAD(), "", msg)
+
+		//fmt.Println(msg)
+		//
+		//w.cli.SendMessage(context.Background(), evt.Info.Chat.ToNonAD(), "", msg)
+		//
+		//msg = &waProto.Message{
+		//	ExtendedTextMessage: &waProto.ExtendedTextMessage{
+		//		Text: proto.String("Quote"),
+		//		ContextInfo: &waProto.ContextInfo{
+		//			StanzaId:      proto.String(evt.Info.ID),
+		//			Participant:   proto.String(evt.Info.Sender.ToNonAD().String()),
+		//			QuotedMessage: evt.Message,
+		//		},
+		//	},
+		//}
+		//fmt.Println(msg)
+		//
+		//w.cli.SendMessage(context.Background(), evt.Info.Chat.ToNonAD(), "", msg)
+		//
+		//msg = &waProto.Message{
+		//	ExtendedTextMessage: &waProto.ExtendedTextMessage{
+		//		Text: proto.String("Disappearing"),
+		//		ContextInfo: &waProto.ContextInfo{
+		//			Expiration: proto.Uint32(1),
+		//		},
+		//	},
+		//}
+		//
+		//fmt.Println(msg)
+		//
+		//w.cli.SendMessage(context.Background(), evt.Info.Chat.ToNonAD(), "", msg)
+		//SendReactMessage(evt, ReactFaceZany, w.cli)
 
 		//fmt.Println("отправитель:", name)
 		//fmt.Println("номер отправителя:", nameid)
 		//fmt.Println("chatid", chatid)
 		//fmt.Println("text", text)
 
-		msg := evt.Message
+		//msg := evt.Message
 		switch {
 		case msg == nil, evt.Info.IsFromMe, evt.Info.Timestamp.Before(w.startupTime):
 			return

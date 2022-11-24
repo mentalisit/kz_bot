@@ -23,7 +23,7 @@ func NewClient(cfg config.ConfigBot, db dbase.Db, log *logrus.Logger) *Client {
 	ds.InitDS(cfg.TokenD, db, log, cfg.Debug)
 
 	wa := watsappClient.Watsapp{}
-	wa.InitWA(db)
+	//wa.InitWA(db)
 
 	return &Client{Tg: &telegram, Ds: &ds, Wa: &wa}
 }

@@ -57,6 +57,9 @@ func (t *Telegram) SendChannel(chatid int64, text string) int {
 	tMessage, _ := t.t.Send(tgbotapi.NewMessage(chatid, text))
 	return tMessage.MessageID
 }
+func (t *Telegram) name() {
+
+}
 func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 	tMessage, err := t.t.Send(tgbotapi.NewMessage(chatid, text))
 	if err != nil {
