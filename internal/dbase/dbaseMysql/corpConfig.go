@@ -5,11 +5,14 @@ import (
 )
 
 type CorpConfig interface {
-	ReadBotCorpConfig()                               //Чтение из бд конфигураций корпораций при запуске бота
-	DeleteTgChannel(chatid int64)                     //отключение бота от чата в телеграм
-	DeleteDsChannel(chatid string)                    //отключение бота от чата в дискорд
+	ReadBotCorpConfig()            //Чтение из бд конфигураций корпораций при запуске бота
+	DeleteTgChannel(chatid int64)  //отключение бота от чата в телеграм
+	DeleteDsChannel(chatid string) //отключение бота от чата в дискорд
+	DeleteWaChannel(chatid string)
 	AddTgCorpConfig(chatName string, chatid int64)    //добавление чата телеграм в конфиг корпораций
 	AddDsCorpConfig(chatName, chatid, guildid string) //добавление чата дискорд в конфиг корпораций
+	AddWaCorpConfig(chatName, chatid string)
+	AutoHelpUpdateMesid(newMesidHelp, dschannel string)
 }
 
 func (d *Db) ReadBotCorpConfig() {
@@ -39,6 +42,12 @@ func (d *Db) DeleteDsChannel(chatid string) {
 		d.log.Println("Ошибка удаления с бд корп дискорд", err)
 	}
 }
+func (d *Db) DeleteWaChannel(chatid string) {
+	_, err := d.Db.Exec("delete from config where wachannel = ? ", chatid)
+	if err != nil {
+		d.log.Println("Ошибка удаления с бд корп wats", err)
+	}
+}
 func (d *Db) AddTgCorpConfig(chatName string, chatid int64) {
 	d.log.Println(chatName, "Добавлена в конфиг корпораций ")
 	insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid) 
@@ -66,4 +75,23 @@ func (d *Db) AddDsCorpConfig(chatName, chatid, guildid string) {
 	}
 	//c := corpsConfig.CorpConfig{}
 	d.CorpConfig.AddCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
+}
+func (d *Db) AddWaCorpConfig(chatName, chatid string) {
+	insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid) VALUES (?,?,?,?,?,?,?,?)`
+	statement, err := d.Db.Prepare(insertConfig)
+	if err != nil {
+		d.log.Println("Ошибка подготовки внесения в бд конфигурации ", err)
+	}
+	_, err = statement.Exec(chatName, "", 0, chatid, "", 0, 0, "")
+	if err != nil {
+		d.log.Println("Ошибка внесения конфигурации ", err)
+	}
+	//c := corpsConfig.CorpConfig{}
+	d.CorpConfig.AddCorp(chatName, "", 0, chatid, 1, "", 0, "")
+}
+func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
+	_, err := d.Db.Exec(`update config set mesiddshelp = ? where dschannel = ? `, newMesidHelp, dschannel)
+	if err != nil {
+		d.log.Println("ОШибка обновления месИд для автосправки ", err)
+	}
 }

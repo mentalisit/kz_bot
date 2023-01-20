@@ -1,8 +1,10 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"kz_bot/pkg/utils"
 	"log"
 	"net"
 	"os/exec"
@@ -19,9 +21,9 @@ func Reserv(log *logrus.Logger) {
 				go func() {
 					for {
 						if checkPing() {
-							log.Println("Сервер доступен, пвникую ")
+							log.Println("Сервер доступен, паникую ")
 							connectRDP()
-							time.Sleep(1 * time.Minute)
+							//time.Sleep(1 * time.Minute)
 							panic("dostupen")
 						}
 					}
@@ -31,7 +33,7 @@ func Reserv(log *logrus.Logger) {
 		}
 	}
 }
-func checkPing() bool {
+func checkPingOld() bool {
 	if ping("google.com:80") && ping(cfg.ServerAdrr) {
 		return true
 	} else {
@@ -46,6 +48,30 @@ func checkPing() bool {
 		}
 	}
 	return false
+}
+
+func checkPing() bool {
+	err := utils.DoWithTries(func() error {
+		if ping("google.com:80") && ping(cfg.ServerAdrr) {
+			return nil
+		} else {
+			time.Sleep(2 * time.Second)
+			if ping("google.com:80") && ping(cfg.ServerAdrr) {
+				return nil
+			} else if ping("google.com:80") && !ping(cfg.ServerAdrr) {
+				return errors.New("no ping Server Kharkov")
+			} else if !ping("google.com:80") && !ping(cfg.ServerAdrr) {
+				time.Sleep(5 * time.Second)
+				return nil
+			}
+		}
+		return nil
+	}, 5, 5*time.Second)
+	if err != nil {
+		log.Println("Error Ping DoWithTries ", err)
+		return false
+	}
+	return true
 }
 func ping(address string) bool {
 	timeout := time.Duration(3 * time.Second)

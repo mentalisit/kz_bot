@@ -7,10 +7,13 @@ import (
 	"kz_bot/config"
 	"kz_bot/internal/dbase/dbaseMysql"
 	"kz_bot/internal/dbase/dbasePostgres"
+	"kz_bot/internal/dbase/supabasesql"
+	"kz_bot/internal/models"
+	"log"
 )
 
 type Db struct {
-	CorpConfig dbasePostgres.CorpConfig
+	CorpConfig *supabasesql.SupaDB
 	Emoji      dbasePostgres.Emoji
 	Event      dbasePostgres.Event
 	Top        dbasePostgres.Top
@@ -21,19 +24,18 @@ type Db struct {
 }
 
 func NewDb(cfg config.ConfigBot, log *logrus.Logger) (Db, error) {
-	//db := dbaseMysql.Db{}
-	//err := db.InitDB(log, cfg)
-	//if err != nil {return Db{}, err}
+	dbs := supabasesql.SupaDB{}
+	dbs.NewClient(context.Background(), log, 5, cfg)
+
 	dbp := dbasePostgres.Db{}
-	errp := dbp.InitPostrges(log, cfg)
-	if errp != nil {
-		return Db{}, errp
-	}
+	dbp.InitPostrges(log, cfg)
 
 	//migrate(db, dbp)
+	//migrateConfig(db, dbp)
+	//migrateConfigSupa(dbs, dbp)
 
 	return Db{
-		CorpConfig:  &dbp,
+		CorpConfig:  &dbs,
 		Emoji:       &dbp,
 		Event:       &dbp,
 		Top:         &dbp,
@@ -42,6 +44,42 @@ func NewDb(cfg config.ConfigBot, log *logrus.Logger) (Db, error) {
 		Update:      &dbp,
 		DbInterface: &dbp,
 	}, nil
+}
+func migrateConfigSupa(dbs supabasesql.SupaDB, dbp dbasePostgres.Db) {
+	results, err := dbp.Db.Query(context.Background(), `SELECT * FROM kzbot.config`)
+	if err != nil {
+		log.Println("Ошибка чтения крнфигурации корпораций", err)
+	}
+	var t models.TableConfig
+	for results.Next() {
+		err = results.Scan(&t.Id, &t.Corpname, &t.Dschannel, &t.Tgchannel, &t.Wachannel, &t.Mesiddshelp, &t.Mesidtghelp, &t.Delmescomplite, &t.Guildid)
+		insertConfig := `INSERT INTO kzbot.config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid)VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`
+		_, err := dbs.Db.Exec(context.Background(), insertConfig, t.Corpname, t.Dschannel, t.Tgchannel, t.Wachannel, t.Mesiddshelp, t.Mesidtghelp, t.Delmescomplite, t.Guildid)
+		if err != nil {
+			log.Println("Ошибка внесения конфигурации ", err)
+		}
+	}
+}
+
+func migrateConfig(dbm dbaseMysql.Db, dbp dbasePostgres.Db) {
+	results, err := dbp.Db.Query(context.Background(), `SELECT * FROM kzbot.config`)
+	if err != nil {
+		log.Println("Ошибка чтения крнфигурации корпораций", err)
+	}
+	var t models.TableConfig
+	for results.Next() {
+		err = results.Scan(&t.Id, &t.Corpname, &t.Dschannel, &t.Tgchannel, &t.Wachannel, &t.Mesiddshelp, &t.Mesidtghelp, &t.Delmescomplite, &t.Guildid)
+		insertConfig := `INSERT INTO config (corpname,dschannel,tgchannel,wachannel,mesiddshelp,mesidtghelp,delmescomplite,guildid) 
+						VALUES (?,?,?,?,?,?,?,?)`
+		statement, err := dbm.Db.Prepare(insertConfig)
+		if err != nil {
+			log.Println("Ошибка подготовки внесения в бд конфигурации ", err)
+		}
+		_, err = statement.Exec(t.Corpname, t.Dschannel, t.Tgchannel, t.Wachannel, t.Mesiddshelp, t.Mesidtghelp, t.Delmescomplite, t.Guildid)
+		if err != nil {
+			log.Println("Ошибка внесения конфигурации ", err)
+		}
+	}
 }
 func migrate(dbm dbaseMysql.Db, dbp dbasePostgres.Db) {
 	results, err := dbm.Db.Query("SELECT name,lvlkz,corpname,tip FROM sborkz WHERE active=1 GROUP BY name,lvlkz")

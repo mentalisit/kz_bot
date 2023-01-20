@@ -28,7 +28,6 @@ type DbInterface interface {
 	UpdateTimedown(lvlkz, CorpName, name string) //при нажатии плюса при остатке меньше 3х минут
 	Queue(corpname string) []string
 
-	AutoHelp() []models.BotConfig
 	MinusMin() []models.Sborkz
 	OneMinutsTimer() []string
 
@@ -47,7 +46,7 @@ func (d *Db) Shutdown() {
 func (d *Db) NumberQueueLvl(lvlkzs, CorpName string) (int, error) {
 	lvlkz, errc := strconv.Atoi(lvlkzs)
 	if errc != nil {
-		d.log.Println("ошибка преобразования в инт")
+		d.log.Println("ошибка преобразования в инт lkz lks", lvlkz, lvlkzs)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -342,22 +341,6 @@ func (d *Db) Queue(corpname string) []string {
 	return lvl
 }
 
-func (d *Db) AutoHelp() []models.BotConfig {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	sel := "SELECT dschannel,mesiddshelp FROM kzbot.config"
-	results, err := d.Db.Query(ctx, sel)
-	if err != nil {
-		d.log.Println("Ошибка получения автосправки с бд", err)
-	}
-	h := models.BotConfig{}
-	var a []models.BotConfig
-	for results.Next() {
-		err = results.Scan(&h.DsChannel, &h.Config.MesidDsHelp)
-		a = append(a, h)
-	}
-	return a
-}
 func (d *Db) MinusMin() []models.Sborkz {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

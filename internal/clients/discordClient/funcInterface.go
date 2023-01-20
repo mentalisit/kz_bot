@@ -42,7 +42,7 @@ type Ds interface {
 	SendEmbedTime(chatid, text string) string
 	Help(Channel string)
 	CleanChat(chatid, mesid, text string)
-	Autohelp()
+	Autohelpds()
 	DMchannel(AuthorID string) (chatidDM string)
 	SendWebhook(text, username, chatid, guildId, Avatar string) string
 }

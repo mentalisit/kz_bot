@@ -39,7 +39,7 @@ func (d *Db) InitDB(log *logrus.Logger, conf cfg.ConfigBot) error {
 		return err
 	}
 
-	no, err := res.RowsAffected()
+	_, err = res.RowsAffected()
 	if err != nil {
 		log.Printf("Error %s when fetching rows", err)
 		return err
@@ -51,11 +51,11 @@ func (d *Db) InitDB(log *logrus.Logger, conf cfg.ConfigBot) error {
 		log.Printf("Error %s when opening DB", err)
 		return err
 	}
-	if no == 1 {
-		d.log.Println("Создание таблиц в БД")
-		c := CreateTable{db: db}
-		c.AllTable()
-	}
+	//if no == 1 {
+	//	d.log.Println("Создание таблиц в БД")
+	//	c := CreateTable{db: db}
+	//	c.AllTable()
+	//}
 
 	//db.SetMaxOpenConns(20)
 	//db.SetMaxIdleConns(20)

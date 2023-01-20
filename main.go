@@ -7,7 +7,7 @@ import (
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/dbase"
-	"kz_bot/internal/logger"
+	"kz_bot/pkg/logger"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,6 +21,7 @@ func main() {
 		fmt.Println("Ошибка запуска бота", err)
 		time.Sleep(1 * time.Second)
 		panic(err.Error())
+
 	}
 }
 
@@ -45,7 +46,8 @@ func Run() (err error) {
 	return err
 }
 func runLogicBot(cfg config.ConfigBot, log *logrus.Logger) error {
-	log.Println("🚀  загрузка  🚀")
+	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
+
 	//подключаюсь к базе ланных
 	db, errd := dbase.NewDb(cfg, log)
 	if errd != nil {
@@ -54,6 +56,7 @@ func runLogicBot(cfg config.ConfigBot, log *logrus.Logger) error {
 
 	//читаю конфиг корпораций
 	db.CorpConfig.ReadBotCorpConfig()
+
 	//запускаю месенджеры
 	cl := clients.NewClient(cfg, db, log)
 

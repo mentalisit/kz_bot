@@ -353,12 +353,7 @@ func (d *Db) AutoHelp() []models.BotConfig {
 	}
 	return a
 }
-func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
-	_, err := d.Db.Exec(`update config set mesiddshelp = ? where dschannel = ? `, newMesidHelp, dschannel)
-	if err != nil {
-		d.log.Println("ОШибка обновления месИд для автосправки ", err)
-	}
-}
+
 func (d *Db) MinusMin() []models.Sborkz {
 	_, err := d.Db.Exec(`update sborkz set timedown = timedown - 1 where active = 0`)
 	if err != nil {

@@ -3,7 +3,7 @@ package bot
 import "C"
 import (
 	"fmt"
-	"kz_bot/internal/telegraf"
+	"kz_bot/pkg/telegraf"
 	"regexp"
 	"time"
 
@@ -137,6 +137,8 @@ func (b *Bot) removeDuplicateElementString(mesididid []string) []string {
 	}
 	return result
 }
+
+// получаю текущее время
 func (b *Bot) currentTime() (string, string) {
 	tm := time.Now()
 	mdate := (tm.Format("2006-01-02"))

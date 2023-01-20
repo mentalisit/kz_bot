@@ -25,11 +25,11 @@ func (d *Discord) Help(Channel string) {
 	d.DeleteMesageSecond(Channel, m.ID, 180)
 }
 
-func (d *Discord) Autohelp() {
+func (d *Discord) Autohelpds() {
 	tm := time.Now()
 	mtime := tm.Format("15:04")
 	if mtime == "12:00" {
-		a := d.dbase.AutoHelp()
+		a := d.dbase.CorpConfig.AutoHelp()
 		for _, s := range a {
 			if s.DsChannel != "" {
 				if s.Config.MesidDsHelp != "" {
@@ -48,7 +48,6 @@ func (d *Discord) Autohelp() {
 func (d *Discord) HelpChannelUpdate(dschannel string) {
 	newMesidHelp := d.hhelp1(dschannel)
 	d.dbase.CorpConfig.AutoHelpUpdateMesid(newMesidHelp, dschannel)
-
 }
 func (d *Discord) hhelp1(chatid string) string {
 	mes := d.SendEmbedText(chatid, "Справка", fmt.Sprintf(" \n"+

@@ -10,14 +10,15 @@ type ConfigBot struct {
 	LogToken  string `yaml:"logToken" env:"LOGTOKEN"`
 	LogChatId int64  `yaml:"logChatId" env:"LOGCHATID"`
 
-	DBHostname string `yaml:"dbhostname" env:"DBHOSTNAME" env-default:"127.0.0.1:3306"`
-	Dbname     string `yaml:"dbname" env:"DBNAME" env-default:"rsbot"`
-	Dbusername string `yaml:"dbusername" env:"DBUSERNAME" env-default:"root"`
-	DbPassword string `yaml:"dbpassword" env:"DBPASSWORD"env-default:"root"`
-	DBmode     string `yaml:"DBmode"  env:"DBMODE" env-default:"postgres"`
-	BotMode    string `yaml:"botMode" env:"BOTMOD" env-default:"server"` //reserve || server
-	ServerAdrr string `yaml:"serverAdrr" env:"SERVERADRR" env-default:"braut.com.ua:7733"`
-	Debug      bool   `yaml:"debug" env:"DEBUG" env-default:"false"`
+	DBHostname   string `yaml:"dbhostname" env:"DBHOSTNAME" env-default:"127.0.0.1:3306"`
+	Dbname       string `yaml:"dbname" env:"DBNAME" env-default:"rsbot"`
+	Dbusername   string `yaml:"dbusername" env:"DBUSERNAME" env-default:"root"`
+	DbPassword   string `yaml:"dbpassword" env:"DBPASSWORD"env-default:"root"`
+	DBmode       string `yaml:"DBmode"  env:"DBMODE" env-default:"postgres"`
+	BotMode      string `yaml:"botMode" env:"BOTMOD" env-default:"server"` //reserve || server
+	ServerAdrr   string `yaml:"serverAdrr" env:"SERVERADRR" env-default:"braut.com.ua:7733"`
+	Debug        bool   `yaml:"debug" env:"DEBUG" env-default:"false"`
+	SupabasePass string `yaml:"supabasePass" env:"SUPABASEPASS"`
 }
 
 var cfg ConfigBot
