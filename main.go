@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/dbase"
+	"kz_bot/internall/CorpsConfig"
 	"kz_bot/pkg/logger"
 	"os"
 	"os/signal"
@@ -68,5 +69,29 @@ func runLogicBot(cfg config.ConfigBot, log *logrus.Logger) error {
 	<-quit
 	fmt.Println("остановка")
 	db.Shutdown()
+	return nil
+}
+
+func RunNew() error {
+	//читаем конфигурацию с ENV
+	cfg, err := config.InitConfig()
+	if err != nil {
+		return err
+	}
+
+	//создаем логгер в телегу
+	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
+
+	//Если запуск на резервном сервере то блокируем выполнение
+	config.Reserv(log)
+
+	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
+
+	//инициализируем репозиторий конфига конфигурации
+	CorpsConfig.NewCorps(log, cfg)
+
+	//чтение конфигурации
+	//corp.ReadCorps()
+
 	return nil
 }

@@ -34,7 +34,7 @@ type SupaDB struct {
 	debug bool
 }
 
-func (s *SupaDB) NewClientOld(log *logrus.Logger, conf config.ConfigBot) *SupaDB {
+func (s *SupaDB) NewClientOld(log *logrus.Logger, conf config.ConfigBot) error {
 	dns := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, conf.SupabasePass, host, port, dbname)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -42,19 +42,17 @@ func (s *SupaDB) NewClientOld(log *logrus.Logger, conf config.ConfigBot) *SupaDB
 	pool, err := pgxpool.Connect(ctx, dns)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return err
 	}
+	s.Db = pool
+	s.log = log
+	s.debug = conf.Debug
 
-	return &SupaDB{
-		Db:         pool,
-		CorpConfig: corpsConfig.CorpConfig{},
-		log:        log,
-		debug:      conf.Debug,
-	}
+	return nil
 
 }
 
-func (s *SupaDB) NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf config.ConfigBot) *SupaDB {
+func (s *SupaDB) NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf config.ConfigBot) {
 	dns := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, conf.SupabasePass, host, port, dbname)
 	var pool *pgxpool.Pool
 	var err error
@@ -66,17 +64,15 @@ func (s *SupaDB) NewClient(ctx context.Context, log *logrus.Logger, maxAttempts 
 		pool, err = pgxpool.Connect(ctx, dns)
 		if err != nil {
 			log.Println("Errror Connect DoWithTries ", err)
+			return err
 		}
 		return nil
 	}, maxAttempts, 5*time.Second)
 	if eroorConnect != nil {
 		log.Println("Error Connect ", eroorConnect)
-		return nil
+		//return nil
 	}
-
-	return &SupaDB{
-		Db:    pool,
-		log:   log,
-		debug: conf.Debug,
-	}
+	s.Db = pool
+	s.debug = conf.Debug
+	s.log = log
 }

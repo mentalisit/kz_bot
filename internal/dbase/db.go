@@ -25,6 +25,7 @@ type Db struct {
 
 func NewDb(cfg config.ConfigBot, log *logrus.Logger) (Db, error) {
 	dbs := supabasesql.SupaDB{}
+	//dbs.NewClientOld(log, cfg)
 	dbs.NewClient(context.Background(), log, 5, cfg)
 
 	dbp := dbasePostgres.Db{}
