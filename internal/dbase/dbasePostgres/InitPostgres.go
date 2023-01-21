@@ -27,7 +27,7 @@ type Db struct {
 	debug bool
 }
 
-func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) *Db {
+func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) {
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, conf.DbPassword, dbname)
 
 	// urlExample := "postgres://username:password@localhost:5432/database_name"
@@ -39,16 +39,15 @@ func (d *Db) InitPostrges(log *logrus.Logger, conf cfg.ConfigBot) *Db {
 	defer conn.Close(context.Background())
 	err = conn.Ping(context.Background())
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	pool, err := pgxpool.Connect(context.Background(), psqlconn)
 	if err != nil {
-		return nil
+		log.Println(err)
 	}
 
-	return &Db{
-		Db:    pool,
-		log:   log,
-		debug: conf.Debug,
-	}
+	d.Db = pool
+	d.log = log
+	d.debug = conf.Debug
+
 }

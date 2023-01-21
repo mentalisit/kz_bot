@@ -51,7 +51,7 @@ type HandlerSentMessage func(waTypes.JID, string, *waProto.Message)
 var handlersSentMessage = []HandlerSentMessage{}
 
 func (w *Watsapp) LogicMIXwa(text, name, nameid, chatid, mesid string) {
-	//ok, config := w.CorpConfig.CheckChannelConfigWA(chatid)
+	//ok, config := w.CorpsConfig.CheckChannelConfigWA(chatid)
 	//w.AccesChatWA(text, chatid)
 	//if ok {
 	//	in := models.InMessage{

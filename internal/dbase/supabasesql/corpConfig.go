@@ -59,7 +59,7 @@ func (d *SupaDB) AddTgCorpConfig(chatName string, chatid int64) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, "", chatid, "", 1, "", 0, "")
 }
 func (d *SupaDB) AddDsCorpConfig(chatName, chatid, guildid string) {
@@ -69,7 +69,7 @@ func (d *SupaDB) AddDsCorpConfig(chatName, chatid, guildid string) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
 }
 func (d *SupaDB) AddWaCorpConfig(chatName, chatid string) {
@@ -79,7 +79,7 @@ func (d *SupaDB) AddWaCorpConfig(chatName, chatid string) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, "", 0, chatid, 1, "", 0, "")
 }
 func (d *SupaDB) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {

@@ -16,7 +16,7 @@ type CorpConfig interface {
 }
 
 func (d *Db) ReadBotCorpConfig() {
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	results, err := d.Db.Query("SELECT * FROM config")
 	if err != nil {
 		d.log.Println("Ошибка чтения крнфигурации корпораций", err)
@@ -60,7 +60,7 @@ func (d *Db) AddTgCorpConfig(chatName string, chatid int64) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, "", chatid, "", 1, "", 0, "")
 }
 func (d *Db) AddDsCorpConfig(chatName, chatid, guildid string) {
@@ -73,7 +73,7 @@ func (d *Db) AddDsCorpConfig(chatName, chatid, guildid string) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, chatid, 0, "", 1, "", 0, guildid)
 }
 func (d *Db) AddWaCorpConfig(chatName, chatid string) {
@@ -86,7 +86,7 @@ func (d *Db) AddWaCorpConfig(chatName, chatid string) {
 	if err != nil {
 		d.log.Println("Ошибка внесения конфигурации ", err)
 	}
-	//c := corpsConfig.CorpConfig{}
+	//c := corpsConfig.CorpsConfig{}
 	d.CorpConfig.AddCorp(chatName, "", 0, chatid, 1, "", 0, "")
 }
 func (d *Db) AutoHelpUpdateMesid(newMesidHelp, dschannel string) {
