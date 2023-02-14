@@ -1,5 +1,4 @@
 .env
 .idea
 *.exe
-*.db
-config/mdtest.db
+wa.db
