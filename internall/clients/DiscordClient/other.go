@@ -18,8 +18,7 @@ func (d *Discord) CheckAdmin(nameid string, chatid string) bool {
 	}
 }
 func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
-	//создаю переменную
-	rolPing := "кз" + rolePing // добавляю буквы
+
 	if guildid == "" {
 		d.log.Panic("почему то нет гуилд ид")
 		panic("почему то нет гуилд ид")
@@ -28,10 +27,10 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	if err != nil {
 		d.log.Println("ошибка получении гильдии при получении роли", err)
 	}
-	exist, role := d.roleExists(g, rolPing)
+	exist, role := d.roleExists(g, rolePing)
 	if !exist {
 		//создаем роль и возврашаем пинг
-		role = d.createRole(rolPing, guildid)
+		role = d.createRole(rolePing, guildid)
 		return role.Mention()
 	} else {
 		return role.Mention()
@@ -105,4 +104,9 @@ func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
 		}
 	}
 	return role
+}
+
+func (d *Discord) getLang(chatId, key string) string {
+	_, conf := d.storage.Cache.CheckChannelConfigDS(chatId)
+	return d.storage.Words.GetWords(conf.Country, key)
 }

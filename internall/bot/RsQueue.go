@@ -44,7 +44,7 @@ func (b *Bot) QueueLevel() {
 			b.wg.Add(1)
 			go func() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
+				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -100,7 +100,7 @@ func (b *Bot) QueueLevel() {
 			go func() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
+				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -146,7 +146,7 @@ func (b *Bot) QueueLevel() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
 				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, ds), u.User3.Timedown, u.User3.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
+				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)

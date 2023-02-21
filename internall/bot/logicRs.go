@@ -121,18 +121,25 @@ func (b *Bot) lSubs() (bb bool) {
 }
 
 func (b *Bot) lQueue() (bb bool) {
-	re4 := regexp.MustCompile(`^([о]|[О])([3-9]|[1][0-2])$`) // две переменные для чтения  очереди
+	re4 := regexp.MustCompile(`^([о]|[О]|[q]|[Q]|[Ч]|[ч])([3-9]|[1][0-2])$`) // две переменные для чтения  очереди
 	arr4 := (re4.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr4) > 0 {
 		b.in.Lvlkz = arr4[0][2]
 		bb = true
 		b.QueueLevel()
 	}
-	if b.in.Mtext == "Очередь" {
+	//rus
+	if b.in.Mtext == "Очередь" || b.in.Mtext == "очередь" {
 		bb = true
 		b.QueueAll()
 	}
-	if b.in.Mtext == "очередь" {
+	//ukr
+	if b.in.Mtext == "Черга" || b.in.Mtext == "черга" {
+		bb = true
+		b.QueueAll()
+	}
+	//eng
+	if b.in.Mtext == "Queue" || b.in.Mtext == "queue" {
 		bb = true
 		b.QueueAll()
 	}
@@ -247,6 +254,9 @@ func (b *Bot) lTop() (bb bool) {
 
 	switch b.in.Mtext {
 	case "Топ":
+		bb = true
+		b.TopAll()
+
 	case "Top":
 
 		bb = true

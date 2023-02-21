@@ -6,24 +6,9 @@ import (
 	"time"
 )
 
-const hhelpText = "В боте используются только кирилица \n" +
-	"Встать в очередь: [4-11]+  или\n" +
-	" [4-11]+[указать время ожидания в минутах]\n" +
-	"(уровень кз)+(время ожидания)\n" +
-	" 9+  встать в очередь на КЗ 9ур.\n" +
-	" 9+60  встать на КЗ 9ур, время ожидания не более 60 минут.\n" +
-	"Покинуть очередь: [4-11] -\n" +
-	" 9- выйти из очереди КЗ 9ур.\n" +
-	"Посмотреть список активных очередей: о[4-11]\n" +
-	" о9 вывод очередь для вашей Кз\n" +
-	"Получить роль кз: + [5-11]\n" +
-	" +9 получить роль КЗ 9ур.\n" +
-	" -9 снять роль "
-
 func (d *Discord) Help(Channel string) {
-	m := d.SendEmbedText(Channel, "Справка",
-		fmt.Sprintf("ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+hhelpText))
-	d.DeleteMesageSecond(Channel, m.ID, 180)
+	mId := d.hhelp1(Channel)
+	d.DeleteMesageSecond(Channel, mId, 180)
 }
 
 func (d *Discord) Autohelpds() {
@@ -52,9 +37,9 @@ func (d *Discord) HelpChannelUpdate(dschannel string) {
 	defer cancel()
 	d.storage.CorpsConfig.AutoHelpUpdateMesid(ctx, newMesidHelp, dschannel)
 }
+
 func (d *Discord) hhelp1(chatid string) string {
-	mes := d.SendEmbedText(chatid, "Справка", fmt.Sprintf(" \n"+
-		"ВНИМАНИЕ БОТ УДАЛЯЕТ СООБЩЕНИЯ \n ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ 3 МИНУТЫ \n\n"+
-		hhelpText))
-	return mes.ID
+	m := d.SendEmbedText(chatid, d.getLang(chatid, "spravka"),
+		fmt.Sprintf("%s \n\n%s", d.getLang(chatid, "botUdalyaet"), d.getLang(chatid, "hhelpText")))
+	return m.ID
 }

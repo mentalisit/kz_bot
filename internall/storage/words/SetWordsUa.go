@@ -5,13 +5,13 @@ package words
 func (w *Words) setWordsUa() {
 	w.ua["1"] = "одын"
 	w.ua["2"] = "другый"
-	w.ua["tiUjeVocheredi"] = "ти вже у черзi"
+	w.ua["tiUjeVocheredi"] = " ти вже у черзi"
 	w.ua["zapustilOchered"] = " запустив чергу "
 	w.ua["ocheredKz"] = "Черга чз"
 	w.ua["min."] = "хв."
 	w.ua["prinuditelniStart"] = "примусовий старт"
 	w.ua["SborNaKz"] = "Збір на чз"
-	w.ua["кз"] = "чз"
+	w.ua["kz"] = "чз"
 	w.ua["tiUjePodpisanNaKz"] = "ти вже підписаний на чз"
 	w.ua["dlyaDobavleniyaVochered"] = "для додавання до черги напиши"
 	w.ua["viPodpisalisNaPing"] = "ви підписалися нв пінг чз"
@@ -50,7 +50,7 @@ func (w *Words) setWordsUa() {
 	w.ua["bilaZapushenaNe"] = "була запущена не повною"
 	w.ua["maksimalnoeVremya"] = "максимальний час у черзі обмежений на 180 хвилин\n  твій час"
 	w.ua["vremyaObnovleno"] = " час оновлено +30"
-	w.ua["ScanDB"] = "Сканірую базу даних"
+	w.ua["ScanDB"] = "Сканую базу даних"
 	w.ua["noHistory"] = "Історія не знайдена"
 	w.ua["formlist"] = "Формую список "
 	w.ua["topUchastnikov"] = "ТОП учасників"
@@ -66,5 +66,8 @@ func (w *Words) setWordsUa() {
 	w.ua["DlyaDobavleniya"] = "для додавання до черги"
 	w.ua["DlyaVihodaIz"] = "для виходу з черги"
 	w.ua["DannieObnovleni"] = "Дані оновлені"
+	w.ua["hhelpText"] = "Стати у чергу: [4-11]+ або\n  [4-11]+[вказати час очікування у хвилинах]\n(Рівень чз) + (час очікування)\n  9+ стати в чергу на ЧЗ 9рівня.\n  9+60 стати на ЧЗ 9рівня, час очікування не більше 60 хвилин.\nЗалишити чергу: [4-11] -\n  9 - вийти з черги ЧЗ 9рівня.\nПереглянути список активних черг: ч[4-11]\n  ч9 демонстрація черги для вашої Чз\nОтримати роль чз: + [5-11]\n  +9 Отримати роль ЧЗ 9рівня.\n  -9 зняти роль"
+	w.ua["spravka"] = "Довідка"
+	w.ua["botUdalyaet"] = "УВАГА БОТ ВИДАЛЯЄ ПОВІДОМЛЕННЯ\n  ВІД КОРИСТУВАЧІВ ЧЕРЕЗ 3 ХВИЛИНИ"
 
 }

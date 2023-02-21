@@ -49,9 +49,10 @@ func (b *Bot) RsPlus() {
 				b.wg.Add(1)
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
+					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL)
-					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlk"])
+					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
+					time.Sleep(1 * time.Second)
 					b.client.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
 					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.wg.Done()
@@ -98,7 +99,7 @@ func (b *Bot) RsPlus() {
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
+					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL)
 					text := n["lvlkz"] + " 2/4 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
@@ -149,8 +150,8 @@ func (b *Bot) RsPlus() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
 					n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
 					n["name3"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.Tip), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.in.Lvlkz, b.in.Config.Guildid)
-					lvlk3 := b.client.Ds.RoleToIdPing(b.in.Lvlkz+"+", b.in.Config.Guildid)
+					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+					lvlk3 := b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz+"+", b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL)
 					text := fmt.Sprintf("%s  3/4 %s %s %s %s",
 						n["lvlkz"], b.in.Name, b.GetLang("prisoedenilsyKocheredi"), lvlk3, b.GetLang("nujenEsheOdinDlyFulki"))
