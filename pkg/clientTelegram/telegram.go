@@ -4,11 +4,11 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirupsen/logrus"
-	"kz_bot/config"
+	"kz_bot/internal/config"
 )
 
-func NewTelegram(log *logrus.Logger, cfg config.ConfigBot) (*tgbotapi.BotAPI, error) {
-	tgBot, err := tgbotapi.NewBotAPI(cfg.TokenT)
+func NewTelegram(log *logrus.Logger, cfg *config.ConfigBot) (*tgbotapi.BotAPI, error) {
+	tgBot, err := tgbotapi.NewBotAPI(cfg.Token.TokenTelegram)
 	if err != nil {
 		log.Panic("ошибка подключения к телеграм ", err)
 	}

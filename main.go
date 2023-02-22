@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"kz_bot/config"
-	"kz_bot/internall/bot"
-	"kz_bot/internall/clients"
-	"kz_bot/internall/storage"
+	"kz_bot/internal/bot"
+	"kz_bot/internal/clients"
+	config2 "kz_bot/internal/config"
+	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
 	"os"
 	"os/signal"
@@ -72,16 +72,13 @@ func main() {
 
 func RunNew() error {
 	//читаем конфигурацию с ENV
-	cfg, err := config.InitConfig()
-	if err != nil {
-		return err
-	}
+	cfg := config2.InitConfig()
 
 	//создаем логгер в телегу
-	log := logger.NewLoggerTG(cfg.LogToken, cfg.LogChatId)
+	log := logger.NewLoggerTG(cfg.Logger.Token, cfg.Logger.ChatId)
 
 	//Если запуск на резервном сервере то блокируем выполнение
-	config.Reserv(log)
+	config2.Reserv(log)
 
 	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
 

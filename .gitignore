@@ -1,4 +1,6 @@
-.env
+*.yml
+*.db
 .idea
 *.exe
-wa.db
+*.zip
+*.7z

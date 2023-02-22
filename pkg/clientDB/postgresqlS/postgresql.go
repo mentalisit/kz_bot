@@ -7,16 +7,9 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/sirupsen/logrus"
-	"kz_bot/config"
+	"kz_bot/internal/config"
 	"kz_bot/pkg/utils"
 	"time"
-)
-
-const (
-	user   = "postgres"
-	host   = "db.zaieyyciriiknaixkiyc.supabase.co"
-	port   = 5432
-	dbname = "postgres"
 )
 
 type Client interface {
@@ -26,10 +19,12 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-func NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf config.ConfigBot) (*pgxpool.Pool, error) {
+func NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf *config.ConfigBot) (*pgxpool.Pool, error) {
 	var pool *pgxpool.Pool
 	var err error
-	dns := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, conf.SupabasePass, host, port, dbname)
+	dns := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+		conf.Supabase.Username, conf.Supabase.Password,
+		conf.Supabase.Host, conf.Supabase.Port, conf.Supabase.Name)
 
 	err = utils.DoWithTries(func() error {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)

@@ -7,17 +7,10 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/sirupsen/logrus"
-	"kz_bot/config"
+	"kz_bot/internal/config"
 	"kz_bot/pkg/utils"
 	"os"
 	"time"
-)
-
-const (
-	host   = "localhost"
-	port   = 5432
-	user   = "postgres"
-	dbname = "postgres"
 )
 
 type Client interface {
@@ -27,10 +20,11 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-func NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf config.ConfigBot) (*pgxpool.Pool, error) {
+func NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf *config.ConfigBot) (*pgxpool.Pool, error) {
 	var pool *pgxpool.Pool
 	var err error
-	dns := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, conf.DbPassword, host, port, dbname)
+	dns := fmt.Sprintf("postgres://%s:%s@%s/%s",
+		conf.Postgress.Username, conf.Postgress.Password, conf.Postgress.Host, conf.Postgress.Name)
 
 	err = utils.DoWithTries(func() error {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
