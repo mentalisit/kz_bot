@@ -4,3 +4,5 @@
 *.exe
 *.zip
 *.7z
+/config/config.yml
+/config/wa.db
