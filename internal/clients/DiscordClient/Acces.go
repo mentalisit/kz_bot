@@ -28,7 +28,7 @@ func (d *Discord) accessAddChannelDs(chatid, guildid string) { // внесени
 	} else {
 		chatName := d.dsChatName(chatid, guildid)
 		d.log.Println("новая активация корпорации ", chatName)
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		d.storage.CorpsConfig.AddDsCorpConfig(ctx, chatName, chatid, guildid)
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.", 10)
@@ -41,7 +41,7 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 	if !ok {
 		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		d.storage.CorpsConfig.DeleteDs(ctx, chatid)
 		d.log.Println("отключение корпорации ", d.dsChatName(chatid, guildid))

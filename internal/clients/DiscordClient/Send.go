@@ -36,7 +36,7 @@ func (d *Discord) SendChannelDelSecond(chatid, text string, second int) {
 				_ = d.s.ChannelMessageDelete(chatid, message.ID)
 			}()
 		} else {
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 			defer cancel()
 			d.storage.Timers.TimerInsert(ctx, message.ID, chatid, 0, 0, second)
 		}
@@ -90,7 +90,7 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 	return message.ID
 }
 func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (mesId string) {
-	web := transmitter.New(d.s, guildId, "KzBot", true)
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
 	pp := discordgo.WebhookParams{
 		Content:   text,
 		Username:  username,

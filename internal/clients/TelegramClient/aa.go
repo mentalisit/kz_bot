@@ -53,7 +53,7 @@ func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 			t.DelMessage(chatid, tMessage.MessageID)
 		}()
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 		defer cancel()
 		t.storage.Timers.TimerInsert(ctx, "", "", tMessage.MessageID, chatid, second)
 	}
@@ -69,7 +69,7 @@ func (t *Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int)
 			t.DelMessage(chatid, idSendMessage)
 		}()
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 		defer cancel()
 		t.storage.Timers.TimerInsert(ctx, "", "", idSendMessage, chatid, second)
 	}

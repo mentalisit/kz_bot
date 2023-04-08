@@ -14,7 +14,7 @@ func (b *Bot) RsStart() {
 	if b.debug {
 		fmt.Println("in RsStart", b.in)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	b.iftipdelete()
 	countName, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
@@ -159,7 +159,7 @@ func (b *Bot) Pl30() {
 	if b.debug {
 		fmt.Println("in Pl30", b.in)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	countName := b.storage.Count.CountNameQueue(ctx, b.in.Name)
 	text := ""

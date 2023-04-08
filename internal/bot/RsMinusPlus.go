@@ -13,7 +13,7 @@ func (b *Bot) Plus() bool {
 		fmt.Println("in Plus", b.in)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
 	countName := b.storage.Count.CountNameQueueCorp(ctx, b.in.Name, b.in.Config.CorpName)
@@ -41,7 +41,7 @@ func (b *Bot) Minus() bool {
 		fmt.Println("in Minus", b.in)
 	}
 	bb := false
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	countNames := b.storage.Count.CountNameQueueCorp(ctx, b.in.Name, b.in.Config.CorpName)
 	if countNames > 0 && b.in.Option.Reaction {

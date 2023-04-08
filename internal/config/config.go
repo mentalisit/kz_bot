@@ -50,19 +50,18 @@ type ConfigBot struct {
 	}
 }
 
-var instance *ConfigBot
+var Instance *ConfigBot
 var once sync.Once
 
 func InitConfig() *ConfigBot {
 	once.Do(func() {
-		instance = &ConfigBot{}
-		err := cleanenv.ReadConfig("config/config.yml", instance)
+		Instance = &ConfigBot{}
+		err := cleanenv.ReadConfig("config/config.yml", Instance)
 		if err != nil {
-			help, _ := cleanenv.GetDescription(instance, nil)
+			help, _ := cleanenv.GetDescription(Instance, nil)
 			log.Println(help)
 			log.Fatal(err)
 		}
-
 	})
-	return instance
+	return Instance
 }

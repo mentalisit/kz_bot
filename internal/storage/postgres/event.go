@@ -9,7 +9,7 @@ import (
 
 func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 	// считаем количество участников КЗ опр уровня
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	var countEvent int
 	selec := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE numberevent = $1 AND corpname=$2 AND numberkz=$3  AND active=1"
@@ -28,7 +28,7 @@ func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 	return countEvent
 }
 func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, nt models.Names, t models.Sborkz) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	var name string
 	sel := "SELECT * FROM kzbot.sborkz WHERE corpname=$1 AND numberkz=$2 AND numberevent = $3 AND active=1"
@@ -73,7 +73,7 @@ func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, n
 	return nd, nt, t
 }
 func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (countEventNames int) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname = $1 AND numberkz=$2  AND active=1 AND name=$3 AND numberevent = $4"
 	row := d.db.QueryRow(ctx, sel, CorpName, numberkz, name, numEvent)
@@ -84,7 +84,7 @@ func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (cou
 	return countEventNames
 }
 func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	var countEventPoints int
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname=$1 AND numberkz=$2 AND numberevent = $3 AND active=1 AND eventpoints > 0"
@@ -96,7 +96,7 @@ func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
 	return countEventPoints
 }
 func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос номера ивента
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	sel := "SELECT numevent FROM kzbot.rsevent WHERE corpname=$1 AND activeevent=1 ORDER BY numevent DESC LIMIT 1"
 	row := d.db.QueryRow(ctx, sel, CorpName)
@@ -111,7 +111,7 @@ func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос но�
 	return event1
 }
 func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос номера последнего ивента
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	sel := "SELECT numevent FROM kzbot.rsevent WHERE corpname=$1 AND activeevent=0 ORDER BY numevent DESC LIMIT 1"
 	row := d.db.QueryRow(ctx, sel, CorpName)
@@ -122,7 +122,7 @@ func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос но
 	return event0
 }
 func (d *Db) UpdateActiveEvent0(CorpName string, event1 int) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	upd := "UPDATE kzbot.rsevent SET activeevent=0 WHERE corpname=$1 AND numevent=$2"
 	_, err := d.db.Exec(ctx, upd, CorpName, event1)
@@ -131,7 +131,7 @@ func (d *Db) UpdateActiveEvent0(CorpName string, event1 int) {
 	}
 }
 func (d *Db) EventStartInsert(CorpName string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	event0 := d.NumDeactivEvent(CorpName)
 	insertEvent := `INSERT INTO kzbot.rsevent (corpname,numevent,activeevent,number) VALUES ($1,$2,$3,$4)`
@@ -149,7 +149,7 @@ func (d *Db) EventStartInsert(CorpName string) {
 	}
 }
 func (d *Db) NumberQueueEvents(CorpName string) int {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	var number int
 	sel := "SELECT  number FROM kzbot.rsevent WHERE activeevent = 1 AND corpname = $1 "

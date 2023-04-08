@@ -33,7 +33,7 @@ func (d *Discord) DeleteMessage(chatid, mesid string) {
 }
 func (d *Discord) DeleteMesageSecond(chatid, mesid string, second int) {
 	if second > 60 {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 		defer cancel()
 		d.storage.Timers.TimerInsert(ctx, mesid, chatid, 0, 0, second)
 	} else {

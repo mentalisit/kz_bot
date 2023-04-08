@@ -62,7 +62,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 			} else if r.Emoji.Name == emMinus {
 				in.Mtext = "-"
 			} else if r.Emoji.Name == emOK || r.Emoji.Name == emCancel || r.Emoji.Name == emRsStart || r.Emoji.Name == emPl30 {
-				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 				defer cancel()
 				in.Lvlkz, err = d.storage.DbFunc.ReadMesIdDS(ctx, r.MessageID)
 				if err == nil && in.Lvlkz != "" {
@@ -91,6 +91,9 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 }
 
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
+	if d.ifMessageForHades(m) {
+		return
+	}
 	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
 	if ok {

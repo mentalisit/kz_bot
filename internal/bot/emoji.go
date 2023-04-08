@@ -12,7 +12,7 @@ func (b *Bot) emodjiadd(slot, emo string) {
 		fmt.Println("in emodjiadd", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	t := b.storage.Emoji.EmReadUsers(ctx, b.in.Name, b.in.Tip)
 	if len(t.Name) == 0 {
@@ -26,7 +26,7 @@ func (b *Bot) emodjis() {
 		fmt.Println("in emodjis", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	e := b.storage.Emoji.EmReadUsers(ctx, b.in.Name, b.in.Tip)
 

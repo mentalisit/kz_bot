@@ -10,7 +10,9 @@ require (
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/krasun/logrus2telegram v1.0.0
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/mdp/qrterminal v1.0.1
+	github.com/mitchellh/go-ps v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	go.mau.fi/whatsmeow v0.0.0-20230120142431-cd2d1213eff6

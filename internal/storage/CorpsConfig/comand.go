@@ -63,9 +63,9 @@ func (c *Corps) ReadCorps() {
 		c.corp.AddCorp(t.CorpName, t.DsChannel, t.TgChannel, t.WaChannel,
 			t.DelMesComplite, t.MesidDsHelp, t.Country, t.GuildId)
 
-		corp = append(corp, fmt.Sprintf("\n%s", t.CorpName))
+		corp = append(corp, fmt.Sprintf(" %s, ", t.CorpName))
 	}
-	c.log.Printf("Конфиг корпораций%s", corp)
+	fmt.Printf("Конфиг корпораций:%s\n", corp)
 }
 
 func (c *Corps) AutoHelpUpdateMesid(ctx context.Context, newMesidHelp, dschannel string) error {

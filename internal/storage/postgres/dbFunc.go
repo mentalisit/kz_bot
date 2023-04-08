@@ -335,7 +335,7 @@ func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config memory.Cor
 func (d *Db) NumberQueueLvl(ctx context.Context, lvlkzs, CorpName string) (int, error) {
 	lvlkz, errc := strconv.Atoi(lvlkzs)
 	if errc != nil {
-		d.log.Println("ошибка преобразования в инт lkz lks", lvlkz, lvlkzs)
+		//d.log.Println("ошибка преобразования в инт lkz lks", lvlkz, lvlkzs)
 		return 0, errc
 	}
 	if d.debug {

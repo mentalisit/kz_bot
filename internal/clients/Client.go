@@ -11,29 +11,27 @@ import (
 )
 
 type Clients struct {
-	Ds    *DiscordClient.Discord
-	Tg    *TelegramClient.Telegram
-	Wa    *WhatsappClient.Whatsapp
-	Inbox chan models.InMessage
+	Ds     *DiscordClient.Discord
+	Tg     *TelegramClient.Telegram
+	Wa     *WhatsappClient.Whatsapp
+	Inbox  chan models.InMessage
+	ToGame chan models.Message
 }
 
 func NewClients(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Clients {
+	c := &Clients{}
 	//inbox channel
-	var inbox = make(chan models.InMessage, 10)
+	c.Inbox = make(chan models.InMessage, 10)
+	c.ToGame = make(chan models.Message, 10)
+	var toGameForDiscord = make(chan models.Message, 10)
+	var toGameForTelegram = make(chan models.Message, 10)
 
-	ds := DiscordClient.NewDiscord(inbox, log, st, cfg)
+	c.Ds = DiscordClient.NewDiscord(c.Inbox, toGameForDiscord, log, st, cfg)
 
-	tg := TelegramClient.NewTelegram(inbox, log, st, cfg)
+	c.Tg = TelegramClient.NewTelegram(c.Inbox, toGameForTelegram, log, st, cfg)
 
-	wa := WhatsappClient.NewWhatsapp(inbox, log, st, cfg)
+	//c.Wa = WhatsappClient.NewWhatsapp(c.Inbox, log, st, cfg)
 
-	return &Clients{
-		Ds:    ds,
-		Tg:    tg,
-		Wa:    wa,
-		Inbox: inbox,
-	}
-}
-func (c Clients) name() {
-
+	go c.HadesBridge(toGameForDiscord, toGameForTelegram)
+	return c
 }

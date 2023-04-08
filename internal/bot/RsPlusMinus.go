@@ -306,11 +306,12 @@ func (b *Bot) RsMinus() {
 		fmt.Printf("\n in RsMinus %+v\n", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
 	CountNames, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if err != nil {
+		b.log.Println("error RsMinus CountName", err)
 		return
 	}
 	if CountNames == 0 {
@@ -323,6 +324,7 @@ func (b *Bot) RsMinus() {
 		//проверяем очередь
 		countQueue, err2 := b.storage.Count.CountQueue(ctx, b.in.Lvlkz, b.in.Config.CorpName)
 		if err2 != nil {
+			b.log.Println("error RsMinus CountQueue ", err2)
 			return
 		}
 		//numkzL := numberQueueLvl(in, lvlkz) + 1
@@ -349,6 +351,7 @@ func (b *Bot) RsMinus() {
 			//}
 		}
 		if countQueue > 0 {
+
 			b.QueueLevel()
 		}
 	}

@@ -14,7 +14,7 @@ func (w *Words) setWordsUa() {
 	w.ua["kz"] = "чз"
 	w.ua["tiUjePodpisanNaKz"] = "ти вже підписаний на чз"
 	w.ua["dlyaDobavleniyaVochered"] = "для додавання до черги напиши"
-	w.ua["viPodpisalisNaPing"] = "ви підписалися нв пінг чз"
+	w.ua["viPodpisalisNaPing"] = "ви підписалися на пінг чз"
 	w.ua["tiNePodpisanNaPingKz"] = "ти не підписаний на пінг чз"
 	w.ua["otpisalsyaOtPingaKz"] = "відписався від пінгу чз"
 	w.ua["prisoedenilsyKocheredi"] = " приєднався до черги"

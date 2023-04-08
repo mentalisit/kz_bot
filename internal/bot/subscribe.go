@@ -9,7 +9,7 @@ import (
 //lang ok
 
 func (b *Bot) SubscribePing(tipPing int) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	men := b.storage.Subscribe.SubscribePing(ctx, b.in.NameMention, b.in.Lvlkz, b.in.Config.CorpName, tipPing, b.in.Config.TgChannel)
 	if len(men) > 0 {
@@ -23,7 +23,7 @@ func (b *Bot) Subscribe(tipPing int) {
 		fmt.Println("in Subscribe", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	if b.in.Tip == ds {
 		//go b.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
@@ -65,7 +65,7 @@ func (b *Bot) Unsubscribe(tipPing int) {
 	}
 	b.iftipdelete()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
 	if b.in.Tip == ds {

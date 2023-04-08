@@ -9,6 +9,8 @@ import (
 const nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
 
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
+	t.ifMessageForHades(m)
+
 	// тут я передаю чат айди и проверяю должен ли бот реагировать на этот чат
 	ok, config := t.storage.Cache.CheckChannelConfigTG(m.Chat.ID)
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу

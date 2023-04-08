@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/mitchellh/go-ps"
 	"github.com/sirupsen/logrus"
 	"kz_bot/pkg/utils"
 	"log"
@@ -12,7 +13,7 @@ import (
 )
 
 func Reserv(log *logrus.Logger) {
-	if instance.BotMode == "reserve" {
+	if Instance.BotMode == "reserve" {
 		for {
 			if checkPing() {
 				fmt.Println(time.Now().Format("15:04 02-01-2006"), " ожидание")
@@ -24,6 +25,13 @@ func Reserv(log *logrus.Logger) {
 							log.Println("Сервер доступен, паникую ")
 							connectRDP()
 							//time.Sleep(1 * time.Minute)
+							procs, _ := ps.Processes()
+							for _, proc := range procs {
+								if proc.Executable() == "ConsoleClient.exe" {
+									cmd := exec.Command("taskkill", "/F", "/IM", "ConsoleClient.exe")
+									_ = cmd.Run()
+								}
+							}
 							panic("dostupen")
 						}
 					}
@@ -33,34 +41,18 @@ func Reserv(log *logrus.Logger) {
 		}
 	}
 }
-func checkPingOld() bool {
-	if ping("google.com:80") && ping(instance.ServerAdrr) {
-		return true
-	} else {
-		time.Sleep(5 * time.Second)
-		if ping("google.com:80") && ping(instance.ServerAdrr) {
-			return true
-		} else if ping("google.com:80") && !ping(instance.ServerAdrr) {
-			return false
-		} else if !ping("google.com:80") && !ping(instance.ServerAdrr) {
-			time.Sleep(10 * time.Second)
-			panic("нет интернета")
-		}
-	}
-	return false
-}
 
 func checkPing() bool {
 	err := utils.DoWithTries(func() error {
-		if ping("google.com:80") && ping(instance.ServerAdrr) {
+		if ping("google.com:80") && ping(Instance.ServerAdrr) {
 			return nil
 		} else {
 			time.Sleep(2 * time.Second)
-			if ping("google.com:80") && ping(instance.ServerAdrr) {
+			if ping("google.com:80") && ping(Instance.ServerAdrr) {
 				return nil
-			} else if ping("google.com:80") && !ping(instance.ServerAdrr) {
+			} else if ping("google.com:80") && !ping(Instance.ServerAdrr) {
 				return errors.New("no ping Server Kharkov")
-			} else if !ping("google.com:80") && !ping(instance.ServerAdrr) {
+			} else if !ping("google.com:80") && !ping(Instance.ServerAdrr) {
 				time.Sleep(5 * time.Second)
 				return nil
 			}

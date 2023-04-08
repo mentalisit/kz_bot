@@ -33,7 +33,7 @@ func (d *Discord) Autohelpds() {
 
 func (d *Discord) HelpChannelUpdate(dschannel string) {
 	newMesidHelp := d.hhelp1(dschannel)
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	d.storage.CorpsConfig.AutoHelpUpdateMesid(ctx, newMesidHelp, dschannel)
 }

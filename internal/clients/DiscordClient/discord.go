@@ -10,22 +10,24 @@ import (
 )
 
 type Discord struct {
-	inbox   chan models.InMessage
-	s       *discordgo.Session
-	log     *logrus.Logger
-	storage *storage.Storage
+	inbox      chan models.InMessage
+	sendToGame chan models.Message
+	s          *discordgo.Session
+	log        *logrus.Logger
+	storage    *storage.Storage
 }
 
-func NewDiscord(inbox chan models.InMessage, log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
+func NewDiscord(inbox chan models.InMessage, sendToGame chan models.Message, log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
 	ds, err := clientDiscord.NewDiscord(log, cfg)
 	if err != nil {
 		log.Println("error running Discord " + err.Error())
 	}
 	DS := &Discord{
-		inbox:   inbox,
-		s:       ds,
-		log:     log,
-		storage: st,
+		inbox:      inbox,
+		s:          ds,
+		log:        log,
+		storage:    st,
+		sendToGame: sendToGame,
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageReactionAdd)

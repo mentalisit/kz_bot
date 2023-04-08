@@ -10,7 +10,7 @@ import (
 
 func (b *Bot) TopLevel() {
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	numEvent := b.storage.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numEvent == 0 {
@@ -52,7 +52,7 @@ func (b *Bot) TopLevel() {
 }
 func (b *Bot) TopAll() {
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	numEvent := b.storage.Event.NumActiveEvent(b.in.Config.CorpName)
 	if numEvent == 0 {

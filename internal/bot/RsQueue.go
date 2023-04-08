@@ -192,7 +192,7 @@ func (b *Bot) QueueAll() {
 	if b.debug {
 		fmt.Printf("in QueueAll %+v", b.in)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	lvl := b.storage.DbFunc.Queue(ctx, b.in.Config.CorpName)
 	lvlk := utils.RemoveDuplicateElementString(lvl)

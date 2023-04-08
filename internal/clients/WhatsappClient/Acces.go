@@ -29,7 +29,7 @@ func (w *Whatsapp) accessAddChannelWA(chatid string) { // внесение в д
 		g, chatName := w.getGroupName(chatid)
 		if g {
 			fmt.Println("новая активация корпорации ", chatName)
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			err := w.storage.CorpsConfig.AddWaCorpConfig(ctx, chatName, chatid)
 			if err != nil {
@@ -45,7 +45,7 @@ func (w *Whatsapp) accessDelChannelWa(chatid string) { //удаление с б�
 	if !ok {
 		w.SendText(chatid, "ваш канал и так не подключен к логике бота ")
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		err := w.storage.CorpsConfig.DeleteWa(ctx, chatid)
 		if err != nil {
