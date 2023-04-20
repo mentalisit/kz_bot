@@ -19,9 +19,7 @@ var SaveId []save
 func (h *Hades) ifEditMessage(msg models.Message, corp models.Corporation) bool {
 	if msg.Command == "text" {
 		if msg.Corporation == "UKR Spase" {
-			if msg.Text == "9?" {
-
-			}
+			msg = ifRsSearch(msg)
 		}
 		sender := "(🎮)" + msg.Sender
 		flag := false
