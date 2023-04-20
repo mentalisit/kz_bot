@@ -58,10 +58,12 @@ func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 		t.storage.Timers.TimerInsert(ctx, "", "", tMessage.MessageID, chatid, second)
 	}
 }
+
 func (t *Telegram) DelMessage(chatid int64, idSendMessage int) {
 	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, idSendMessage)))
 	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }
 }
+
 func (t *Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int) {
 	if second <= 60 {
 		go func() {

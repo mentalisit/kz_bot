@@ -341,3 +341,12 @@ func (b *Bot) SendALLChannel() (bb bool) {
 	}
 	return bb
 }
+
+func (b *Bot) lIfCommand(bb bool) {
+	re := regexp.MustCompile(`^\. Добавить ([0-2]) (.+)`)
+	matches := re.FindStringSubmatch(b.in.Mtext)
+	if len(matches) > 0 {
+		fmt.Println("rang " + matches[1])
+		fmt.Println("name " + matches[2])
+	}
+}

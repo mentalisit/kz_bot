@@ -17,6 +17,7 @@ import (
 
 func main() {
 	fmt.Println("Bot loading")
+
 	err := RunNew()
 	if err != nil {
 		fmt.Println("Error loading bot", err)

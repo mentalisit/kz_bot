@@ -15,13 +15,16 @@ func RunReserv() {
 		select {
 		case <-ticker.C:
 			{
-				r := ReservCopy.NewReservDB()
-				wr := r.NewMessageWriteToPostgres()
-				p := NewReservPostgres(config.Instance)
-				p.WriteToCloud(wr)
+				go write()
 			}
 		}
 	}
+}
+func write() {
+	r := ReservCopy.NewReservDB()
+	wr := r.NewMessageWriteToPostgres()
+	p := NewReservPostgres(config.Instance)
+	p.WriteToCloud(wr)
 }
 func LoadBackup() {
 	p := NewReservPostgres(config.Instance)

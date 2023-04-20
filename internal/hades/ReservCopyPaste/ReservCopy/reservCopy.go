@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"os"
+	"path/filepath"
 )
 
 type ReservDB struct {
@@ -11,7 +13,14 @@ type ReservDB struct {
 }
 
 func NewReservDB() *ReservDB {
-	db, err := sql.Open("sqlite3", "hsbot/hsbot.db")
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	dbPath := filepath.Join(dir, "hsbot.db")
+
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		fmt.Println(err)
 		return nil

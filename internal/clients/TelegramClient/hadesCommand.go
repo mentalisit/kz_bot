@@ -46,6 +46,8 @@ func (t *Telegram) lastWs(arg []string, m *tgbotapi.Message) bool {
 		}
 		fmt.Printf("lastWs %+v\n", mes)
 		t.toGame <- mes
+		go t.SendChannelDelSecond(m.Chat.ID, "отправка повтора последней бз", 10)
+		go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
 		return true
 	}
 	return false
@@ -66,6 +68,8 @@ func (t *Telegram) replayId(arg []string, m *tgbotapi.Message) bool {
 			}
 			fmt.Printf("replayId %+v\n", mes)
 			t.toGame <- mes
+			go t.SendChannelDelSecond(m.Chat.ID, "отправка повтора "+arg[1], 10)
+			go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
 			return true
 		}
 	}
@@ -85,6 +89,8 @@ func (t *Telegram) historyWs(arg []string, m *tgbotapi.Message) bool {
 		}
 		fmt.Printf("historyWs %+v\n", mes)
 		t.toGame <- mes
+		go t.SendChannelDelSecond(m.Chat.ID, "готовлю список  бз", 10)
+		go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
 		return true
 	}
 	return false

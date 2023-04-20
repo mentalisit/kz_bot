@@ -46,6 +46,8 @@ func (d *Discord) lastWs(arg []string, m *discordgo.MessageCreate) bool {
 		}
 		fmt.Printf("lastWs %+v\n", mes)
 		d.sendToGame <- mes
+		go d.SendChannelDelSecond(m.ChannelID, "отправка повтора последней бз", 10)
+		go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
 		return true
 	}
 	return false
@@ -66,6 +68,8 @@ func (d *Discord) replayId(arg []string, m *discordgo.MessageCreate) bool {
 			}
 			fmt.Printf("replayId %+v\n", mes)
 			d.sendToGame <- mes
+			go d.SendChannelDelSecond(m.ChannelID, "отправка повтора "+arg[1], 10)
+			go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
 			return true
 		}
 	}
@@ -85,6 +89,8 @@ func (d *Discord) historyWs(arg []string, m *discordgo.MessageCreate) bool {
 		}
 		fmt.Printf("historyWs %+v\n", mes)
 		d.sendToGame <- mes
+		go d.SendChannelDelSecond(m.ChannelID, "готовлю список  бз", 10)
+		go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
 		return true
 	}
 	return false
