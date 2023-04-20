@@ -105,7 +105,7 @@ func ifRsSearch(msg models.Message) models.Message {
 		re := regexp.MustCompile(`КРАСНОЙ ЗВЕЗДЫ ур\.([5-9]|10)`)
 		msg.Text = re.ReplaceAllStringFunc(msg.Text, textToRole)
 		reRS := regexp.MustCompile(`^([5-9]|[10])(\?+)`)
-		arg := re.FindAllStringSubmatch(msg.Text, -1)
+		arg := reRS.FindAllStringSubmatch(msg.Text, -1)
 		if len(arg) > 0 {
 			msg.Text = reRS.ReplaceAllStringFunc(arg[0][1], textToRole)
 		}
