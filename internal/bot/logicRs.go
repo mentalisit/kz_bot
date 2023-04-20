@@ -12,7 +12,7 @@ func (b *Bot) lRsPlus() bool {
 	var kzb string
 	kz := false
 	re := regexp.MustCompile(`^([3-9]|[1][0-2])([\+]|[-])(\d|\d{2}|\d{3})$`) //три переменные
-	arr := (re.FindAllStringSubmatch(b.in.Mtext, -1))
+	arr := re.FindAllStringSubmatch(b.in.Mtext, -1)
 	if len(arr) > 0 {
 		kz = true
 		b.in.Lvlkz = arr[0][1]
