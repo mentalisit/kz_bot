@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
@@ -16,23 +15,10 @@ import (
 	"time"
 )
 
-var flagVersion = flag.Bool("version", false, "show version")
-
 func main() {
-	data, err := os.ReadFile("version.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	flag.Parse()
-	if *flagVersion {
+	fmt.Println("Bot loading ")
 
-		fmt.Println(string(data))
-		return
-	}
-	fmt.Println("Bot loading " + string(data))
-
-	err = RunNew()
+	err := RunNew()
 	if err != nil {
 		fmt.Println("Error loading bot", err)
 		time.Sleep(10 * time.Second)
