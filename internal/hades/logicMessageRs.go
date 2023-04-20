@@ -102,41 +102,36 @@ func ifRsSearch(msg models.Message) models.Message {
 	if msg.Command == "text" && msg.Corporation == "UKR Spase" {
 		re := regexp.MustCompile(`КРАСНОЙ ЗВЕЗДЫ ур\.([5-9]|10)`)
 		msg.Text = re.ReplaceAllStringFunc(msg.Text, textToRole)
-		reRS := regexp.MustCompile(`^([5-9]|[10])(\?+)`)
-		arg := reRS.FindAllStringSubmatch(msg.Text, -1)
-		if len(arg) > 0 {
-			msg.Text = reRS.ReplaceAllStringFunc(arg[0][1], textToRole)
-		}
 	}
 	return msg
 }
 func numToRole(msg models.Message) models.Message {
 	if msg.Command == "text" && msg.Corporation == "UKR Spase" {
-		reRS := regexp.MustCompile(`^([5-9]|[10])(\?+)`)
+		reRS := regexp.MustCompile(`^([5-9]|[10])(\?+)$`)
 		arg := reRS.FindAllStringSubmatch(msg.Text, -1)
 		if len(arg) > 0 {
-			msg.Text = reRS.ReplaceAllStringFunc(arg[0][1], func(s string) string {
-				switch s {
-				case "5":
-					return "<@&763476853364228106>"
-				case "6":
-					return "<@&763476906850779170>"
-				case "7":
-					return "<@&763476952455446568>"
-				case "8":
-					return "<@&763477036831998002>"
-				case "9":
-					return "<@&788847032215142420>"
-				case "10":
-					return "<@&788846996836450385>"
-
-				default:
-					return s
-				}
-			})
+			msg.Text = numtorole(arg[0][1])
 		}
 	}
 	return msg
+}
+func numtorole(s string) string {
+	switch s {
+	case "5":
+		return "<@&763476853364228106>"
+	case "6":
+		return "<@&763476906850779170>"
+	case "7":
+		return "<@&763476952455446568>"
+	case "8":
+		return "<@&763477036831998002>"
+	case "9":
+		return "<@&788847032215142420>"
+	case "10":
+		return "<@&788846996836450385>"
+	default:
+		return s
+	}
 }
 
 func textToRole(s string) string {
