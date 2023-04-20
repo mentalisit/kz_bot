@@ -3,6 +3,7 @@ package DiscordClient
 import (
 	"context"
 	"fmt"
+	"kz_bot/pkg/utils"
 	"time"
 )
 
@@ -28,6 +29,9 @@ func (d *Discord) Autohelpds() {
 
 		}
 		time.Sleep(time.Minute)
+	} else if mtime == "03:00" {
+		time.Sleep(1 * time.Second)
+		utils.UpdateRun()
 	}
 }
 

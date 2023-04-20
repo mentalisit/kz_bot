@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kz_bot/internal/config"
 	"kz_bot/internal/hades/ReservCopyPaste/ReservCopy"
+	"kz_bot/pkg/utils"
 	"time"
 )
 
@@ -32,4 +33,5 @@ func LoadBackup() {
 	r := ReservCopy.NewReservDB()
 	r.WriteToSQLite(jsonData)
 	fmt.Println("LoadBackup ok")
+	utils.UpdateRun()
 }

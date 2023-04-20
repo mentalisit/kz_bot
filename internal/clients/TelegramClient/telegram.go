@@ -8,6 +8,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/clientTelegram"
+	"kz_bot/pkg/utils"
 )
 
 type Telegram struct {
@@ -48,9 +49,7 @@ func (t Telegram) update() {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {
 			if update.Message.Chat.IsPrivate() { //если пишут боту в личку
-				t.SendChannel(update.Message.Chat.ID, "сорян это в разработке \n"+
-					"я еще не решил как тут сделать"+
-					"Присылай идеи для работы с ботом мне @mentalisit ")
+				t.ifPrivatMesage(update.Message)
 			} else if update.Message.IsCommand() {
 				t.updatesComand(update.Message) //если сообщение является командой
 
@@ -67,5 +66,14 @@ func (t Telegram) update() {
 		} else {
 			fmt.Println(1, update)
 		}
+	}
+}
+func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
+	if m.From.UserName == "Mentalisit" && m.Text == "/update" {
+		utils.UpdateRun()
+	} else {
+		t.SendChannel(m.Chat.ID, "сорян это в разработке \n"+
+			"я еще не решил как тут сделать"+
+			"Присылай идеи для работы с ботом мне @mentalisit ")
 	}
 }

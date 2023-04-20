@@ -37,6 +37,7 @@ func RunNew() error {
 	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
 		//test func
+		time.Sleep(1 * time.Minute)
 		return nil
 	}
 
