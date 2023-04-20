@@ -38,6 +38,9 @@ func (h *Hades) inbox(toMess chan models.Message) {
 }
 func (h *Hades) filterGame(msg models.Message) {
 	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
+	if msg.Corporation == "UKR Spase" {
+		msg = numToRole(msg)
+	}
 	sender := "(🎮)" + msg.Sender
 	if ok && msg.Command == "text" {
 		if msg.ChannelType == 0 && corp.DsChat != "" {

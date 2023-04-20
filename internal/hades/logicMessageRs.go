@@ -18,9 +18,7 @@ var SaveId []save
 
 func (h *Hades) ifEditMessage(msg models.Message, corp models.Corporation) bool {
 	if msg.Command == "text" {
-		if msg.Corporation == "UKR Spase" {
-			msg = ifRsSearch(msg)
-		}
+
 		sender := "(🎮)" + msg.Sender
 		flag := false
 		var S []save
@@ -112,6 +110,35 @@ func ifRsSearch(msg models.Message) models.Message {
 	}
 	return msg
 }
+func numToRole(msg models.Message) models.Message {
+	if msg.Command == "text" && msg.Corporation == "UKR Spase" {
+		reRS := regexp.MustCompile(`^([5-9]|[10])(\?+)`)
+		arg := reRS.FindAllStringSubmatch(msg.Text, -1)
+		if len(arg) > 0 {
+			msg.Text = reRS.ReplaceAllStringFunc(arg[0][1], func(s string) string {
+				switch s {
+				case "5":
+					return "<@&763476853364228106>"
+				case "6":
+					return "<@&763476906850779170>"
+				case "7":
+					return "<@&763476952455446568>"
+				case "8":
+					return "<@&763477036831998002>"
+				case "9":
+					return "<@&788847032215142420>"
+				case "10":
+					return "<@&788846996836450385>"
+
+				default:
+					return s
+				}
+			})
+		}
+	}
+	return msg
+}
+
 func textToRole(s string) string {
 	switch s {
 	case "КРАСНОЙ ЗВЕЗДЫ ур.5":
@@ -126,19 +153,6 @@ func textToRole(s string) string {
 		return "<@&788847032215142420>"
 	case "КРАСНОЙ ЗВЕЗДЫ ур.10":
 		return "<@&788846996836450385>"
-	case "5":
-		return "<@&763476853364228106>"
-	case "6":
-		return "<@&763476906850779170>"
-	case "7":
-		return "<@&763476952455446568>"
-	case "8":
-		return "<@&763477036831998002>"
-	case "9":
-		return "<@&788847032215142420>"
-	case "10":
-		return "<@&788846996836450385>"
-
 	default:
 		return s
 	}
