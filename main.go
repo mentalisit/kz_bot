@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
@@ -15,10 +16,23 @@ import (
 	"time"
 )
 
-func main() {
-	fmt.Println("Bot loading")
+var flagVersion = flag.Bool("version", false, "show version")
 
-	err := RunNew()
+func main() {
+	data, err := os.ReadFile("version.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	flag.Parse()
+	if *flagVersion {
+
+		fmt.Println(string(data))
+		return
+	}
+	fmt.Println("Bot loading " + string(data))
+
+	err = RunNew()
 	if err != nil {
 		fmt.Println("Error loading bot", err)
 		time.Sleep(10 * time.Second)
@@ -33,6 +47,12 @@ func RunNew() error {
 
 	//создаем логгер в телегу
 	log := logger.NewLoggerTG(cfg.Logger.Token, cfg.Logger.ChatId)
+
+	if cfg.BotMode == "dev" {
+		fmt.Println("Develop Running")
+		//test func
+		return nil
+	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
 	config.Reserv(log)
