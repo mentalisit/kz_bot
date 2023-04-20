@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func UpdateRun() {
-	dir, err := os.Getwd()
+	executable, err := os.Executable()
 	if err != nil {
-		fmt.Println("Error getting current directory:", err)
-		os.Exit(1)
+		fmt.Println(err)
+		return
 	}
-
-	cmd := exec.Command("cmd", "/c", "start", "/D", dir, "bot_kz_updater.exe")
+	cmd := exec.Command("cmd", "/c", "start", "/D", filepath.Dir(executable), "bot_kz_updater.exe")
 	err = cmd.Start()
 	if err != nil {
 		fmt.Println("Error starting process:", err)
