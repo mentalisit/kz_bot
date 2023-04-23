@@ -97,7 +97,7 @@ func (t *Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit stri
 func (t *Telegram) EditText(chatid int64, editMesId int, textEdit string) {
 	_, err := t.t.Send(tgbotapi.NewEditMessageText(chatid, editMesId, textEdit))
 	if err != nil {
-		t.log.Println("Ошибка редактирования EditText ", err)
+		//t.log.Println("Ошибка редактирования EditText ", err)
 	}
 }
 func (t *Telegram) CheckAdminTg(chatid int64, name string) bool {

@@ -95,3 +95,26 @@ func (t *Telegram) historyWs(arg []string, m *tgbotapi.Message) bool {
 	}
 	return false
 }
+func (t *Telegram) letInId(arg []string, m *tgbotapi.Message) bool {
+	if arg[0] == "впустить" {
+		match, _ := regexp.MatchString("^[0-9]+$", arg[1])
+		if match {
+			_, corporation := hades.HadesStorage.AllianceChatTg(m.Chat.ID)
+			mes := models.Message{
+				Text:        arg[1],
+				Sender:      t.nameOrNick(m.From.UserName, m.From.FirstName),
+				Avatar:      t.GetAvatar(m.From.ID),
+				ChannelType: 0,
+				Corporation: corporation.Corp,
+				Command:     "впустить",
+				Messager:    "tg",
+			}
+			fmt.Printf("letInId %+v\n", mes)
+			t.toGame <- mes
+			go t.SendChannelDelSecond(m.Chat.ID, "впустить отправленно "+arg[1], 10)
+			go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
+			return true
+		}
+	}
+	return false
+}

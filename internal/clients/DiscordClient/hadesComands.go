@@ -27,6 +27,9 @@ func (d *Discord) ifComands(m *discordgo.MessageCreate) (command bool) {
 			if d.historyWs(arr, m) {
 				return true
 			}
+			if d.letInId(arr, m) {
+				return true
+			}
 
 		}
 	}
@@ -92,6 +95,29 @@ func (d *Discord) historyWs(arg []string, m *discordgo.MessageCreate) bool {
 		go d.SendChannelDelSecond(m.ChannelID, "готовлю список  бз", 10)
 		go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
 		return true
+	}
+	return false
+}
+func (d *Discord) letInId(arg []string, m *discordgo.MessageCreate) bool {
+	if arg[0] == "впустить" {
+		match, _ := regexp.MatchString("^[0-9]+$", arg[1])
+		if match {
+			_, corporation := hades.HadesStorage.AllianceChat(m.ChannelID)
+			mes := models.Message{
+				Text:        arg[1],
+				Sender:      m.Author.Username,
+				Avatar:      "",
+				ChannelType: 0,
+				Corporation: corporation.Corp,
+				Command:     "впустить",
+				Messager:    "ds",
+			}
+			fmt.Printf("letInId %+v\n", mes)
+			d.sendToGame <- mes
+			go d.SendChannelDelSecond(m.ChannelID, "впустить отправленно  "+arg[1], 10)
+			go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
+			return true
+		}
 	}
 	return false
 }
