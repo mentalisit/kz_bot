@@ -16,12 +16,12 @@ func RunReserv() {
 		select {
 		case <-ticker.C:
 			{
-				go write()
+				go WriteCloud()
 			}
 		}
 	}
 }
-func write() {
+func WriteCloud() {
 	r := ReservCopy.NewReservDB()
 	wr := r.NewMessageWriteToPostgres()
 	p := NewReservPostgres(config.Instance)

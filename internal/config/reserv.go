@@ -32,6 +32,7 @@ func Reserv(log *logrus.Logger) {
 									_ = cmd.Run()
 								}
 							}
+							//ReservCopyPaste.WriteCloud()
 							panic("dostupen")
 						}
 					}

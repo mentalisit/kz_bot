@@ -18,6 +18,9 @@ func (d *Discord) ifComands(m *discordgo.MessageCreate) (command bool) {
 		if arrlen == 1 {
 
 		} else if arrlen == 2 {
+			if d.avatar(arr, m) {
+				return true
+			}
 			if d.lastWs(arr, m) {
 				return true
 			}
@@ -31,6 +34,37 @@ func (d *Discord) ifComands(m *discordgo.MessageCreate) (command bool) {
 				return true
 			}
 
+		}
+	}
+	return false
+}
+func (d *Discord) avatar(arg []string, m *discordgo.MessageCreate) bool {
+	if arg[0] == "ава" {
+		mentionIds := userMentionRE.FindAllStringSubmatch(arg[1], -1)
+		if len(mentionIds) > 0 {
+			members, err := d.s.GuildMembers(m.GuildID, "", 999)
+			if err != nil {
+				d.log.Println("error getGuildMember " + err.Error())
+			}
+			for _, member := range members {
+				if member.User.ID == mentionIds[0][1] {
+					em := &discordgo.MessageEmbed{
+						Title: "Аватар по запросу " + m.Author.Username,
+						Color: 14232643,
+						Image: &discordgo.MessageEmbedImage{
+							URL: member.AvatarURL("2048"),
+						},
+						Author: nil,
+					}
+					embed, err := d.s.ChannelMessageSendEmbed(m.ChannelID, em)
+					if err != nil {
+						fmt.Println(err.Error())
+						return false
+					}
+					go d.DeleteMesageSecond(m.ChannelID, embed.ID, 180)
+					return true
+				}
+			}
 		}
 	}
 	return false
