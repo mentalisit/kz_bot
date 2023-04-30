@@ -13,12 +13,9 @@ type ReservDB struct {
 }
 
 func NewReservDB() *ReservDB {
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	dbPath := filepath.Join(dir, "hsbot.db")
+	root, _ := os.Executable()
+	curDir := filepath.Join(root, "..")
+	dbPath := filepath.Join(curDir, "hsbot", "hsbot.db")
 
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
