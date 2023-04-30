@@ -12,3 +12,12 @@ type CorpporationConfig struct {
 	Primer         string
 	Guildid        string
 }
+type ConfigGlobal struct {
+	CorpName    string
+	CorpNameMin string
+	DsChannel   string
+	TgChannel   int64
+	WaChannel   string
+	GuildId     string
+	Country     string
+}

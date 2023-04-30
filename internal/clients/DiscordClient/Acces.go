@@ -2,7 +2,9 @@ package DiscordClient
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/storage/memory"
 	"strings"
 	"time"
 )
@@ -17,6 +19,9 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 	} else if res == true && m.Content == ".del" {
 		go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 		d.accessDelChannelDs(m.ChannelID, m.GuildID)
+	}
+	if res {
+		d.accessAddGlobalDs(m)
 	}
 }
 
@@ -48,5 +53,64 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 		d.storage.Cache.ReloadConfig()
 		d.storage.CorpsConfig.ReadCorps()
 		go d.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
+	}
+}
+
+func (d *Discord) accessAddGlobalDs(m *discordgo.MessageCreate) {
+	str, ok := strings.CutPrefix(m.Content, ".")
+	if ok {
+		arr := strings.Split(str, " ")
+		if arr[0] == "AddGlobalChat" {
+			good, _ := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
+			if good {
+				d.SendChannelDelSecond(m.ChannelID, "Этот чат уже подключен", 10)
+			} else {
+				guild, _ := d.s.Guild(m.GuildID)
+				err := d.storage.CorpsConfig.AddGlobalDsCorp(context.Background(), guild.Name, m.ChannelID, m.GuildID)
+				if err != nil {
+					d.log.Println(err)
+					return
+				} else {
+					d.SendChannelDelSecond(m.ChannelID, "GlobalChat активирован", 10)
+				}
+
+			}
+		}
+		if len(arr) > 1 {
+			if arr[0] == "block" {
+				mentionIds := userMentionRE.FindAllStringSubmatch(arr[1], -1)
+				for _, match := range mentionIds {
+					user := d.getUserById(match[1], m.GuildID)
+					memory.BlackListNamesId = append(memory.BlackListNamesId, user.User.ID)
+					marshal, err := json.Marshal(memory.BlackListNamesId)
+					if err != nil {
+						return
+					}
+					d.storage.CorpsConfig.UpdateJsonBlackList(marshal)
+				}
+			} else if arr[0] == "unblock" {
+				var newList []string
+				mentionIds := userMentionRE.FindAllStringSubmatch(arr[1], -1)
+				for _, match := range mentionIds {
+					user := d.getUserById(match[1], m.GuildID)
+					if user.User.ID == m.Author.ID {
+						return
+					}
+					for _, s := range memory.BlackListNamesId {
+						if s != user.User.ID {
+							newList = append(newList, s)
+						}
+					}
+				}
+				if len(newList) > 0 {
+					memory.BlackListNamesId = newList
+					marshal, err := json.Marshal(newList)
+					if err != nil {
+						return
+					}
+					d.storage.CorpsConfig.UpdateJsonBlackList(marshal)
+				}
+			}
+		}
 	}
 }

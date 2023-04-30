@@ -26,3 +26,12 @@ func (d *Repository) DeleteWaChannel(ctx context.Context, chatid string) error {
 	}
 	return nil
 }
+
+func (d *Repository) DeleteGlobalDsChannel(ctx context.Context, chatid string) error {
+	_, err := d.client.Exec(ctx, "delete from kzbot.global where DsChannel = $1 ", chatid)
+	if err != nil {
+		d.log.Println("Ошибка удаления с бд корп global дискорд", err)
+		return err
+	}
+	return nil
+}

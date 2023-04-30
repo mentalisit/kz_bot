@@ -1,6 +1,7 @@
 package DiscordClient
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"regexp"
 	"strings"
 	"unicode"
@@ -41,12 +42,12 @@ func (d *Discord) replaceUserMentions(text string, guildid string) string {
 	for _, match := range mentionIds {
 		mention := match[0]
 		userId := match[1]
-		username := d.getUserById(userId, guildid)
+		username := d.getUserNameById(userId, guildid)
 		text = strings.Replace(text, mention, "@"+username, 1)
 	}
 	return text
 }
-func (d *Discord) getUserById(userId string, guildId string) string {
+func (d *Discord) getUserNameById(userId string, guildId string) string {
 	members, err := d.s.GuildMembers(guildId, "", 999)
 	if err != nil {
 		d.log.Println("error getGuildMember " + err.Error())
@@ -61,6 +62,18 @@ func (d *Discord) getUserById(userId string, guildId string) string {
 		}
 	}
 	return "Unknown user"
+}
+func (d *Discord) getUserById(userId string, guildId string) *discordgo.Member {
+	members, err := d.s.GuildMembers(guildId, "", 999)
+	if err != nil {
+		d.log.Println("error getGuildMember " + err.Error())
+	}
+	for _, member := range members {
+		if member.User.ID == userId {
+			return member
+		}
+	}
+	return nil
 }
 
 func enumerateUsernames(s string) []string {

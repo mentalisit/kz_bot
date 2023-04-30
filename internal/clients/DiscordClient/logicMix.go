@@ -133,4 +133,7 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 		}
 		d.inbox <- in
 	}
+	if !ok {
+		go d.logicMixGlobal(m)
+	}
 }

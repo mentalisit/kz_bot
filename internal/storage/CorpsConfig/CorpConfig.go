@@ -11,12 +11,14 @@ import (
 )
 
 type Corps struct {
-	client postgresqlS.Client
-	log    *logrus.Logger
-	corp   memory.CorpConfig
-	debug  bool
-	db     *db.Repository
-	Hades  *hades.Hades
+	client     postgresqlS.Client
+	log        *logrus.Logger
+	corp       memory.CorpConfig
+	global     memory.CorpConfigGl
+	debug      bool
+	db         *db.Repository
+	globalChat *db.Repository
+	Hades      *hades.Hades
 }
 
 func NewCorps(log *logrus.Logger, cfg *config.ConfigBot) *Corps {
@@ -32,10 +34,11 @@ func NewCorps(log *logrus.Logger, cfg *config.ConfigBot) *Corps {
 	hs := hades.NewHades(client, log)
 
 	return &Corps{
-		client: client,
-		log:    log,
-		debug:  cfg.IsDebug,
-		db:     repo,
-		Hades:  hs,
+		client:     client,
+		log:        log,
+		debug:      cfg.IsDebug,
+		db:         repo,
+		Hades:      hs,
+		globalChat: repo,
 	}
 }

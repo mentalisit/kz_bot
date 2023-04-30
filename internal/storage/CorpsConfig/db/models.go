@@ -12,3 +12,13 @@ type ConfigCorp struct {
 	GuildId        string
 	Country        string
 }
+type ConfigCorpGlobal struct {
+	Id          int
+	CorpName    string
+	CorpNameMin string
+	DsChannel   string
+	TgChannel   int64
+	WaChannel   string
+	GuildId     string
+	Country     string
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"kz_bot/internal/GlobalChat"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
@@ -57,7 +58,7 @@ func RunNew() error {
 	cl := clients.NewClients(log, st, cfg)
 	go hades.NewHades(cl)
 	go bot.NewBot(st, cl, log, cfg)
-
+	go GlobalChat.NewChat(st, cl, log)
 	//ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	//defer cancel()
 
