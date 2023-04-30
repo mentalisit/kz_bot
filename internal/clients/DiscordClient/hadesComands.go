@@ -48,8 +48,16 @@ func (d *Discord) avatar(arg []string, m *discordgo.MessageCreate) bool {
 			}
 			for _, member := range members {
 				if member.User.ID == mentionIds[0][1] {
+					aname := m.Author.Username
+					if m.Member.Nick != "" {
+						aname = m.Member.Nick
+					}
+					name := member.User.Username
+					if member.Nick != "" {
+						name = member.Nick
+					}
 					em := &discordgo.MessageEmbed{
-						Title: "Аватар по запросу " + m.Author.Username,
+						Title: fmt.Sprintf("Аватар %s по запросу %s", name, aname),
 						Color: 14232643,
 						Image: &discordgo.MessageEmbedImage{
 							URL: member.AvatarURL("2048"),
@@ -62,6 +70,7 @@ func (d *Discord) avatar(arg []string, m *discordgo.MessageCreate) bool {
 						return false
 					}
 					go d.DeleteMesageSecond(m.ChannelID, embed.ID, 180)
+					go d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
 					return true
 				}
 			}
