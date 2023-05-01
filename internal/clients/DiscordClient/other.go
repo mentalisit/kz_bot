@@ -54,7 +54,7 @@ func (d *Discord) DMchannel(AuthorID string) (chatidDM string) {
 func (d *Discord) CleanChat(chatid, mesid, text string) {
 	res := strings.HasPrefix(text, ".")
 	if !res { //если нет префикса  то удалить через 3 минуты
-		go d.DeleteMesageSecond(chatid, mesid, 180)
+		go d.DeleteMesageSecond(chatid, mesid, 179)
 	}
 }
 

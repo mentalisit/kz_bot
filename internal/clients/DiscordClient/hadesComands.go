@@ -69,7 +69,7 @@ func (d *Discord) avatar(arg []string, m *discordgo.MessageCreate) bool {
 						fmt.Println(err.Error())
 						return false
 					}
-					go d.DeleteMesageSecond(m.ChannelID, embed.ID, 180)
+					go d.DeleteMesageSecond(m.ChannelID, embed.ID, 183)
 					go d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
 					return true
 				}
@@ -93,7 +93,7 @@ func (d *Discord) lastWs(arg []string, m *discordgo.MessageCreate) bool {
 		fmt.Printf("lastWs %+v\n", mes)
 		d.sendToGame <- mes
 		go d.SendChannelDelSecond(m.ChannelID, "отправка повтора последней бз", 10)
-		go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
+		go d.DeleteMesageSecond(m.ChannelID, m.ID, 184)
 		return true
 	}
 	return false

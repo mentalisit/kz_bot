@@ -5,3 +5,4 @@
 *.7z
 /config/config.yml
 /config/wa.db
+/config

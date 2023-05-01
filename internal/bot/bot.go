@@ -79,7 +79,7 @@ func (b *Bot) RemoveMessage() { //цикл для удаления сообще�
 
 // LogicRs логика игры
 func (b *Bot) LogicRs() {
-	if len(b.in.Mtext) > 0 {
+	if len(b.in.Mtext) > 0 && b.in.Mtext != " edit" {
 		if b.lRsPlus() {
 		} else if b.lSubs() {
 		} else if b.lQueue() {
@@ -104,7 +104,7 @@ func (b *Bot) LogicRs() {
 }
 
 func (b *Bot) cleanChat() {
-	if b.in.Tip == ds && b.in.Config.DelMesComplite == 0 {
+	if b.in.Tip == ds && b.in.Config.DelMesComplite == 0 && !b.in.Option.Edit {
 		b.client.Ds.CleanChat(b.in.Config.DsChannel, b.in.Ds.Mesid, b.in.Mtext)
 	}
 }
@@ -131,10 +131,10 @@ func (b *Bot) logicIfText() bool {
 func (b *Bot) bridge() {
 	if b.in.Tip == ds {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
+		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 181)
 		b.cleanChat()
 	} else if b.in.Tip == tg {
 		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
+		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 181)
 	}
 }

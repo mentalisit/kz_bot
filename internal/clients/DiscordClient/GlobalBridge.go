@@ -1,6 +1,7 @@
 package DiscordClient
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/memory"
@@ -10,6 +11,7 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 	ok, config := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
 	if ok {
 		if d.blackListFilter(m.Author.ID) {
+			d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
 			return
 		}
 		username := m.Author.Username
@@ -21,6 +23,15 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 				m.Content = m.Content + "\n" + attach.URL
 			}
 		}
+		fmt.Printf("	logicMixGlobal MentionEveryone %+v\n", m.MentionEveryone)
+		fmt.Printf("	logicMixGlobal MentionRoles %+v\n", m.MentionRoles)
+		fmt.Printf("	logicMixGlobal MentionChannels %+v\n", m.MentionChannels)
+		fmt.Printf("	logicMixGlobal Mentions %+v\n", m.Mentions)
+		//fmt.Printf("	logicMixGlobal ContentWithMentionsReplaced() %+v\n", m.ContentWithMentionsReplaced())
+		fmt.Printf("	logicMixGlobal Content %s\n", m.Content)
+		fmt.Printf("	logicMixGlobal m.Type %+v\n", m.Type)
+		fmt.Printf("	logicMixGlobal m.Message.Type %+v\n", m.Message.Type)
+
 		mes := models.InGlobalMessage{
 			Content: d.replaceTextMessage(m.Content, m.GuildID),
 			Tip:     "ds",
@@ -43,7 +54,6 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 		d.globalChat <- mes
 	}
 
-	//if !blacklist m.Author.ID
 	//text:= cenzura m.Content
 
 }

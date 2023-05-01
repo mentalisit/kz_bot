@@ -9,7 +9,7 @@ import (
 
 // lang
 func (b *Bot) iftipdelete() {
-	if b.in.Tip == ds && !b.in.Option.Reaction && !b.in.Option.Update {
+	if b.in.Tip == ds && !b.in.Option.Reaction && !b.in.Option.Update && !b.in.Option.Edit {
 		go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 	} else if b.in.Tip == tg && !b.in.Option.Reaction && !b.in.Option.Update {
 		go b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)

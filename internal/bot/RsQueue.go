@@ -47,8 +47,12 @@ func (b *Bot) QueueLevel() {
 				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl)
 				if b.in.Option.Edit {
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
-				} else if !b.in.Option.Edit {
+					errr := b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					if errr != nil {
+						b.in.Option.Edit = false
+					}
+				}
+				if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)
 

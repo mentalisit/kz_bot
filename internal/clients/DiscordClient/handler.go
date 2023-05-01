@@ -18,6 +18,15 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 	d.logicMix(m)
 
 }
+func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) { //nolint:unparam
+	if m.Message.EditedTimestamp != nil && m.Content != "" {
+		m.Content += " edit"
+		msg := &discordgo.MessageCreate{
+			Message: m.Message,
+		}
+		d.logicMix(msg)
+	}
+}
 
 func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := s.ChannelMessage(r.ChannelID, r.MessageID)

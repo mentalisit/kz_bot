@@ -9,7 +9,7 @@ import (
 
 func (d *Discord) Help(Channel string) {
 	mId := d.hhelp1(Channel)
-	d.DeleteMesageSecond(Channel, mId, 180)
+	d.DeleteMesageSecond(Channel, mId, 184)
 }
 
 func (d *Discord) Autohelpds() {

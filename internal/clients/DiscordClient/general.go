@@ -46,13 +46,17 @@ func (d *Discord) DeleteMesageSecond(chatid, mesid string, second int) {
 		}()
 	}
 }
-func (d *Discord) EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed) {
-	_, _ = d.s.ChannelMessageEditComplex(&discordgo.MessageEdit{
+func (d *Discord) EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed) error {
+	_, err := d.s.ChannelMessageEditComplex(&discordgo.MessageEdit{
 		Content: &mesContentNil,
 		Embed:   &Embeds,
 		ID:      dsmesid,
 		Channel: dschatid,
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 	g, err := d.s.State.Guild(guildid)
