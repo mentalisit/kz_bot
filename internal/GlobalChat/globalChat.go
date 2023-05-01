@@ -8,6 +8,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/internal/storage/memory"
+	"strings"
 )
 
 type Chat struct {
@@ -36,10 +37,18 @@ func (c *Chat) loadInbox() {
 }
 func (c *Chat) logic() {
 	if c.in.Tip == "ds" {
+		tip := strings.ToUpper(c.in.Tip)
 		for _, global := range *memory.G {
 			if global.DsChannel != "" && global.DsChannel != c.in.Ds.ChatId {
-				username := fmt.Sprintf("%s ([%s]%s)", c.in.Name, c.in.Tip, c.in.Config.CorpName)
-				c.client.Ds.SendWebhook(c.in.Content, username, global.DsChannel, global.GuildId, c.in.Ds.Avatar)
+				username := fmt.Sprintf("%s ([%s]%s)", c.in.Name, tip, c.in.Config.CorpName)
+				if c.in.Ds.Reply.Reply.Text != "" {
+					reply := c.in.Ds.Reply
+					reply.GuildId = global.GuildId
+					reply.ChatId = global.DsChannel
+					c.client.Ds.SendWebhookReply(reply)
+				} else {
+					c.client.Ds.SendWebhook(c.in.Content, username, global.DsChannel, global.GuildId, c.in.Ds.Avatar)
+				}
 			}
 		}
 	}

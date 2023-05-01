@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
+	"kz_bot/internal/models"
 	"time"
 )
 
@@ -100,6 +101,36 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (m
 	if err != nil {
 		fmt.Println(err)
 		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений")
+		return ""
+	}
+	return mes.ID
+}
+
+func (d *Discord) SendWebhookReply(m models.ReplyWebhookMessage) (mesId string) {
+	web := transmitter.New(d.s, m.GuildId, "KzBot", true, d.log)
+	var embeds []*discordgo.MessageEmbed
+	e := discordgo.MessageEmbed{
+		Description: m.Reply.Text,
+		Timestamp:   m.Reply.TimeMessage.Format(time.RFC3339),
+		Color:       14232643,
+		Author: &discordgo.MessageEmbedAuthor{
+			Name:    m.Reply.UserName,
+			IconURL: m.Reply.Avatar,
+		},
+	}
+
+	embeds = append(embeds, &e)
+
+	pp := &discordgo.WebhookParams{
+		Content:   m.Text,
+		Username:  m.Username,
+		AvatarURL: m.Avatar,
+		Embeds:    embeds,
+	}
+	mes, err := web.Send(m.ChatId, pp)
+	if err != nil {
+		d.log.Println(err)
+		d.Send(m.ChatId, "ошибка отправки вебхука..недостаточно разрешений")
 		return ""
 	}
 	return mes.ID

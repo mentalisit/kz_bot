@@ -91,19 +91,18 @@ func (d *Discord) dsChatName(chatid, guildid string) string {
 }
 
 func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
-	newRole, err := d.s.GuildRoleCreate(guildid)
+	t := true
+	perm := int64(37080064)
+	create, err := d.s.GuildRoleCreate(guildid, &discordgo.RoleParams{
+		Name:        rolPing,
+		Permissions: &perm,
+		Mentionable: &t,
+	})
 	if err != nil {
 		d.log.Println("ошибка создании новой роли ", err)
+		return nil
 	}
-	role, err := d.s.GuildRoleEdit(guildid, newRole.ID, rolPing, newRole.Color, newRole.Hoist, 37080064, true)
-	if err != nil {
-		d.log.Println("Ошибка изменения новой роли", err)
-		err = d.s.GuildRoleDelete(guildid, newRole.ID)
-		if err != nil {
-			d.log.Println("ошибка удаления новой роли ", err)
-		}
-	}
-	return role
+	return create
 }
 
 func (d *Discord) getLang(chatId, key string) string {

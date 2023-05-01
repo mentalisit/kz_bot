@@ -1,10 +1,11 @@
 package DiscordClient
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/memory"
+	"strings"
+	"time"
 )
 
 func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
@@ -12,6 +13,9 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 	if ok {
 		if d.blackListFilter(m.Author.ID) {
 			d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
+			return
+		}
+		if ifPrefix(m.Content) {
 			return
 		}
 		username := m.Author.Username
@@ -23,14 +27,6 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 				m.Content = m.Content + "\n" + attach.URL
 			}
 		}
-		fmt.Printf("	logicMixGlobal MentionEveryone %+v\n", m.MentionEveryone)
-		fmt.Printf("	logicMixGlobal MentionRoles %+v\n", m.MentionRoles)
-		fmt.Printf("	logicMixGlobal MentionChannels %+v\n", m.MentionChannels)
-		fmt.Printf("	logicMixGlobal Mentions %+v\n", m.Mentions)
-		//fmt.Printf("	logicMixGlobal ContentWithMentionsReplaced() %+v\n", m.ContentWithMentionsReplaced())
-		fmt.Printf("	logicMixGlobal Content %s\n", m.Content)
-		fmt.Printf("	logicMixGlobal m.Type %+v\n", m.Type)
-		fmt.Printf("	logicMixGlobal m.Message.Type %+v\n", m.Message.Type)
 
 		mes := models.InGlobalMessage{
 			Content: d.replaceTextMessage(m.Content, m.GuildID),
@@ -42,6 +38,7 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 				Guildid string
 				Avatar  string
 				ChatId  string
+				Reply   models.ReplyWebhookMessage
 			}{
 				Mesid:   m.ID,
 				Nameid:  m.Author.ID,
@@ -51,6 +48,32 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 			},
 			Config: config,
 		}
+		if m.MessageReference != nil {
+			usernameR := m.ReferencedMessage.Author.Username
+			if m.ReferencedMessage.Member != nil {
+				usernameR = m.Member.Nick
+			}
+			w := models.ReplyWebhookMessage{
+				Text:     d.replaceTextMessage(m.Content, m.GuildID),
+				Username: username,
+				ChatId:   m.ChannelID,
+				GuildId:  m.GuildID,
+				Avatar:   m.Author.AvatarURL("128"),
+				Reply: struct {
+					TimeMessage time.Time
+					Text        string
+					Avatar      string
+					UserName    string
+				}{
+					TimeMessage: m.ReferencedMessage.Timestamp,
+					Text:        m.ReferencedMessage.Content,
+					Avatar:      m.ReferencedMessage.Author.AvatarURL("128"),
+					UserName:    usernameR,
+				},
+			}
+			mes.Ds.Reply = w
+		}
+
 		d.globalChat <- mes
 	}
 
@@ -64,4 +87,14 @@ func (d *Discord) blackListFilter(userid string) bool {
 		}
 	}
 	return false
+}
+func ifPrefix(s string) (prefixBool bool) {
+	prefix := []string{".", "!", "%", "-"}
+	for _, p := range prefix {
+		if strings.HasPrefix(s, p) {
+			prefixBool = true
+			break
+		}
+	}
+	return prefixBool
 }

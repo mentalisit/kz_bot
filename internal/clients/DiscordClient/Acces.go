@@ -3,6 +3,7 @@ package DiscordClient
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/storage/memory"
 	"strings"
@@ -72,6 +73,8 @@ func (d *Discord) accessAddGlobalDs(m *discordgo.MessageCreate) {
 					return
 				} else {
 					d.SendChannelDelSecond(m.ChannelID, "GlobalChat активирован", 10)
+					m.Content = fmt.Sprintf("%s присоеденилась к реле Rs_bot", guild.Name)
+					d.logicMixGlobal(m)
 				}
 
 			}

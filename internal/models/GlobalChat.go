@@ -1,6 +1,9 @@
 package models
 
-import "kz_bot/internal/storage/memory"
+import (
+	"kz_bot/internal/storage/memory"
+	"time"
+)
 
 type InGlobalMessage struct {
 	Content string
@@ -12,6 +15,7 @@ type InGlobalMessage struct {
 		Guildid string
 		Avatar  string
 		ChatId  string
+		Reply   ReplyWebhookMessage
 	}
 	Tg struct {
 		Mesid  int
@@ -22,4 +26,13 @@ type InGlobalMessage struct {
 		Mesid  string
 	}
 	Config memory.ConfigGlobal
+}
+type ReplyWebhookMessage struct {
+	Text, Username, ChatId, GuildId, Avatar string
+	Reply                                   struct {
+		TimeMessage time.Time
+		Text        string
+		Avatar      string
+		UserName    string
+	}
 }
