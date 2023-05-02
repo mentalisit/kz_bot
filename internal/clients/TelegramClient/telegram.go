@@ -39,7 +39,7 @@ func NewTelegram(inbox chan models.InMessage, togame chan models.Message, log *l
 
 	return tg
 }
-func (t Telegram) update() {
+func (t *Telegram) update() {
 	ut := tgbotapi.NewUpdate(0)
 	ut.Timeout = 60
 	//получаем обновления от телеграм
@@ -76,4 +76,7 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 			"я еще не решил как тут сделать"+
 			"Присылай идеи для работы с ботом мне @mentalisit ")
 	}
+}
+func (t *Telegram) name() {
+
 }

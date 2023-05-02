@@ -15,7 +15,7 @@ func (b *Bot) RsPlus() {
 		fmt.Printf("\n\nin RsPlus %+v\n", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 	CountName, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
 	if err != nil {

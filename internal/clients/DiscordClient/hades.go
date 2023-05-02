@@ -38,14 +38,16 @@ func (d *Discord) sendToG(m *discordgo.MessageCreate, corp models.Corporation, c
 	if m.Content == "" {
 		return
 	}
+	name := m.Author.Username
 	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
 	if e != nil {
 		fmt.Println("Ошибка получения ника пользователя", e, m.ID)
+	} else if member != nil {
+		if member.Nick != "" {
+			name = member.Nick
+		}
 	}
-	name := m.Author.Username
-	if member.Nick != "" {
-		name = member.Nick
-	}
+
 	newText := d.replaceTextMessage(m.Content, m.GuildID)
 	mes := models.Message{
 		Text:        newText,

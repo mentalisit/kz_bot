@@ -32,19 +32,19 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 			Content: d.replaceTextMessage(m.Content, m.GuildID),
 			Tip:     "ds",
 			Name:    username,
-			Ds: struct {
-				Mesid   string
-				Nameid  string
-				Guildid string
-				Avatar  string
-				ChatId  string
-				Reply   models.ReplyWebhookMessage
-			}{
-				Mesid:   m.ID,
-				Nameid:  m.Author.ID,
-				Guildid: m.GuildID,
-				Avatar:  m.Author.AvatarURL("128"),
-				ChatId:  m.ChannelID,
+			Ds: models.InGlobalMessageDs{
+				MesId:         m.ID,
+				NameId:        m.Author.ID,
+				ChatId:        m.ChannelID,
+				GuildId:       m.GuildID,
+				Avatar:        m.Author.AvatarURL("128"),
+				TimestampUnix: m.Timestamp.Unix(),
+				Reply: struct {
+					TimeMessage time.Time
+					Text        string
+					Avatar      string
+					UserName    string
+				}{},
 			},
 			Config: config,
 		}
@@ -53,25 +53,10 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 			if m.ReferencedMessage.Member != nil {
 				usernameR = m.Member.Nick
 			}
-			w := models.ReplyWebhookMessage{
-				Text:     d.replaceTextMessage(m.Content, m.GuildID),
-				Username: username,
-				ChatId:   m.ChannelID,
-				GuildId:  m.GuildID,
-				Avatar:   m.Author.AvatarURL("128"),
-				Reply: struct {
-					TimeMessage time.Time
-					Text        string
-					Avatar      string
-					UserName    string
-				}{
-					TimeMessage: m.ReferencedMessage.Timestamp,
-					Text:        m.ReferencedMessage.Content,
-					Avatar:      m.ReferencedMessage.Author.AvatarURL("128"),
-					UserName:    usernameR,
-				},
-			}
-			mes.Ds.Reply = w
+			mes.Ds.Reply.UserName = usernameR
+			mes.Ds.Reply.Text = m.ReferencedMessage.Content
+			mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
+			mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
 		}
 
 		d.globalChat <- mes
@@ -97,4 +82,11 @@ func ifPrefix(s string) (prefixBool bool) {
 		}
 	}
 	return prefixBool
+}
+func (d *Discord) deleteMessageGlobalChat(DelMessageId string) {
+	command := models.InGlobalMessage{
+		Content: DelMessageId,
+		Tip:     "del",
+	}
+	d.globalChat <- command
 }

@@ -27,6 +27,12 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 		d.logicMix(msg)
 	}
 }
+func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
+	ok, _ := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
+	if ok {
+		d.deleteMessageGlobalChat(m.ID)
+	}
+}
 
 func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	message, err := s.ChannelMessage(r.ChannelID, r.MessageID)

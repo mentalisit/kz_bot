@@ -106,31 +106,31 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (m
 	return mes.ID
 }
 
-func (d *Discord) SendWebhookReply(m models.ReplyWebhookMessage) (mesId string) {
-	web := transmitter.New(d.s, m.GuildId, "KzBot", true, d.log)
+func (d *Discord) SendWebhookReply(m models.InGlobalMessage) (mesId string) {
+	web := transmitter.New(d.s, m.Ds.GuildId, "KzBot", true, d.log)
 	var embeds []*discordgo.MessageEmbed
 	e := discordgo.MessageEmbed{
-		Description: m.Reply.Text,
-		Timestamp:   m.Reply.TimeMessage.Format(time.RFC3339),
+		Description: m.Ds.Reply.Text,
+		Timestamp:   m.Ds.Reply.TimeMessage.Format(time.RFC3339),
 		Color:       14232643,
 		Author: &discordgo.MessageEmbedAuthor{
-			Name:    m.Reply.UserName,
-			IconURL: m.Reply.Avatar,
+			Name:    m.Ds.Reply.UserName,
+			IconURL: m.Ds.Reply.Avatar,
 		},
 	}
 
 	embeds = append(embeds, &e)
 
 	pp := &discordgo.WebhookParams{
-		Content:   m.Text,
-		Username:  m.Username,
-		AvatarURL: m.Avatar,
+		Content:   m.Content,
+		Username:  m.Name,
+		AvatarURL: m.Ds.Avatar,
 		Embeds:    embeds,
 	}
-	mes, err := web.Send(m.ChatId, pp)
+	mes, err := web.Send(m.Ds.ChatId, pp)
 	if err != nil {
 		d.log.Println(err)
-		d.Send(m.ChatId, "ошибка отправки вебхука..недостаточно разрешений")
+		d.Send(m.Ds.ChatId, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
 		return ""
 	}
 	return mes.ID

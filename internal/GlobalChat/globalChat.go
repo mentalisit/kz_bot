@@ -12,16 +12,18 @@ import (
 )
 
 type Chat struct {
-	storage *storage.Storage
-	client  *clients.Clients
-	log     *logrus.Logger
-	inbox   chan models.InGlobalMessage
-	in      models.InGlobalMessage
+	storage                   *storage.Storage
+	client                    *clients.Clients
+	log                       *logrus.Logger
+	inbox                     chan models.InGlobalMessage
+	in                        models.InGlobalMessage
+	GlobalChatMemoryMessageId []models.MessageMemory
 }
 
 func NewChat(storage *storage.Storage, client *clients.Clients, log *logrus.Logger) *Chat {
 	c := &Chat{storage: storage, client: client, log: log, inbox: client.GlobalChat}
-	c.loadInbox()
+	go c.loadInbox()
+	go c.removeIfTimeDay()
 	return c
 }
 func (c *Chat) loadInbox() {
@@ -38,18 +40,40 @@ func (c *Chat) loadInbox() {
 func (c *Chat) logic() {
 	if c.in.Tip == "ds" {
 		tip := strings.ToUpper(c.in.Tip)
+		var mem models.MessageMemory
+		mem.Timestamp = c.in.Ds.TimestampUnix
+		mem.Message = append(mem.Message, struct {
+			MessageId string
+			ChatId    string
+		}{
+			MessageId: c.in.Ds.MesId,
+			ChatId:    c.in.Ds.ChatId,
+		})
 		for _, global := range *memory.G {
 			if global.DsChannel != "" && global.DsChannel != c.in.Ds.ChatId {
 				username := fmt.Sprintf("%s ([%s]%s)", c.in.Name, tip, c.in.Config.CorpName)
-				if c.in.Ds.Reply.Reply.Text != "" {
-					reply := c.in.Ds.Reply
-					reply.GuildId = global.GuildId
-					reply.ChatId = global.DsChannel
-					c.client.Ds.SendWebhookReply(reply)
+				var mes string
+				if c.in.Ds.Reply.Text != "" {
+					c.in.Ds.GuildId = global.GuildId
+					c.in.Ds.ChatId = global.DsChannel
+					mes = c.client.Ds.SendWebhookReply(c.in)
+
 				} else {
-					c.client.Ds.SendWebhook(c.in.Content, username, global.DsChannel, global.GuildId, c.in.Ds.Avatar)
+					mes = c.client.Ds.SendWebhook(c.in.Content, username,
+						global.DsChannel, global.GuildId,
+						c.in.Ds.Avatar)
 				}
+				mem.Message = append(mem.Message, struct {
+					MessageId string
+					ChatId    string
+				}{
+					MessageId: mes,
+					ChatId:    global.DsChannel,
+				})
 			}
 		}
+		c.GlobalChatMemoryMessageId = append(c.GlobalChatMemoryMessageId, mem)
+	} else if c.in.Tip == "del" {
+		c.RemoveMessage(c.in.Content)
 	}
 }

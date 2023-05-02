@@ -34,6 +34,7 @@ func NewDiscord(inbox chan models.InMessage, sendToGame chan models.Message, log
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)
 	ds.AddHandler(DS.messageReactionAdd)
+	ds.AddHandler(DS.onMessageDelete)
 	ds.AddHandler(DS.slash)
 	ds.AddHandler(DS.ready)
 
