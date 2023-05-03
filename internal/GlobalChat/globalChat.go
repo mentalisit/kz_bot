@@ -8,6 +8,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/internal/storage/memory"
+	"regexp"
 	"strings"
 )
 
@@ -40,6 +41,7 @@ func (c *Chat) loadInbox() {
 func (c *Chat) logic() {
 	if c.in.Tip == "ds" {
 		tip := strings.ToUpper(c.in.Tip)
+		c.in.Content = filterMessageLinks(c.in.Content)
 		var mem models.MessageMemory
 		mem.Timestamp = c.in.Ds.TimestampUnix
 		mem.Message = append(mem.Message, struct {
@@ -59,7 +61,8 @@ func (c *Chat) logic() {
 					mes = c.client.Ds.SendWebhookReply(c.in)
 
 				} else {
-					mes = c.client.Ds.SendWebhook(c.in.Content, username,
+					t := c.replaceTextMentionRsRole(c.in.Content, global.GuildId)
+					mes = c.client.Ds.SendWebhook(t, username,
 						global.DsChannel, global.GuildId,
 						c.in.Ds.Avatar)
 				}
@@ -76,4 +79,34 @@ func (c *Chat) logic() {
 	} else if c.in.Tip == "del" {
 		c.RemoveMessage(c.in.Content)
 	}
+}
+func filterMessageLinks(input string) string {
+	// Регулярное выражение для поиска ссылок
+	re := regexp.MustCompile(`(https?://[^\s]+)`)
+	// Список разрешенных ссылок
+	allowedLinks := []string{
+		"https://t.me/",
+		"https://discord.com/channels/",
+		"https://discord.gg/",
+		"https://userxinos.github.io/",
+	}
+	// Запрещенная ссылка
+	forbiddenLink := "запрещенная ссылка"
+	// Заменяем все ссылки, кроме разрешенных, на запрещенную ссылку
+	output := re.ReplaceAllStringFunc(input, func(link string) string {
+		for _, allowedLink := range allowedLinks {
+			if strings.HasPrefix(link, allowedLink) {
+				return link
+			}
+		}
+		return forbiddenLink
+	})
+	return output
+}
+func (c *Chat) replaceTextMentionRsRole(input, guildId string) string {
+	re := regexp.MustCompile(`@&rs([4-9]|1[0-2])`)
+	output := re.ReplaceAllStringFunc(input, func(s string) string {
+		return c.client.Ds.TextToRoleRsPing(s[2:], guildId)
+	})
+	return output
 }

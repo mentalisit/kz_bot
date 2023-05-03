@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/memory"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -15,11 +16,15 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 			d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
 			return
 		}
+		if d.ifAsksForRoleRs(m) {
+			go d.DeleteMessage(m.ChannelID, m.ID)
+			return
+		}
 		if ifPrefix(m.Content) {
 			return
 		}
 		username := m.Author.Username
-		if m.Member.Nick != "" {
+		if m.Member != nil && m.Member.Nick != "" {
 			username = m.Member.Nick
 		}
 		if len(m.Attachments) > 0 {
@@ -82,6 +87,28 @@ func ifPrefix(s string) (prefixBool bool) {
 		}
 	}
 	return prefixBool
+}
+func (d *Discord) ifAsksForRoleRs(m *discordgo.MessageCreate) bool {
+	var role bool
+	after, found := strings.CutPrefix(m.Content, ".")
+	if found {
+		re := regexp.MustCompile(`^rs([4-9]|1[0-2])$`)
+		after = re.ReplaceAllStringFunc(after, func(s string) string {
+			r := d.Subscribe(m.Author.ID, s, m.GuildID)
+			if r == 0 {
+				role = true
+				d.SendChannelDelSecond(m.ChannelID, m.Author.Mention()+" подписался на "+s, 10)
+			} else if r == 1 {
+				role = true
+				d.SendChannelDelSecond(m.ChannelID, m.Author.Mention()+" уже подписан на "+s, 10)
+			} else if r == 2 {
+				d.SendChannelDelSecond(m.ChannelID, m.Author.Mention()+" ошибка выдачи роли "+s, 10)
+				d.log.Println("error add globalRsRole ")
+			}
+			return after
+		})
+	}
+	return role
 }
 func (d *Discord) deleteMessageGlobalChat(DelMessageId string) {
 	command := models.InGlobalMessage{

@@ -36,6 +36,23 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 		return role.Mention()
 	}
 }
+func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
+
+	if guildid == "" {
+		d.log.Panic("почему то нет гуилд ид")
+		panic("почему то нет гуилд ид")
+	}
+	g, err := d.s.Guild(guildid)
+	if err != nil {
+		d.log.Println("ошибка получении гильдии при получении роли", err)
+	}
+	exist, role := d.roleExists(g, rolePing)
+	if !exist {
+		return fmt.Sprintf("`роль %s не найдена в %s`", rolePing, g.Name)
+	} else {
+		return role.Mention()
+	}
+}
 func (d *Discord) BotName() string { //получаем имя бота
 	u, err := d.s.User("@me")
 	if err != nil {
