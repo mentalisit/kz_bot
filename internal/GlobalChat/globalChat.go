@@ -89,7 +89,7 @@ func filterMessageLinks(input string) string {
 	allowedLinks := []string{
 		"https://t.me/",
 		"https://discord.com/channels/",
-		"https://cdn.discord.com/attachments/",
+		"https://cdn.discordapp.com/attachments/",
 		"https://discord.gg/",
 		"https://userxinos.github.io/",
 	}
