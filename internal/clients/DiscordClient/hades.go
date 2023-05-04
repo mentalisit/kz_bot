@@ -35,7 +35,7 @@ func (d *Discord) sendToG(m *discordgo.MessageCreate, corp models.Corporation, c
 			m.Content = m.Content + "\n" + attach.URL
 		}
 	}
-	if m.Content == "" {
+	if m.Content == "" || m.Message.EditedTimestamp != nil {
 		return
 	}
 	name := m.Author.Username
