@@ -6,7 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
-	"kz_bot/internal/models"
 	"time"
 )
 
@@ -106,31 +105,31 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (m
 	return mes.ID
 }
 
-func (d *Discord) SendWebhookReply(m models.InGlobalMessage) (mesId string) {
-	web := transmitter.New(d.s, m.Ds.GuildId, "KzBot", true, d.log)
+func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar string, replytext, replyAvatar, replyName string, replyTime time.Time) (mesId string) {
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
 	var embeds []*discordgo.MessageEmbed
 	e := discordgo.MessageEmbed{
-		Description: m.Ds.Reply.Text,
-		Timestamp:   m.Ds.Reply.TimeMessage.Format(time.RFC3339),
+		Description: replytext,
+		Timestamp:   replyTime.Format(time.RFC3339),
 		Color:       14232643,
 		Author: &discordgo.MessageEmbedAuthor{
-			Name:    m.Ds.Reply.UserName,
-			IconURL: m.Ds.Reply.Avatar,
+			Name:    replyName,
+			IconURL: replyAvatar,
 		},
 	}
 
 	embeds = append(embeds, &e)
 
 	pp := &discordgo.WebhookParams{
-		Content:   m.Content,
-		Username:  m.Name,
-		AvatarURL: m.Ds.Avatar,
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
 		Embeds:    embeds,
 	}
-	mes, err := web.Send(m.Ds.ChatId, pp)
+	mes, err := web.Send(chatid, pp)
 	if err != nil {
 		d.log.Println(err)
-		d.Send(m.Ds.ChatId, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
+		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
 		return ""
 	}
 	return mes.ID

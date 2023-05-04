@@ -56,13 +56,15 @@ func (c *Chat) logic() {
 				username := fmt.Sprintf("%s ([%s]%s)", c.in.Name, tip, c.in.Config.CorpName)
 				var mes string
 				if c.in.Ds.Reply.Text != "" {
-					c.in.Ds.GuildId = global.GuildId
-					c.in.Ds.ChatId = global.DsChannel
-					mes = c.client.Ds.SendWebhookReply(c.in)
-
+					mes = c.client.Ds.SendWebhookReply(c.in.Content, username,
+						global.DsChannel, global.GuildId, c.in.Ds.Avatar,
+						c.in.Ds.Reply.Text,
+						c.in.Ds.Reply.Avatar,
+						c.in.Ds.Reply.UserName,
+						c.in.Ds.Reply.TimeMessage)
 				} else {
-					t := c.replaceTextMentionRsRole(c.in.Content, global.GuildId)
-					mes = c.client.Ds.SendWebhook(t, username,
+					texts := c.replaceTextMentionRsRole(c.in.Content, global.GuildId)
+					mes = c.client.Ds.SendWebhook(texts, username,
 						global.DsChannel, global.GuildId,
 						c.in.Ds.Avatar)
 				}

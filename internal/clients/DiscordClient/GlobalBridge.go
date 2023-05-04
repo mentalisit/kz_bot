@@ -55,8 +55,8 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 		}
 		if m.MessageReference != nil {
 			usernameR := m.ReferencedMessage.Author.Username
-			if m.ReferencedMessage.Member != nil {
-				usernameR = m.Member.Nick
+			if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
+				usernameR = m.ReferencedMessage.Member.Nick
 			}
 			mes.Ds.Reply.UserName = usernameR
 			mes.Ds.Reply.Text = m.ReferencedMessage.Content
@@ -107,6 +107,14 @@ func (d *Discord) ifAsksForRoleRs(m *discordgo.MessageCreate) bool {
 			}
 			return after
 		})
+		if after == "список" || after == "Список" {
+			var corps = "Список подключеных серверов"
+			for _, global := range *memory.G {
+				corps = corps + "\n" + global.CorpName
+			}
+			role = true
+			d.SendChannelDelSecond(m.ChannelID, corps, 60)
+		}
 	}
 	return role
 }

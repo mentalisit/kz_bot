@@ -21,10 +21,10 @@ type InGlobalMessage struct {
 	Config memory.ConfigGlobal
 }
 type InGlobalMessageDs struct {
-	MesId         string
-	NameId        string
-	Text          string
-	Username      string
+	MesId  string
+	NameId string
+	//Text          string
+	//Username      string
 	ChatId        string
 	GuildId       string
 	Avatar        string
