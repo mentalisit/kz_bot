@@ -79,7 +79,7 @@ func (b *Bot) RemoveMessage() { //цикл для удаления сообще�
 
 // LogicRs логика игры
 func (b *Bot) LogicRs() {
-	if len(b.in.Mtext) > 0 && b.in.Mtext != " edit" {
+	if len(b.in.Mtext) > 0 && b.in.Mtext != " `edit`" {
 		if b.lRsPlus() {
 		} else if b.lSubs() {
 		} else if b.lQueue() {

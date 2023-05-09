@@ -20,7 +20,7 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 }
 func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) { //nolint:unparam
 	if m.Message.EditedTimestamp != nil && m.Content != "" {
-		m.Content += " edit"
+		m.Content += " `edit`"
 		msg := &discordgo.MessageCreate{
 			Message: m.Message,
 		}

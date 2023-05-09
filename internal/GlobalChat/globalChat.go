@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var messageTextAuthor [2]string
+
 type Chat struct {
 	storage                   *storage.Storage
 	client                    *clients.Clients
@@ -38,7 +40,11 @@ func (c *Chat) loadInbox() {
 		}
 	}
 }
+
 func (c *Chat) logic() {
+	if c.checkingForIdenticalMessage() {
+		return
+	}
 	if c.in.Tip == "ds" {
 		tip := strings.ToUpper(c.in.Tip)
 		c.in.Content = filterMessageLinks(c.in.Content)
@@ -112,4 +118,12 @@ func (c *Chat) replaceTextMentionRsRole(input, guildId string) string {
 		return c.client.Ds.TextToRoleRsPing(s[2:], guildId)
 	})
 	return output
+}
+func (c *Chat) checkingForIdenticalMessage() bool {
+	if messageTextAuthor[0] == c.in.Content && messageTextAuthor[1] == c.in.Name {
+		return true
+	}
+	messageTextAuthor[0] = c.in.Content
+	messageTextAuthor[1] = c.in.Name
+	return false
 }
