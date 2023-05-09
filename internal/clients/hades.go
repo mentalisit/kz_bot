@@ -33,9 +33,13 @@ func (c *Clients) filterDs(msg models.Message) {
 func (c *Clients) filterTg(msg models.Message) {
 	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
 	if ok && msg.Command == "text" {
-		if corp.DsChat != "" {
+		if corp.DsChat != "" && msg.ChannelType == 0 {
 			sender := "(TG)" + msg.Sender
 			c.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar)
+		}
+		if corp.DsChatWS1 != "" && msg.ChannelType == 1 {
+			sender := "(TG)" + msg.Sender
+			c.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChatWS1, corp.GuildId, msg.Avatar)
 		}
 	}
 	if ok {

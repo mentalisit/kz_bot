@@ -121,6 +121,7 @@ func (c *Chat) replaceTextMentionRsRole(input, guildId string) string {
 }
 func (c *Chat) checkingForIdenticalMessage() bool {
 	if messageTextAuthor[0] == c.in.Content && messageTextAuthor[1] == c.in.Name {
+		go c.client.Ds.DeleteMessage(c.in.Ds.ChatId, c.in.Ds.MesId)
 		return true
 	}
 	messageTextAuthor[0] = c.in.Content
