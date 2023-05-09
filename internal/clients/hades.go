@@ -25,6 +25,10 @@ func (c *Clients) filterDs(msg models.Message) {
 			text := "(DS)" + msg.Sender + ": " + msg.Text
 			c.Tg.SendChannel(corp.TgChat, text)
 		}
+		if corp.TgChatWS1 != 0 {
+			text := "(DS)" + msg.Sender + ": " + msg.Text
+			c.Tg.SendChannel(corp.TgChatWS1, text)
+		}
 	}
 	if ok {
 		c.ToGame <- msg

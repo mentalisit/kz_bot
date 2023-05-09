@@ -47,6 +47,7 @@ func (t *Telegram) ifMessageForHades(m *tgbotapi.Message) {
 	}
 }
 func (t *Telegram) nameOrNick(UserName, FirstName string) (name string) {
+
 	if UserName != "" {
 		return UserName
 
