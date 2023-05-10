@@ -21,11 +21,11 @@ func (c *Clients) HadesBridge(ds chan models.Message, tg chan models.Message) {
 func (c *Clients) filterDs(msg models.Message) {
 	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
 	if ok && msg.Command == "text" {
-		if corp.TgChat != 0 {
+		if corp.TgChat != 0 && msg.ChannelType == 0 {
 			text := "(DS)" + msg.Sender + ": " + msg.Text
 			c.Tg.SendChannel(corp.TgChat, text)
 		}
-		if corp.TgChatWS1 != 0 {
+		if corp.TgChatWS1 != 0 && msg.ChannelType == 1 {
 			text := "(DS)" + msg.Sender + ": " + msg.Text
 			c.Tg.SendChannel(corp.TgChatWS1, text)
 		}

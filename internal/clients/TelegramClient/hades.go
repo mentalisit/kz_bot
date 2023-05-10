@@ -47,13 +47,15 @@ func (t *Telegram) ifMessageForHades(m *tgbotapi.Message) {
 	}
 }
 func (t *Telegram) nameOrNick(UserName, FirstName string) (name string) {
-
 	if UserName != "" {
-		return UserName
+		name = UserName
 
 	} else {
-		return FirstName
+		name = FirstName
 	}
+	name = replaceGameName(name)
+
+	return name
 }
 
 func (t *Telegram) GetAvatar(userid int64) string {
@@ -78,4 +80,25 @@ func filterRsPl(s string) bool {
 	re := regexp.MustCompile(`^([3-9]|[1][0-2])[\+]$`)
 	match := re.MatchString(s)
 	return match
+}
+func replaceGameName(s string) string {
+	type list struct {
+		nameGame     string
+		nameTelegram string
+	}
+	userList := []list{
+		{nameGame: "Колхоз", nameTelegram: "andvs"},
+		{nameGame: "Ivan", nameTelegram: "Ivan_Belskiy"},
+		{nameGame: "Vovkasotka", nameTelegram: "HexagonChip"},
+		{nameGame: "Джон Джонович", nameTelegram: "i_kebab"},
+		{nameGame: "Encounter", nameTelegram: "Encounter1793"},
+		{nameGame: "Angel", nameTelegram: "Angel_12346"},
+		{nameGame: "Менталисит", nameTelegram: "Mentalisit"},
+	}
+	for _, l := range userList {
+		if l.nameTelegram == s {
+			return l.nameGame
+		}
+	}
+	return s
 }
