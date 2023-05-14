@@ -59,7 +59,7 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 				usernameR = m.ReferencedMessage.Member.Nick
 			}
 			mes.Ds.Reply.UserName = usernameR
-			mes.Ds.Reply.Text = m.ReferencedMessage.Content
+			mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
 			mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
 			mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
 		}

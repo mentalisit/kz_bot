@@ -2,6 +2,7 @@ package DiscordClient
 
 import (
 	"context"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"time"
@@ -86,7 +87,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	err := d.s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if err != nil {
-		d.log.Println("Ошибка удаления эмоджи", err)
+		fmt.Println("Ошибка удаления эмоджи", err)
 	}
 }
 

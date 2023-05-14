@@ -39,13 +39,16 @@ func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageR
 	if err != nil {
 		channel, err1 := s.Channel(r.ChannelID)
 		if err1 != nil {
+			d.log.Println("err1 ", err1.Error())
 			return
 		}
 		user, err2 := s.User(r.UserID)
 		if err2 != nil {
+			d.log.Println("err2 ", err2.Error())
 			return
 		}
-		d.log.Println(fmt.Sprintln(channel.Name, r.Emoji, user.Username))
+		d.log.Println(fmt.Sprintln(channel.Name, r.Emoji.Name, user.Username, err.Error()))
+		return
 	}
 
 	if message.Author.ID == s.State.User.ID {
