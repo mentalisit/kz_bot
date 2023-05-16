@@ -342,11 +342,24 @@ func (b *Bot) SendALLChannel() (bb bool) {
 	return bb
 }
 
-func (b *Bot) lIfCommand(bb bool) {
+func (b *Bot) lIfCommand() bool {
 	re := regexp.MustCompile(`^\. Добавить ([0-2]) (.+)`)
 	matches := re.FindStringSubmatch(b.in.Mtext)
 	if len(matches) > 0 {
 		fmt.Println("rang " + matches[1])
 		fmt.Println("name " + matches[2])
+		return true
 	}
+
+	reclin := regexp.MustCompile(`^\. Очистка (\d{1,2}|100) (.+)`)
+	matches = reclin.FindStringSubmatch(b.in.Mtext)
+	if len(matches) > 0 {
+		fmt.Println("Очистка " + matches[1])
+		fmt.Println("limitMessage " + matches[2])
+		if matches[1] == "Очистка" {
+			b.client.Ds.CleanOldMessageChannel(b.in.Config.DsChannel, matches[2])
+			return true
+		}
+	}
+	return false
 }

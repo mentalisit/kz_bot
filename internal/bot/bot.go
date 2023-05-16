@@ -88,6 +88,7 @@ func (b *Bot) LogicRs() {
 		} else if b.lTop() {
 		} else if b.lEmoji() {
 		} else if b.logicIfText() {
+		} else if b.lIfCommand() {
 		} else if b.SendALLChannel() {
 			//пробуем мост между месенджерами
 		} else if b.in.Config.TgChannel != 0 && b.in.Config.DsChannel != "" {

@@ -3,6 +3,7 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"strconv"
 	"strings"
 )
 
@@ -125,4 +126,28 @@ func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
 func (d *Discord) getLang(chatId, key string) string {
 	_, conf := d.storage.Cache.CheckChannelConfigDS(chatId)
 	return d.storage.Words.GetWords(conf.Country, key)
+}
+
+func (d *Discord) CleanOldMessageChannel(chatId, lim string) {
+	limit, _ := strconv.Atoi(lim)
+	if limit == 0 {
+		return
+	}
+	messages, err := d.s.ChannelMessages(chatId, limit, "", "", "")
+	if err != nil {
+		d.log.Println("error return[]message " + err.Error())
+		return
+	}
+	for _, message := range messages {
+		if message.WebhookID == "" {
+			if message.Author.Bot {
+				d.DeleteMessage(chatId, message.ID)
+				continue
+			}
+			if !strings.HasPrefix(message.Content, ".") {
+				d.DeleteMessage(chatId, message.ID)
+				continue
+			}
+		}
+	}
 }
