@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"kz_bot/internal/hades/ReservCopyPaste/ReservCopy"
 	"regexp"
 	"strconv"
 )
@@ -348,10 +349,17 @@ func (b *Bot) lIfCommand() bool {
 	if len(matches) > 0 {
 		fmt.Println("rang " + matches[1])
 		fmt.Println("name " + matches[2])
+		d := ReservCopy.NewReservDB()
+		rang, _ := strconv.Atoi(matches[1])
+		d.UpdateMember([]ReservCopy.Member{ReservCopy.Member{
+			CorpName: b.in.Config.CorpName,
+			UserName: matches[2],
+			Rang:     rang,
+		}})
 		return true
 	}
 
-	reclin := regexp.MustCompile(`^\. Очистка (\d{1,2}|100) (.+)`)
+	reclin := regexp.MustCompile(`^\. Очистка (\d{1,2}|100)`)
 	matches = reclin.FindStringSubmatch(b.in.Mtext)
 	if len(matches) > 0 {
 		fmt.Println("Очистка " + matches[1])
