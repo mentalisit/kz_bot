@@ -3,9 +3,11 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"kz_bot/internal/hades/ReservCopyPaste/ReservCopy"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/hades"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -113,6 +115,29 @@ func (t *Telegram) letInId(arg []string, m *tgbotapi.Message) bool {
 			t.toGame <- mes
 			go t.SendChannelDelSecond(m.Chat.ID, "впустить отправленно "+arg[1], 10)
 			go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
+			return true
+		}
+	}
+	return false
+}
+func (t *Telegram) AddFriendToList(m *tgbotapi.Message) bool {
+	re := regexp.MustCompile(`^\. Добавить ([0-2]) (.+)`)
+	matches := re.FindStringSubmatch(m.Text)
+	if len(matches) > 0 {
+		ok, config := t.storage.CorpsConfig.Hades.AllianceChatTg(m.Chat.ID)
+		if ok {
+			fmt.Println("rang " + matches[1])
+			fmt.Println("name " + matches[2])
+			b := ReservCopy.NewReservDB()
+			rang, _ := strconv.Atoi(matches[1])
+			b.UpdateMember([]ReservCopy.Member{ReservCopy.Member{
+				CorpName: config.Corp,
+				UserName: matches[2],
+				Rang:     rang,
+			}})
+			t.DelMessageSecond(m.Chat.ID, m.MessageID, 5)
+			txt := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", matches[2], config.Corp)
+			t.SendChannelDelSecond(m.Chat.ID, txt, 15)
 			return true
 		}
 	}
