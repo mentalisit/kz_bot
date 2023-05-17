@@ -1,0 +1,23 @@
+---
+
+is_debug: true
+bot_mode: dev
+server_adrr: braut.com.ua:7733
+token:
+  token_discord: OTM0MjExODY5MjMxNjg5Nzk5.Yesymg.ZP4ROOogOZCiS0cvU0QqRVcG-vk
+  token_telegram: 5293429582:AAE3cw6s50pY6mI49VNoxo9kOURQiBLj6xM
+  name_db_whatsapp: config/wa.db
+logger:
+  token: 5415496835:AAH041oJWmz1qrLYKAGXsRYt2aepOTz8HiI
+  chat_id: -632558245
+postgress:
+  host: 127.0.0.1:3306
+  name: kzbot
+  username: root
+  password: root
+supabase:
+  host: db.zaieyyciriiknaixkiyc.supabase.co
+  port: 5432
+  name: postgres
+  username: postgres
+  password: florian88kzbot
