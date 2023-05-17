@@ -18,7 +18,6 @@ var SaveId []save
 
 func (h *Hades) ifEditMessage(msg models.Message, corp models.Corporation) bool {
 	if msg.Command == "text" {
-
 		sender := "(🎮)" + msg.Sender
 		flag := false
 		var S []save
@@ -98,6 +97,7 @@ func (h *Hades) ifEditMessage(msg models.Message, corp models.Corporation) bool 
 	}
 	return false
 }
+
 func ifRsSearch(msg models.Message) models.Message {
 	if msg.Command == "text" && msg.Corporation == "UKR Spase" {
 		re := regexp.MustCompile(`КРАСНОЙ ЗВЕЗДЫ ур\.([5-9]|10)`)

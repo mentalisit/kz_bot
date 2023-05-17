@@ -3,9 +3,11 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/hades/ReservCopyPaste/ReservCopy"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/hades"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -13,6 +15,11 @@ func (d *Discord) ifComands(m *discordgo.MessageCreate) (command bool) {
 	str, ok := strings.CutPrefix(m.Content, ". ")
 	if ok {
 		str = strings.ToLower(str)
+
+		if d.AddFriendToList(m) {
+			return true
+		}
+
 		arr := strings.Split(str, " ")
 		arrlen := len(arr)
 		if arrlen == 1 {
@@ -33,7 +40,6 @@ func (d *Discord) ifComands(m *discordgo.MessageCreate) (command bool) {
 			if d.letInId(arr, m) {
 				return true
 			}
-
 		}
 	}
 	return false
@@ -159,6 +165,29 @@ func (d *Discord) letInId(arg []string, m *discordgo.MessageCreate) bool {
 			d.sendToGame <- mes
 			go d.SendChannelDelSecond(m.ChannelID, "впустить отправленно  "+arg[1], 10)
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 180)
+			return true
+		}
+	}
+	return false
+}
+func (d *Discord) AddFriendToList(m *discordgo.MessageCreate) bool {
+	re := regexp.MustCompile(`^\. Добавить ([0-2]) (.+)`)
+	matches := re.FindStringSubmatch(m.Content)
+	if len(matches) > 0 {
+		ok, config := d.storage.CorpsConfig.Hades.AllianceChat(m.ChannelID)
+		if ok {
+			fmt.Println("rang " + matches[1])
+			fmt.Println("name " + matches[2])
+			b := ReservCopy.NewReservDB()
+			rang, _ := strconv.Atoi(matches[1])
+			b.UpdateMember([]ReservCopy.Member{ReservCopy.Member{
+				CorpName: config.Corp,
+				UserName: matches[2],
+				Rang:     rang,
+			}})
+			d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
+			t := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", matches[2], config.Corp)
+			d.SendChannelDelSecond(m.ChannelID, t, 15)
 			return true
 		}
 	}

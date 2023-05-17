@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/storage/memory"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -22,6 +23,9 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 		d.accessDelChannelDs(m.ChannelID, m.GuildID)
 	}
 	if res {
+		if d.CleanOldMessage(m) {
+			return
+		}
 		d.accessAddGlobalDs(m)
 	}
 }
@@ -116,4 +120,14 @@ func (d *Discord) accessAddGlobalDs(m *discordgo.MessageCreate) {
 			}
 		}
 	}
+}
+func (d *Discord) CleanOldMessage(m *discordgo.MessageCreate) bool {
+	re := regexp.MustCompile(`^\.очистка (\d{1,2}|100)`)
+	matches := re.FindStringSubmatch(m.Content)
+	if len(matches) > 0 {
+		fmt.Println("limitMessage " + matches[1])
+		d.CleanOldMessageChannel(m.ChannelID, matches[1])
+		return true
+	}
+	return false
 }
