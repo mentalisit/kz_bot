@@ -102,12 +102,10 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
 	if okAlliance {
 		d.sendToFilterHades(m, corp, 0)
-		return
 	}
 	okWs1, corp := hades.HadesStorage.Ws1Chat(m.ChannelID)
 	if okWs1 {
 		d.sendToFilterHades(m, corp, 1)
-		return
 	}
 
 	//filter Rs
@@ -115,13 +113,11 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	d.AccesChatDS(m)
 	if ok {
 		d.SendToRsFilter(m, config)
-		return
 	}
 	//GlobalChat
 	okGlobal, configGlobal := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
 	if okGlobal {
 		go d.SendToGlobalChatFilter(m, configGlobal)
-		return
 	}
 }
 

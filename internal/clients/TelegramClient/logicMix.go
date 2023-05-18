@@ -11,13 +11,11 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	okAlliance, corp := hades.HadesStorage.AllianceChatTg(m.Chat.ID)
 	if okAlliance {
 		t.sendToFilterHades(m, corp, 0)
-		return
 	}
 
 	okWs1, corp := hades.HadesStorage.Ws1ChatTg(m.Chat.ID)
 	if okWs1 {
 		t.sendToFilterHades(m, corp, 1)
-		return
 	}
 
 	// тут я передаю чат айди и проверяю должен ли бот реагировать на этот чат
@@ -25,7 +23,6 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 	if ok {
 		t.sendToFilterRs(m, config)
-		return
 	}
 
 	//t.storage.CacheGlobal.CheckChannelConfigTg()

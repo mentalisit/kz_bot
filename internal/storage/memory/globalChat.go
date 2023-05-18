@@ -37,32 +37,27 @@ func (c CorpConfigGl) CheckChannelConfigDS(chatid string) (channelGood bool, con
 	}
 	return false, ConfigGlobal{}
 }
+func (c CorpConfigGl) CheckChannelConfigTG(chatid int64) (channelGood bool, config ConfigGlobal) {
+	if chatid != 0 {
+		for _, pp := range *G {
+			if chatid == pp.TgChannel {
+				return true, pp
+			}
+		}
+	}
+	return false, ConfigGlobal{}
+}
+func (c CorpConfigGl) CheckChannelConfigWA(chatid string) (channelGood bool, config ConfigGlobal) {
+	if chatid != "" {
+		for _, pp := range *G {
+			if chatid == pp.WaChannel {
+				return true, pp
+			}
+		}
+	}
+	return false, ConfigGlobal{}
+}
 
-//	func (c CorpConfigGlobal) CheckChannelConfigWA(chatid string) (channelGood bool, config CorpporationConfig) {
-//		if chatid != "" {
-//			for _, pp := range *P {
-//				if chatid == pp.WaChannel {
-//					channelGood = true
-//					config = pp
-//					break
-//				}
-//			}
-//		}
-//		return channelGood, config
-//	}
-//
-//	func (c CorpConfigGlobal) CheckChannelConfigTG(chatid int64) (channelGood bool, config CorpporationConfig) {
-//		if chatid != 0 {
-//			for _, pp := range *P {
-//				if chatid == pp.TgChannel {
-//					channelGood = true
-//					config = pp
-//					break
-//				}
-//			}
-//		}
-//		return channelGood, config
-//	}
 func (c CorpConfigGl) ReadAllChannel() (chatDS []string, chatTG []int64, chatWA []string) {
 	for _, pp := range *P {
 		if pp.DsChannel != "" {
