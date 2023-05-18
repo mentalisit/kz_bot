@@ -9,7 +9,7 @@ func (h *Hades) filterDs(m models.MessageHades) {
 	if h.ifComands(m) {
 		return
 	}
-	h.tgConvertToMessage(models.Message{
+	h.dsConvertToMessage(models.Message{
 		Text:        m.Text,
 		Sender:      m.Sender,
 		Avatar:      m.Avatar,
@@ -22,12 +22,12 @@ func (h *Hades) filterDs(m models.MessageHades) {
 func (h *Hades) dsConvertToMessage(msg models.Message) {
 	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
 	if ok && msg.Command == "text" {
+		text := "(DS)" + msg.Sender + ": " + msg.Text
+
 		if corp.TgChat != 0 && msg.ChannelType == 0 {
-			text := "(DS)" + msg.Sender + ": " + msg.Text
 			h.cl.Tg.SendChannel(corp.TgChat, text)
 		}
 		if corp.TgChatWS1 != 0 && msg.ChannelType == 1 {
-			text := "(DS)" + msg.Sender + ": " + msg.Text
 			h.cl.Tg.SendChannel(corp.TgChatWS1, text)
 		}
 	}

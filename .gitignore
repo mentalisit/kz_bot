@@ -3,8 +3,4 @@
 .idea
 *.exe
 *.7z
-/config/config.yml
-/config/wa.db
-/config
-/config/
 config

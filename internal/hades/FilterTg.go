@@ -23,12 +23,12 @@ func (h *Hades) filterTg(m models.MessageHades) {
 func (h *Hades) tgConvertToMessage(msg models.Message) {
 	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
 	if ok && msg.Command == "text" {
+		sender := "(TG)" + msg.Sender
+
 		if corp.DsChat != "" && msg.ChannelType == 0 {
-			sender := "(TG)" + msg.Sender
 			h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar)
 		}
 		if corp.DsChatWS1 != "" && msg.ChannelType == 1 {
-			sender := "(TG)" + msg.Sender
 			h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChatWS1, corp.GuildId, msg.Avatar)
 		}
 	}
