@@ -151,3 +151,50 @@ func (d *Discord) CleanOldMessageChannel(chatId, lim string) {
 		}
 	}
 }
+
+func (d *Discord) avatar(m *discordgo.MessageCreate) bool {
+	str, ok := strings.CutPrefix(m.Content, ". ")
+	if ok {
+		arg := strings.Split(strings.ToLower(str), " ")
+		if len(arg) == 2 {
+			if arg[0] == "ава" {
+				mentionIds := userMentionRE.FindAllStringSubmatch(arg[1], -1)
+				if len(mentionIds) > 0 {
+					members, err := d.s.GuildMembers(m.GuildID, "", 999)
+					if err != nil {
+						d.log.Println("error getGuildMember " + err.Error())
+					}
+					for _, member := range members {
+						if member.User.ID == mentionIds[0][1] {
+							aname := m.Author.Username
+							if m.Member.Nick != "" {
+								aname = m.Member.Nick
+							}
+							name := member.User.Username
+							if member.Nick != "" {
+								name = member.Nick
+							}
+							em := &discordgo.MessageEmbed{
+								Title: fmt.Sprintf("Аватар %s по запросу %s", name, aname),
+								Color: 14232643,
+								Image: &discordgo.MessageEmbedImage{
+									URL: member.AvatarURL("2048"),
+								},
+								Author: nil,
+							}
+							embed, err := d.s.ChannelMessageSendEmbed(m.ChannelID, em)
+							if err != nil {
+								fmt.Println(err.Error())
+								return false
+							}
+							go d.DeleteMesageSecond(m.ChannelID, embed.ID, 183)
+							go d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
+							return true
+						}
+					}
+				}
+			}
+		}
+	}
+	return false
+}

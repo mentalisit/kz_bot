@@ -10,26 +10,27 @@ import (
 )
 
 type Discord struct {
-	inbox      chan models.InMessage
-	sendToGame chan models.Message
-	globalChat chan models.InGlobalMessage
-	s          *discordgo.Session
-	log        *logrus.Logger
-	storage    *storage.Storage
+	ChanRsMessage  chan models.InMessage
+	ChanToGame     chan models.MessageHades
+	ChanGlobalChat chan models.InGlobalMessage
+	s              *discordgo.Session
+	log            *logrus.Logger
+	storage        *storage.Storage
 }
 
-func NewDiscord(inbox chan models.InMessage, sendToGame chan models.Message, log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot, global chan models.InGlobalMessage) *Discord {
+func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
 	ds, err := clientDiscord.NewDiscord(log, cfg)
 	if err != nil {
 		log.Println("error running Discord " + err.Error())
 	}
+
 	DS := &Discord{
-		inbox:      inbox,
-		globalChat: global,
-		s:          ds,
-		log:        log,
-		storage:    st,
-		sendToGame: sendToGame,
+		s:              ds,
+		log:            log,
+		storage:        st,
+		ChanRsMessage:  make(chan models.InMessage, 10),
+		ChanToGame:     make(chan models.MessageHades, 10),
+		ChanGlobalChat: make(chan models.InGlobalMessage, 20),
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)

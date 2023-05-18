@@ -67,10 +67,11 @@ func (h *Hades) reloadConsoleClient(s []string) {
 		return
 	}
 	for i := 0; i < len(s); i++ {
+		time.Sleep(5 * time.Second)
 		err = os.Chdir(s[i])
 		cmd := exec.Command("cmd.exe", "/c", "start", "./ConsoleClient.exe")
-		time.Sleep(20 * time.Second)
 		err = cmd.Run()
+		time.Sleep(10 * time.Second)
 		if err != nil {
 			h.log.Println("run console client " + err.Error())
 			return

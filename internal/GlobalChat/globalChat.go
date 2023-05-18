@@ -18,13 +18,16 @@ type Chat struct {
 	storage                   *storage.Storage
 	client                    *clients.Clients
 	log                       *logrus.Logger
-	inbox                     chan models.InGlobalMessage
 	in                        models.InGlobalMessage
 	GlobalChatMemoryMessageId []models.MessageMemory
 }
 
 func NewChat(storage *storage.Storage, client *clients.Clients, log *logrus.Logger) *Chat {
-	c := &Chat{storage: storage, client: client, log: log, inbox: client.GlobalChat}
+	c := &Chat{
+		storage: storage,
+		client:  client,
+		log:     log,
+	}
 	go c.loadInbox()
 	go c.removeIfTimeDay()
 	return c
@@ -33,7 +36,11 @@ func (c *Chat) loadInbox() {
 	for {
 		//ПОЛУЧЕНИЕ СООБЩЕНИЙ
 		select {
-		case in := <-c.inbox:
+		case in := <-c.client.Ds.ChanGlobalChat:
+			fmt.Printf("in %+v\n", in)
+			c.in = in
+			c.logic()
+		case in := <-c.client.Tg.ChanGlobalChat:
 			fmt.Printf("in %+v\n", in)
 			c.in = in
 			c.logic()

@@ -64,7 +64,7 @@ func (d *Discord) logicMixGlobal(m *discordgo.MessageCreate) {
 			mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
 		}
 
-		d.globalChat <- mes
+		d.ChanGlobalChat <- mes
 	}
 
 	//text:= cenzura m.Content
@@ -123,5 +123,5 @@ func (d *Discord) deleteMessageGlobalChat(DelMessageId string) {
 		Content: DelMessageId,
 		Tip:     "del",
 	}
-	d.globalChat <- command
+	d.ChanGlobalChat <- command
 }

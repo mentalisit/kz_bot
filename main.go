@@ -56,7 +56,7 @@ func RunNew() error {
 
 	//clients Discord, Telegram, //Whatsapp
 	cl := clients.NewClients(log, st, cfg)
-	go hades.NewHades(cl)
+	go hades.NewHades(cl, st)
 	go bot.NewBot(st, cl, log, cfg)
 	go GlobalChat.NewChat(st, cl, log)
 	//ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)

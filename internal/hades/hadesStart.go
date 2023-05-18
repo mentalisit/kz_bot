@@ -7,75 +7,48 @@ import (
 	"kz_bot/internal/hades/ReservCopyPaste"
 	"kz_bot/internal/hades/server"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/CorpsConfig/hades"
+	"kz_bot/internal/storage"
 	"os"
 	"os/exec"
 	"time"
 )
 
 type Hades struct {
-	cl *clients.Clients
+	cl         *clients.Clients
+	storage    *storage.Storage
+	toGame     chan models.Message
+	toMessager chan models.Message
 }
 
-func NewHades(client *clients.Clients) *Hades {
-	NewToMessager := make(chan models.Message, 10)
-	server.NewServer(client.ToGame, NewToMessager)
-	h := &Hades{}
-	h.cl = client
-	go h.inbox(NewToMessager)
+func NewHades(client *clients.Clients, storage *storage.Storage) *Hades {
+	h := &Hades{
+		cl:         client,
+		storage:    storage,
+		toGame:     make(chan models.Message, 10),
+		toMessager: make(chan models.Message, 10),
+	}
+	server.NewServer(h.toGame, h.toMessager)
+
+	go h.inbox()
 	go ReservCopyPaste.RunReserv()
 	return h
 }
-func (h *Hades) inbox(toMess chan models.Message) {
+func (h *Hades) inbox() {
 	for {
 		select {
-		case in := <-toMess:
+		case in := <-h.toMessager:
 			h.filterGame(in)
+		case in := <-h.cl.Ds.ChanToGame:
+			h.filterDs(in)
+		case in := <-h.cl.Tg.ChanToGame:
+			h.filterTg(in)
+
 		default:
 			time.Sleep(500 * time.Millisecond)
 		}
 	}
 }
-func (h *Hades) filterGame(msg models.Message) {
-	ok, corp := hades.HadesStorage.AllianceName(msg.Corporation)
-	if msg.Corporation == "UKR Spase" {
-		msg = numToRole(msg)
-	}
-	sender := "(🎮)" + msg.Sender
-	if ok && msg.Command == "text" {
-		if msg.ChannelType == 0 && corp.DsChat != "" {
-			if h.ifEditMessage(msg, corp) {
-				return
-			}
-			h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar)
-		}
-		if msg.ChannelType == 1 && corp.DsChatWS1 != "" {
-			h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChatWS1, corp.GuildId, msg.Avatar)
-		}
-		if msg.ChannelType == 2 && corp.DsChatWS2 != "" {
-			h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChatWS2, corp.GuildId, msg.Avatar)
-		}
 
-		text := "(🎮)" + msg.Sender + ": " + msg.Text
-		if msg.ChannelType == 0 && corp.TgChat != 0 {
-			if h.ifEditMessage(msg, corp) {
-				return
-			}
-			h.cl.Tg.SendChannel(corp.TgChat, text)
-		}
-		if msg.ChannelType == 1 && corp.TgChatWS1 != 0 {
-			h.cl.Tg.SendChannel(corp.TgChatWS1, text)
-		}
-	} else if ok && msg.Command != "text" {
-		if msg.Command == "ответ ds" {
-			mesid := h.cl.Ds.SendWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar)
-			h.cl.Ds.DeleteMesageSecond(corp.DsChat, mesid, 180)
-		}
-		if msg.Command == "ответ tg" {
-			h.cl.Tg.SendChannelDelSecond(corp.TgChat, msg.Text, 180)
-		}
-	}
-}
 func RestartedHadesBot() {
 	name := "ConsoleClient.exe"
 	procs, err := ps.Processes()

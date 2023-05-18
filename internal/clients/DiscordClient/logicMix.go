@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
+	"kz_bot/internal/storage/CorpsConfig/hades"
+	"kz_bot/internal/storage/memory"
 	"time"
 )
 
@@ -79,7 +81,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 					}
 				}
 			}
-			d.inbox <- in
+			d.ChanRsMessage <- in
 		}
 	}
 }
@@ -92,49 +94,165 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 }
 
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
-	if d.ifMessageForHades(m) {
+	if d.avatar(m) {
 		return
 	}
+
+	//filterHades
+	okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
+	if okAlliance {
+		d.sendToFilterHades(m, corp, 0)
+		return
+	}
+	okWs1, corp := hades.HadesStorage.Ws1Chat(m.ChannelID)
+	if okWs1 {
+		d.sendToFilterHades(m, corp, 1)
+		return
+	}
+
+	//filter Rs
 	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
 	if ok {
-		if len(m.Attachments) > 0 {
-			for _, attach := range m.Attachments { //вложеные файлы
-				m.Content = m.Content + "\n" + attach.URL
-			}
+		d.SendToRsFilter(m, config)
+		return
+	}
+	//GlobalChat
+	okGlobal, configGlobal := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
+	if okGlobal {
+		go d.SendToGlobalChatFilter(m, configGlobal)
+		return
+	}
+}
+
+func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corporation, channelType int) {
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			m.Content = m.Content + "\n" + attach.URL
 		}
-		member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
-		if e != nil {
-			d.log.Println("Ошибка получения ника пользователя", e, m.ID)
-		}
-		name := m.Author.Username
+	}
+	if m.Content == "" || m.Message.EditedTimestamp != nil {
+		return
+	}
+	name := m.Author.Username
+	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
+	if e != nil {
+		fmt.Println("Ошибка получения ника пользователя", e, m.ID)
+	} else if member != nil {
 		if member.Nick != "" {
 			name = member.Nick
 		}
-		Avatar := "https://cdn.discordapp.com/avatars/" + m.Author.ID + "/" + m.Author.Avatar + ".jpg"
+	}
 
-		in := models.InMessage{
-			Mtext:       m.Content,
-			Tip:         "ds",
-			Name:        name,
-			NameMention: m.Author.Mention(),
-			Ds: struct {
-				Mesid   string
-				Nameid  string
-				Guildid string
-				Avatar  string
-			}{
-				Mesid:   m.ID,
-				Nameid:  m.Author.ID,
-				Guildid: m.GuildID,
-				Avatar:  Avatar,
-			},
-			Config: config,
-			Option: models.Option{InClient: true},
+	newText := d.replaceTextMessage(m.Content, m.GuildID)
+	mes := models.MessageHades{
+		Text:        newText,
+		Sender:      name,
+		Avatar:      m.Author.AvatarURL("128"),
+		ChannelType: channelType, //0 AllianceChat
+		Corporation: corp.Corp,
+		Command:     "text",
+		Messager:    "ds",
+		Ds: models.MessageHadesDs{
+			MessageId: m.ID,
+		},
+	}
+	d.ChanToGame <- mes
+
+}
+func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config memory.CorpporationConfig) {
+
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			m.Content = m.Content + "\n" + attach.URL
 		}
-		d.inbox <- in
 	}
-	if !ok {
-		go d.logicMixGlobal(m)
+	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
+	if e != nil {
+		d.log.Println("Ошибка получения ника пользователя", e, m.ID)
 	}
+	name := m.Author.Username
+	if member.Nick != "" {
+		name = member.Nick
+	}
+
+	in := models.InMessage{
+		Mtext:       m.Content,
+		Tip:         "ds",
+		Name:        name,
+		NameMention: m.Author.Mention(),
+		Ds: struct {
+			Mesid   string
+			Nameid  string
+			Guildid string
+			Avatar  string
+		}{
+			Mesid:   m.ID,
+			Nameid:  m.Author.ID,
+			Guildid: m.GuildID,
+			Avatar:  m.Author.AvatarURL("128"),
+		},
+		Config: config,
+		Option: models.Option{InClient: true},
+	}
+	d.ChanRsMessage <- in
+
+}
+func (d *Discord) SendToGlobalChatFilter(m *discordgo.MessageCreate, config memory.ConfigGlobal) {
+	if d.blackListFilter(m.Author.ID) {
+		d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
+		return
+	}
+	if d.ifAsksForRoleRs(m) {
+		go d.DeleteMessage(m.ChannelID, m.ID)
+		return
+	}
+	if ifPrefix(m.Content) {
+		return
+	}
+	username := m.Author.Username
+	if m.Member != nil && m.Member.Nick != "" {
+		username = m.Member.Nick
+	}
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			m.Content = m.Content + "\n" + attach.URL
+		}
+	}
+
+	mes := models.InGlobalMessage{
+		Content: d.replaceTextMessage(m.Content, m.GuildID),
+		Tip:     "ds",
+		Name:    username,
+		Ds: models.InGlobalMessageDs{
+			MesId:         m.ID,
+			NameId:        m.Author.ID,
+			ChatId:        m.ChannelID,
+			GuildId:       m.GuildID,
+			Avatar:        m.Author.AvatarURL("128"),
+			TimestampUnix: m.Timestamp.Unix(),
+			Reply: struct {
+				TimeMessage time.Time
+				Text        string
+				Avatar      string
+				UserName    string
+			}{},
+		},
+		Config: config,
+	}
+	if m.MessageReference != nil {
+		usernameR := m.ReferencedMessage.Author.Username
+		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
+			usernameR = m.ReferencedMessage.Member.Nick
+		}
+		mes.Ds.Reply.UserName = usernameR
+		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
+		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
+		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
+	}
+
+	d.ChanGlobalChat <- mes
+
+	//text:= cenzura m.Content
+
 }

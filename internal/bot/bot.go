@@ -31,7 +31,13 @@ type Bot struct {
 }
 
 func NewBot(storage *storage.Storage, client *clients.Clients, log *logrus.Logger, cfg *config.ConfigBot) *Bot {
-	b := &Bot{storage: storage, client: client, log: log, debug: cfg.IsDebug, inbox: client.Inbox}
+	b := &Bot{
+		storage: storage,
+		client:  client,
+		log:     log,
+		debug:   cfg.IsDebug,
+		inbox:   make(chan models.InMessage, 10),
+	}
 	go b.loadInbox()
 	go b.RemoveMessage()
 
@@ -44,9 +50,13 @@ func (b *Bot) loadInbox() {
 	for {
 		//ПОЛУЧЕНИЕ СООБЩЕНИЙ
 		select {
-		case in := <-b.client.Inbox:
+		case in := <-b.client.Ds.ChanRsMessage:
 			b.in = in
 			b.LogicRs()
+		case in := <-b.client.Tg.ChanRsMessage:
+			b.in = in
+			b.LogicRs()
+
 		case in := <-b.inbox:
 			b.in = in
 			b.LogicRs()

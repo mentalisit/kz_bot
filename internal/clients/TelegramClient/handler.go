@@ -3,47 +3,10 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"kz_bot/internal/hades/compendium"
 	"kz_bot/internal/models"
 )
 
 const nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
-
-func (t *Telegram) logicMix(m *tgbotapi.Message) {
-	if m.Text == "%t l" && m.From.UserName == "Mentalisit" {
-		s := compendium.GetCompendiumStruct()
-		go t.DelMessageSecond(m.Chat.ID, m.MessageID, 180)
-		go t.SendChannelDelSecond(m.Chat.ID, s, 180)
-		return
-	}
-	t.ifMessageForHades(m)
-
-	// тут я передаю чат айди и проверяю должен ли бот реагировать на этот чат
-	ok, config := t.storage.Cache.CheckChannelConfigTG(m.Chat.ID)
-	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
-	if ok {
-		name := t.nameNick(m.From.UserName, m.From.FirstName, m.Chat.ID)
-		in := models.InMessage{
-			Mtext:       m.Text,
-			Tip:         "tg",
-			Name:        name,
-			NameMention: "@" + name,
-			Tg: struct {
-				Mesid  int
-				Nameid int64
-			}{
-				Mesid:  m.MessageID,
-				Nameid: m.From.ID,
-			},
-			Config: config,
-			Option: models.Option{
-				InClient: true,
-			},
-		}
-
-		t.inbox <- in
-	}
-}
 
 func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	callback := tgbotapi.NewCallback(cb.ID, cb.Data)
@@ -70,7 +33,7 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 				Reaction: true},
 		}
 
-		t.inbox <- in
+		t.ChanRsMessage <- in
 	}
 }
 

@@ -12,27 +12,29 @@ import (
 )
 
 type Telegram struct {
-	inbox   chan models.InMessage
-	toGame  chan models.Message
-	t       *tgbotapi.BotAPI
-	log     *logrus.Logger
-	storage *storage.Storage
-	debug   bool
+	ChanRsMessage  chan models.InMessage
+	ChanToGame     chan models.MessageHades
+	ChanGlobalChat chan models.InGlobalMessage
+	t              *tgbotapi.BotAPI
+	log            *logrus.Logger
+	storage        *storage.Storage
+	debug          bool
 }
 
-func NewTelegram(inbox chan models.InMessage, togame chan models.Message, log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
+func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
 	client, err := clientTelegram.NewTelegram(log, cfg)
 	if err != nil {
 		return nil
 	}
 
 	tg := &Telegram{
-		inbox:   inbox,
-		toGame:  togame,
-		t:       client,
-		log:     log,
-		storage: st,
-		debug:   cfg.IsDebug,
+		ChanRsMessage:  make(chan models.InMessage, 10),
+		ChanToGame:     make(chan models.MessageHades, 10),
+		ChanGlobalChat: make(chan models.InGlobalMessage, 10),
+		t:              client,
+		log:            log,
+		storage:        st,
+		debug:          cfg.IsDebug,
 	}
 
 	go tg.update()

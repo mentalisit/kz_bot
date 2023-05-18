@@ -16,10 +16,10 @@ type Server struct {
 	mu            sync.Mutex
 }
 
-func NewServer(togame chan models.Message, tomess chan models.Message) *Server {
+func NewServer(togames chan models.Message, tomess chan models.Message) *Server {
 	s := &Server{
 		toGame:        []models.Message{},
-		NewToGame:     togame,
+		NewToGame:     togames,
 		NewToMessager: tomess,
 	}
 
