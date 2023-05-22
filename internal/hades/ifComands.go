@@ -131,8 +131,6 @@ func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 	if len(matches) > 0 {
 		ok, config := h.storage.CorpsConfig.Hades.AllianceName(m.Corporation)
 		if ok {
-			fmt.Println("rang " + matches[1])
-			fmt.Println("name " + matches[2])
 			b := ReservCopy.NewReservDB()
 			rang, _ := strconv.Atoi(matches[1])
 			b.UpdateMember([]ReservCopy.Member{ReservCopy.Member{
@@ -143,6 +141,8 @@ func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 
 			t := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", matches[2], config.Corp)
 			h.delSendMessageIfTip(t, m, config)
+			h.log.Println(t)
+			return true
 		}
 	}
 	return false

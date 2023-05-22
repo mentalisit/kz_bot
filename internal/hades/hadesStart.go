@@ -3,6 +3,7 @@ package hades
 import (
 	"fmt"
 	"github.com/mitchellh/go-ps"
+	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/hades/ReservCopyPaste"
 	"kz_bot/internal/hades/server"
@@ -18,14 +19,16 @@ type Hades struct {
 	storage    *storage.Storage
 	toGame     chan models.Message
 	toMessager chan models.Message
+	log        *logrus.Logger
 }
 
-func NewHades(client *clients.Clients, storage *storage.Storage) *Hades {
+func NewHades(client *clients.Clients, storage *storage.Storage, log *logrus.Logger) *Hades {
 	h := &Hades{
 		cl:         client,
 		storage:    storage,
 		toGame:     make(chan models.Message, 10),
 		toMessager: make(chan models.Message, 10),
+		log:        log,
 	}
 	server.NewServer(h.toGame, h.toMessager)
 

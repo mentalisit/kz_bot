@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/hades"
 	"kz_bot/internal/storage/memory"
+	"strings"
 	"time"
 )
 
@@ -94,11 +95,19 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 }
 
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
+	if d.ifMentionBot(m) {
+		return
+	}
 	if d.avatar(m) {
 		return
 	}
-
-	//filterHades
+	good, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
+	if good {
+		if strings.HasPrefix(m.Content, relayConfig.Prefix) {
+			//prefix ok
+		}
+	}
+	//filterHades111
 	okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
 	if okAlliance {
 		d.sendToFilterHades(m, corp, 0)
@@ -251,4 +260,38 @@ func (d *Discord) SendToGlobalChatFilter(m *discordgo.MessageCreate, config memo
 
 	//text:= cenzura m.Content
 
+}
+func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
+	after, found := strings.CutPrefix(m.Content, d.s.State.User.Mention())
+	if found {
+		if len(after) > 0 {
+			split := strings.Split(after, " ")
+			if split[0] == "help" || split[0] == "справка" || split[0] == "довідка" {
+				//nujno sdelat obshuu spravku
+				d.SendChannelDelSecond(m.ChannelID, "сорян в разработке", 10)
+				return true
+			}
+		}
+
+		d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
+		goodRelay, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
+		goodRs, _ := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
+		okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
+		okWs1, corpw := hades.HadesStorage.Ws1Chat(m.ChannelID)
+		var text string
+		if goodRelay {
+			text = fmt.Sprintf("%s Префикс бота %s", m.Author.Mention(), relayConfig.Prefix)
+		} else if goodRs {
+			text = fmt.Sprintf("%s че пингуешь? пиши Справка,или пиши создателю бота @Mentalisit#5159 ", m.Author.Mention())
+		} else if okAlliance {
+			text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corp.Corp)
+		} else if okWs1 {
+			text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corpw.Corp)
+		} else {
+			text = fmt.Sprintf("%s че пингуешь? я же многофункциональный бот, Префикс доступен только после активации нужного режима \n Для получения справки пиши %s help",
+				m.Author.Mention(), d.s.State.User.Mention())
+		}
+		d.SendChannelDelSecond(m.ChannelID, text, 30)
+	}
+	return found
 }

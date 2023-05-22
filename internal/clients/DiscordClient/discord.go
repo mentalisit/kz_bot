@@ -13,6 +13,7 @@ type Discord struct {
 	ChanRsMessage  chan models.InMessage
 	ChanToGame     chan models.MessageHades
 	ChanGlobalChat chan models.InGlobalMessage
+	ChanRelay      chan models.RelayMessage
 	s              *discordgo.Session
 	log            *logrus.Logger
 	storage        *storage.Storage
