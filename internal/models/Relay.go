@@ -7,6 +7,7 @@ type RelayMessage struct {
 	Tip    string
 	Author string
 	Ds     RelayMessageDs
+	Tg     RelayMessageTg
 	Config RelayConfig
 }
 type RelayMessageDs struct {
@@ -22,7 +23,19 @@ type RelayMessageDs struct {
 		UserName    string
 	}
 }
-
+type RelayMessageTg struct {
+	ChatId        int64
+	MesId         int
+	Avatar        string
+	GuildId       int64
+	TimestampUnix int
+	Reply         struct {
+		TimeMessage time.Time
+		Text        string
+		Avatar      string
+		UserName    string
+	}
+}
 type RelayConfig struct {
 	Id         int
 	RelayName  string
