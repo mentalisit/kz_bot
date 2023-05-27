@@ -31,10 +31,13 @@ func NewRelay(l *logrus.Logger, s *storage.Storage, c *clients.Clients) *Relay {
 	return r
 }
 func (r *Relay) inbox() {
-	select {
-	case r.in = <-r.client.Ds.ChanRelay:
-		fmt.Printf("in relay ds  %+v\n", r.in)
-		r.logic()
+	for {
+		select {
+		case in := <-r.client.Ds.ChanRelay:
+			r.in = in
+			fmt.Printf("in relay ds  %+v\n", r.in)
+			r.logic()
+		}
 	}
 }
 
