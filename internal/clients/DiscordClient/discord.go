@@ -32,6 +32,7 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 		ChanRsMessage:  make(chan models.InMessage, 10),
 		ChanToGame:     make(chan models.MessageHades, 10),
 		ChanGlobalChat: make(chan models.InGlobalMessage, 20),
+		ChanRelay:      make(chan models.RelayMessage, 20),
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)
