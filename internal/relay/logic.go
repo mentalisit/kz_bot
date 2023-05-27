@@ -86,7 +86,7 @@ func (r *Relay) logicSend() {
 			if c.RelayName == r.in.Config.RelayName && c.GuildName != r.in.Config.GuildName {
 				if c.TgChannel != 0 {
 					textTg := fmt.Sprintf("%s\n%s", username, r.in.Text)
-					if r.in.Ds.Reply.Text != "" {
+					if r.in.Tg.Reply.Text != "" {
 						textTg = fmt.Sprintf("%s\n%s\nReply: %s", username, r.in.Text, r.in.Tg.Reply.Text)
 					}
 					mesTg := r.client.Tg.SendChannel(c.TgChannel, textTg)
