@@ -1,7 +1,6 @@
 package TelegramClient
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/hades"
@@ -74,57 +73,49 @@ func (t *Telegram) sendToFilterRs(m *tgbotapi.Message, config memory.Corpporatio
 	t.ChanRsMessage <- in
 }
 func (t *Telegram) SendToRelayChatFilter(m *tgbotapi.Message, config models.RelayConfig) {
-	//username := t.nameOrNick(m.From.UserName, m.From.FirstName)
-	fmt.Printf("\n\nMessage %+v\n\n", m)
-	fmt.Printf("\n\nReplyToMessage %+v\n\n", m.ReplyToMessage)
-	fmt.Printf("\n\nChat %+v\n\n", m.Chat)
-	//if config.RelayName == "" && config.GuildName == "" {
-	//	mes := models.RelayMessage{
-	//		Text:   m.Text,
-	//		Tip:    "tg",
-	//		Author: username,
-	//		Tg: models.RelayMessageTg{
-	//			ChatId:        m.Chat.ID,
-	//			MesId:         m.MessageID,
-	//			Avatar:        t.GetAvatar(m.From.ID),
-	//			GuildId:       m.Chat.ID,
-	//			TimestampUnix: m.Date,
-	//		},
-	//	}
-	//	//fmt.Printf(" logicmix.  %+v\n", mes)
-	//	d.ChanRelay <- mes
-	//	return
-	//}
-	//
+	username := t.nameOrNick(m.From.UserName, m.From.FirstName)
+	if config.RelayName == "" && config.GuildName == "" {
+		mes := models.RelayMessage{
+			Text:   m.Text,
+			Tip:    "tg",
+			Author: username,
+			Tg: &models.RelayMessageTg{
+				ChatId:        m.Chat.ID,
+				MesId:         m.MessageID,
+				Avatar:        t.GetAvatar(m.From.ID),
+				GuildId:       m.Chat.ID,
+				TimestampUnix: m.Time().Unix(),
+			},
+		}
+		//fmt.Printf(" logicmix.  %+v\n", mes)
+		t.ChanRelay <- mes
+		return
+	}
+
 	//if len(m.Attachments) > 0 {
 	//	for _, attach := range m.Attachments { //вложеные файлы
 	//		m.Content = m.Content + "\n" + attach.URL
 	//	}
 	//}
-	//
-	//mes := models.RelayMessage{
-	//	Text:   d.replaceTextMessage(m.Content, m.GuildID),
-	//	Tip:    "ds",
-	//	Author: username,
-	//	Ds: models.RelayMessageDs{
-	//		ChatId:        m.ChannelID,
-	//		MesId:         m.ID,
-	//		Avatar:        m.Author.AvatarURL("128"),
-	//		GuildId:       m.GuildID,
-	//		TimestampUnix: m.Timestamp.Unix(),
-	//	},
-	//	Config: config,
-	//}
-	//if m.MessageReference != nil {
-	//	usernameR := m.ReferencedMessage.Author.Username
-	//	if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
-	//		usernameR = m.ReferencedMessage.Member.Nick
-	//	}
-	//	mes.Ds.Reply.UserName = usernameR
-	//	mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
-	//	mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
-	//	mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
-	//}
-	//
-	//d.ChanRelay <- mes
+
+	mes := models.RelayMessage{
+		Text:   m.Text,
+		Tip:    "tg",
+		Author: username,
+		Tg: &models.RelayMessageTg{
+			ChatId:        m.Chat.ID,
+			MesId:         m.MessageID,
+			Avatar:        t.GetAvatar(m.From.ID),
+			GuildId:       m.Chat.ID,
+			TimestampUnix: m.Time().Unix(),
+		},
+		Config: &config,
+	}
+	if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
+		mes.Tg.Reply.Text = m.ReplyToMessage.Text
+		mes.Tg.Reply.UserName = t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName)
+		mes.Tg.Reply.TimeMessage = m.ReplyToMessage.Time().Unix()
+		mes.Tg.Reply.Avatar = t.GetAvatar(m.ReplyToMessage.From.ID)
+	}
+	t.ChanRelay <- mes
 }

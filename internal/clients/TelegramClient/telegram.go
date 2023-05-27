@@ -15,6 +15,7 @@ type Telegram struct {
 	ChanRsMessage  chan models.InMessage
 	ChanToGame     chan models.MessageHades
 	ChanGlobalChat chan models.InGlobalMessage
+	ChanRelay      chan models.RelayMessage
 	t              *tgbotapi.BotAPI
 	log            *logrus.Logger
 	storage        *storage.Storage
@@ -31,6 +32,7 @@ func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot)
 		ChanRsMessage:  make(chan models.InMessage, 10),
 		ChanToGame:     make(chan models.MessageHades, 10),
 		ChanGlobalChat: make(chan models.InGlobalMessage, 10),
+		ChanRelay:      make(chan models.RelayMessage, 20),
 		t:              client,
 		log:            log,
 		storage:        st,
@@ -47,6 +49,9 @@ func (t *Telegram) update() {
 	//получаем обновления от телеграм
 	updates := t.t.GetUpdatesChan(ut)
 	for update := range updates {
+		fmt.Printf("\n\nMessage %+v\n\n", update.Message)
+		fmt.Printf("\n\nReplyToMessage %+v\n\n", update.Message.ReplyToMessage)
+		fmt.Printf("\n\nChat %+v\n\n", update.Message.Chat)
 		if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {

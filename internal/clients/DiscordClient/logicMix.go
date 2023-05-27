@@ -142,7 +142,7 @@ func (d *Discord) SendToRelayChatFilter(m *discordgo.MessageCreate, config model
 			Text:   m.Content,
 			Tip:    "ds",
 			Author: username,
-			Ds: models.RelayMessageDs{
+			Ds: &models.RelayMessageDs{
 				ChatId:        m.ChannelID,
 				MesId:         m.ID,
 				Avatar:        m.Author.AvatarURL("128"),
@@ -165,14 +165,14 @@ func (d *Discord) SendToRelayChatFilter(m *discordgo.MessageCreate, config model
 		Text:   d.replaceTextMessage(m.Content, m.GuildID),
 		Tip:    "ds",
 		Author: username,
-		Ds: models.RelayMessageDs{
+		Ds: &models.RelayMessageDs{
 			ChatId:        m.ChannelID,
 			MesId:         m.ID,
 			Avatar:        m.Author.AvatarURL("128"),
 			GuildId:       m.GuildID,
 			TimestampUnix: m.Timestamp.Unix(),
 		},
-		Config: config,
+		Config: &config,
 	}
 	if m.MessageReference != nil {
 		usernameR := m.ReferencedMessage.Author.Username
