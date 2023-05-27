@@ -24,9 +24,9 @@ func NewRelay(l *logrus.Logger, s *storage.Storage, c *clients.Clients) *Relay {
 		storage: s,
 		client:  c,
 	}
+	r.loadRelayConfig()
 	go r.inbox()
 	go r.removeIfTimeDay()
-	r.loadRelayConfig()
 
 	return r
 }
@@ -48,4 +48,5 @@ func (r *Relay) loadRelayConfig() {
 			*Relay2.R = append(*Relay2.R, q)
 		}
 	}
+	fmt.Println("loadRelayConfig()")
 }
