@@ -5,6 +5,7 @@ import (
 	"kz_bot/internal/models"
 	RelayDB "kz_bot/internal/storage/CorpsConfig/Relay"
 	"strings"
+	"time"
 )
 
 func (r *Relay) logic() {
@@ -13,7 +14,9 @@ func (r *Relay) logic() {
 			return
 		}
 	}
-	r.logicSend()
+	if r.in.Config != nil {
+		r.logicSend()
+	}
 
 }
 
@@ -95,13 +98,13 @@ func (r *Relay) logicSend() {
 				}
 				if c.DsChannel != "" {
 					var mes string
-					if r.in.Ds.Reply.Text != "" {
+					if r.in.Tg.Reply.Text != "" {
 						mes = r.client.Ds.SendWebhookReply(r.in.Text, username,
-							c.DsChannel, c.GuildId, r.in.Ds.Avatar,
-							r.in.Ds.Reply.Text,
-							r.in.Ds.Reply.Avatar,
-							r.in.Ds.Reply.UserName,
-							r.in.Ds.Reply.TimeMessage)
+							c.DsChannel, c.GuildId, r.in.Tg.Avatar,
+							r.in.Tg.Reply.Text,
+							r.in.Tg.Reply.Avatar,
+							r.in.Tg.Reply.UserName,
+							time.Unix(r.in.Tg.Reply.TimeMessage, 0))
 					} else {
 						texts := r.replaceTextMentionRsRole(r.in.Text, c.GuildId)
 						mes = r.client.Ds.SendWebhook(texts, username,

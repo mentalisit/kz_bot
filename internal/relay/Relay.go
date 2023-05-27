@@ -37,6 +37,10 @@ func (r *Relay) inbox() {
 			r.in = in
 			fmt.Printf(" in relay ds  %+v\n", r.in)
 			r.logic()
+		case in := <-r.client.Tg.ChanRelay:
+			r.in = in
+			fmt.Printf(" in relay tg  %+v\n", r.in)
+			r.logic()
 		}
 	}
 }

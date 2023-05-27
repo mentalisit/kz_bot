@@ -24,7 +24,7 @@ func (r *Relay) ifCommand() bool {
 			if r.in.Tip == "ds" {
 				channelGood, configRelay = r.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(r.in.Ds.ChatId)
 			} else if r.in.Tip == "tg" {
-				channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
+				channelGood, configRelay = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
 			}
 			if channelGood {
 				list := r.storage.CorpsConfig.RelayCache.ListNameRelay(configRelay.RelayName)
