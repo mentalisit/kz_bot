@@ -109,7 +109,7 @@ func (r *Relay) logicSend() {
 						texts := r.replaceTextMentionRsRole(r.in.Text, c.GuildId)
 						mes = r.client.Ds.SendWebhook(texts, username,
 							c.DsChannel, c.GuildId,
-							r.in.Ds.Avatar)
+							r.in.Tg.Avatar)
 					}
 					memory.MessageDs = append(memory.MessageDs, struct {
 						MessageId string
