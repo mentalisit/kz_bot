@@ -35,7 +35,7 @@ func (r *Relay) inbox() {
 		select {
 		case in := <-r.client.Ds.ChanRelay:
 			r.in = in
-			fmt.Printf("in relay ds  %+v\n", r.in)
+			fmt.Printf(" in relay ds  %+v\n", r.in)
 			r.logic()
 		}
 	}
@@ -48,5 +48,4 @@ func (r *Relay) loadRelayConfig() {
 			*Relay2.R = append(*Relay2.R, q)
 		}
 	}
-	fmt.Println("loadRelayConfig()")
 }

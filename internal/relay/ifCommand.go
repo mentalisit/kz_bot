@@ -77,7 +77,7 @@ func (r *Relay) ifCommand() bool {
 				//channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
 			}
 
-			if good && channelGood {
+			if good && !channelGood {
 				relay := models.RelayConfig{
 					RelayName:  arg[2],
 					RelayAlias: arg[2],
