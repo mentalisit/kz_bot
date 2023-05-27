@@ -7,9 +7,11 @@ import (
 )
 
 func (r *Relay) ifCommand() bool {
+	fmt.Println("ifCommand() " + r.in.Text)
 	after, _ := strings.CutPrefix(r.in.Text, ".")
 	arg := strings.Split(after, " ")
 	lenarg := len(arg)
+	fmt.Printf("ifCommand() %d", lenarg)
 	if lenarg == 1 {
 		if arg[0] == "help" {
 			//help

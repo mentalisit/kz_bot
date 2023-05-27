@@ -150,6 +150,7 @@ func (d *Discord) SendToRelayChatFilter(m *discordgo.MessageCreate, config model
 				TimestampUnix: m.Timestamp.Unix(),
 			},
 		}
+		fmt.Printf(" logicmix.  %+v\n", mes)
 		d.ChanRelay <- mes
 		return
 	}
