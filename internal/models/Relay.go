@@ -29,6 +29,7 @@ type RelayMessageTg struct {
 	Avatar        string
 	GuildId       int64
 	TimestampUnix int64
+	GroupName     string
 	Reply         struct {
 		TimeMessage int64
 		Text        string

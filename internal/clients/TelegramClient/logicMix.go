@@ -85,18 +85,21 @@ func (t *Telegram) SendToRelayChatFilter(m *tgbotapi.Message, config models.Rela
 				Avatar:        t.GetAvatar(m.From.ID),
 				GuildId:       m.Chat.ID,
 				TimestampUnix: m.Time().Unix(),
+				GroupName:     m.Chat.Title,
 			},
 		}
 		//fmt.Printf(" logicmix.  %+v\n", mes)
 		t.ChanRelay <- mes
 		return
 	}
+	if len(m.Photo) != 0 {
+		for _, ph := range m.Photo {
+			url := t.GetPic(ph.FileID)
+			m.Text = m.Text + url + " "
+		}
+		m.Text = m.Text + m.Caption
 
-	//if len(m.Attachments) > 0 {
-	//	for _, attach := range m.Attachments { //вложеные файлы
-	//		m.Content = m.Content + "\n" + attach.URL
-	//	}
-	//}
+	}
 
 	mes := models.RelayMessage{
 		Text:   m.Text,
@@ -108,6 +111,7 @@ func (t *Telegram) SendToRelayChatFilter(m *tgbotapi.Message, config models.Rela
 			Avatar:        t.GetAvatar(m.From.ID),
 			GuildId:       m.Chat.ID,
 			TimestampUnix: m.Time().Unix(),
+			GroupName:     m.Chat.Title,
 		},
 		Config: &config,
 	}

@@ -35,6 +35,15 @@ func (t *Telegram) GetAvatar(userid int64) string {
 	}
 	return "https://api.telegram.org/file/bot" + t.t.Token + "/" + file.FilePath
 }
+func (t *Telegram) GetPic(fileid string) string {
+	fileconfig := tgbotapi.FileConfig{FileID: fileid}
+	file, err := t.t.GetFile(fileconfig)
+	if err != nil {
+		t.log.Println("err GetPic File " + err.Error())
+		return ""
+	}
+	return "https://api.telegram.org/file/bot" + t.t.Token + "/" + file.FilePath
+}
 
 func filterRsPl(s string) bool {
 	re := regexp.MustCompile(`^([3-9]|[1][0-2])[\+]$`)

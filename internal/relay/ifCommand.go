@@ -24,7 +24,7 @@ func (r *Relay) ifCommand() bool {
 			if r.in.Tip == "ds" {
 				channelGood, configRelay = r.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(r.in.Ds.ChatId)
 			} else if r.in.Tip == "tg" {
-				//channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
+				channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
 			}
 			if channelGood {
 				list := r.storage.CorpsConfig.RelayCache.ListNameRelay(configRelay.RelayName)
@@ -49,12 +49,11 @@ func (r *Relay) ifCommand() bool {
 				relay := models.RelayConfig{
 					RelayName:  arg[2],
 					RelayAlias: arg[2],
-					GuildName:  r.client.Ds.GuildChatName(r.in.Ds.ChatId, r.in.Ds.GuildId),
-					DsChannel:  r.in.Ds.ChatId,
-					GuildId:    r.in.Ds.GuildId,
+					GuildName:  r.GuildName(),
 					Country:    "ru",
 					Prefix:     ".",
 				}
+				r.ifChannelTip(&relay)
 				r.storage.CorpsConfig.RelayCache.AddCorp(relay)
 				err := r.storage.CorpsConfig.RelayDB.AddRelay(relay)
 				if err != nil {
@@ -74,19 +73,18 @@ func (r *Relay) ifCommand() bool {
 			if r.in.Tip == "ds" {
 				channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(r.in.Ds.ChatId)
 			} else if r.in.Tip == "tg" {
-				//channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
+				channelGood, _ = r.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(r.in.Tg.ChatId)
 			}
 
 			if good && !channelGood {
 				relay := models.RelayConfig{
 					RelayName:  arg[2],
 					RelayAlias: arg[2],
-					GuildName:  r.client.Ds.GuildChatName(r.in.Ds.ChatId, r.in.Ds.GuildId),
-					DsChannel:  r.in.Ds.ChatId,
-					GuildId:    r.in.Ds.GuildId,
+					GuildName:  r.GuildName(),
 					Country:    "ru",
 					Prefix:     ".",
 				}
+				r.ifChannelTip(&relay)
 				r.storage.CorpsConfig.RelayCache.AddCorp(relay)
 				err := r.storage.CorpsConfig.RelayDB.AddRelay(relay)
 				if err != nil {
@@ -102,4 +100,22 @@ func (r *Relay) ifCommand() bool {
 		}
 	}
 	return false
+}
+func (r *Relay) GuildName() string {
+	if r.in.Tip == "ds" {
+		return r.client.Ds.GuildChatName(r.in.Ds.ChatId, r.in.Ds.GuildId)
+	}
+	if r.in.Tip == "tg" {
+		return r.in.Tg.GroupName
+	}
+	return ""
+}
+func (r *Relay) ifChannelTip(relay *models.RelayConfig) {
+	if r.in.Tip == "ds" {
+		relay.DsChannel = r.in.Ds.ChatId
+		relay.GuildId = r.in.Ds.GuildId
+	}
+	if r.in.Tip == "tg" {
+		relay.TgChannel = r.in.Tg.ChatId
+	}
 }
