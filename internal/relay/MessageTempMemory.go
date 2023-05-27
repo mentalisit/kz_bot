@@ -24,7 +24,7 @@ func (r *Relay) RemoveMessage(MesId string) {
 		var mem []models.RelayMessageMemory
 		for _, memory := range r.messages {
 			if r.ifMessageId(memory, MesId) {
-				for _, s := range memory.Message {
+				for _, s := range memory.MessageDs {
 					go r.client.Ds.DeleteMessage(s.ChatId, s.MessageId)
 				}
 			} else {
@@ -35,7 +35,7 @@ func (r *Relay) RemoveMessage(MesId string) {
 	}
 }
 func (r *Relay) ifMessageId(memory models.RelayMessageMemory, MesId string) bool {
-	for _, s := range memory.Message {
+	for _, s := range memory.MessageDs {
 		if s.MessageId == MesId {
 			return true
 		}

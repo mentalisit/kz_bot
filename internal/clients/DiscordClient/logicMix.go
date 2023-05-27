@@ -101,12 +101,14 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	if d.avatar(m) {
 		return
 	}
-	good, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
-	if good {
-		if strings.HasPrefix(m.Content, relayConfig.Prefix) {
-			//prefix ok
-		}
+
+	//filter Rs
+	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
+	d.AccesChatDS(m)
+	if ok {
+		d.SendToRsFilter(m, config)
 	}
+
 	//filterHades111
 	okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
 	if okAlliance {
@@ -117,19 +119,73 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 		d.sendToFilterHades(m, corp, 1)
 	}
 
-	//filter Rs
-	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
-	d.AccesChatDS(m)
-	if ok {
-		d.SendToRsFilter(m, config)
+	good, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
+	if good || strings.HasPrefix(m.Content, ".") {
+		d.SendToRelayChatFilter(m, relayConfig)
 	}
+
 	//GlobalChat
 	okGlobal, configGlobal := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
 	if okGlobal {
 		go d.SendToGlobalChatFilter(m, configGlobal)
 	}
-}
 
+}
+func (d *Discord) SendToRelayChatFilter(m *discordgo.MessageCreate, config models.RelayConfig) {
+	username := m.Author.Username
+	if m.Member != nil && m.Member.Nick != "" {
+		username = m.Member.Nick
+	}
+
+	if config.RelayName == "" && config.GuildName == "" {
+		mes := models.RelayMessage{
+			Text:   m.Content,
+			Tip:    "ds",
+			Author: username,
+			Ds: models.RelayMessageDs{
+				ChatId:        m.ChannelID,
+				MesId:         m.ID,
+				Avatar:        m.Author.AvatarURL("128"),
+				GuildId:       m.GuildID,
+				TimestampUnix: m.Timestamp.Unix(),
+			},
+		}
+		d.ChanRelay <- mes
+		return
+	}
+
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			m.Content = m.Content + "\n" + attach.URL
+		}
+	}
+
+	mes := models.RelayMessage{
+		Text:   d.replaceTextMessage(m.Content, m.GuildID),
+		Tip:    "ds",
+		Author: username,
+		Ds: models.RelayMessageDs{
+			ChatId:        m.ChannelID,
+			MesId:         m.ID,
+			Avatar:        m.Author.AvatarURL("128"),
+			GuildId:       m.GuildID,
+			TimestampUnix: m.Timestamp.Unix(),
+		},
+		Config: config,
+	}
+	if m.MessageReference != nil {
+		usernameR := m.ReferencedMessage.Author.Username
+		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
+			usernameR = m.ReferencedMessage.Member.Nick
+		}
+		mes.Ds.Reply.UserName = usernameR
+		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
+		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
+		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
+	}
+
+	d.ChanRelay <- mes
+}
 func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corporation, channelType int) {
 	if len(m.Attachments) > 0 {
 		for _, attach := range m.Attachments { //вложеные файлы

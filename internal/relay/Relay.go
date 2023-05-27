@@ -18,12 +18,14 @@ type Relay struct {
 }
 
 func NewRelay(l *logrus.Logger, s *storage.Storage, c *clients.Clients) *Relay {
+	fmt.Println("loadrelay")
 	r := &Relay{
 		log:     l,
 		storage: s,
 		client:  c,
 	}
 	go r.inbox()
+	go r.removeIfTimeDay()
 	r.loadRelayConfig()
 
 	return r

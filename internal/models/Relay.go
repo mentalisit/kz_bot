@@ -13,6 +13,7 @@ type RelayMessageDs struct {
 	ChatId        string
 	MesId         string
 	Avatar        string
+	GuildId       string
 	TimestampUnix int64
 	Reply         struct {
 		TimeMessage time.Time

@@ -91,7 +91,7 @@ func (d *Discord) roleExists(g *discordgo.Guild, nameRoles string) (bool, *disco
 	return false, nil
 }
 
-func (d *Discord) dsChatName(chatid, guildid string) string {
+func (d *Discord) GuildChatName(chatid, guildid string) string {
 	g, err := d.s.Guild(guildid)
 	if err != nil {
 		d.log.Println("Ошибка проверка имени канала ", err)

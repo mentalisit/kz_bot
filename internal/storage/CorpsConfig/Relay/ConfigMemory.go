@@ -22,19 +22,29 @@ func NewRelayC() *RelayC {
 func (r *RelayC) ReloadConfig() {
 	*R = *NewR()
 }
-func (r *RelayC) AddCorp(RelayName, RelayAlias, GuildName string, DsChannel string, TgChannel int64, WaChannel string, guildid string, Country string, prefix string) {
-	relay := models.RelayConfig{
-		RelayName:  RelayName,
-		RelayAlias: RelayAlias,
-		GuildName:  GuildName,
-		DsChannel:  DsChannel,
-		TgChannel:  TgChannel,
-		WaChannel:  WaChannel,
-		GuildId:    guildid,
-		Country:    Country,
-		Prefix:     prefix,
-	}
+func (r *RelayC) AddCorp(relay models.RelayConfig) {
 	*R = append(*R, relay)
+}
+
+func (r *RelayC) ListNameRelay(RelayName string) (config []models.RelayConfig) {
+	if RelayName != "" {
+		for _, pp := range *R {
+			if RelayName == pp.RelayName {
+				config = append(config, pp)
+			}
+		}
+	}
+	return config
+}
+func (r *RelayC) CheckChannelConfigRelayName(RelayName string) (channelGood bool, config models.RelayConfig) {
+	if RelayName != "" {
+		for _, pp := range *R {
+			if RelayName == pp.RelayName {
+				return true, pp
+			}
+		}
+	}
+	return false, models.RelayConfig{}
 }
 func (r *RelayC) CheckChannelConfigDS(chatid string) (channelGood bool, config models.RelayConfig) {
 	if chatid != "" {

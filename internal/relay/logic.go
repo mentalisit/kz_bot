@@ -8,12 +8,22 @@ import (
 )
 
 func (r *Relay) logic() {
+	if strings.HasPrefix(r.in.Text, ".") {
+		if r.ifCommand() {
+			return
+		}
+	}
+	r.logicSend()
+
+}
+
+func (r *Relay) logicSend() {
 	if r.checkingForIdenticalMessage() {
 		return
 	}
 	r.in.Text = filterMessageLinks(r.in.Text)
 	tip := strings.ToUpper(r.in.Tip)
-	username := fmt.Sprintf("%s ([%s]%s)", r.in.Author, tip, r.in.Config.RelayAlias)
+	username := fmt.Sprintf("%s ([%s]%s)", r.in.Author, tip, r.in.Config.GuildName)
 	if tip == "DS" {
 		var memory models.RelayMessageMemory
 		memory.Timestamp = r.in.Ds.TimestampUnix
@@ -67,3 +77,24 @@ func (r *Relay) logic() {
 		r.RemoveMessage(r.in.Text)
 	}
 }
+
+//if d.blackListFilter(m.Author.ID) {
+//d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
+//return
+//}
+//if d.ifAsksForRoleRs(m) {
+//go d.DeleteMessage(m.ChannelID, m.ID)
+//return
+//}
+//if ifPrefix(m.Content) {
+//return
+//}
+//username := m.Author.Username
+//if m.Member != nil && m.Member.Nick != "" {
+//username = m.Member.Nick
+//}
+//if len(m.Attachments) > 0 {
+//for _, attach := range m.Attachments { //вложеные файлы
+//m.Content = m.Content + "\n" + attach.URL
+//}
+//}

@@ -8,6 +8,7 @@ import (
 	"kz_bot/internal/config"
 	"kz_bot/internal/hades"
 	"kz_bot/internal/hades/ReservCopyPaste"
+	"kz_bot/internal/relay"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
 	"os"
@@ -59,6 +60,7 @@ func RunNew() error {
 	go hades.NewHades(cl, st, log)
 	go bot.NewBot(st, cl, log, cfg)
 	go GlobalChat.NewChat(st, cl, log)
+	go relay.NewRelay(log, st, cl)
 	//ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	//defer cancel()
 
