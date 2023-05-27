@@ -75,7 +75,9 @@ func (t *Telegram) sendToFilterRs(m *tgbotapi.Message, config memory.Corpporatio
 }
 func (t *Telegram) SendToRelayChatFilter(m *tgbotapi.Message, config models.RelayConfig) {
 	//username := t.nameOrNick(m.From.UserName, m.From.FirstName)
-	fmt.Printf("\n\n%+v\n\n", m)
+	fmt.Printf("\n\nMessage %+v\n\n", m)
+	fmt.Printf("\n\nReplyToMessage %+v\n\n", m.ReplyToMessage)
+	fmt.Printf("\n\nChat %+v\n\n", m.Chat)
 	//if config.RelayName == "" && config.GuildName == "" {
 	//	mes := models.RelayMessage{
 	//		Text:   m.Text,
