@@ -99,6 +99,12 @@ func (r *Relay) logicSend() {
 				if c.DsChannel != "" {
 					var mes string
 					if r.in.Tg.Reply.Text != "" {
+						if r.in.Tg.Reply.UserName == "gote1st_bot" {
+							at := strings.SplitN(r.in.Tg.Reply.Text, "\n", 2)
+							r.in.Tg.Reply.UserName = at[0]
+							r.in.Tg.Reply.Text = at[1]
+						}
+
 						mes = r.client.Ds.SendWebhookReply(r.in.Text, username,
 							c.DsChannel, c.GuildId, r.in.Tg.Avatar,
 							r.in.Tg.Reply.Text,
@@ -125,7 +131,7 @@ func (r *Relay) logicSend() {
 		}
 		r.messages = append(r.messages, memory)
 	} else if tip == "DEL" {
-		r.RemoveMessage(r.in.Text)
+		r.RemoveMessage()
 	}
 }
 

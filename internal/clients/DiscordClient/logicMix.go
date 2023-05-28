@@ -352,3 +352,11 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 	}
 	return found
 }
+func (d *Discord) deleteMessageRelayChat(DelMessageId string, config models.RelayConfig) {
+	command := models.RelayMessage{
+		Tip:    "del",
+		Ds:     &models.RelayMessageDs{MesId: DelMessageId},
+		Config: &config,
+	}
+	d.ChanRelay <- command
+}

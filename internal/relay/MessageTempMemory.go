@@ -19,23 +19,51 @@ func (r *Relay) removeIfTimeDay() {
 		}
 	}
 }
-func (r *Relay) RemoveMessage(MesId string) {
+func (r *Relay) RemoveMessage() {
 	if len(r.messages) > 0 {
 		var mem []models.RelayMessageMemory
-		for _, memory := range r.messages {
-			if r.ifMessageId(memory, MesId) {
-				for _, s := range memory.MessageDs {
-					go r.client.Ds.DeleteMessage(s.ChatId, s.MessageId)
+		if r.in.Ds != nil {
+			for _, memory := range r.messages {
+				if r.ifMessageIdDs(memory, r.in.Ds.MesId) {
+					for _, s := range memory.MessageDs {
+						go r.client.Ds.DeleteMessage(s.ChatId, s.MessageId)
+					}
+					for _, s := range memory.MessageTg {
+						go r.client.Tg.DelMessage(s.ChatId, s.MessageId)
+					}
+				} else {
+					mem = append(mem, memory)
 				}
-			} else {
-				mem = append(mem, memory)
+			}
+		}
+		if r.in.Tg != nil {
+			for _, memory := range r.messages {
+				if r.ifMessageIdTg(memory, r.in.Tg.MesId) {
+					for _, s := range memory.MessageTg {
+						go r.client.Tg.DelMessage(s.ChatId, s.MessageId)
+					}
+					for _, s := range memory.MessageDs {
+						go r.client.Ds.DeleteMessage(s.ChatId, s.MessageId)
+					}
+				} else {
+					mem = append(mem, memory)
+				}
 			}
 		}
 		r.messages = mem
 	}
+
 }
-func (r *Relay) ifMessageId(memory models.RelayMessageMemory, MesId string) bool {
+func (r *Relay) ifMessageIdDs(memory models.RelayMessageMemory, MesId string) bool {
 	for _, s := range memory.MessageDs {
+		if s.MessageId == MesId {
+			return true
+		}
+	}
+	return false
+}
+func (r *Relay) ifMessageIdTg(memory models.RelayMessageMemory, MesId int) bool {
+	for _, s := range memory.MessageTg {
 		if s.MessageId == MesId {
 			return true
 		}

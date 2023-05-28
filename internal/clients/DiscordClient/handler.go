@@ -32,6 +32,10 @@ func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDele
 	if ok {
 		d.deleteMessageGlobalChat(m.ID)
 	}
+	good, config := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
+	if good {
+		d.deleteMessageRelayChat(m.ID, config)
+	}
 }
 
 func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
