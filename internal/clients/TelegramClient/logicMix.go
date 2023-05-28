@@ -1,7 +1,6 @@
 package TelegramClient
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/hades"
@@ -29,9 +28,6 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	good, relayConfig := t.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(m.Chat.ID)
 	if good || strings.HasPrefix(m.Text, ".") {
 		t.SendToRelayChatFilter(m, relayConfig)
-	}
-	if m.Text == "" {
-		fmt.Printf("\n\n%+v\n\n", m)
 	}
 }
 func (t *Telegram) sendToFilterHades(m *tgbotapi.Message, corp models.Corporation, channelType int) {

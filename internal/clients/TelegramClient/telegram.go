@@ -58,6 +58,7 @@ func (t *Telegram) update() {
 				t.updatesComand(update.Message) //если сообщение является командой
 
 			} else { //остальные сообщения
+				fmt.Printf("\n\n%+v\n\n", update.Message)
 				t.logicMix(update.Message)
 			}
 
