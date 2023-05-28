@@ -49,6 +49,7 @@ func (t *Telegram) update() {
 	//получаем обновления от телеграм
 	updates := t.t.GetUpdatesChan(ut)
 	for update := range updates {
+		fmt.Printf("\n\n %+v \n\n", update)
 		if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {
@@ -58,7 +59,6 @@ func (t *Telegram) update() {
 				t.updatesComand(update.Message) //если сообщение является командой
 
 			} else { //остальные сообщения
-				fmt.Printf("\n\n%+v\n\n", update.Message)
 				t.logicMix(update.Message)
 			}
 
