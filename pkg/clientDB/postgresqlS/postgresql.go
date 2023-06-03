@@ -33,12 +33,13 @@ func NewClient(ctx context.Context, log *logrus.Logger, maxAttempts int, conf *c
 		pool, err = pgxpool.Connect(ctx, dns)
 		if err != nil {
 			log.Println("Errror Connect DoWithTries postgresqlS ", err)
-			//return err
+			return err
 		}
 		return nil
 	}, maxAttempts, 5*time.Second)
 	if err != nil {
-		log.Fatalln("Error Connect postgresqlS", err)
+		log.Println("Error Connect postgresqlS", err)
+		return nil, err
 	}
 
 	return pool, nil

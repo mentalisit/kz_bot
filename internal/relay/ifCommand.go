@@ -11,7 +11,6 @@ func (r *Relay) ifCommand() bool {
 	after, _ := strings.CutPrefix(r.in.Text, ".")
 	arg := strings.Split(after, " ")
 	lenarg := len(arg)
-	fmt.Printf("ifCommand() %d", lenarg)
 	if lenarg == 1 {
 		if arg[0] == "help" {
 			//help

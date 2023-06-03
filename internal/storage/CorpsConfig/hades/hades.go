@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/go-ps"
 	"github.com/sirupsen/logrus"
+	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/clientDB/postgresqlS"
 	"os"
@@ -48,6 +49,9 @@ func (h *Hades) ReadCorporation() {
 
 }
 func (h *Hades) reloadConsoleClient(s []string) {
+	if config.Instance.BotMode != "server" {
+		return
+	}
 	procs, err := ps.Processes()
 	if err != nil {
 		h.log.Println("reloadConsoleClient " + err.Error())

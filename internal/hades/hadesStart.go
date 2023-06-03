@@ -26,8 +26,8 @@ func NewHades(client *clients.Clients, storage *storage.Storage, log *logrus.Log
 	h := &Hades{
 		cl:         client,
 		storage:    storage,
-		toGame:     make(chan models.Message, 10),
-		toMessager: make(chan models.Message, 10),
+		toGame:     make(chan models.Message, 100),
+		toMessager: make(chan models.Message, 100),
 		log:        log,
 	}
 	server.NewServer(h.toGame, h.toMessager)

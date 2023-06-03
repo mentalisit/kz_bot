@@ -61,6 +61,7 @@ func (d *Db) InsertQueue(ctx context.Context, dsmesid, wamesid, CorpName, name, 
 		d.log.Println("Ошибка инсЕрта время кз не может быть нолем ", name, timekz, errs)
 		timekzz = 1
 	}
+	ctx = context.Background()
 
 	insertSborkztg1 := `INSERT INTO kzbot.sborkz(corpname,name,mention,tip,dsmesid,tgmesid,wamesid,time,date,lvlkz,
                    numkzn,numberkz,numberevent,eventpoints,active,timedown) 

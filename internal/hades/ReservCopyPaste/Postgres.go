@@ -17,7 +17,8 @@ func NewReservPostgres(cfg *config.ConfigBot) *ReservPostgres {
 	p := &ReservPostgres{}
 	client, err := postgresqlS.NewClient(context.Background(), logrus.New(), 5, cfg)
 	if err != nil {
-		log.Fatalln("Ошибка подключения к облачной ДБ ", err)
+		log.Println("Ошибка подключения к облачной ДБ " + err.Error())
+		return p
 	}
 	p.client = client
 	return p

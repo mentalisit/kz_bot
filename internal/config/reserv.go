@@ -59,7 +59,7 @@ func checkPing() bool {
 			}
 		}
 		return nil
-	}, 5, 5*time.Second)
+	}, 10, 15*time.Second)
 	if err != nil {
 		log.Println("Error Ping DoWithTries ", err)
 		return false
