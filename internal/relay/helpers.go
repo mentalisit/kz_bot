@@ -58,7 +58,7 @@ func (r *Relay) ifTipDelSend(text string) {
 		go r.client.Ds.SendChannelDelSecond(r.in.Ds.ChatId, "```"+text+"```", 30)
 		go r.client.Ds.DeleteMessage(r.in.Ds.ChatId, r.in.Ds.MesId)
 	} else if r.in.Tip == "tg" {
-		go r.client.Tg.SendChannelDelSecond(r.in.Tg.ChatId, "<em>"+text+"</em>", 30)
+		go r.client.Tg.SendChannelDelSecond(r.in.Tg.ChatId, text, 30)
 		go r.client.Tg.DelMessage(r.in.Tg.ChatId, r.in.Tg.MesId)
 	}
 }
