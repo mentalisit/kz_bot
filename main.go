@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"kz_bot/internal/GlobalChat"
+	"kz_bot/internal/BridgeChat"
+	"kz_bot/internal/HadesClient"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
-	"kz_bot/internal/hades"
-	"kz_bot/internal/hades/ReservCopyPaste"
-	"kz_bot/internal/relay"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
 	"os"
@@ -39,16 +37,17 @@ func RunNew() error {
 	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
 		//test func
-		time.Sleep(1 * time.Minute)
+		st := storage.NewStorage(log, cfg)
+		cl := clients.NewClients(log, st, cfg)
+
+		HadesClient.NewHades(log, cl, st)
+		fmt.Scanln()
+		//time.Sleep(1 * time.Minute)
 		return nil
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
 	config.Reserv(log)
-	//Если нет пинга то загружаем бекап и запускаемся
-	if cfg.BotMode == "reserve" {
-		ReservCopyPaste.LoadBackup()
-	}
 
 	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
 
@@ -57,12 +56,13 @@ func RunNew() error {
 
 	//clients Discord, Telegram, //Whatsapp
 	cl := clients.NewClients(log, st, cfg)
-	go hades.NewHades(cl, st, log)
 	go bot.NewBot(st, cl, log, cfg)
-	go GlobalChat.NewChat(st, cl, log)
-	go relay.NewRelay(log, st, cl)
-	//ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	//defer cancel()
+
+	go BridgeChat.NewBridge(log, cl, st)
+
+	//eti udalit
+	//go GlobalChat.NewChat(st, cl, log)
+	//go relay.NewRelay(log, st, cl)
 
 	//ожидаем сигнала завершения
 	quit := make(chan os.Signal, 1)
@@ -71,3 +71,40 @@ func RunNew() error {
 
 	return nil
 }
+
+//func (h *Hades) reloadConsoleClient(s []string) {
+//
+//	procs, err := ps.Processes()
+//	if err != nil {
+//		h.log.Println("reloadConsoleClient " + err.Error())
+//		return
+//	}
+//	for _, proc := range procs {
+//		if proc.Executable() == "ConsoleClient.exe" {
+//			fmt.Println("Restarting hsBot")
+//			cmd := exec.Command("taskkill", "/F", "/IM", "ConsoleClient.exe")
+//			_ = cmd.Run()
+//		}
+//	}
+//
+//	err = os.Chdir("hsbot")
+//	if err != nil {
+//		h.log.Println("reloadConsoleClient " + err.Error())
+//		return
+//	}
+//	for i := 0; i < len(s); i++ {
+//		time.Sleep(5 * time.Second)
+//		err = os.Chdir(s[i])
+//		cmd := exec.Command("cmd.exe", "/c", "start", "./ConsoleClient.exe")
+//		err = cmd.Run()
+//		time.Sleep(10 * time.Second)
+//		if err != nil {
+//			h.log.Println("run console client " + err.Error())
+//			return
+//		}
+//		err = os.Chdir("..")
+//		if err != nil {
+//			h.log.Println(err.Error())
+//		}
+//	}
+//}

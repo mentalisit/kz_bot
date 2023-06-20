@@ -142,10 +142,10 @@ func (b *Bot) logicIfText() bool {
 func (b *Bot) bridge() {
 	if b.in.Tip == ds {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 181)
+		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
 		b.cleanChat()
 	} else if b.in.Tip == tg {
 		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 181)
+		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
 	}
 }

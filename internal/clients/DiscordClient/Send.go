@@ -134,6 +134,9 @@ func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar strin
 	}
 	return mes.ID
 }
+func (d *Discord) Name() {
+	fmt.Println(d.s.State.User.Username)
+}
 func (d *Discord) SendWebhookForHades(text, username, chatid, guildId, Avatar string) string {
 	if text == "" {
 		return ""

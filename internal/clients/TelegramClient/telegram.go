@@ -12,14 +12,16 @@ import (
 )
 
 type Telegram struct {
-	ChanRsMessage  chan models.InMessage
-	ChanToGame     chan models.MessageHades
-	ChanGlobalChat chan models.InGlobalMessage
-	ChanRelay      chan models.RelayMessage
-	t              *tgbotapi.BotAPI
-	log            *logrus.Logger
-	storage        *storage.Storage
-	debug          bool
+	ChanRsMessage     chan models.InMessage
+	ChanToGame        chan models.MessageHades
+	ChanGlobalChat    chan models.InGlobalMessage
+	ChanRelay         chan models.RelayMessage
+	ChanBridgeMessage chan models.BridgeMessage
+	corporationHades  map[string]models.CorporationHadesClient
+	t                 *tgbotapi.BotAPI
+	log               *logrus.Logger
+	storage           *storage.Storage
+	debug             bool
 }
 
 func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
@@ -29,17 +31,21 @@ func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot)
 	}
 
 	tg := &Telegram{
-		ChanRsMessage:  make(chan models.InMessage, 10),
-		ChanToGame:     make(chan models.MessageHades, 10),
-		ChanGlobalChat: make(chan models.InGlobalMessage, 10),
-		ChanRelay:      make(chan models.RelayMessage, 20),
-		t:              client,
-		log:            log,
-		storage:        st,
-		debug:          cfg.IsDebug,
+		ChanRsMessage:     make(chan models.InMessage, 10),
+		ChanToGame:        make(chan models.MessageHades, 10),
+		ChanGlobalChat:    make(chan models.InGlobalMessage, 10),
+		ChanRelay:         make(chan models.RelayMessage, 20),
+		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
+		corporationHades:  make(map[string]models.CorporationHadesClient),
+		t:                 client,
+		log:               log,
+		storage:           st,
+		debug:             cfg.IsDebug,
 	}
 
 	go tg.update()
+
+	tg.loadDbHades()
 
 	return tg
 }

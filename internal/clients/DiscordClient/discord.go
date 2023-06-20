@@ -10,13 +10,13 @@ import (
 )
 
 type Discord struct {
-	ChanRsMessage  chan models.InMessage
-	ChanToGame     chan models.MessageHades
-	ChanGlobalChat chan models.InGlobalMessage
-	ChanRelay      chan models.RelayMessage
-	s              *discordgo.Session
-	log            *logrus.Logger
-	storage        *storage.Storage
+	ChanRsMessage     chan models.InMessage
+	ChanToGame        chan models.MessageHades
+	ChanBridgeMessage chan models.BridgeMessage
+	s                 *discordgo.Session
+	log               *logrus.Logger
+	storage           *storage.Storage
+	corporationHades  map[string]models.CorporationHadesClient
 }
 
 func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
@@ -26,13 +26,13 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	}
 
 	DS := &Discord{
-		s:              ds,
-		log:            log,
-		storage:        st,
-		ChanRsMessage:  make(chan models.InMessage, 10),
-		ChanToGame:     make(chan models.MessageHades, 10),
-		ChanGlobalChat: make(chan models.InGlobalMessage, 20),
-		ChanRelay:      make(chan models.RelayMessage, 20),
+		s:                 ds,
+		log:               log,
+		storage:           st,
+		ChanRsMessage:     make(chan models.InMessage, 10),
+		ChanToGame:        make(chan models.MessageHades, 10),
+		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
+		corporationHades:  make(map[string]models.CorporationHadesClient),
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)
@@ -40,6 +40,8 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	ds.AddHandler(DS.onMessageDelete)
 	ds.AddHandler(DS.slash)
 	ds.AddHandler(DS.ready)
+
+	DS.loadDbHades()
 
 	return DS
 }

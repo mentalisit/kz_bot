@@ -3,20 +3,27 @@ package TelegramClient
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/CorpsConfig/hades"
 	"kz_bot/internal/storage/memory"
 	"strings"
 )
 
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
-	okAlliance, corp := hades.HadesStorage.AllianceChatTg(m.Chat.ID)
-	if okAlliance {
-		t.sendToFilterHades(m, corp, 0)
+	//okAlliance, corp := hades.HadesStorage.AllianceChatTg(m.Chat.ID)
+	//if okAlliance {
+	//	t.sendToFilterHades(m, corp, 0)
+	//}
+	//
+	//okWs1, corp := hades.HadesStorage.Ws1ChatTg(m.Chat.ID)
+	//if okWs1 {
+	//	t.sendToFilterHades(m, corp, 1)
+	//}
+	corpAlliance := t.getCorpHadesAlliance(m.Chat.ID)
+	if corpAlliance.Corp != "" {
+		t.sendToFilterHades(m, corpAlliance, 0)
 	}
-
-	okWs1, corp := hades.HadesStorage.Ws1ChatTg(m.Chat.ID)
-	if okWs1 {
-		t.sendToFilterHades(m, corp, 1)
+	corpWs1 := t.getCorpHadesWs1(m.Chat.ID)
+	if corpWs1.Corp != "" {
+		t.sendToFilterHades(m, corpWs1, 1)
 	}
 
 	// тут я передаю чат айди и проверяю должен ли бот реагировать на этот чат
@@ -25,12 +32,13 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	if ok {
 		t.sendToFilterRs(m, config)
 	}
-	good, relayConfig := t.storage.CorpsConfig.RelayCache.CheckChannelConfigTG(m.Chat.ID)
-	if good || strings.HasPrefix(m.Text, ".") {
-		t.SendToRelayChatFilter(m, relayConfig)
+
+	tg, bridgeConfig := t.storage.CorpsConfig.BridgeChat.CacheCheckChannelConfigTg(m.Chat.ID)
+	if tg || strings.HasPrefix(m.Text, ".") {
+		go t.SendToBridgeChatFilter(m, bridgeConfig)
 	}
 }
-func (t *Telegram) sendToFilterHades(m *tgbotapi.Message, corp models.Corporation, channelType int) {
+func (t *Telegram) sendToFilterHades(m *tgbotapi.Message, corp models.CorporationHadesClient, channelType int) {
 	if m.Text != "" {
 		if filterRsPl(m.Text) {
 			return
@@ -122,4 +130,42 @@ func (t *Telegram) SendToRelayChatFilter(m *tgbotapi.Message, config models.Rela
 		mes.Tg.Reply.Avatar = t.GetAvatar(m.ReplyToMessage.From.ID)
 	}
 	t.ChanRelay <- mes
+}
+func (t *Telegram) SendToBridgeChatFilter(m *tgbotapi.Message, config models.BridgeConfig) {
+	username := t.nameOrNick(m.From.UserName, m.From.FirstName)
+	if len(m.Photo) != 0 {
+		for _, ph := range m.Photo {
+			url := t.GetPic(ph.FileID)
+			m.Text = m.Text + url + " "
+		}
+		m.Text = m.Text + m.Caption
+	}
+
+	mes := models.BridgeMessage{
+		Text:   m.Text,
+		Sender: username,
+		Tip:    "tg",
+		Tg: models.BridgeMessageTg{
+			ChatId:        m.Chat.ID,
+			MesId:         m.MessageID,
+			Avatar:        t.GetAvatar(m.From.ID),
+			TimestampUnix: m.Time().Unix(),
+			GroupName:     m.Chat.Title,
+		},
+	}
+	if config.HostRelay == "" {
+
+		//fmt.Printf(" logicmix.  %+v\n", mes)
+		t.ChanBridgeMessage <- mes
+		return
+	}
+	mes.Config = config
+
+	if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
+		mes.Tg.Reply.Text = m.ReplyToMessage.Text
+		mes.Tg.Reply.UserName = t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName)
+		mes.Tg.Reply.TimeMessage = m.ReplyToMessage.Time().Unix()
+		mes.Tg.Reply.Avatar = t.GetAvatar(m.ReplyToMessage.From.ID)
+	}
+	t.ChanBridgeMessage <- mes
 }

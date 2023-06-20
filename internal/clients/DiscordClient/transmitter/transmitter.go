@@ -184,7 +184,7 @@ func (t *Transmitter) getWebhook(channel string) *discordgo.Webhook {
 	var webhook *discordgo.Webhook
 	for _, i := range webhooks {
 		//fmt.Printf("%s\n", i.User.Username)
-		if i.User.Bot && i.User.Username == "Rs_bot" {
+		if i.User.Bot && i.User.Username == t.session.State.User.Username {
 			webhook = i
 			return webhook
 		}

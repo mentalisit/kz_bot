@@ -28,14 +28,11 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 	}
 }
 func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
-	ok, _ := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
-	if ok {
-		d.deleteMessageGlobalChat(m.ID)
-	}
-	good, config := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
-	if good {
-		d.deleteMessageRelayChat(m.ID, config)
-	}
+
+	//good, config := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
+	//if good {
+	//	d.deleteMessageRelayChat(m.ID, config)
+	//}
 }
 
 func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {

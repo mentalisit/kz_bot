@@ -6,22 +6,6 @@ import (
 	"sync"
 )
 
-//	type ConfigBot struct {
-//		TokenD    string `yaml:"token_d" env:"TOKEN_DS"`
-//		TokenT    string `yaml:"token_t" env:"TOKEN_TG"`
-//		LogToken  string `yaml:"logToken" env:"LOGTOKEN"`
-//		LogChatId int64  `yaml:"logChatId" env:"LOGCHATID"`
-//
-//		DBHostname   string `yaml:"dbhostname" env:"DBHOSTNAME" env-default:"127.0.0.1:3306"`
-//		Dbname       string `yaml:"dbname" env:"DBNAME" env-default:"rsbot"`
-//		Dbusername   string `yaml:"dbusername" env:"DBUSERNAME" env-default:"root"`
-//		DbPassword   string `yaml:"dbpassword" env:"DBPASSWORD"env-default:"root"`
-//		DBmode       string `yaml:"DBmode"  env:"DBMODE" env-default:"postgres"`
-//		BotMode      string `yaml:"botMode" env:"BOTMOD" env-default:"server"` //reserve || server
-//		ServerAdrr   string `yaml:"serverAdrr" env:"SERVERADRR" env-default:"braut.com.ua:7733"`
-//		Debug        bool   `yaml:"debug" env:"DEBUG" env-default:"false"`
-//		SupabasePass string `yaml:"supabasePass" env:"SUPABASEPASS"`
-//	}
 type ConfigBot struct {
 	IsDebug    bool   `yaml:"is_debug" env-default:"false"`
 	BotMode    string `yaml:"bot_mode" env-default:"server"` //reserve || server
@@ -48,6 +32,7 @@ type ConfigBot struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	}
+	Mongo string `yaml:"mongo"`
 }
 
 var Instance *ConfigBot
