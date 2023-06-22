@@ -2,7 +2,7 @@ package CorpsConfig
 
 import (
 	"context"
-	"fmt"
+	"kz_bot/internal/models"
 	"kz_bot/internal/storage/CorpsConfig/db"
 )
 
@@ -12,25 +12,26 @@ func (c *Corps) AddTgCorpConfig(ctx context.Context, chatName string, chatid int
 	if err != nil {
 		return err
 	}
-	c.corp.AddCorp(chatName, "", chatid, "", 1, "", "", "")
+	//c.corp.AddCorp(chatName, "", chatid, "", 1, "", "", "")
 	return nil
 }
-func (c *Corps) AddDsCorpConfig(ctx context.Context, chatName, chatid, guildid string) error {
-	c.log.Println(chatName, "Добавлена в конфиг корпораций ")
-	err := c.db.AddDsCorp(ctx, chatName, chatid, guildid)
-	if err != nil {
-		return err
-	}
-	c.corp.AddCorp(chatName, chatid, 0, "", 1, "", "", guildid)
-	return nil
-}
+
+//	func (c *Corps) AddDsCorpConfig(ctx context.Context, chatName, chatid, guildid string) error {
+//		c.log.Println(chatName, "Добавлена в конфиг корпораций ")
+//		err := c.db.AddDsCorp(ctx, chatName, chatid, guildid)
+//		if err != nil {
+//			return err
+//		}
+//		//c.corp.AddCorp(chatName, chatid, 0, "", 1, "", "", guildid)
+//		return nil
+//	}
 func (c *Corps) AddWaCorpConfig(ctx context.Context, chatName, chatid string) error {
 	c.log.Println(chatName, "Добавлена в конфиг корпораций ")
 	err := c.db.AddWaCorp(ctx, chatName, chatid)
 	if err != nil {
 		return err
 	}
-	c.corp.AddCorp(chatName, "", 0, chatid, 1, "", "", "")
+	//c.corp.AddCorp(chatName, "", 0, chatid, 1, "", "", "")
 	return nil
 }
 
@@ -56,16 +57,24 @@ func (c *Corps) DeleteWa(ctx context.Context, chatid string) error {
 	return nil
 }
 
-func (c *Corps) ReadCorps() {
+func (c *Corps) ReadCorps() []models.CorporationConfig {
 	listCorp := c.db.ReadBotCorpConfig(context.Background())
-	var corp []string
-	for _, t := range listCorp {
-		c.corp.AddCorp(t.CorpName, t.DsChannel, t.TgChannel, t.WaChannel,
-			t.DelMesComplite, t.MesidDsHelp, t.Country, t.GuildId)
+	var cc []models.CorporationConfig
+	for _, corp := range listCorp {
+		c := models.CorporationConfig{
+			CorpName:       corp.CorpName,
+			DsChannel:      corp.DsChannel,
+			TgChannel:      corp.TgChannel,
+			WaChannel:      corp.WaChannel,
+			Country:        corp.Country,
+			DelMesComplite: corp.DelMesComplite,
+			MesidDsHelp:    corp.MesidDsHelp,
+			Guildid:        corp.GuildId,
+		}
 
-		corp = append(corp, fmt.Sprintf(" %s, ", t.CorpName))
+		cc = append(cc, c)
 	}
-	fmt.Printf("Конфиг корпораций:%s\n", corp)
+	return cc
 }
 
 func (c *Corps) AutoHelpUpdateMesid(ctx context.Context, newMesidHelp, dschannel string) error {

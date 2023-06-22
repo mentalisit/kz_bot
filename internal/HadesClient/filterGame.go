@@ -7,7 +7,7 @@ import (
 func (h *Hades) filterGame(in models.MessageHadesClient) {
 	h.in = in
 	//rename corp
-	h.in.Corporation = "TestCorp"
+	//h.in.Corporation = "TestCorp"
 
 	if h.in.ChannelType == 0 {
 		h.logicAlliance()

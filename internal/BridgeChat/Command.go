@@ -36,7 +36,7 @@ func (b *Bridge) Command() {
 		}
 	} else if lenarg == 3 {
 		if arg[0] == "создать" && arg[1] == "реле" {
-			good, _ := b.storage.CorpsConfig.BridgeChat.CacheNameBridge(arg[2])
+			good, _ := b.CacheNameBridge(arg[2])
 			if !good {
 				bridge := models.BridgeConfig{
 					NameRelay:         arg[2],
@@ -45,7 +45,7 @@ func (b *Bridge) Command() {
 					ForbiddenPrefixes: []string{},
 				}
 				b.ifChannelTip(&bridge)
-				b.storage.CorpsConfig.BridgeChat.AddNewBridgeConfig(bridge)
+				b.AddNewBridgeConfig(bridge)
 				text := fmt.Sprintf("%s создано, \nиспользуй команду в другом канале для подключения .подключить реле %s", arg[2], arg[2])
 				b.ifTipDelSend(text)
 			} else {
@@ -54,12 +54,12 @@ func (b *Bridge) Command() {
 			return
 		}
 		if arg[0] == "подключить" && arg[1] == "реле" {
-			good, host := b.storage.CorpsConfig.BridgeChat.CacheNameBridge(arg[2])
+			good, host := b.CacheNameBridge(arg[2])
 			channelGood := false
 			if b.in.Tip == "ds" {
-				channelGood, _ = b.storage.CorpsConfig.BridgeChat.CacheCheckChannelConfigDS(b.in.Ds.ChatId)
+				channelGood, _ = b.CacheCheckChannelConfigDS(b.in.Ds.ChatId)
 			} else if b.in.Tip == "tg" {
-				channelGood, _ = b.storage.CorpsConfig.BridgeChat.CacheCheckChannelConfigTg(b.in.Tg.ChatId)
+				channelGood, _ = b.CacheCheckChannelConfigTg(b.in.Tg.ChatId)
 			}
 			if good && !channelGood {
 				bridge := models.BridgeConfig{
@@ -67,7 +67,7 @@ func (b *Bridge) Command() {
 					HostRelay: host.HostRelay,
 				}
 				b.ifChannelTip(&bridge)
-				b.storage.CorpsConfig.BridgeChat.AddBridgeConfigAppend(bridge)
+				b.AddNewBridgeConfig(bridge)
 				text := fmt.Sprintf("Реле %s: добавлен текущий канал\nСписок подключеных канлов к реле %s доступен по команде `.список каналов`", arg[2], arg[2])
 				b.ifTipDelSend(text)
 				//отправить сообщение о подкоючении канала

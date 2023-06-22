@@ -57,6 +57,7 @@ type CorporationHadesClient struct {
 	GuildId   string
 	TgChat    int64
 	TgChatWS1 int64
+	//ThreadID  int
 }
 type GameMessageId struct {
 	MessageId int64  `bson:"MessageId"`

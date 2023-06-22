@@ -16,7 +16,7 @@ func (b *Bot) MinusMin() {
 	if len(tt) > 0 {
 		for _, t := range tt {
 			if t.Corpname != "" {
-				ok, config := b.storage.Cache.CheckCorpNameConfig(t.Corpname)
+				ok, config := b.CheckCorpNameConfig(t.Corpname)
 				if ok {
 					time := strconv.Itoa(t.Timedown)
 
@@ -71,7 +71,7 @@ func (b *Bot) UpdateMessage() {
 	corpActive0 := b.storage.DbFunc.OneMinutsTimer(context.Background())
 	for _, corp := range corpActive0 {
 
-		_, config := b.storage.Cache.CheckCorpNameConfig(corp)
+		_, config := b.CheckCorpNameConfig(corp)
 
 		dss, tgs, _ := b.storage.DbFunc.MessageUpdateMin(context.Background(), corp)
 

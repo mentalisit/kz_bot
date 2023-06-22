@@ -90,7 +90,7 @@ func (b *Bot) elseChat(user []string) { //проверяем всех игрок
 func (b *Bot) elsetrue(name string) { //удаляем игрока с очереди
 	tt := b.storage.DbFunc.ElseTrue(context.Background(), name)
 	for _, t := range tt {
-		ok, config := b.storage.Cache.CheckCorpNameConfig(t.Corpname)
+		ok, config := b.CheckCorpNameConfig(t.Corpname)
 		if ok {
 			in := models.InMessage{
 				Mtext:       t.Lvlkz + "-",

@@ -6,7 +6,6 @@ import (
 	gt "github.com/bas24/googletranslatefree"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/memory"
 	"strings"
 	"time"
 )
@@ -26,7 +25,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 		d.log.Println("Ошибка получения Юзера по реакции ", err)
 	}
 	if user.ID != message.Author.ID {
-		ok, config := d.storage.Cache.CheckChannelConfigDS(r.ChannelID)
+		ok, config := d.CheckChannelConfigDS(r.ChannelID)
 		if ok {
 			member, e := d.s.GuildMember(config.Guildid, user.ID)
 			if e != nil {
@@ -103,34 +102,28 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 		return
 	}
 
-	//filter Rs
-	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
+
+	//filter Rs
+	ok, config := d.CheckChannelConfigDS(m.ChannelID)
 	if ok {
 		d.SendToRsFilter(m, config)
+		return
 	}
-
-	//filterHades111
-	//okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
-	//if okAlliance {
-	//	d.sendToFilterHades(m, corp, 0)
-	//}
-	//okWs1, corp := hades.HadesStorage.Ws1Chat(m.ChannelID)
-	//if okWs1 {
-	//	d.sendToFilterHades(m, corp, 1)
-	//}
-
+	//filter hs
 	corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
 	if corpAlliance.Corp != "" {
 		d.sendToFilterHades(m, corpAlliance, 0)
+		return
 	}
 	corpWs1 := d.getCorpHadesWs1(m.ChannelID)
 	if corpWs1.Corp != "" {
 		d.sendToFilterHades(m, corpWs1, 1)
+		return
 	}
 
 	//bridge
-	ds, bridgeConfig := d.storage.CorpsConfig.BridgeChat.CacheCheckChannelConfigDS(m.ChannelID)
+	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
 	if ds || strings.HasPrefix(m.Content, ".") {
 		go d.SendToBridgeChatFilter(m, bridgeConfig)
 	}
@@ -173,7 +166,7 @@ func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corp
 	d.ChanToGame <- mes
 
 }
-func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config memory.CorpporationConfig) {
+func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
 
 	if len(m.Attachments) > 0 {
 		for _, attach := range m.Attachments { //вложеные файлы
@@ -224,7 +217,7 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 		}
 
 		d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
-		goodRs, _ := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
+		goodRs, _ := d.CheckChannelConfigDS(m.ChannelID)
 		//okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
 		//okWs1, corpw := hades.HadesStorage.Ws1Chat(m.ChannelID)
 		var text string

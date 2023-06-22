@@ -1,9 +1,5 @@
 package models
 
-import (
-	"kz_bot/internal/storage/memory"
-)
-
 type InMessage struct {
 	Mtext         string
 	Tip           string
@@ -24,7 +20,7 @@ type InMessage struct {
 		Nameid string
 		Mesid  string
 	}
-	Config memory.CorpporationConfig
+	Config CorporationConfig
 	Option Option
 }
 
@@ -76,10 +72,23 @@ type EmodjiUser struct {
 }
 
 type Timer struct {
-	Id       int
-	Dsmesid  string
-	Dschatid string
-	Tgmesid  int
-	Tgchatid int64
-	Timed    int
+	//Id       string `bson:"_id"`
+	Dsmesid  string `bson:"dsmesid"`
+	Dschatid string `bson:"dschatid"`
+	Tgmesid  int    `bson:"tgmesid"`
+	Tgchatid int64  `bson:"tgchatid"`
+	Timed    int    `bson:"timed"`
+}
+type CorporationConfig struct {
+	Type           int
+	CorpName       string
+	DsChannel      string
+	TgChannel      int64
+	WaChannel      string
+	Country        string
+	DelMesComplite int
+	MesidDsHelp    string
+	Primer         string
+	Guildid        string
+	//ThreadID       int
 }

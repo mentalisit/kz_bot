@@ -4,7 +4,6 @@ import (
 	"go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
-	"kz_bot/internal/models"
 	"strings"
 )
 
@@ -32,9 +31,9 @@ func (b *Whatsapp) handleMessage(message *events.Message) {
 // nolint:funlen
 func (b *Whatsapp) handleTextMessage(messageInfo types.MessageInfo, msg *proto.Message) {
 	senderJID := messageInfo.Sender
-	channel := messageInfo.Chat
+	//channel := messageInfo.Chat
 
-	senderName := b.getSenderName(messageInfo)
+	//senderName := b.getSenderName(messageInfo)
 
 	if msg.GetExtendedTextMessage() == nil && msg.GetConversation() == "" {
 		b.log.Debugf("message without text content? %#v", msg)
@@ -73,28 +72,28 @@ func (b *Whatsapp) handleTextMessage(messageInfo types.MessageInfo, msg *proto.M
 	//channel.String() //380989033544-1616265986@g.us
 	//messageInfo.ID		//566282D3E644DBB08BDEEA11A68E2DD7
 
-	b.accesChatWA(text, channel.String())
+	//b.accesChatWA(text, channel.String())
 
 	//b.SendMention(channel.String(), "@"+senderJID.User+"  vgdjgk", []string{messageInfo.Sender.ToNonAD().String()})
-	ok, config := b.storage.Cache.CheckChannelConfigWA(channel.String())
-	if ok {
-
-		b.inbox <- models.InMessage{
-			Mtext:       text,
-			Tip:         "wa",
-			Name:        senderName,
-			NameMention: "@" + senderJID.User,
-			Wa: struct {
-				Nameid string
-				Mesid  string
-			}{
-				Nameid: senderJID.String(),
-				Mesid:  messageInfo.ID,
-			},
-			Config: config,
-			Option: models.Option{
-				InClient: true,
-			},
-		}
-	}
+	//ok, config := b.storage.Cache.CheckChannelConfigWA(channel.String())
+	//if ok {
+	//
+	//	b.inbox <- models.InMessage{
+	//		Mtext:       text,
+	//		Tip:         "wa",
+	//		Name:        senderName,
+	//		NameMention: "@" + senderJID.User,
+	//		Wa: struct {
+	//			Nameid string
+	//			Mesid  string
+	//		}{
+	//			Nameid: senderJID.String(),
+	//			Mesid:  messageInfo.ID,
+	//		},
+	//		Config: config,
+	//		Option: models.Option{
+	//			InClient: true,
+	//		},
+	//	}
+	//}
 }

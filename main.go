@@ -36,14 +36,10 @@ func RunNew() error {
 
 	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
-		//test func
-		st := storage.NewStorage(log, cfg)
-		cl := clients.NewClients(log, st, cfg)
 
-		HadesClient.NewHades(log, cl, st)
-		fmt.Scanln()
+		//test func
 		//time.Sleep(1 * time.Minute)
-		return nil
+		//return nil
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
@@ -57,12 +53,8 @@ func RunNew() error {
 	//clients Discord, Telegram, //Whatsapp
 	cl := clients.NewClients(log, st, cfg)
 	go bot.NewBot(st, cl, log, cfg)
-
+	go HadesClient.NewHades(log, cl, st)
 	go BridgeChat.NewBridge(log, cl, st)
-
-	//eti udalit
-	//go GlobalChat.NewChat(st, cl, log)
-	//go relay.NewRelay(log, st, cl)
 
 	//ожидаем сигнала завершения
 	quit := make(chan os.Signal, 1)
@@ -71,40 +63,3 @@ func RunNew() error {
 
 	return nil
 }
-
-//func (h *Hades) reloadConsoleClient(s []string) {
-//
-//	procs, err := ps.Processes()
-//	if err != nil {
-//		h.log.Println("reloadConsoleClient " + err.Error())
-//		return
-//	}
-//	for _, proc := range procs {
-//		if proc.Executable() == "ConsoleClient.exe" {
-//			fmt.Println("Restarting hsBot")
-//			cmd := exec.Command("taskkill", "/F", "/IM", "ConsoleClient.exe")
-//			_ = cmd.Run()
-//		}
-//	}
-//
-//	err = os.Chdir("hsbot")
-//	if err != nil {
-//		h.log.Println("reloadConsoleClient " + err.Error())
-//		return
-//	}
-//	for i := 0; i < len(s); i++ {
-//		time.Sleep(5 * time.Second)
-//		err = os.Chdir(s[i])
-//		cmd := exec.Command("cmd.exe", "/c", "start", "./ConsoleClient.exe")
-//		err = cmd.Run()
-//		time.Sleep(10 * time.Second)
-//		if err != nil {
-//			h.log.Println("run console client " + err.Error())
-//			return
-//		}
-//		err = os.Chdir("..")
-//		if err != nil {
-//			h.log.Println(err.Error())
-//		}
-//	}
-//}

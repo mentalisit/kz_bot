@@ -17,6 +17,8 @@ type Discord struct {
 	log               *logrus.Logger
 	storage           *storage.Storage
 	corporationHades  map[string]models.CorporationHadesClient
+	bridgeConfig      map[string]models.BridgeConfig
+	corpConfigRS      map[string]models.CorporationConfig
 }
 
 func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
@@ -32,7 +34,9 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 		ChanRsMessage:     make(chan models.InMessage, 10),
 		ChanToGame:        make(chan models.MessageHades, 10),
 		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
-		corporationHades:  make(map[string]models.CorporationHadesClient),
+		corporationHades:  st.CorporationHades,
+		bridgeConfig:      st.BridgeConfigs,
+		corpConfigRS:      st.CorpConfigRS,
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)
@@ -40,8 +44,6 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	ds.AddHandler(DS.onMessageDelete)
 	ds.AddHandler(DS.slash)
 	ds.AddHandler(DS.ready)
-
-	DS.loadDbHades()
 
 	return DS
 }

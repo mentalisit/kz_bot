@@ -54,7 +54,8 @@ type BridgeConfigDs struct {
 	MappingRoles    map[string]string
 }
 type BridgeConfigTg struct {
-	ChannelId       int64
+	ChannelId int64
+	//ThreadID        int
 	CorpChannelName string
 	AliasName       string
 	MappingRoles    map[string]string

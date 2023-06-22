@@ -3,7 +3,6 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"kz_bot/internal/models"
 	"strconv"
 	"strings"
 )
@@ -125,7 +124,7 @@ func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
 }
 
 func (d *Discord) getLang(chatId, key string) string {
-	_, conf := d.storage.Cache.CheckChannelConfigDS(chatId)
+	_, conf := d.CheckChannelConfigDS(chatId)
 	return d.storage.Words.GetWords(conf.Country, key)
 }
 
@@ -198,28 +197,4 @@ func (d *Discord) avatar(m *discordgo.MessageCreate) bool {
 		}
 	}
 	return false
-}
-func (d *Discord) loadDbHades() {
-	corp := d.storage.HadesClient.GetAllCorporationHades()
-	for _, client := range corp {
-		d.corporationHades[client.Corp] = client
-	}
-
-}
-
-func (d *Discord) getCorpHadesAlliance(ChatId string) models.CorporationHadesClient {
-	for _, client := range d.corporationHades {
-		if client.DsChat == ChatId {
-			return client
-		}
-	}
-	return models.CorporationHadesClient{}
-}
-func (d *Discord) getCorpHadesWs1(ChatId string) models.CorporationHadesClient {
-	for _, client := range d.corporationHades {
-		if client.DsChatWS1 == ChatId {
-			return client
-		}
-	}
-	return models.CorporationHadesClient{}
 }

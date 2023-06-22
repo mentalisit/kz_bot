@@ -2,8 +2,9 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"github.com/sirupsen/logrus"
+
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
@@ -14,14 +15,14 @@ import (
 type Telegram struct {
 	ChanRsMessage     chan models.InMessage
 	ChanToGame        chan models.MessageHades
-	ChanGlobalChat    chan models.InGlobalMessage
-	ChanRelay         chan models.RelayMessage
 	ChanBridgeMessage chan models.BridgeMessage
-	corporationHades  map[string]models.CorporationHadesClient
 	t                 *tgbotapi.BotAPI
 	log               *logrus.Logger
 	storage           *storage.Storage
 	debug             bool
+	corporationHades  map[string]models.CorporationHadesClient
+	bridgeConfig      map[string]models.BridgeConfig
+	corpConfigRS      map[string]models.CorporationConfig
 }
 
 func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
@@ -33,19 +34,17 @@ func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot)
 	tg := &Telegram{
 		ChanRsMessage:     make(chan models.InMessage, 10),
 		ChanToGame:        make(chan models.MessageHades, 10),
-		ChanGlobalChat:    make(chan models.InGlobalMessage, 10),
-		ChanRelay:         make(chan models.RelayMessage, 20),
 		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
-		corporationHades:  make(map[string]models.CorporationHadesClient),
 		t:                 client,
 		log:               log,
 		storage:           st,
 		debug:             cfg.IsDebug,
+		corporationHades:  st.CorporationHades,
+		bridgeConfig:      st.BridgeConfigs,
+		corpConfigRS:      st.CorpConfigRS,
 	}
 
 	go tg.update()
-
-	tg.loadDbHades()
 
 	return tg
 }
@@ -87,6 +86,10 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 			"Присылай идеи для работы с ботом мне @mentalisit ")
 	}
 }
-func (t *Telegram) name() {
+
+func (t *Telegram) SendThreadID(ChatId int64, ThreadID int, text string) {
+	m := tgbotapi.NewMessage(ChatId, text)
+	m.MessageThreadID = ThreadID
+	t.t.Send(m)
 
 }

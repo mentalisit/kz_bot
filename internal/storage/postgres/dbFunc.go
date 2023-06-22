@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/memory"
 	"kz_bot/pkg/utils"
 	"strconv"
 	"time"
@@ -264,7 +263,7 @@ func (d *Db) MessageUpdateMin(ctx context.Context, corpname string) ([]string, [
 	}
 	return ds, tg, wa
 }
-func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config memory.CorpporationConfig) models.InMessage {
+func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config models.CorporationConfig) models.InMessage {
 	if d.debug {
 		fmt.Println("MessageupdateDS", dsmesid, config.CorpName)
 	}
@@ -301,7 +300,7 @@ func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config memory.
 	return in
 
 }
-func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config memory.CorpporationConfig) models.InMessage {
+func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config models.CorporationConfig) models.InMessage {
 	if d.debug {
 		fmt.Println("MessageupdateTG", tgmesid, config.CorpName)
 	}

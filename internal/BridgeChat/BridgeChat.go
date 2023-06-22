@@ -15,10 +15,16 @@ type Bridge struct {
 	in       models.BridgeMessage
 	messages []models.BridgeTempMemory
 	storage  *storage.Storage
+	configs  map[string]models.BridgeConfig
 }
 
-func NewBridge(log *logrus.Logger, client *clients.Clients, s *storage.Storage) *Bridge {
-	b := &Bridge{log: log, client: client, storage: s}
+func NewBridge(log *logrus.Logger, client *clients.Clients, storage *storage.Storage) *Bridge {
+	b := &Bridge{
+		log:     log,
+		client:  client,
+		storage: storage,
+		configs: storage.BridgeConfigs,
+	}
 	go b.inbox()
 	return b
 }

@@ -39,5 +39,11 @@ func (h *Hades) logicAlliance() {
 		if h.in.Command == "ответ tg" {
 			go h.cl.Tg.SendChannelDelSecond(config.TgChat, h.in.Text, 180)
 		}
+		if h.in.Command == "access" {
+			h.CheckMember(h.in.Sender, h.in.Corporation, h.in.MessageId)
+		}
+		if h.in.Command == "rang" {
+			h.CheckMemberRang(h.in.Sender, h.in.Corporation, h.in.MessageId)
+		}
 	}
 }

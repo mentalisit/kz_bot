@@ -1,11 +1,9 @@
 package mongo
 
 import (
-	"context"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"kz_bot/internal/config"
+	"kz_bot/pkg/clientDB/mongodb"
 )
 
 type DB struct {
@@ -14,10 +12,10 @@ type DB struct {
 }
 
 func InitMongoDB(log *logrus.Logger) *DB {
-	uri := config.Instance.Mongo
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	client, err := mongodb.NewMongoClient()
 	if err != nil {
-		log.Panic(err)
+		log.Println("InitMongoDB() " + err.Error())
+		return nil
 	}
 
 	d := &DB{

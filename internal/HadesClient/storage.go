@@ -1,6 +1,7 @@
 package HadesClient
 
 import (
+	"fmt"
 	"kz_bot/internal/models"
 )
 
@@ -23,6 +24,7 @@ func (h *Hades) loadDB() {
 	for _, allianceMember := range member {
 		h.member[allianceMember.UserName] = allianceMember
 	}
+	go h.reloadConsoleClient()
 }
 
 func (h *Hades) getChatIdAlliance() (mId int64) {
@@ -41,4 +43,35 @@ func (h *Hades) getConfig(Corporation string) (corp models.CorporationHadesClien
 		}
 	}
 	return corp
+}
+
+func (h *Hades) CheckMember(member, corporation string, mId int64) {
+	for _, aMember := range h.member {
+		if aMember.UserName == member && (aMember.CorpName == corporation || aMember.CorpName == "1") {
+			a := models.MessageHadesClient{
+				Sender:      member,
+				ChannelType: 0,
+				Corporation: corporation,
+				Command:     "access",
+				MessageId:   mId,
+			}
+			h.toGame <- a
+			fmt.Printf("%+v", a)
+		}
+	}
+}
+func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) {
+	for _, aMember := range h.member {
+		if aMember.UserName == member && aMember.CorpName == corporation && aMember.Rang != 0 {
+			a := models.MessageHadesClient{
+				Sender:      member,
+				ChannelType: aMember.Rang,
+				Corporation: corporation,
+				Command:     "rang",
+				MessageId:   playerId,
+			}
+			h.toGame <- a
+			fmt.Printf("%+v", a)
+		}
+	}
 }

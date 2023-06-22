@@ -4,19 +4,15 @@ import (
 	"context"
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/config"
-	"kz_bot/internal/storage/CorpsConfig/BridgeChat"
 	"kz_bot/internal/storage/CorpsConfig/db"
-	"kz_bot/internal/storage/memory"
 	"kz_bot/pkg/clientDB/postgresqlS"
 )
 
 type Corps struct {
-	client     postgresqlS.Client
-	log        *logrus.Logger
-	corp       memory.CorpConfig
-	debug      bool
-	db         *db.Repository
-	BridgeChat *BridgeChat.DB
+	client postgresqlS.Client
+	log    *logrus.Logger
+	debug  bool
+	db     *db.Repository
 }
 
 func NewCorps(log *logrus.Logger, cfg *config.ConfigBot) *Corps {
@@ -30,10 +26,9 @@ func NewCorps(log *logrus.Logger, cfg *config.ConfigBot) *Corps {
 	repo := db.NewRepository(client, log)
 
 	return &Corps{
-		client:     client,
-		log:        log,
-		debug:      cfg.IsDebug,
-		db:         repo,
-		BridgeChat: BridgeChat.NewDB(client, log),
+		client: client,
+		log:    log,
+		debug:  cfg.IsDebug,
+		db:     repo,
 	}
 }

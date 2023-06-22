@@ -1,9 +1,9 @@
 package DiscordClient
 
 import (
-	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/models"
 	"time"
 )
 
@@ -33,9 +33,11 @@ func (d *Discord) DeleteMessage(chatid, mesid string) {
 }
 func (d *Discord) DeleteMesageSecond(chatid, mesid string, second int) {
 	if second > 60 {
-		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-		defer cancel()
-		d.storage.Timers.TimerInsert(ctx, mesid, chatid, 0, 0, second)
+		d.storage.TimeDeleteMessage.TimerInsert(models.Timer{
+			Dsmesid:  mesid,
+			Dschatid: chatid,
+			Timed:    second,
+		})
 	} else {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
