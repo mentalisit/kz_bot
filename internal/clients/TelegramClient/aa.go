@@ -1,8 +1,8 @@
 package TelegramClient
 
 import (
-	"context"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	"kz_bot/internal/models"
 	"time"
 )
 
@@ -53,9 +53,11 @@ func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 			t.DelMessage(chatid, tMessage.MessageID)
 		}()
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-		defer cancel()
-		t.storage.Timers.TimerInsert(ctx, "", "", tMessage.MessageID, chatid, second)
+		t.storage.TimeDeleteMessage.TimerInsert(models.Timer{
+			Tgmesid:  tMessage.MessageID,
+			Tgchatid: chatid,
+			Timed:    second,
+		})
 	}
 }
 
@@ -71,9 +73,11 @@ func (t *Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int)
 			t.DelMessage(chatid, idSendMessage)
 		}()
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-		defer cancel()
-		t.storage.Timers.TimerInsert(ctx, "", "", idSendMessage, chatid, second)
+		t.storage.TimeDeleteMessage.TimerInsert(models.Timer{
+			Tgmesid:  idSendMessage,
+			Tgchatid: chatid,
+			Timed:    second,
+		})
 	}
 }
 func (t *Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit string, lvlkz string) {
@@ -129,7 +133,7 @@ func (t *Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
 	return result
 }
 func (t *Telegram) updatesComand(c *tgbotapi.Message) {
-	ok, config := t.storage.Cache.CheckChannelConfigTG(c.Chat.ID)
+	ok, config := t.CheckChannelConfigTG(c.Chat.ID)
 	if ok {
 		switch c.Command() {
 		case "help":

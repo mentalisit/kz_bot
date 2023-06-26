@@ -53,22 +53,3 @@ func (d *Repository) AutoHelp() []ConfigCorp {
 	}
 	return a
 }
-
-func (d *Repository) ReadGlobalCorpConfig(ctx context.Context) []ConfigCorpGlobal {
-	read :=
-		`SELECT * FROM kzbot.global`
-	results, err := d.client.Query(ctx, read)
-	if err != nil {
-		d.log.Println("Ошибка чтения крнфигурации корпораций global ", err)
-	}
-	var corps []ConfigCorpGlobal
-
-	for results.Next() {
-		var t ConfigCorpGlobal
-		err = results.Scan(&t.Id, &t.CorpName, &t.CorpNameMin,
-			&t.DsChannel, &t.TgChannel, &t.WaChannel,
-			&t.GuildId, &t.Country)
-		corps = append(corps, t)
-	}
-	return corps
-}

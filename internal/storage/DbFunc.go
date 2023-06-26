@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/memory"
 )
 
 type DbFunc interface {
@@ -17,7 +16,7 @@ type DbFunc interface {
 	Queue(ctx context.Context, corpname string) []string
 	OneMinutsTimer(ctx context.Context) []string
 	MessageUpdateMin(ctx context.Context, corpname string) ([]string, []int, []string)
-	MessageupdateDS(ctx context.Context, dsmesid string, config memory.CorpporationConfig) models.InMessage
-	MessageupdateTG(ctx context.Context, tgmesid int, config memory.CorpporationConfig) models.InMessage
+	MessageupdateDS(ctx context.Context, dsmesid string, config models.CorporationConfig) models.InMessage
+	MessageupdateTG(ctx context.Context, tgmesid int, config models.CorporationConfig) models.InMessage
 	NumberQueueLvl(ctx context.Context, lvlkzs, CorpName string) (int, error)
 }

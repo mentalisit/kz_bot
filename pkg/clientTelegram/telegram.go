@@ -2,7 +2,7 @@ package clientTelegram
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/config"
 )

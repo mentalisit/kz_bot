@@ -1,11 +1,11 @@
 package DiscordClient
 
 import (
-	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
+	"kz_bot/internal/models"
 	"time"
 )
 
@@ -36,9 +36,11 @@ func (d *Discord) SendChannelDelSecond(chatid, text string, second int) {
 				_ = d.s.ChannelMessageDelete(chatid, message.ID)
 			}()
 		} else {
-			ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-			defer cancel()
-			d.storage.Timers.TimerInsert(ctx, message.ID, chatid, 0, 0, second)
+			d.storage.TimeDeleteMessage.TimerInsert(models.Timer{
+				Dsmesid:  message.ID,
+				Dschatid: chatid,
+				Timed:    second,
+			})
 		}
 	}
 }
@@ -133,6 +135,9 @@ func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar strin
 		return ""
 	}
 	return mes.ID
+}
+func (d *Discord) Name() {
+	fmt.Println(d.s.State.User.Username)
 }
 func (d *Discord) SendWebhookForHades(text, username, chatid, guildId, Avatar string) string {
 	if text == "" {

@@ -124,7 +124,7 @@ func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
 }
 
 func (d *Discord) getLang(chatId, key string) string {
-	_, conf := d.storage.Cache.CheckChannelConfigDS(chatId)
+	_, conf := d.CheckChannelConfigDS(chatId)
 	return d.storage.Words.GetWords(conf.Country, key)
 }
 
@@ -140,7 +140,7 @@ func (d *Discord) CleanOldMessageChannel(chatId, lim string) {
 	}
 	for _, message := range messages {
 		if message.WebhookID == "" {
-			if message.Author.Bot {
+			if !message.Author.Bot {
 				d.DeleteMessage(chatId, message.ID)
 				continue
 			}

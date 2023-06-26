@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients"
@@ -20,23 +19,25 @@ const (
 
 // spravka
 type Bot struct {
-	storage *storage.Storage
-	client  *clients.Clients
-	inbox   chan models.InMessage
-	log     *logrus.Logger
-	debug   bool
-	in      models.InMessage
-	wg      sync.WaitGroup
-	mu      sync.Mutex
+	storage    *storage.Storage
+	client     *clients.Clients
+	inbox      chan models.InMessage
+	log        *logrus.Logger
+	debug      bool
+	in         models.InMessage
+	wg         sync.WaitGroup
+	mu         sync.Mutex
+	configCorp map[string]models.CorporationConfig
 }
 
 func NewBot(storage *storage.Storage, client *clients.Clients, log *logrus.Logger, cfg *config.ConfigBot) *Bot {
 	b := &Bot{
-		storage: storage,
-		client:  client,
-		log:     log,
-		debug:   cfg.IsDebug,
-		inbox:   make(chan models.InMessage, 10),
+		storage:    storage,
+		client:     client,
+		log:        log,
+		debug:      cfg.IsDebug,
+		inbox:      make(chan models.InMessage, 10),
+		configCorp: storage.CorpConfigRS,
 	}
 	go b.loadInbox()
 	go b.RemoveMessage()
@@ -68,20 +69,9 @@ func (b *Bot) loadInbox() {
 }
 func (b *Bot) RemoveMessage() { //цикл для удаления сообщений
 	for {
-		if time.Now().Second() == 0 {
-			tt := b.storage.Timers.TimerDeleteMessage(context.Background()) //получаем ид сообщения для удаления
-			for _, t := range tt {
-				if t.Dsmesid != "" {
-					b.client.Ds.DeleteMesageSecond(t.Dschatid, t.Dsmesid, t.Timed)
-				}
-				if t.Tgmesid != 0 {
-					b.client.Tg.DelMessageSecond(t.Tgchatid, t.Tgmesid, t.Timed)
-				}
-			}
-			b.MinusMin()             //ежеминутное обновление активной очереди
-			b.client.Ds.Autohelpds() //автозапуск справки для дискорда
-		}
-
+		<-time.After(1 * time.Minute)
+		b.MinusMin()             //ежеминутное обновление активной очереди
+		b.client.Ds.Autohelpds() //автозапуск справки для дискорда
 		time.Sleep(1 * time.Second)
 	}
 
@@ -99,7 +89,7 @@ func (b *Bot) LogicRs() {
 		} else if b.lEmoji() {
 		} else if b.logicIfText() {
 		} else if b.lIfCommand() {
-		} else if b.SendALLChannel() {
+			//} else if b.SendALLChannel() {
 			//пробуем мост между месенджерами
 		} else if b.in.Config.TgChannel != 0 && b.in.Config.DsChannel != "" {
 			b.bridge()
@@ -142,10 +132,10 @@ func (b *Bot) logicIfText() bool {
 func (b *Bot) bridge() {
 	if b.in.Tip == ds {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 181)
+		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
 		b.cleanChat()
 	} else if b.in.Tip == tg {
 		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 181)
+		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
 	}
 }

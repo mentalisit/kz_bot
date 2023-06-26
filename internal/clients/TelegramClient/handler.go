@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/models"
 )
 
@@ -13,7 +13,7 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	if _, err := t.t.Request(callback); err != nil {
 		t.log.Println("ошибка запроса калбек телеги ", err)
 	}
-	ok, config := t.storage.Cache.CheckChannelConfigTG(cb.Message.Chat.ID)
+	ok, config := t.CheckChannelConfigTG(cb.Message.Chat.ID)
 	if ok {
 		name := t.nameNick(cb.From.UserName, cb.From.FirstName, cb.Message.Chat.ID)
 		in := models.InMessage{

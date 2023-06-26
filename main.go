@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"kz_bot/internal/GlobalChat"
+	"kz_bot/internal/BridgeChat"
+	"kz_bot/internal/HadesClient"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
-	"kz_bot/internal/hades"
-	"kz_bot/internal/hades/ReservCopyPaste"
-	"kz_bot/internal/relay"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
 	"os"
@@ -38,17 +36,14 @@ func RunNew() error {
 
 	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
+
 		//test func
-		time.Sleep(1 * time.Minute)
-		return nil
+		//time.Sleep(1 * time.Minute)
+		//return nil
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
 	config.Reserv(log)
-	//Если нет пинга то загружаем бекап и запускаемся
-	if cfg.BotMode == "reserve" {
-		ReservCopyPaste.LoadBackup()
-	}
 
 	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
 
@@ -57,12 +52,9 @@ func RunNew() error {
 
 	//clients Discord, Telegram, //Whatsapp
 	cl := clients.NewClients(log, st, cfg)
-	go hades.NewHades(cl, st, log)
 	go bot.NewBot(st, cl, log, cfg)
-	go GlobalChat.NewChat(st, cl, log)
-	go relay.NewRelay(log, st, cl)
-	//ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	//defer cancel()
+	go HadesClient.NewHades(log, cl, st)
+	go BridgeChat.NewBridge(log, cl, st)
 
 	//ожидаем сигнала завершения
 	quit := make(chan os.Signal, 1)

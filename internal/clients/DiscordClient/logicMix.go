@@ -3,10 +3,9 @@ package DiscordClient
 import (
 	"context"
 	"fmt"
+	gt "github.com/bas24/googletranslatefree"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/CorpsConfig/hades"
-	"kz_bot/internal/storage/memory"
 	"strings"
 	"time"
 )
@@ -26,7 +25,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 		d.log.Println("Ошибка получения Юзера по реакции ", err)
 	}
 	if user.ID != message.Author.ID {
-		ok, config := d.storage.Cache.CheckChannelConfigDS(r.ChannelID)
+		ok, config := d.CheckChannelConfigDS(r.ChannelID)
 		if ok {
 			member, e := d.s.GuildMember(config.Guildid, user.ID)
 			if e != nil {
@@ -95,6 +94,7 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 }
 
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
+	d.TranslateBelRus(m)
 	if d.ifMentionBot(m) {
 		return
 	}
@@ -102,92 +102,35 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 		return
 	}
 
-	//filter Rs
-	ok, config := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
 	d.AccesChatDS(m)
+
+	//filter Rs
+	ok, config := d.CheckChannelConfigDS(m.ChannelID)
 	if ok {
 		d.SendToRsFilter(m, config)
+		return
 	}
-
-	//filterHades111
-	okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
-	if okAlliance {
-		d.sendToFilterHades(m, corp, 0)
+	//filter hs
+	corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
+	if corpAlliance.Corp != "" {
+		d.sendToFilterHades(m, corpAlliance, 0)
+		return
 	}
-	okWs1, corp := hades.HadesStorage.Ws1Chat(m.ChannelID)
-	if okWs1 {
-		d.sendToFilterHades(m, corp, 1)
-	}
-
-	good, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
-	if good || strings.HasPrefix(m.Content, ".") {
-		d.SendToRelayChatFilter(m, relayConfig)
-	}
-
-	//GlobalChat
-	okGlobal, configGlobal := d.storage.CacheGlobal.CheckChannelConfigDS(m.ChannelID)
-	if okGlobal {
-		go d.SendToGlobalChatFilter(m, configGlobal)
-	}
-
-}
-func (d *Discord) SendToRelayChatFilter(m *discordgo.MessageCreate, config models.RelayConfig) {
-	username := m.Author.Username
-	if m.Member != nil && m.Member.Nick != "" {
-		username = m.Member.Nick
-	}
-
-	if config.RelayName == "" && config.GuildName == "" {
-		mes := models.RelayMessage{
-			Text:   m.Content,
-			Tip:    "ds",
-			Author: username,
-			Ds: &models.RelayMessageDs{
-				ChatId:        m.ChannelID,
-				MesId:         m.ID,
-				Avatar:        m.Author.AvatarURL("128"),
-				GuildId:       m.GuildID,
-				TimestampUnix: m.Timestamp.Unix(),
-			},
-		}
-		//fmt.Printf(" logicmix.  %+v\n", mes)
-		d.ChanRelay <- mes
+	corpWs1 := d.getCorpHadesWs1(m.ChannelID)
+	if corpWs1.Corp != "" {
+		d.sendToFilterHades(m, corpWs1, 1)
 		return
 	}
 
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			m.Content = m.Content + "\n" + attach.URL
-		}
+	//bridge
+	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
+	if ds || strings.HasPrefix(m.Content, ".") {
+		go d.SendToBridgeChatFilter(m, bridgeConfig)
 	}
 
-	mes := models.RelayMessage{
-		Text:   d.replaceTextMessage(m.Content, m.GuildID),
-		Tip:    "ds",
-		Author: username,
-		Ds: &models.RelayMessageDs{
-			ChatId:        m.ChannelID,
-			MesId:         m.ID,
-			Avatar:        m.Author.AvatarURL("128"),
-			GuildId:       m.GuildID,
-			TimestampUnix: m.Timestamp.Unix(),
-		},
-		Config: &config,
-	}
-	if m.MessageReference != nil {
-		usernameR := m.ReferencedMessage.Author.Username
-		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
-			usernameR = m.ReferencedMessage.Member.Nick
-		}
-		mes.Ds.Reply.UserName = usernameR
-		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
-		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
-		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
-	}
-
-	d.ChanRelay <- mes
 }
-func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corporation, channelType int) {
+
+func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.CorporationHadesClient, channelType int) {
 	if len(m.Attachments) > 0 {
 		for _, attach := range m.Attachments { //вложеные файлы
 			m.Content = m.Content + "\n" + attach.URL
@@ -219,10 +162,11 @@ func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corp
 			MessageId: m.ID,
 		},
 	}
+
 	d.ChanToGame <- mes
 
 }
-func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config memory.CorpporationConfig) {
+func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
 
 	if len(m.Attachments) > 0 {
 		for _, attach := range m.Attachments { //вложеные файлы
@@ -260,64 +204,6 @@ func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config memory.Corpp
 	d.ChanRsMessage <- in
 
 }
-func (d *Discord) SendToGlobalChatFilter(m *discordgo.MessageCreate, config memory.ConfigGlobal) {
-	if d.blackListFilter(m.Author.ID) {
-		d.DeleteMesageSecond(m.ChannelID, m.ID, 5)
-		return
-	}
-	if d.ifAsksForRoleRs(m) {
-		go d.DeleteMessage(m.ChannelID, m.ID)
-		return
-	}
-	if ifPrefix(m.Content) {
-		return
-	}
-	username := m.Author.Username
-	if m.Member != nil && m.Member.Nick != "" {
-		username = m.Member.Nick
-	}
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			m.Content = m.Content + "\n" + attach.URL
-		}
-	}
-
-	mes := models.InGlobalMessage{
-		Content: d.replaceTextMessage(m.Content, m.GuildID),
-		Tip:     "ds",
-		Name:    username,
-		Ds: models.InGlobalMessageDs{
-			MesId:         m.ID,
-			NameId:        m.Author.ID,
-			ChatId:        m.ChannelID,
-			GuildId:       m.GuildID,
-			Avatar:        m.Author.AvatarURL("128"),
-			TimestampUnix: m.Timestamp.Unix(),
-			Reply: struct {
-				TimeMessage time.Time
-				Text        string
-				Avatar      string
-				UserName    string
-			}{},
-		},
-		Config: config,
-	}
-	if m.MessageReference != nil {
-		usernameR := m.ReferencedMessage.Author.Username
-		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
-			usernameR = m.ReferencedMessage.Member.Nick
-		}
-		mes.Ds.Reply.UserName = usernameR
-		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
-		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
-		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
-	}
-
-	d.ChanGlobalChat <- mes
-
-	//text:= cenzura m.Content
-
-}
 func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 	after, found := strings.CutPrefix(m.Content, d.s.State.User.Mention())
 	if found {
@@ -331,19 +217,16 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 		}
 
 		d.DeleteMesageSecond(m.ChannelID, m.ID, 30)
-		goodRelay, relayConfig := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
-		goodRs, _ := d.storage.Cache.CheckChannelConfigDS(m.ChannelID)
-		okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
-		okWs1, corpw := hades.HadesStorage.Ws1Chat(m.ChannelID)
+		goodRs, _ := d.CheckChannelConfigDS(m.ChannelID)
+		//okAlliance, corp := hades.HadesStorage.AllianceChat(m.ChannelID)
+		//okWs1, corpw := hades.HadesStorage.Ws1Chat(m.ChannelID)
 		var text string
-		if goodRelay {
-			text = fmt.Sprintf("%s Префикс бота %s", m.Author.Mention(), relayConfig.Prefix)
-		} else if goodRs {
+		if goodRs {
 			text = fmt.Sprintf("%s че пингуешь? пиши Справка,или пиши создателю бота @Mentalisit#5159 ", m.Author.Mention())
-		} else if okAlliance {
-			text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corp.Corp)
-		} else if okWs1 {
-			text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corpw.Corp)
+			//} else if okAlliance {
+			//	text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corp.Corp)
+			//} else if okWs1 {
+			//	text = fmt.Sprintf("%s не балуйся бот занят пересылкой сообщений в игру в корпорацию %s", m.Author.Mention(), corpw.Corp)
 		} else {
 			text = fmt.Sprintf("%s че пингуешь? я же многофункциональный бот, Префикс доступен только после активации нужного режима \n Для получения справки пиши %s help",
 				m.Author.Mention(), d.s.State.User.Mention())
@@ -352,11 +235,61 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 	}
 	return found
 }
-func (d *Discord) deleteMessageRelayChat(DelMessageId string, config models.RelayConfig) {
-	command := models.RelayMessage{
-		Tip:    "del",
-		Ds:     &models.RelayMessageDs{MesId: DelMessageId},
-		Config: &config,
+func (d *Discord) deleteMessageBridgeChat(DelMessageId string) {
+	d.ChanBridgeMessage <- models.BridgeMessage{
+		Tip: "del",
+		Ds: models.BridgeMessageDs{
+			MesId: DelMessageId,
+		},
 	}
-	d.ChanRelay <- command
+}
+func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config models.BridgeConfig) {
+	username := m.Author.Username
+	if m.Member != nil && m.Member.Nick != "" {
+		username = m.Member.Nick
+	}
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			m.Content = m.Content + "\n" + attach.URL
+		}
+	}
+	mes := models.BridgeMessage{
+		Text:   d.replaceTextMessage(m.Content, m.GuildID),
+		Sender: username,
+		Tip:    "ds",
+		Ds: models.BridgeMessageDs{
+			ChatId:        m.ChannelID,
+			MesId:         m.ID,
+			Avatar:        m.Author.AvatarURL("128"),
+			GuildId:       m.GuildID,
+			TimestampUnix: m.Timestamp.Unix(),
+		},
+		Config: config,
+	}
+	if m.MessageReference != nil {
+		usernameR := m.ReferencedMessage.Author.String() //.Username
+		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
+			usernameR = m.ReferencedMessage.Member.Nick
+		}
+		mes.Ds.Reply.UserName = usernameR
+		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
+		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
+		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
+	}
+
+	d.ChanBridgeMessage <- mes
+}
+
+var chatidTr string
+
+func (d *Discord) TranslateBelRus(m *discordgo.MessageCreate) {
+	if m.Content == "trbr" {
+		chatidTr = m.ChannelID
+	}
+	if m.ChannelID == chatidTr {
+		result, _ := gt.Translate(m.Content, "be", "ru")
+		if result != m.Content {
+			d.SendWebhook(result, m.Author.Username, chatidTr, m.GuildID, m.Author.AvatarURL("128"))
+		}
+	}
 }

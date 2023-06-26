@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -311,36 +310,36 @@ func (b *Bot) lEmoji() (bb bool) {
 	return bb
 }
 
-func (b *Bot) SendALLChannel() (bb bool) {
-	if b.in.Name == "Mentalisit" {
-		re := regexp.MustCompile(`^(Всем|всем)\s([А-Яа-я\s.]+)$`)
-		arr := (re.FindAllStringSubmatch(b.in.Mtext, -1))
-		if len(arr) > 0 {
-			fmt.Println(arr[0])
-			bb = true
-
-			text := arr[0][2]
-
-			d, t, w := b.storage.Cache.ReadAllChannel()
-			if len(d) > 0 {
-				for _, chatds := range d {
-					b.client.Ds.Send(chatds, text)
-				}
-			}
-			if len(t) > 0 {
-				for _, chattg := range t {
-					b.client.Tg.SendChannel(chattg, text)
-				}
-			}
-			if len(w) > 0 {
-				for _, chatwa := range w {
-					b.client.Wa.SendText(chatwa, text)
-				}
-			}
-		}
-	}
-	return bb
-}
+//func (b *Bot) SendALLChannel() (bb bool) {
+//	if b.in.Name == "Mentalisit" {
+//		re := regexp.MustCompile(`^(Всем|всем)\s([А-Яа-я\s.]+)$`)
+//		arr := (re.FindAllStringSubmatch(b.in.Mtext, -1))
+//		if len(arr) > 0 {
+//			fmt.Println(arr[0])
+//			bb = true
+//
+//			text := arr[0][2]
+//
+//			d, t, w := b.storage.Cache.ReadAllChannel()
+//			if len(d) > 0 {
+//				for _, chatds := range d {
+//					b.client.Ds.Send(chatds, text)
+//				}
+//			}
+//			if len(t) > 0 {
+//				for _, chattg := range t {
+//					b.client.Tg.SendChannel(chattg, text)
+//				}
+//			}
+//			if len(w) > 0 {
+//				for _, chatwa := range w {
+//					b.client.Wa.SendText(chatwa, text)
+//				}
+//			}
+//		}
+//	}
+//	return bb
+//}
 
 func (b *Bot) lIfCommand() bool {
 	return false
