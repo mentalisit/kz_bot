@@ -24,16 +24,24 @@ func (t *Telegram) CheckChannelConfigTG(chatid int64) (channelGood bool, config 
 	return false, models.CorporationConfig{}
 }
 
-// AddDsCorpConfig add RsConfig
-func (t *Telegram) AddDsCorpConfig(chatName string, chatid int64) {
+// AddTgCorpConfig add RsConfig
+func (t *Telegram) AddTgCorpConfig(chatName string, chatid int64) {
 	c := models.CorporationConfig{
 		CorpName:  chatName,
-		Country:   "ru",
+		Country:   "ua",
 		TgChannel: chatid,
 	}
 	t.storage.ConfigRs.InsertConfigRs(c)
 	t.corpConfigRS[c.CorpName] = c
 	t.log.Println(chatName, "Добавлена в конфиг корпораций ")
+}
+
+func (t *Telegram) DeleteTg(chatid int64) {
+	c := models.CorporationConfig{
+		CorpName:  t.ChatName(chatid),
+		TgChannel: chatid,
+	}
+	t.storage.DeleteConfigRs(c)
 }
 
 // hadesClient

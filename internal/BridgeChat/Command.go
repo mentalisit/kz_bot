@@ -67,7 +67,7 @@ func (b *Bridge) Command() {
 					HostRelay: host.HostRelay,
 				}
 				b.ifChannelTip(&bridge)
-				b.AddNewBridgeConfig(bridge)
+				b.AddBridgeConfig(bridge)
 				text := fmt.Sprintf("Реле %s: добавлен текущий канал\nСписок подключеных канлов к реле %s доступен по команде `.список каналов`", arg[2], arg[2])
 				b.ifTipDelSend(text)
 				//отправить сообщение о подкоючении канала

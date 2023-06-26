@@ -267,7 +267,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		Config: config,
 	}
 	if m.MessageReference != nil {
-		usernameR := m.ReferencedMessage.Author.Username
+		usernameR := m.ReferencedMessage.Author.String() //.Username
 		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
 			usernameR = m.ReferencedMessage.Member.Nick
 		}

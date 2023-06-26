@@ -1,10 +1,8 @@
 package TelegramClient
 
 import (
-	"context"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"strings"
-	"time"
 )
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
@@ -24,9 +22,7 @@ func (t *Telegram) accessAddChannelTg(chatid int64) { // внесение в д�
 			"повторная активация не требуется.\nнапиши Справка", 20)
 	} else {
 		chatName := t.ChatName(chatid)
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		t.storage.CorpsConfig.AddTgCorpConfig(ctx, chatName, chatid)
+		t.AddTgCorpConfig(chatName, chatid)
 		t.log.Println("новая активация корпорации ", chatName)
 		go t.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка", 60)
 	}
@@ -36,10 +32,7 @@ func (t *Telegram) accessDelChannelTg(chatid int64) { //удаление с бд
 	if !ok {
 		go t.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		t.storage.CorpsConfig.DeleteTg(ctx, chatid)
+		t.DeleteTg(chatid)
 		t.log.Println("отключение корпорации ", t.ChatName(chatid))
 		//t.storage.Cache.ReloadConfig()
 		t.storage.CorpsConfig.ReadCorps()

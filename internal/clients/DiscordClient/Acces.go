@@ -1,12 +1,10 @@
 package DiscordClient
 
 import (
-	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"regexp"
 	"strings"
-	"time"
 )
 
 //nujno sdelat lang
@@ -47,9 +45,7 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 	if !ok {
 		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		d.storage.CorpsConfig.DeleteDs(ctx, chatid)
+		d.DeleteDs(chatid)
 		d.log.Println("отключение корпорации ", d.GuildChatName(chatid, guildid))
 		//d.storage.Cache.ReloadConfig()
 		d.storage.CorpsConfig.ReadCorps()

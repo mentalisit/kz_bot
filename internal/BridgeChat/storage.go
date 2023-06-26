@@ -16,6 +16,17 @@ func (b *Bridge) AddNewBridgeConfig(br models.BridgeConfig) {
 	b.configs[br.NameRelay] = br
 	b.storage.BridgeConfig.InsertBridgeChat(br)
 }
+func (b *Bridge) AddBridgeConfig(br models.BridgeConfig) {
+	a := b.configs[br.NameRelay]
+	if len(br.ChannelDs) > 0 {
+		a.ChannelDs = append(a.ChannelDs, br.ChannelDs...)
+	}
+	if len(br.ChannelTg) > 0 {
+		a.ChannelTg = append(a.ChannelTg, br.ChannelTg...)
+	}
+	b.storage.BridgeConfig.UpdateBridgeChat(a)
+	b.configs[br.NameRelay] = a
+}
 func (b *Bridge) CacheCheckChannelConfigDS(chatIdDs string) (bool, models.BridgeConfig) {
 	for _, config := range b.configs {
 		for _, ds := range config.ChannelDs {

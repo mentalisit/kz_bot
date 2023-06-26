@@ -40,7 +40,7 @@ func NewBot(storage *storage.Storage, client *clients.Clients, log *logrus.Logge
 		configCorp: storage.CorpConfigRS,
 	}
 	go b.loadInbox()
-	//go b.RemoveMessage()
+	go b.RemoveMessage()
 
 	return b
 }
@@ -69,11 +69,9 @@ func (b *Bot) loadInbox() {
 }
 func (b *Bot) RemoveMessage() { //цикл для удаления сообщений
 	for {
-		if time.Now().Second() == 0 {
-			b.MinusMin()             //ежеминутное обновление активной очереди
-			b.client.Ds.Autohelpds() //автозапуск справки для дискорда
-		}
-
+		<-time.After(1 * time.Minute)
+		b.MinusMin()             //ежеминутное обновление активной очереди
+		b.client.Ds.Autohelpds() //автозапуск справки для дискорда
 		time.Sleep(1 * time.Second)
 	}
 
