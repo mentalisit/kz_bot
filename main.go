@@ -38,8 +38,8 @@ func RunNew() error {
 		fmt.Println("Develop Running")
 
 		//test func
-		//time.Sleep(1 * time.Minute)
-		//return nil
+		time.Sleep(1 * time.Minute)
+		return nil
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение

@@ -130,8 +130,14 @@ func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 		config := h.getConfig(m.Corporation)
 		if config.Corp != "" {
 			rang, _ := strconv.Atoi(matches[1])
-			h.storage.HadesClient.InsertMember(config.Corp, matches[2], rang)
-			t := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", matches[2], config.Corp)
+			name := matches[2]
+			h.storage.HadesClient.InsertMember(config.Corp, name, rang)
+			h.member[matches[2]] = models.AllianceMember{
+				CorpName: config.Corp,
+				UserName: name,
+				Rang:     rang,
+			}
+			t := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", name, config.Corp)
 			h.delSendMessageIfTip(t, m, config)
 			h.log.Println(t)
 			return true

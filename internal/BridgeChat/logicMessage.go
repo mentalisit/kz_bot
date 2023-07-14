@@ -23,15 +23,16 @@ func (b *Bridge) logicMessage() {
 			if d.ChannelId != b.in.Ds.ChatId {
 				if d.ChannelId != "" {
 					var mes string
+					text := replaceTextMap(b.in.Text, d.MappingRoles)
 					if b.in.Ds.Reply.Text != "" {
-						mes = b.client.Ds.SendWebhookReply(b.in.Text, b.GetSenderName(),
+						mes = b.client.Ds.SendWebhookReply(text, b.GetSenderName(),
 							d.ChannelId, d.GuildId, b.in.Ds.Avatar,
 							b.in.Ds.Reply.Text,
 							b.in.Ds.Reply.Avatar,
 							b.in.Ds.Reply.UserName,
 							b.in.Ds.Reply.TimeMessage)
 					} else {
-						texts := b.replaceTextMentionRsRole(b.in.Text, d.GuildId)
+						texts := b.replaceTextMentionRsRole(text, d.GuildId)
 						mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
 							d.ChannelId, d.GuildId,
 							b.in.Ds.Avatar)
@@ -49,9 +50,10 @@ func (b *Bridge) logicMessage() {
 		}
 		for _, d := range b.in.Config.ChannelTg {
 			if d.ChannelId != 0 {
-				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), b.in.Text)
+				text := replaceTextMap(b.in.Text, d.MappingRoles)
+				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 				if b.in.Ds.Reply.Text != "" {
-					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), b.in.Text, b.in.Ds.Reply.Text)
+					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
 				}
 				mesTg := b.client.Tg.SendChannel(d.ChannelId, textTg)
 				memory.MessageTg = append(memory.MessageTg, struct {
@@ -69,9 +71,10 @@ func (b *Bridge) logicMessage() {
 		for _, c := range b.in.Config.ChannelTg {
 			if c.ChannelId != b.in.Tg.ChatId {
 				if c.ChannelId != 0 {
-					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), b.in.Text)
+					text := replaceTextMap(b.in.Text, c.MappingRoles)
+					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 					if b.in.Tg.Reply.Text != "" {
-						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), b.in.Text, b.in.Tg.Reply.Text)
+						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Tg.Reply.Text)
 					}
 					mesTg := b.client.Tg.SendChannel(c.ChannelId, textTg)
 					memory.MessageTg = append(memory.MessageTg, struct {
@@ -84,6 +87,7 @@ func (b *Bridge) logicMessage() {
 		}
 		for _, d := range b.in.Config.ChannelDs {
 			if d.ChannelId != "" {
+				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				var mes string
 				if b.in.Tg.Reply.Text != "" {
 					if b.in.Tg.Reply.UserName == "gote1st_bot" {
@@ -91,14 +95,14 @@ func (b *Bridge) logicMessage() {
 						b.in.Tg.Reply.UserName = at[0]
 						b.in.Tg.Reply.Text = at[1]
 					}
-					mes = b.client.Ds.SendWebhookReply(b.in.Text, b.GetSenderName(),
+					mes = b.client.Ds.SendWebhookReply(text, b.GetSenderName(),
 						d.ChannelId, d.GuildId, b.in.Tg.Avatar,
 						b.in.Tg.Reply.Text,
 						b.in.Tg.Reply.Avatar,
 						b.in.Tg.Reply.UserName,
 						time.Unix(b.in.Tg.Reply.TimeMessage, 0))
 				} else {
-					texts := b.replaceTextMentionRsRole(b.in.Text, d.GuildId)
+					texts := b.replaceTextMentionRsRole(text, d.GuildId)
 					mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
 						d.ChannelId, d.GuildId,
 						b.in.Tg.Avatar)

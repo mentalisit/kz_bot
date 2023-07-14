@@ -76,5 +76,21 @@ func (b *Bridge) Command() {
 			}
 			return
 		}
+		//if arg[0] == "мапинг" {
+		//	mentionPatternTg := `@(\w+)`
+		//	mentionPatternDs := `<@(\w+)>`
+		//	mentionRegexTg := regexp.MustCompile(mentionPatternTg)
+		//	mentionRegexDs := regexp.MustCompile(mentionPatternDs)
+		//	tg := mentionRegexTg.FindString(arg[1])
+		//	ds := mentionRegexDs.FindString(arg[2])
+		//	if tg != "" && ds != "" {
+		//		var br models.BridgeConfig
+		//		br = b.in.Config
+		//
+		//		m := map[string]string{
+		//			tg: ds,
+		//		}
+		//	}
+		//}
 	}
 }
