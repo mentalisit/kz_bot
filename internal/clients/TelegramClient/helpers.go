@@ -58,11 +58,12 @@ func replaceGameName(s string) string {
 	userList := []list{
 		{nameGame: "Колхоз", nameTelegram: "andvs"},
 		{nameGame: "Ivan", nameTelegram: "Ivan_Belskiy"},
-		{nameGame: "Vovkasotka", nameTelegram: "HexagonChip"},
+		{nameGame: "Vovkasotka", nameTelegram: "YaMadBee"},
 		{nameGame: "Джон Джонович", nameTelegram: "i_kebab"},
 		{nameGame: "Encounter", nameTelegram: "Encounter1793"},
 		{nameGame: "Angel", nameTelegram: "Angel_12346"},
 		{nameGame: "Менталисит", nameTelegram: "Mentalisit"},
+		{nameGame: "Falcernout", nameTelegram: "the_night_falcon868"},
 	}
 	for _, l := range userList {
 		if l.nameTelegram == s {

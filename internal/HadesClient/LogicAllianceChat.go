@@ -30,6 +30,10 @@ func (h *Hades) logicAlliance() {
 			}
 			fmt.Printf("Alliance %s Name %s: %s\n", h.in.Corporation, h.in.Sender, h.in.Text)
 
+		} else if h.in.MessageId == h.getChatIdAlliance() {
+			if config.DsChat != "" {
+				h.ifEditMessage(h.in, config)
+			}
 		}
 	} else if h.in.Command != "text" {
 		if h.in.Command == "ответ ds" {
