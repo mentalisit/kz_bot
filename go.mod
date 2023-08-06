@@ -12,7 +12,6 @@ require (
 	github.com/matterbridge/telegram-bot-api/v6 v6.5.0
 	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/go-ps v1.0.0
-	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	go.mau.fi/whatsmeow v0.0.0-20230616194828-be0edabb0bf3
 	go.mongodb.org/mongo-driver v1.11.7
@@ -38,6 +37,7 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/robertkrimen/otto v0.2.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

@@ -1,14 +1,14 @@
 package models
 
-type Message struct {
-	Text        string
-	Sender      string
-	Avatar      string
-	ChannelType int
-	Corporation string
-	Command     string
-	Messager    string
-}
+//	type Message struct {
+//		Text        string
+//		Sender      string
+//		Avatar      string
+//		ChannelType int
+//		Corporation string
+//		Command     string
+//		Messager    string
+//	}
 type MessageHadesClient struct {
 	Text                  string
 	Sender                string
@@ -21,16 +21,17 @@ type MessageHadesClient struct {
 	SolarSystemId         int64
 	MatchedStarSupernovas int
 }
-type Corporation struct {
-	Id        int
-	Corp      string
-	DsChat    string
-	DsChatWS1 string
-	DsChatWS2 string
-	GuildId   string
-	TgChat    string
-	TgChatWS1 string
-}
+
+//type Corporation struct {
+//	Id        int
+//	Corp      string
+//	DsChat    string
+//	DsChatWS1 string
+//	DsChatWS2 string
+//	GuildId   string
+//	TgChat    string
+//	TgChatWS1 string
+//}
 
 type MessageHades struct {
 	Text        string
