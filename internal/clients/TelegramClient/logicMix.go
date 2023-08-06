@@ -14,7 +14,7 @@ import (
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 
-	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(m.MessageThreadID)
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", m.MessageThreadID)
 
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)

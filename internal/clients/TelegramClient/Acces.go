@@ -1,6 +1,7 @@
 package TelegramClient
 
 import (
+	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"strconv"
 	"strings"
@@ -8,7 +9,7 @@ import (
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
-	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(m.MessageThreadID)
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", m.MessageThreadID)
 	if res == true && m.Text == ".add" {
 		go t.DelMessageSecond(ChatId, m.MessageID, 10)
 		t.accessAddChannelTg(ChatId)
