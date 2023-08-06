@@ -129,17 +129,18 @@ func (h *Hades) letInId(arg []string, m models.MessageHades) bool {
 func (h *Hades) listAccess(arg []string, m models.MessageHades) bool {
 	if arg[0] == "список" && arg[1] == "имён" {
 		corporation := h.getConfig(m.Corporation)
-		var text = "Список имён доверенный\n"
-		var text2 = "Список имён\n"
-		var n = 1
+		var text = "  Список имён доверенный\n"
+		var text2 = "  Список имён\n"
+		var n1 = 1
+		var n2 = 1
 		for _, s := range h.member {
 			if s.CorpName == "1" {
-				text = text + fmt.Sprintf("%d %s(%d) \n", n, s.UserName, s.Rang)
-				n++
+				text = text + fmt.Sprintf("%d %s(%d) \n", n1, s.UserName, s.Rang)
+				n1++
 			}
 			if m.Corporation == s.CorpName {
-				text2 = text2 + fmt.Sprintf("%d %s(%d)\n", n, s.UserName, s.Rang)
-				n++
+				text2 = text2 + fmt.Sprintf("%d %s(%d)\n", n2, s.UserName, s.Rang)
+				n2++
 			}
 		}
 		text = text + text2
