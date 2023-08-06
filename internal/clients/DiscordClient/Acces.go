@@ -36,7 +36,7 @@ func (d *Discord) accessAddChannelDs(chatid, guildid string) { // внесени
 		d.log.Println("новая активация корпорации ", chatName)
 		d.AddDsCorpConfig(chatName, chatid, guildid)
 		go d.SendChannelDelSecond(chatid, "Спасибо за активацию.", 10)
-		d.HelpChannelUpdate(chatid)
+
 	}
 }
 func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удаление с бд и масива для блокировки

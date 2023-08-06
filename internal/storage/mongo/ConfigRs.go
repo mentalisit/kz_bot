@@ -39,11 +39,11 @@ func (d *DB) DeleteConfigRs(c models.CorporationConfig) {
 	}
 	fmt.Println(ins.DeletedCount)
 }
-func (d *DB) AutoHelpUpdateMesid(ctx context.Context, newMesidHelp, dschannel string) {
+func (d *DB) AutoHelpUpdateMesid(c models.CorporationConfig) {
 	collection := d.s.Database("RsBot").Collection("RsConfig")
-	filter := bson.M{"dschannel": dschannel}
-	update := bson.M{"dschannel": dschannel, "mesiddshelp": newMesidHelp}
-	_, err := collection.ReplaceOne(ctx, filter, update)
+	filter := bson.M{"dschannel": c.DsChannel}
+	//update := bson.M{"dschannel": dschannel, "mesiddshelp": newMesidHelp}
+	_, err := collection.ReplaceOne(context.Background(), filter, c)
 	if err != nil {
 		d.log.Println(err)
 	}

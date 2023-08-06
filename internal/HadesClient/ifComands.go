@@ -129,18 +129,20 @@ func (h *Hades) letInId(arg []string, m models.MessageHades) bool {
 func (h *Hades) listAccess(arg []string, m models.MessageHades) bool {
 	if arg[0] == "список" && arg[1] == "имён" {
 		corporation := h.getConfig(m.Corporation)
-		var text = "Список имён\n"
+		var text = "Список имён доверенный\n"
+		var text2 = "Список имён\n"
 		var n = 1
 		for _, s := range h.member {
 			if s.CorpName == "1" {
-				text = text + fmt.Sprintf("%d %s(%d) (доверенный) \n", n, s.UserName, s.Rang)
+				text = text + fmt.Sprintf("%d %s(%d) \n", n, s.UserName, s.Rang)
 				n++
 			}
 			if m.Corporation == s.CorpName {
-				text = text + fmt.Sprintf("%d %s(%d)\n", n, s.UserName, s.Rang)
+				text2 = text2 + fmt.Sprintf("%d %s(%d)\n", n, s.UserName, s.Rang)
 				n++
 			}
 		}
+		text = text + text2
 
 		h.delSendMessageIfTip(text, m, corporation, 120)
 		return true

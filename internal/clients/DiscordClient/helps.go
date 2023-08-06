@@ -1,8 +1,8 @@
 package DiscordClient
 
 import (
-	"context"
 	"fmt"
+	"kz_bot/internal/models"
 	"kz_bot/pkg/utils"
 	"time"
 )
@@ -21,12 +21,11 @@ func (d *Discord) Autohelpds() {
 			if s.DsChannel != "" {
 				if s.MesidDsHelp != "" {
 					go d.DeleteMessage(s.DsChannel, s.MesidDsHelp)
-					d.HelpChannelUpdate(s.DsChannel)
+					d.HelpChannelUpdate(s)
 				} else {
-					d.HelpChannelUpdate(s.DsChannel)
+					d.HelpChannelUpdate(s)
 				}
 			}
-
 		}
 		time.Sleep(time.Minute)
 	} else if mtime == "03:00" {
@@ -35,11 +34,10 @@ func (d *Discord) Autohelpds() {
 	}
 }
 
-func (d *Discord) HelpChannelUpdate(dschannel string) {
-	newMesidHelp := d.hhelp1(dschannel)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	d.storage.ConfigRs.AutoHelpUpdateMesid(ctx, newMesidHelp, dschannel)
+func (d *Discord) HelpChannelUpdate(c models.CorporationConfig) {
+	newMesidHelp := d.hhelp1(c.DsChannel)
+	c.MesidDsHelp = newMesidHelp
+	d.storage.ConfigRs.AutoHelpUpdateMesid(c)
 }
 
 func (d *Discord) hhelp1(chatid string) string {
@@ -47,3 +45,19 @@ func (d *Discord) hhelp1(chatid string) string {
 		fmt.Sprintf("%s \n\n%s", d.getLang(chatid, "botUdalyaet"), d.getLang(chatid, "hhelpText")))
 	return m.ID
 }
+
+//func (d *Discord) restoredb(c *models.CorporationConfig) {
+//	list := ReadCorps()
+//	for _, config := range list {
+//		if config.DsChannel == c.DsChannel {
+//			c.CorpName = config.CorpName
+//			c.DsChannel = config.DsChannel
+//			c.TgChannel = config.TgChannel
+//			c.WaChannel = config.WaChannel
+//			c.Country = config.Country
+//			c.DelMesComplite = config.DelMesComplite
+//			c.Primer = config.Primer
+//			c.Guildid = config.Guildid
+//		}
+//	}
+//}
