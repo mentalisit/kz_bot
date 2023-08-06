@@ -16,7 +16,7 @@ func (d *Discord) Autohelpds() {
 	tm := time.Now()
 	mtime := tm.Format("15:04")
 	if mtime == "12:00" {
-		a := d.storage.CorpsConfig.AutoHelp()
+		a := d.storage.ConfigRs.AutoHelp()
 		for _, s := range a {
 			if s.DsChannel != "" {
 				if s.MesidDsHelp != "" {
@@ -39,7 +39,7 @@ func (d *Discord) HelpChannelUpdate(dschannel string) {
 	newMesidHelp := d.hhelp1(dschannel)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	d.storage.CorpsConfig.AutoHelpUpdateMesid(ctx, newMesidHelp, dschannel)
+	d.storage.ConfigRs.AutoHelpUpdateMesid(ctx, newMesidHelp, dschannel)
 }
 
 func (d *Discord) hhelp1(chatid string) string {

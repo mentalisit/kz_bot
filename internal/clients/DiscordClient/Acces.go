@@ -45,10 +45,9 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 	if !ok {
 		go d.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		d.DeleteDs(chatid)
+		d.storage.ConfigRs.DeleteConfigRs(config)
+		d.storage.ReloadDbArray()
 		d.log.Println("отключение корпорации ", d.GuildChatName(chatid, guildid))
-		//d.storage.Cache.ReloadConfig()
-		d.storage.CorpsConfig.ReadCorps()
 		go d.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
 	}
 }

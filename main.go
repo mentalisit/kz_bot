@@ -34,7 +34,7 @@ func RunNew() error {
 	//создаем логгер в телегу
 	log := logger.NewLoggerTG(cfg.Logger.Token, cfg.Logger.ChatId)
 
-	if cfg.BotMode == "dev" {
+	if cfg.BotMode == "dev1" {
 		fmt.Println("Develop Running")
 
 		//test func

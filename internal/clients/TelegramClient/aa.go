@@ -113,7 +113,7 @@ func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("DelMessage " + err.Error())
 	}
 	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatId, idSendMessage)))
 	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }

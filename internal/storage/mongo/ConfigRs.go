@@ -20,12 +20,10 @@ func (d *DB) ReadConfigRs() []models.CorporationConfig {
 		d.log.Println("ReadConfigRs2 " + err.Error())
 		return nil
 	}
-	for _, config := range m {
-		fmt.Printf("ReadConfigRs %+v", config)
-	}
 	return m
 }
 func (d *DB) InsertConfigRs(c models.CorporationConfig) {
+	//d.s.Database("RsBot").CreateCollection(context.Background(), "RsConfig")
 	collection := d.s.Database("RsBot").Collection("RsConfig")
 	ins, err := collection.InsertOne(context.Background(), c)
 	if err != nil {
@@ -40,4 +38,23 @@ func (d *DB) DeleteConfigRs(c models.CorporationConfig) {
 		d.log.Println("DeleteConfigRs " + err.Error())
 	}
 	fmt.Println(ins.DeletedCount)
+}
+func (d *DB) AutoHelpUpdateMesid(ctx context.Context, newMesidHelp, dschannel string) {
+	collection := d.s.Database("RsBot").Collection("RsConfig")
+	filter := bson.M{"dschannel": dschannel}
+	update := bson.M{"dschannel": dschannel, "mesiddshelp": newMesidHelp}
+	_, err := collection.ReplaceOne(ctx, filter, update)
+	if err != nil {
+		d.log.Println(err)
+	}
+}
+func (d *DB) AutoHelp() []models.CorporationConfig {
+	corp := d.ReadConfigRs()
+	var c []models.CorporationConfig
+	for _, config := range corp {
+		if config.DsChannel != "" {
+			c = append(c, config)
+		}
+	}
+	return c
 }

@@ -30,14 +30,13 @@ func (t *Telegram) accessAddChannelTg(chatid string) { // внесение в д
 	}
 }
 func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с бд и масива для блокировки
-	ok, _ := t.CheckChannelConfigTG(chatid)
+	ok, config := t.CheckChannelConfigTG(chatid)
 	if !ok {
 		go t.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)
 	} else {
-		t.DeleteTg(chatid)
+		t.storage.ConfigRs.DeleteConfigRs(config)
+		t.storage.ReloadDbArray()
 		t.log.Println("отключение корпорации ", t.ChatName(chatid))
-		//t.storage.Cache.ReloadConfig()
-		t.storage.CorpsConfig.ReadCorps()
 		go t.SendChannelDelSecond(chatid, "вы отключили мои возможности", 60)
 	}
 }

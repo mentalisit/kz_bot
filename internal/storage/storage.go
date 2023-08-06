@@ -1,19 +1,19 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
-	"kz_bot/internal/storage/CorpsConfig"
 	"kz_bot/internal/storage/mongo"
 	"kz_bot/internal/storage/postgres"
 	"kz_bot/internal/storage/words"
 )
 
 type Storage struct {
-	log               *logrus.Logger
-	debug             bool
-	CorpsConfig       *CorpsConfig.Corps
+	log   *logrus.Logger
+	debug bool
+	//	CorpsConfig       *CorpsConfig.Corps
 	HadesClient       HadesClient
 	BridgeConfig      BridgeConfig
 	ConfigRs          ConfigRs
@@ -39,7 +39,7 @@ func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
 	//инициализируем и читаем репозиторий из облока конфига конфигурации
 	mongoDB := mongo.InitMongoDB(log)
 
-	corp := CorpsConfig.NewCorps(log, cfg)
+	//corp := CorpsConfig.NewCorps(log, cfg)
 
 	//подключаю языковой пакет
 	w := words.NewWords()
@@ -48,10 +48,11 @@ func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
 	local := postgres.NewDb(log, cfg)
 
 	s := &Storage{
-		CorpsConfig:       corp,
+		//CorpsConfig:       corp,
 		HadesClient:       mongoDB,
 		BridgeConfig:      mongoDB,
 		TimeDeleteMessage: mongoDB,
+		ConfigRs:          mongoDB,
 		Temp:              mongoDB,
 		Words:             w,
 		Subscribe:         local,
@@ -66,10 +67,7 @@ func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
 		BridgeConfigs:     make(map[string]models.BridgeConfig),
 		CorpConfigRS:      make(map[string]models.CorporationConfig),
 	}
-	rs := corp.ReadCorps()
-	for _, r := range rs {
-		s.CorpConfigRS[r.CorpName] = r
-	}
+
 	go s.loadDbArray()
 	return s
 }
@@ -82,5 +80,29 @@ func (s *Storage) loadDbArray() {
 	bc := s.BridgeConfig.DBReadBridgeConfig()
 	for _, configBridge := range bc {
 		s.BridgeConfigs[configBridge.NameRelay] = configBridge
+	}
+	rs := s.ConfigRs.ReadConfigRs()
+	for _, r := range rs {
+		s.CorpConfigRS[r.CorpName] = r
+		fmt.Printf("ReadConfigRs %s %s %s %s\n", r.CorpName, r.DsChannel, r.TgChannel, r.WaChannel)
+	}
+}
+func (s *Storage) ReloadDbArray() {
+	s.CorpConfigRS = nil
+	s.BridgeConfigs = nil
+	s.CorporationHades = nil
+
+	corp := s.HadesClient.GetAllCorporationHades()
+	for _, client := range corp {
+		s.CorporationHades[client.Corp] = client
+	}
+
+	bc := s.BridgeConfig.DBReadBridgeConfig()
+	for _, configBridge := range bc {
+		s.BridgeConfigs[configBridge.NameRelay] = configBridge
+	}
+	rs := s.ConfigRs.ReadConfigRs()
+	for _, r := range rs {
+		s.CorpConfigRS[r.CorpName] = r
 	}
 }

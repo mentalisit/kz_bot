@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"kz_bot/internal/models"
 )
 
@@ -17,6 +18,8 @@ type ConfigRs interface {
 	InsertConfigRs(c models.CorporationConfig)
 	ReadConfigRs() []models.CorporationConfig
 	DeleteConfigRs(c models.CorporationConfig)
+	AutoHelpUpdateMesid(ctx context.Context, newMesidHelp, dschannel string)
+	AutoHelp() []models.CorporationConfig
 }
 
 func (s *Storage) DeleteConfigRs(c models.CorporationConfig) {

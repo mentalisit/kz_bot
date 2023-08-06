@@ -36,14 +36,6 @@ func (t *Telegram) AddTgCorpConfig(chatName string, chatid string) {
 	t.log.Println(chatName, "Добавлена в конфиг корпораций ")
 }
 
-func (t *Telegram) DeleteTg(chatid string) {
-	c := models.CorporationConfig{
-		CorpName:  t.ChatName(chatid),
-		TgChannel: chatid,
-	}
-	t.storage.DeleteConfigRs(c)
-}
-
 // hadesClient
 func (t *Telegram) getCorpHadesAlliance(ChatId string) models.CorporationHadesClient {
 	for _, client := range t.corporationHades {

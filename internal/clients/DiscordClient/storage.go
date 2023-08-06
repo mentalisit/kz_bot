@@ -39,10 +39,6 @@ func (d *Discord) AddDsCorpConfig(chatName, chatid, guildid string) {
 	d.log.Println(chatName, "Добавлена в конфиг корпораций ")
 }
 
-func (d *Discord) DeleteDs(chatid string) {
-
-}
-
 // hadesClient
 func (d *Discord) getCorpHadesAlliance(ChatId string) models.CorporationHadesClient {
 	for _, client := range d.corporationHades {
