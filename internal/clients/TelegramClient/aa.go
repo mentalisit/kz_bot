@@ -1,6 +1,7 @@
 package TelegramClient
 
 import (
+	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/models"
 	"strconv"
@@ -213,7 +214,7 @@ func (t *Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
 	return result
 }
 func (t *Telegram) updatesComand(c *tgbotapi.Message) {
-	ChatId := strconv.FormatInt(c.Chat.ID, 10) + "/" + string(rune(c.MessageThreadID))
+	ChatId := strconv.FormatInt(c.Chat.ID, 10) + fmt.Sprintf("/%d", c.MessageThreadID)
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
 		switch c.Command() {

@@ -14,7 +14,7 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	if _, err := t.t.Request(callback); err != nil {
 		t.log.Println("ошибка запроса калбек телеги ", err)
 	}
-	ChatId := strconv.FormatInt(cb.Message.Chat.ID, 10) + "/" + string(rune(cb.Message.MessageThreadID))
+	ChatId := strconv.FormatInt(cb.Message.Chat.ID, 10) + fmt.Sprintf("/%d", cb.Message.MessageThreadID)
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
 		name := t.nameNick(cb.From.UserName, cb.From.FirstName, ChatId)
