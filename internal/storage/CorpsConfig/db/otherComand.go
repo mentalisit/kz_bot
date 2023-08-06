@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -18,6 +19,7 @@ func (d *Repository) ReadBotCorpConfig(ctx context.Context) []ConfigCorp {
 		var t ConfigCorp
 		err = results.Scan(&t.Id, &t.CorpName, &t.DsChannel, &t.TgChannel, &t.WaChannel,
 			&t.MesidDsHelp, &t.MesidTgHelp, &t.DelMesComplite, &t.GuildId, &t.Country)
+		fmt.Printf("ReadBotCorpConfig: %s \n", t.CorpName)
 		corps = append(corps, t)
 	}
 

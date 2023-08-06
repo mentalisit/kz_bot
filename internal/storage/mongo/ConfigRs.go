@@ -20,6 +20,9 @@ func (d *DB) ReadConfigRs() []models.CorporationConfig {
 		d.log.Println("ReadConfigRs2 " + err.Error())
 		return nil
 	}
+	for _, config := range m {
+		fmt.Printf("ReadConfigRs %+v", config)
+	}
 	return m
 }
 func (d *DB) InsertConfigRs(c models.CorporationConfig) {
