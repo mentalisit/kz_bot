@@ -72,20 +72,35 @@ func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
 	return s
 }
 func (s *Storage) loadDbArray() {
+	var h = 0
+	var hades string
 	corp := s.HadesClient.GetAllCorporationHades()
 	for _, client := range corp {
 		s.CorporationHades[client.Corp] = client
+		h++
+		hades = hades + fmt.Sprintf("%s, ", client.Corp)
 	}
+	fmt.Printf("Загружено конфиг хадеса %d : %s\n", h, hades)
 
+	var b = 0
+	var bridge string
 	bc := s.BridgeConfig.DBReadBridgeConfig()
 	for _, configBridge := range bc {
 		s.BridgeConfigs[configBridge.NameRelay] = configBridge
+		b++
+		bridge = bridge + fmt.Sprintf("%s, ", configBridge.HostRelay)
 	}
+	fmt.Printf("Загружено конфиг мостов %d : %s\n", b, bridge)
+
+	var c = 0
+	var rslist string
 	rs := s.ConfigRs.ReadConfigRs()
 	for _, r := range rs {
 		s.CorpConfigRS[r.CorpName] = r
-		fmt.Printf("ReadConfigRs %s %s %s %s\n", r.CorpName, r.DsChannel, r.TgChannel, r.WaChannel)
+		c++
+		rslist = rslist + fmt.Sprintf("%s, ", r.CorpName)
 	}
+	fmt.Printf("Загружено конфиг RsBot %d : %s\n", c, rslist)
 }
 func (s *Storage) ReloadDbArray() {
 	s.CorpConfigRS = nil
