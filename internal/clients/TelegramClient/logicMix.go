@@ -14,7 +14,7 @@ import (
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 
-	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(rune(m.MessageThreadID))
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(m.MessageThreadID)
 
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)
@@ -97,7 +97,7 @@ func (t *Telegram) SendToBridgeChatFilter(m *tgbotapi.Message, config models.Bri
 		Sender: username,
 		Tip:    "tg",
 		Tg: models.BridgeMessageTg{
-			ChatId:        strconv.FormatInt(m.Chat.ID, 10),
+			ChatId:        strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", m.MessageThreadID),
 			MesId:         m.MessageID,
 			Avatar:        t.GetAvatar(m.From.ID),
 			TimestampUnix: m.Time().Unix(),

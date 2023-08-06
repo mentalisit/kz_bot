@@ -133,7 +133,7 @@ func (h *Hades) listAccess(arg []string, m models.MessageHades) bool {
 		var n = 1
 		for _, s := range h.member {
 			if s.CorpName == "1" {
-				text = text + fmt.Sprintf("%d) %s(%d)\n", n, s.UserName, s.Rang)
+				text = text + fmt.Sprintf("%d %s(%d) (доверенный) \n", n, s.UserName, s.Rang)
 				n++
 			}
 			if m.Corporation == s.CorpName {

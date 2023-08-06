@@ -8,7 +8,7 @@ import (
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
-	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(rune(m.MessageThreadID))
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(m.MessageThreadID)
 	if res == true && m.Text == ".add" {
 		go t.DelMessageSecond(ChatId, m.MessageID, 10)
 		t.accessAddChannelTg(ChatId)
