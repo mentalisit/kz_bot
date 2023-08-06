@@ -91,7 +91,16 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 	if err != nil {
 		t.log.Println(err)
 	}
-	tMessage, err1 := t.t.Send(tgbotapi.NewMessage(chatId, text))
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
+	m := tgbotapi.NewMessage(chatId, text)
+	m.MessageThreadID = ThreadID
+	tMessage, err1 := t.t.Send(m)
 	if err1 != nil {
 		t.log.Println(err)
 	}
