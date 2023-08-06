@@ -4,7 +4,7 @@ type ConfigCorp struct {
 	Id             int
 	CorpName       string
 	DsChannel      string
-	TgChannel      int64
+	TgChannel      string
 	WaChannel      string
 	MesidDsHelp    string
 	MesidTgHelp    int

@@ -2,20 +2,22 @@ package TelegramClient
 
 import (
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	"strconv"
 	"strings"
 )
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(rune(m.MessageThreadID))
 	if res == true && m.Text == ".add" {
-		go t.DelMessageSecond(m.Chat.ID, m.MessageID, 10)
-		t.accessAddChannelTg(m.Chat.ID)
+		go t.DelMessageSecond(ChatId, m.MessageID, 10)
+		t.accessAddChannelTg(ChatId)
 	} else if res == true && m.Text == ".del" {
-		go t.DelMessageSecond(m.Chat.ID, m.MessageID, 10)
-		t.accessDelChannelTg(m.Chat.ID)
+		go t.DelMessageSecond(ChatId, m.MessageID, 10)
+		t.accessDelChannelTg(ChatId)
 	}
 }
-func (t *Telegram) accessAddChannelTg(chatid int64) { // внесение в дб и добавление в масив
+func (t *Telegram) accessAddChannelTg(chatid string) { // внесение в дб и добавление в масив
 	ok, _ := t.CheckChannelConfigTG(chatid)
 	if ok {
 		go t.SendChannelDelSecond(chatid, "Я уже могу работать на вашем канале\n"+
@@ -27,7 +29,7 @@ func (t *Telegram) accessAddChannelTg(chatid int64) { // внесение в д�
 		go t.SendChannelDelSecond(chatid, "Спасибо за активацию.\nпиши Справка", 60)
 	}
 }
-func (t *Telegram) accessDelChannelTg(chatid int64) { //удаление с бд и масива для блокировки
+func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с бд и масива для блокировки
 	ok, _ := t.CheckChannelConfigTG(chatid)
 	if !ok {
 		go t.SendChannelDelSecond(chatid, "ваш канал и так не подключен к логике бота ", 60)

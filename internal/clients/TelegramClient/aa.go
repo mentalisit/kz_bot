@@ -3,10 +3,24 @@ package TelegramClient
 import (
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/models"
+	"strconv"
+	"strings"
 	"time"
 )
 
-func (t *Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
+func (t *Telegram) SendEmded(lvlkz string, chatid string, text string) int {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+", lvlkz+"+"),
@@ -15,21 +29,36 @@ func (t *Telegram) SendEmded(lvlkz string, chatid int64, text string) int {
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+++"),
 		),
 	)
-	msg := tgbotapi.NewMessage(chatid, text)
+	msg := tgbotapi.NewMessage(chatId, text)
+	msg.MessageThreadID = ThreadID
 	msg.ReplyMarkup = keyboardQueue
 	message, _ := t.t.Send(msg)
 
 	return message.MessageID
 
 }
-func (t *Telegram) SendEmbedTime(chatid int64, text string) int {
+func (t *Telegram) SendEmbedTime(chatid string, text string) int {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
+
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("+", "+"),
 			tgbotapi.NewInlineKeyboardButtonData("-", "-"),
 		),
 	)
-	msg := tgbotapi.NewMessage(chatid, text)
+	msg := tgbotapi.NewMessage(chatId, text)
+	msg.MessageThreadID = ThreadID
 	msg.ReplyMarkup = keyboardQueue
 	message, _ := t.t.Send(msg)
 
@@ -37,14 +66,33 @@ func (t *Telegram) SendEmbedTime(chatid int64, text string) int {
 }
 
 // отправка сообщения в телегу
-func (t *Telegram) SendChannel(chatid int64, text string) int {
-	tMessage, _ := t.t.Send(tgbotapi.NewMessage(chatid, text))
+func (t *Telegram) SendChannel(chatid string, text string) int {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
+	m := tgbotapi.NewMessage(chatId, text)
+	m.MessageThreadID = ThreadID
+	tMessage, _ := t.t.Send(m)
 	return tMessage.MessageID
 }
 
-func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
-	tMessage, err := t.t.Send(tgbotapi.NewMessage(chatid, text))
+func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
+		t.log.Println(err)
+	}
+	tMessage, err1 := t.t.Send(tgbotapi.NewMessage(chatId, text))
+	if err1 != nil {
 		t.log.Println(err)
 	}
 	if second <= 60 {
@@ -61,12 +109,17 @@ func (t *Telegram) SendChannelDelSecond(chatid int64, text string, second int) {
 	}
 }
 
-func (t *Telegram) DelMessage(chatid int64, idSendMessage int) {
-	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatid, idSendMessage)))
+func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatId, idSendMessage)))
 	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }
 }
 
-func (t *Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int) {
+func (t *Telegram) DelMessageSecond(chatid string, idSendMessage int, second int) {
 	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
@@ -80,7 +133,13 @@ func (t *Telegram) DelMessageSecond(chatid int64, idSendMessage int, second int)
 		})
 	}
 }
-func (t *Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit string, lvlkz string) {
+func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit string, lvlkz string) {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+", lvlkz+"+"),
@@ -89,27 +148,39 @@ func (t *Telegram) EditMessageTextKey(chatid int64, editMesId int, textEdit stri
 			tgbotapi.NewInlineKeyboardButtonData(lvlkz+"+30", lvlkz+"+++"),
 		),
 	)
-	_, _ = t.t.Send(&tgbotapi.EditMessageTextConfig{
+	mes := tgbotapi.EditMessageTextConfig{
 		BaseEdit: tgbotapi.BaseEdit{
-			ChatID:      chatid,
+			ChatID:      chatId,
 			MessageID:   editMesId,
 			ReplyMarkup: &keyboardQueue,
 		},
 		Text: textEdit,
-	})
+	}
+
+	_, _ = t.t.Send(mes)
 }
-func (t *Telegram) EditText(chatid int64, editMesId int, textEdit string) {
-	_, err := t.t.Send(tgbotapi.NewEditMessageText(chatid, editMesId, textEdit))
+func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	_, err = t.t.Send(tgbotapi.NewEditMessageText(chatId, editMesId, textEdit))
 	if err != nil {
 		//t.log.Println("Ошибка редактирования EditText ", err)
 	}
 }
-func (t *Telegram) CheckAdminTg(chatid int64, name string) bool {
+func (t *Telegram) CheckAdminTg(chatid string, name string) bool {
 	admin := false
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
 	admins, err := t.t.GetChatAdministrators(tgbotapi.ChatAdministratorsConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
-	}{ChatID: chatid, SuperGroupUsername: ""}})
+	}{ChatID: chatId, SuperGroupUsername: ""}})
 	if err != nil {
 		t.log.Println("Ошибка проверки админа телеги ", err)
 	}
@@ -133,7 +204,8 @@ func (t *Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
 	return result
 }
 func (t *Telegram) updatesComand(c *tgbotapi.Message) {
-	ok, config := t.CheckChannelConfigTG(c.Chat.ID)
+	ChatId := strconv.FormatInt(c.Chat.ID, 10) + "/" + string(rune(c.MessageThreadID))
+	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
 		switch c.Command() {
 		case "help":
@@ -152,17 +224,22 @@ func (t *Telegram) updatesComand(c *tgbotapi.Message) {
 	} else {
 		switch c.Command() {
 		case "help":
-			t.SendChannelDelSecond(c.Chat.ID, "Активируйте бота командой \n.add", 60)
+			t.SendChannelDelSecond(ChatId, "Активируйте бота командой \n.add", 60)
 		default:
-			t.SendChannelDelSecond(c.Chat.ID, "Вам не доступна данная команда \n /help", 60)
+			t.SendChannelDelSecond(ChatId, "Вам не доступна данная команда \n /help", 60)
 		}
 	}
 }
-func (t *Telegram) ChatName(chatid int64) string {
+func (t *Telegram) ChatName(chatid string) string {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
 	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
-	}{ChatID: chatid}})
+	}{ChatID: chatId}})
 	if err != nil {
 		t.log.Println("ошибка получения имени чата ", err)
 	}

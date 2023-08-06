@@ -28,8 +28,8 @@ type Corporation struct {
 	DsChatWS1 string
 	DsChatWS2 string
 	GuildId   string
-	TgChat    int64
-	TgChatWS1 int64
+	TgChat    string
+	TgChatWS1 string
 }
 
 type MessageHades struct {
@@ -55,8 +55,8 @@ type CorporationHadesClient struct {
 	DsChatWS1 string
 	DsChatWS2 string
 	GuildId   string
-	TgChat    int64
-	TgChatWS1 int64
+	TgChat    string
+	TgChatWS1 string
 	//ThreadID  int
 }
 type GameMessageId struct {

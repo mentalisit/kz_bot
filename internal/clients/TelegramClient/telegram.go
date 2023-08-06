@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"github.com/sirupsen/logrus"
+	"strconv"
 
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
@@ -81,7 +82,7 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 	if m.From.UserName == "Mentalisit" && m.Text == "/update" {
 		utils.UpdateRun()
 	} else {
-		t.SendChannel(m.Chat.ID, "сорян это в разработке \n"+
+		t.SendChannel(strconv.FormatInt(m.Chat.ID, 10), "сорян это в разработке \n"+
 			"я еще не решил как тут сделать"+
 			"Присылай идеи для работы с ботом мне @mentalisit ")
 	}

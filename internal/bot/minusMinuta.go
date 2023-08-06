@@ -81,7 +81,7 @@ func (b *Bot) UpdateMessage() {
 				b.inbox <- a
 			}
 		}
-		if config.TgChannel != 0 {
+		if config.TgChannel != "" {
 			for _, t := range tgs {
 				a := b.storage.DbFunc.MessageupdateTG(context.Background(), t, config)
 				b.inbox <- a

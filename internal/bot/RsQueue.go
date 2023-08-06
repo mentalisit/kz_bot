@@ -62,7 +62,7 @@ func (b *Bot) QueueLevel() {
 				b.wg.Done()
 			}()
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)
@@ -118,7 +118,7 @@ func (b *Bot) QueueLevel() {
 				b.wg.Done()
 			}()
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)
@@ -164,7 +164,7 @@ func (b *Bot) QueueLevel() {
 				b.wg.Done()
 			}()
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)

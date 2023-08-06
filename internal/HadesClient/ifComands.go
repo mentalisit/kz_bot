@@ -34,6 +34,9 @@ func (h *Hades) ifComands(m models.MessageHades) (command bool) {
 			if h.letInId(arr, m) {
 				return true
 			}
+			if h.listAccess(arr, m) {
+				return true
+			}
 		}
 	}
 	return false
@@ -53,7 +56,7 @@ func (h *Hades) lastWs(arg []string, m models.MessageHades) bool {
 		}
 		fmt.Printf("lastWs %+v\n", mes)
 		h.toGame <- message
-		h.delSendMessageIfTip("отправка повтора последней бз", m, corporation)
+		h.delSendMessageIfTip("отправка повтора последней бз", m, corporation, 10)
 
 	}
 	return false
@@ -74,7 +77,7 @@ func (h *Hades) replayId(arg []string, m models.MessageHades) bool {
 			}
 			fmt.Printf("replayId %+v\n", mes)
 			h.toGame <- message
-			h.delSendMessageIfTip("отправка повтора "+arg[1], m, corporation)
+			h.delSendMessageIfTip("отправка повтора "+arg[1], m, corporation, 10)
 			return true
 		}
 	}
@@ -94,7 +97,7 @@ func (h *Hades) historyWs(arg []string, m models.MessageHades) bool {
 		}
 		fmt.Printf("historyWs %+v\n", mes)
 		h.toGame <- message
-		h.delSendMessageIfTip("готовлю список  бз", m, corporation)
+		h.delSendMessageIfTip("готовлю список  бз", m, corporation, 10)
 		return true
 	}
 	return false
@@ -116,13 +119,34 @@ func (h *Hades) letInId(arg []string, m models.MessageHades) bool {
 			}
 			fmt.Printf("letInId %+v\n", mes)
 			h.toGame <- message
-			h.delSendMessageIfTip("впустить отправленно  "+arg[1], m, corporation)
+			h.delSendMessageIfTip("впустить отправленно  "+arg[1], m, corporation, 10)
 			return true
 		}
 	}
 	return false
 }
 
+func (h *Hades) listAccess(arg []string, m models.MessageHades) bool {
+	if arg[0] == "список" && arg[1] == "имён" {
+		corporation := h.getConfig(m.Corporation)
+		var text = "Список имён\n"
+		var n = 1
+		for _, s := range h.member {
+			if s.CorpName == "1" {
+				text = text + fmt.Sprintf("%d) %s(%d)\n", n, s.UserName, s.Rang)
+				n++
+			}
+			if m.Corporation == s.CorpName {
+				text = text + fmt.Sprintf("%d %s(%d)\n", n, s.UserName, s.Rang)
+				n++
+			}
+		}
+
+		h.delSendMessageIfTip(text, m, corporation, 120)
+		return true
+	}
+	return false
+}
 func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 	re := regexp.MustCompile(`^\. Добавить ([0-2]) (.+)`)
 	matches := re.FindStringSubmatch(m.Text)
@@ -138,7 +162,7 @@ func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 				Rang:     rang,
 			}
 			t := fmt.Sprintf("Добавлен игрок %s в копрорацию %s", name, config.Corp)
-			h.delSendMessageIfTip(t, m, config)
+			h.delSendMessageIfTip(t, m, config, 10)
 			h.log.Println(t)
 			return true
 		}
@@ -146,13 +170,13 @@ func (h *Hades) AddFriendToList(m models.MessageHades) bool {
 	return false
 }
 
-func (h *Hades) delSendMessageIfTip(text string, m models.MessageHades, corporation models.CorporationHadesClient) {
+func (h *Hades) delSendMessageIfTip(text string, m models.MessageHades, corporation models.CorporationHadesClient, second int) {
 	if m.Messager == "ds" {
-		go h.cl.Ds.SendChannelDelSecond(corporation.DsChat, "```"+text+"```", 10)
+		go h.cl.Ds.SendChannelDelSecond(corporation.DsChat, "```"+text+"```", second)
 		go h.cl.Ds.DeleteMesageSecond(corporation.DsChat, m.Ds.MessageId, 10)
 	}
 	if m.Messager == "tg" {
-		go h.cl.Tg.SendChannelDelSecond(corporation.TgChat, text, 10)
+		go h.cl.Tg.SendChannelDelSecond(corporation.TgChat, text, second)
 		go h.cl.Tg.DelMessageSecond(corporation.TgChat, m.Tg.MessageId, 10)
 	}
 }

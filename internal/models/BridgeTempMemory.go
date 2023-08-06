@@ -9,6 +9,6 @@ type BridgeTempMemory struct {
 	}
 	MessageTg []struct {
 		MessageId int
-		ChatId    int64
+		ChatId    string
 	}
 }

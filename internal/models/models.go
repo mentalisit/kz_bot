@@ -76,14 +76,14 @@ type Timer struct {
 	Dsmesid  string `bson:"dsmesid"`
 	Dschatid string `bson:"dschatid"`
 	Tgmesid  int    `bson:"tgmesid"`
-	Tgchatid int64  `bson:"tgchatid"`
+	Tgchatid string `bson:"tgchatid"`
 	Timed    int    `bson:"timed"`
 }
 type CorporationConfig struct {
 	Type           int
 	CorpName       string
 	DsChannel      string
-	TgChannel      int64
+	TgChannel      string
 	WaChannel      string
 	Country        string
 	DelMesComplite int

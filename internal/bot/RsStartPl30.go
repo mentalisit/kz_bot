@@ -66,7 +66,7 @@ func (b *Bot) RsStart() {
 					}()
 
 				}
-				if b.in.Config.TgChannel != 0 {
+				if b.in.Config.TgChannel != "" {
 					b.wg.Add(1)
 					go func() {
 						name1, _, _, _ := b.nameMention(u, tg)
@@ -100,7 +100,7 @@ func (b *Bot) RsStart() {
 					}()
 
 				}
-				if b.in.Config.TgChannel != 0 { //telegram
+				if b.in.Config.TgChannel != "" { //telegram
 					b.wg.Add(1)
 					go func() {
 						name1, name2, _, _ := b.nameMention(u, tg)
@@ -133,7 +133,7 @@ func (b *Bot) RsStart() {
 						b.wg.Done()
 					}()
 				}
-				if b.in.Config.TgChannel != 0 { //telegram
+				if b.in.Config.TgChannel != "" { //telegram
 					b.wg.Add(1)
 					go func() {
 						name1, name2, name3, _ := b.nameMention(u, tg)

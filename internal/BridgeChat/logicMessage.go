@@ -49,7 +49,7 @@ func (b *Bridge) logicMessage() {
 			}
 		}
 		for _, d := range b.in.Config.ChannelTg {
-			if d.ChannelId != 0 {
+			if d.ChannelId != "" {
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 				if b.in.Ds.Reply.Text != "" {
@@ -58,7 +58,7 @@ func (b *Bridge) logicMessage() {
 				mesTg := b.client.Tg.SendChannel(d.ChannelId, textTg)
 				memory.MessageTg = append(memory.MessageTg, struct {
 					MessageId int
-					ChatId    int64
+					ChatId    string
 				}{MessageId: mesTg, ChatId: d.ChannelId})
 			}
 		}
@@ -66,11 +66,11 @@ func (b *Bridge) logicMessage() {
 		memory.Timestamp = b.in.Tg.TimestampUnix
 		memory.MessageTg = append(memory.MessageTg, struct {
 			MessageId int
-			ChatId    int64
+			ChatId    string
 		}{MessageId: b.in.Tg.MesId, ChatId: b.in.Tg.ChatId})
 		for _, c := range b.in.Config.ChannelTg {
 			if c.ChannelId != b.in.Tg.ChatId {
-				if c.ChannelId != 0 {
+				if c.ChannelId != "" {
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 					if b.in.Tg.Reply.Text != "" {
@@ -79,7 +79,7 @@ func (b *Bridge) logicMessage() {
 					mesTg := b.client.Tg.SendChannel(c.ChannelId, textTg)
 					memory.MessageTg = append(memory.MessageTg, struct {
 						MessageId int
-						ChatId    int64
+						ChatId    string
 					}{MessageId: mesTg, ChatId: c.ChannelId})
 
 				}

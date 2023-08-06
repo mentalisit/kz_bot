@@ -45,7 +45,7 @@ func (h *Hades) getConfig(Corporation string) (corp models.CorporationHadesClien
 	return corp
 }
 
-func (h *Hades) CheckMember(member, corporation string, mId int64) {
+func (h *Hades) CheckMember(member, corporation string, mId int64) (ok bool) {
 	for _, aMember := range h.member {
 		if aMember.UserName == member && (aMember.CorpName == corporation || aMember.CorpName == "1") {
 			a := models.MessageHadesClient{
@@ -55,14 +55,20 @@ func (h *Hades) CheckMember(member, corporation string, mId int64) {
 				Command:     "access",
 				MessageId:   mId,
 			}
+			ok = true
 			h.toGame <- a
 			fmt.Printf("%+v", a)
+			return ok
 		}
 	}
+	if !ok {
+		h.log.Printf("CheckMember: '%s'", member)
+	}
+	return ok
 }
-func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) {
+func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) (ok bool) {
 	for _, aMember := range h.member {
-		if aMember.UserName == member && aMember.CorpName == corporation && aMember.Rang != 0 {
+		if aMember.UserName == member && aMember.Rang != 0 && (aMember.CorpName == corporation || aMember.CorpName == "1") {
 			a := models.MessageHadesClient{
 				Sender:      member,
 				ChannelType: aMember.Rang,
@@ -72,6 +78,12 @@ func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) {
 			}
 			h.toGame <- a
 			fmt.Printf("%+v", a)
+			ok = true
+			return ok
 		}
 	}
+	if !ok {
+		h.log.Printf("CheckMemberRang: '%s'", member)
+	}
+	return ok
 }

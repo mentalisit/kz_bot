@@ -91,7 +91,7 @@ func (b *Bot) LogicRs() {
 		} else if b.lIfCommand() {
 			//} else if b.SendALLChannel() {
 			//пробуем мост между месенджерами
-		} else if b.in.Config.TgChannel != 0 && b.in.Config.DsChannel != "" {
+		} else if b.in.Config.TgChannel != "" && b.in.Config.DsChannel != "" {
 			b.bridge()
 		} else {
 			b.cleanChat()

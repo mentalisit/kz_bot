@@ -10,7 +10,7 @@ func (h *Hades) logicWs1() {
 			if config.DsChatWS1 != "" {
 				go h.cl.Ds.SendWebhookForHades(h.in.Text, sender, config.DsChatWS1, config.GuildId, h.in.Avatar)
 			}
-			if config.TgChatWS1 != 0 {
+			if config.TgChatWS1 != "" {
 				go h.cl.Tg.SendChannel(config.TgChatWS1, sender+"\n"+h.in.Text)
 			}
 			fmt.Printf("ws1 %s %s: %s\n", h.in.Corporation, h.in.Sender, h.in.Text)

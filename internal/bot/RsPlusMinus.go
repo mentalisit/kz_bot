@@ -58,7 +58,7 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.TgChannel != 0 {
+			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					text := fmt.Sprintf("%s%s (%d)\n"+
@@ -107,7 +107,7 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.TgChannel != 0 {
+			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
@@ -160,7 +160,7 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.TgChannel != 0 {
+			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
@@ -244,7 +244,7 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.TgChannel != 0 {
+			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					n1, n2, n3, n4 := b.nameMention(u, tg)
@@ -336,7 +336,7 @@ func (b *Bot) RsMinus() {
 				go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 			}
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.Name+b.GetLang("pokinulOchered"), 10)
 			if countQueue == 0 {
 				go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel,

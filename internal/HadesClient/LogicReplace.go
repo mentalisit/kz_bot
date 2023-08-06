@@ -32,7 +32,7 @@ func (h *Hades) ifEditMessage(msg models.MessageHadesClient, corp models.Corpora
 					msgd := ifRsSearch(msg)
 					s.mesid = h.cl.Ds.SendWebhookForHades(msgd.Text, sender, corp.DsChat, corp.GuildId, msgd.Avatar)
 				}
-				if corp.TgChat != 0 {
+				if corp.TgChat != "" {
 					text := sender + ": " + msg.Text
 					s.mesidtg = h.cl.Tg.SendChannel(corp.TgChat, text)
 				}
@@ -55,7 +55,7 @@ func (h *Hades) ifEditMessage(msg models.MessageHadesClient, corp models.Corpora
 								if corp.DsChat != "" {
 									h.cl.Ds.EditWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar, s.mesid)
 								}
-								if corp.TgChat != 0 {
+								if corp.TgChat != "" {
 									text := sender + ": " + msg.Text
 									h.cl.Tg.EditText(corp.TgChat, s.mesidtg, text)
 								}
@@ -81,7 +81,7 @@ func (h *Hades) ifEditMessage(msg models.MessageHadesClient, corp models.Corpora
 								if corp.DsChat != "" {
 									h.cl.Ds.EditWebhookForHades(msg.Text, sender, corp.DsChat, corp.GuildId, msg.Avatar, s.mesid)
 								}
-								if corp.TgChat != 0 {
+								if corp.TgChat != "" {
 									text := sender + ": " + msg.Text
 									h.cl.Tg.EditText(corp.TgChat, s.mesidtg, text)
 								}

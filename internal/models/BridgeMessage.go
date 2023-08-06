@@ -24,7 +24,7 @@ type BridgeMessageDs struct {
 	}
 }
 type BridgeMessageTg struct {
-	ChatId        int64
+	ChatId        string
 	MesId         int
 	Avatar        string
 	TimestampUnix int64
@@ -54,7 +54,7 @@ type BridgeConfigDs struct {
 	MappingRoles    map[string]string
 }
 type BridgeConfigTg struct {
-	ChannelId int64
+	ChannelId string
 	//ThreadID        int
 	CorpChannelName string
 	AliasName       string

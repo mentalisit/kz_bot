@@ -3,6 +3,8 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	"strconv"
+
 	//tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 
 	"kz_bot/internal/models"
@@ -11,27 +13,27 @@ import (
 
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
-	if m.MessageThreadID != 0 {
-		t.SendThreadID(m.Chat.ID, m.MessageThreadID, "Извини я еще не умею работать в темах")
-	}
+
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + "/" + string(rune(m.MessageThreadID))
+
 	// RsClient
-	ok, config := t.CheckChannelConfigTG(m.Chat.ID)
+	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
 		t.sendToFilterRs(m, config)
 	}
 	// client hs
-	corpAlliance := t.getCorpHadesAlliance(m.Chat.ID)
+	corpAlliance := t.getCorpHadesAlliance(ChatId)
 	if corpAlliance.Corp != "" {
 		t.sendToFilterHades(m, corpAlliance, 0)
 		return
 	}
-	corpWs1 := t.getCorpHadesWs1(m.Chat.ID)
+	corpWs1 := t.getCorpHadesWs1(ChatId)
 	if corpWs1.Corp != "" {
 		t.sendToFilterHades(m, corpWs1, 1)
 		return
 	}
 
-	tg, bridgeConfig := t.BridgeCheckChannelConfigTg(m.Chat.ID)
+	tg, bridgeConfig := t.BridgeCheckChannelConfigTg(ChatId)
 	if tg || strings.HasPrefix(m.Text, ".") {
 		fmt.Printf("TG %s MessageThreadID %+v\n", m.Text, m.MessageThreadID)
 		go t.SendToBridgeChatFilter(m, bridgeConfig)
@@ -58,7 +60,7 @@ func (t *Telegram) sendToFilterHades(m *tgbotapi.Message, corp models.Corporatio
 	}
 }
 func (t *Telegram) sendToFilterRs(m *tgbotapi.Message, config models.CorporationConfig) {
-	name := t.nameNick(m.From.UserName, m.From.FirstName, m.Chat.ID)
+	name := t.nameNick(m.From.UserName, m.From.FirstName, config.TgChannel)
 	in := models.InMessage{
 		Mtext:       m.Text,
 		Tip:         "tg",
@@ -95,7 +97,7 @@ func (t *Telegram) SendToBridgeChatFilter(m *tgbotapi.Message, config models.Bri
 		Sender: username,
 		Tip:    "tg",
 		Tg: models.BridgeMessageTg{
-			ChatId:        m.Chat.ID,
+			ChatId:        strconv.FormatInt(m.Chat.ID, 10),
 			MesId:         m.MessageID,
 			Avatar:        t.GetAvatar(m.From.ID),
 			TimestampUnix: m.Time().Unix(),

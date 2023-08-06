@@ -21,10 +21,10 @@ func (h *Hades) filterDs(m models.MessageHades) {
 	if corp.Corp != "" && in.Command == "text" {
 		text := "(DS)" + in.Sender + ": " + in.Text
 
-		if corp.TgChat != 0 && in.ChannelType == 0 {
+		if corp.TgChat != "" && in.ChannelType == 0 {
 			h.cl.Tg.SendChannel(corp.TgChat, text)
 		}
-		if corp.TgChatWS1 != 0 && in.ChannelType == 1 {
+		if corp.TgChatWS1 != "" && in.ChannelType == 1 {
 			h.cl.Tg.SendChannel(corp.TgChatWS1, text)
 		}
 		h.toGame <- in

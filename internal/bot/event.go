@@ -28,7 +28,7 @@ func (b *Bot) EventStart() {
 	} else {
 		if b.in.Tip == ds && (b.in.Name == "Mentalisit" || b.client.Ds.CheckAdmin(b.in.Ds.Nameid, b.in.Config.DsChannel)) {
 			b.storage.Event.EventStartInsert(b.in.Config.CorpName)
-			if b.in.Config.TgChannel != 0 {
+			if b.in.Config.TgChannel != "" {
 				b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
 				b.client.Ds.Send(b.in.Config.DsChannel, text)
 			} else {
@@ -115,7 +115,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 		if b.in.Config.DsChannel != "" {
 			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld))
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			b.client.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, fmt.Sprintf("%s %s \n%s", mes1, nt.Name1, mesOld))
 		}
 	} else if countEvent == 2 {
@@ -123,7 +123,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nd.Name1, nd.Name2, mesOld)
 			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nt.Name1, nt.Name2, mesOld)
 			b.client.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
 		}
@@ -132,7 +132,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, mesOld)
 			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, mesOld)
 			b.client.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
 		}
@@ -141,7 +141,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, nd.Name4, mesOld)
 			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
 		}
-		if b.in.Config.TgChannel != 0 {
+		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, nt.Name4, mesOld)
 			b.client.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, text)
 		}

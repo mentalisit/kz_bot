@@ -37,7 +37,7 @@ func (b *Bridge) CacheCheckChannelConfigDS(chatIdDs string) (bool, models.Bridge
 	}
 	return false, models.BridgeConfig{}
 }
-func (b *Bridge) CacheCheckChannelConfigTg(chatIdTg int64) (bool, models.BridgeConfig) {
+func (b *Bridge) CacheCheckChannelConfigTg(chatIdTg string) (bool, models.BridgeConfig) {
 	for _, config := range b.configs {
 		for _, tg := range config.ChannelTg {
 			if tg.ChannelId == chatIdTg {
