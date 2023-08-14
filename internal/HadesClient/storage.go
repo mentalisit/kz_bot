@@ -29,18 +29,18 @@ func (h *Hades) loadDB() {
 
 func (h *Hades) getChatIdAlliance() (mId int64) {
 	mId = h.idMessage[h.in.Corporation]
-	if mId == 0 {
-		mId = h.storage.HadesClient.GetCorpMesId(h.in.Corporation)
-	}
+	//if mId == 0 {
+	//	mId = h.storage.HadesClient.GetCorpMesId(h.in.Corporation)
+	//}
 	return mId
 }
 func (h *Hades) getConfig(Corporation string) (corp models.CorporationHadesClient) {
 	if h.corporation[Corporation].Corp != "" {
 		corp = h.corporation[Corporation]
-	} else {
-		if Corporation != "" {
-			corp = h.storage.HadesClient.GetCorporation(Corporation)
-		}
+		//} else {
+		//	if Corporation != "" {
+		//		corp = h.storage.HadesClient.GetCorporation(Corporation)
+		//	}
 	}
 	return corp
 }
@@ -62,7 +62,7 @@ func (h *Hades) CheckMember(member, corporation string, mId int64) (ok bool) {
 		}
 	}
 	if !ok {
-		h.log.Printf("CheckMember: '%s'", member)
+		h.log.Printf("CheckMember for %s: '%s'", corporation, member)
 	}
 	return ok
 }
@@ -83,7 +83,7 @@ func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) (ok 
 		}
 	}
 	if !ok {
-		h.log.Printf("CheckMemberRang: '%s'", member)
+		fmt.Printf("CheckMemberRang for %s: '%s'", corporation, member)
 	}
 	return ok
 }
