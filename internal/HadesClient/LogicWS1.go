@@ -4,7 +4,7 @@ import "fmt"
 
 func (h *Hades) logicWs1() {
 	if h.in.Command == "text" {
-		if h.in.MessageId > h.getChatIdWs1() {
+		if h.in.MessageId > h.getChatIdWs1() || h.in.MessageId == -1 {
 			config := h.getConfig(h.in.Corporation)
 			sender := "(🎮)" + h.in.Sender
 			if config.DsChatWS1 != "" {

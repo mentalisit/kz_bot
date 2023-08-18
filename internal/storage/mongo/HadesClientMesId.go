@@ -83,7 +83,7 @@ func (d *DB) GetWs1MesId(CorpName string, StarId int64) int64 {
 
 	err := collection.FindOne(context.Background(), bson.M{"CorpName": CorpName, "StarId": StarId}).Decode(&mm)
 	if err != nil {
-		d.log.Println(err)
+		//d.log.Println(err)
 		return 0
 	}
 
