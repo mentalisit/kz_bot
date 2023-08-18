@@ -13,6 +13,15 @@ func (h *Hades) logicWs1() {
 			if config.TgChatWS1 != "" {
 				go h.cl.Tg.SendChannel(config.TgChatWS1, sender+"\n"+h.in.Text)
 			}
+			if config.TgChatWS1 == "" && config.DsChatWS1 == "" && h.in.MessageId == -1 {
+				if config.DsChat != "" {
+					go h.cl.Ds.SendWebhookForHades(h.in.Text, sender, config.DsChat, config.GuildId, h.in.Avatar)
+				}
+				if config.TgChat != "" {
+					go h.cl.Tg.SendChannel(config.TgChat, sender+"\n"+h.in.Text)
+				}
+			}
+
 			fmt.Printf("ws1 %s %s: %s\n", h.in.Corporation, h.in.Sender, h.in.Text)
 			h.idMessageWs1[h.in.SolarSystemId] = h.in.MessageId
 			h.storage.HadesClient.UpdateWs1MesId(h.in.Corporation, h.in.MessageId, h.in.SolarSystemId)
