@@ -103,9 +103,13 @@ func (s *Storage) loadDbArray() {
 	fmt.Printf("Загружено конфиг RsBot %d : %s\n", c, rslist)
 }
 func (s *Storage) ReloadDbArray() {
-	s.CorpConfigRS = nil
-	s.BridgeConfigs = nil
-	s.CorporationHades = nil
+	CorpConfigRS := make(map[string]models.CorporationConfig)
+	BridgeConfigs := make(map[string]models.BridgeConfig)
+	CorporationHades := make(map[string]models.CorporationHadesClient)
+
+	s.CorpConfigRS = CorpConfigRS
+	s.BridgeConfigs = BridgeConfigs
+	s.CorporationHades = CorporationHades
 
 	corp := s.HadesClient.GetAllCorporationHades()
 	for _, client := range corp {

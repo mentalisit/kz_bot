@@ -14,6 +14,10 @@ import (
 func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 
+	if m.Text == "" && m.Caption != "" {
+		m.Text = m.Caption
+		//len(m.Photo)
+	}
 	ThreadID := m.MessageThreadID
 
 	if m.MessageThreadID != 0 && m.MessageID-m.MessageThreadID < 10 {
@@ -21,8 +25,8 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	}
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
 
-	fmt.Printf("   TG IN MessageID %d ThreadID %d ChatID %d Text %s \n",
-		m.MessageID, ThreadID, m.Chat.ID, m.Text)
+	//fmt.Printf("   TG IN MessageID %d ThreadID %d ChatID %d Text %s \n%+v\n",
+	//	m.MessageID, ThreadID, m.Chat.ID, m.Text, m)
 
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)
