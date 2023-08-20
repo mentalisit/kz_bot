@@ -58,6 +58,7 @@ func (t *Telegram) update() {
 		if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {
+
 			if update.Message.Chat.IsPrivate() { //если пишут боту в личку
 				t.ifPrivatMesage(update.Message)
 			} else if update.Message.IsCommand() {
