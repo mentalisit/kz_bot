@@ -20,6 +20,7 @@ func Reserv(log *logrus.Logger) {
 				time.Sleep(1 * time.Minute)
 			} else {
 				go func() {
+					go utils.UpdateRun()
 					for {
 						if checkPing() {
 							log.Println("Сервер доступен, паникую ")
