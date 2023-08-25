@@ -41,8 +41,7 @@ type MessageHades struct {
 	Corporation string
 	Command     string
 	Messager    string
-	Ds          MessageHadesDs
-	Tg          MessageHadesTg
+	MessageId   string
 }
 type MessageHadesDs struct {
 	MessageId string

@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	tgbotapi "github.com/musianisamuele/telegram-bot-api"
 	"kz_bot/internal/models"
 	"strconv"
 )

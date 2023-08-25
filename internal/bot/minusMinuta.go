@@ -108,7 +108,7 @@ func (b *Bot) CheckTimeQueue() {
 			go b.client.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 182)
 		} else if b.in.Tip == tg {
 			mID := b.client.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
-			go b.client.Tg.DelMessageSecond(b.in.Config.TgChannel, mID, 182)
+			go b.client.Tg.DelMessageSecond(b.in.Config.TgChannel, strconv.Itoa(mID), 182)
 		} else if b.in.Tip == wa {
 			b.client.Wa.SendMention(b.in.Config.WaChannel, b.in.NameMention+" время почти вышло...\n"+
 				"Для продления времени ожидания на 30м пиши +\n"+

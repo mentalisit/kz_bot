@@ -1,7 +1,7 @@
 package TelegramClient
 
 import (
-	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	tgbotapi "github.com/musianisamuele/telegram-bot-api"
 	"regexp"
 )
 

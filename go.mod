@@ -9,9 +9,9 @@ require (
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/krasun/logrus2telegram v1.0.0
-	github.com/matterbridge/telegram-bot-api/v6 v6.5.0
 	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/go-ps v1.0.0
+	github.com/musianisamuele/telegram-bot-api v0.0.4
 	github.com/sirupsen/logrus v1.9.3
 	go.mau.fi/whatsmeow v0.0.0-20230616194828-be0edabb0bf3
 	go.mongodb.org/mongo-driver v1.11.7

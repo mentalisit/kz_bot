@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	tgbotapi "github.com/musianisamuele/telegram-bot-api"
 	"strconv"
 	"strings"
 )
@@ -11,10 +11,10 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", m.MessageThreadID)
 	if res == true && m.Text == ".add" {
-		go t.DelMessageSecond(ChatId, m.MessageID, 10)
+		go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 		t.accessAddChannelTg(ChatId)
 	} else if res == true && m.Text == ".del" {
-		go t.DelMessageSecond(ChatId, m.MessageID, 10)
+		go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 		t.accessDelChannelTg(ChatId)
 	}
 }

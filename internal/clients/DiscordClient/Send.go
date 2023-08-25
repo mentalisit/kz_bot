@@ -3,9 +3,10 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
+	"net/http"
+	"path/filepath"
 	"time"
 )
 
@@ -69,13 +70,23 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 	}
 	return message.ID
 }
-func (d *Discord) SendFiles(chatid, fileName string, r io.Reader) (mesId string) {
-	send, err := d.s.ChannelFileSend(chatid, fileName, r)
+func (d *Discord) SendFiles(channelID, fileURL string) (mesId string) {
+	// Получаем содержимое файла из интернета
+	resp, err := http.Get(fileURL)
 	if err != nil {
+		d.log.Println("Error downloading file:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	send, errs := d.s.ChannelFileSend(channelID, filepath.Base(fileURL), resp.Body)
+	if errs != nil {
+		d.log.Println("Error sending file:", errs)
 		return ""
 	}
 	return send.ID
 }
+
 func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {

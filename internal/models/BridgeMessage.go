@@ -3,12 +3,13 @@ package models
 import "time"
 
 type BridgeMessage struct {
-	Text   string
-	Sender string
-	Tip    string
-	Ds     BridgeMessageDs
-	Tg     BridgeMessageTg
-	Config BridgeConfig
+	Text    string
+	Sender  string
+	Tip     string
+	Ds      BridgeMessageDs
+	Tg      BridgeMessageTg
+	FileUrl string
+	Config  BridgeConfig
 }
 type BridgeMessageDs struct {
 	ChatId        string

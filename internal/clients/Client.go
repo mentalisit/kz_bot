@@ -38,7 +38,7 @@ func (c *Clients) deleteMessageTimer() {
 				if timer.Dsmesid != "" {
 					go c.Ds.DeleteMesageSecond(timer.Dschatid, timer.Dsmesid, timer.Timed)
 				}
-				if timer.Tgmesid != 0 {
+				if timer.Tgmesid != "" {
 					go c.Tg.DelMessageSecond(timer.Tgchatid, timer.Tgmesid, timer.Timed)
 				}
 

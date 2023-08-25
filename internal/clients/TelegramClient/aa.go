@@ -2,8 +2,12 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	tgbotapi "github.com/musianisamuele/telegram-bot-api"
+	"io"
 	"kz_bot/internal/models"
+	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -112,7 +116,7 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 		}()
 	} else {
 		t.storage.TimeDeleteMessage.TimerInsert(models.Timer{
-			Tgmesid:  tMessage.MessageID,
+			Tgmesid:  strconv.Itoa(tMessage.MessageID),
 			Tgchatid: chatid,
 			Timed:    second,
 		})
@@ -129,15 +133,19 @@ func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
 	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }
 }
 
-func (t *Telegram) DelMessageSecond(chatid string, idSendMessage int, second int) {
+func (t *Telegram) DelMessageSecond(chatid string, idSendMessage string, second int) {
+	id, err := strconv.Atoi(idSendMessage)
+	if err != nil {
+		return
+	}
 	if second <= 60 {
 		go func() {
 			time.Sleep(time.Duration(second) * time.Second)
-			t.DelMessage(chatid, idSendMessage)
+			t.DelMessage(chatid, id)
 		}()
 	} else {
 		t.storage.TimeDeleteMessage.TimerInsert(models.Timer{
-			Tgmesid:  idSendMessage,
+			Tgmesid:  strconv.Itoa(id),
 			Tgchatid: chatid,
 			Timed:    second,
 		})
@@ -217,19 +225,20 @@ func (t *Telegram) updatesComand(c *tgbotapi.Message) {
 	ChatId := strconv.FormatInt(c.Chat.ID, 10) + fmt.Sprintf("/%d", c.MessageThreadID)
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
+		MessageID := strconv.Itoa(c.MessageID)
 		switch c.Command() {
 		case "help":
-			t.help(config.TgChannel, c.MessageID)
+			t.help(config.TgChannel, MessageID)
 		case "helpqueue":
-			t.helpQueue(config.TgChannel, c.MessageID)
+			t.helpQueue(config.TgChannel, MessageID)
 		case "helpnotification":
-			t.helpNotification(config.TgChannel, c.MessageID)
+			t.helpNotification(config.TgChannel, MessageID)
 		case "helpevent":
-			t.helpEvent(config.TgChannel, c.MessageID)
+			t.helpEvent(config.TgChannel, MessageID)
 		case "helptop":
-			t.helpTop(config.TgChannel, c.MessageID)
+			t.helpTop(config.TgChannel, MessageID)
 		case "helpicon":
-			t.helpIcon(config.TgChannel, c.MessageID)
+			t.helpIcon(config.TgChannel, MessageID)
 		}
 	} else {
 		switch c.Command() {
@@ -257,4 +266,57 @@ func (t *Telegram) ChatName(chatid string) string {
 }
 func (t *Telegram) BotName() string {
 	return t.t.Self.UserName
+}
+
+func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {
+	a := strings.SplitN(chatID, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
+
+	// Получаем содержимое фотографии по URL
+	response, err := http.Get(photoURL)
+	if err != nil {
+		t.log.Println(err)
+	}
+	defer response.Body.Close()
+
+	fileName := filepath.Base(photoURL)
+
+	// Создаем временный файл для сохранения фотографии
+	tempFile, err := os.Create(fileName)
+	if err != nil {
+		t.log.Println(err)
+	}
+
+	// Копируем содержимое фотографии из ответа HTTP во временный файл
+	_, err = io.Copy(tempFile, response.Body)
+	if err != nil {
+		t.log.Println(err)
+	}
+	tempFile.Close()
+
+	// Создаем объект сообщения с фотографией
+	msg := tgbotapi.NewPhoto(chatId, tgbotapi.FilePath(fileName))
+	msg.Caption = text
+	msg.MessageThreadID = ThreadID
+
+	_, err = t.t.Send(msg)
+	if err != nil {
+		t.log.Println(err)
+		return
+	}
+	err = os.Remove(fileName)
+	if err != nil {
+		t.log.Println(err)
+		return
+	}
 }

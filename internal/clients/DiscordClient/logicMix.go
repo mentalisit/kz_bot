@@ -158,9 +158,7 @@ func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.Corp
 		Corporation: corp.Corp,
 		Command:     "text",
 		Messager:    "ds",
-		Ds: models.MessageHadesDs{
-			MessageId: m.ID,
-		},
+		MessageId:   m.ID,
 	}
 
 	d.ChanToGame <- mes
