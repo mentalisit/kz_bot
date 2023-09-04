@@ -24,11 +24,11 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 			Name:        name,
 			NameMention: "@" + name,
 			Tg: struct {
-				Mesid  int
-				Nameid int64
+				Mesid int
+				//Nameid int64
 			}{
-				Mesid:  cb.Message.MessageID,
-				Nameid: cb.From.ID,
+				Mesid: cb.Message.MessageID,
+				//Nameid: cb.From.ID,
 			},
 			Config: config,
 			Option: models.Option{

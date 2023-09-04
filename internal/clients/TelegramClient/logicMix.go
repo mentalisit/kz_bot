@@ -16,7 +16,7 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 		ThreadID = 0
 	}
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
-	var url string
+	url := ""
 	if len(m.Photo) > 0 {
 		url, _ = t.t.GetFileDirectURL(m.Photo[len(m.Photo)-1].FileID)
 		if m.Text == "" && m.Caption != "" {
@@ -34,11 +34,11 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 			Name:        name,
 			NameMention: "@" + name,
 			Tg: struct {
-				Mesid  int
-				Nameid int64
+				Mesid int
+				//Nameid int64
 			}{
-				Mesid:  m.MessageID,
-				Nameid: m.From.ID,
+				Mesid: m.MessageID,
+				//Nameid: m.From.ID,
 			},
 			Config: config,
 			Option: models.Option{
@@ -185,11 +185,11 @@ func (t *Telegram) sendToFilterRs(m *tgbotapi.Message, config models.Corporation
 		Name:        name,
 		NameMention: "@" + name,
 		Tg: struct {
-			Mesid  int
-			Nameid int64
+			Mesid int
+			//Nameid int64
 		}{
-			Mesid:  m.MessageID,
-			Nameid: m.From.ID,
+			Mesid: m.MessageID,
+			//Nameid: m.From.ID,
 		},
 		Config: config,
 		Option: models.Option{

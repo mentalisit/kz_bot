@@ -320,11 +320,12 @@ func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config models.Cor
 		Lvlkz:       t.Lvlkz,
 		Timekz:      string(t.Timedown),
 		Tg: struct {
-			Mesid  int
-			Nameid int64
+			Mesid int
+			//Nameid int64
 		}{
-			Mesid:  t.Tgmesid,
-			Nameid: 0},
+			Mesid: t.Tgmesid,
+			//Nameid: 0
+		},
 		Config: config,
 		Option: models.Option{
 			Edit:   true,

@@ -3,7 +3,6 @@ package DiscordClient
 import (
 	"context"
 	"fmt"
-	gt "github.com/bas24/googletranslatefree"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"strings"
@@ -93,8 +92,55 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	}
 }
 
+func (d *Discord) logicMix2(m *discordgo.MessageCreate) {
+	if d.ifMentionBot(m) {
+		return
+	}
+	if d.avatar(m) {
+		return
+	}
+
+	d.AccesChatDS(m)
+
+	username := m.Author.Username
+	if m.Member != nil && m.Member.Nick != "" {
+		username = m.Member.Nick
+	}
+	url := ""
+	if len(m.Attachments) > 0 {
+		url = m.Attachments[0].URL
+		if len(m.Attachments) > 1 {
+			for _, attachment := range m.Attachments {
+				m.Content = m.Content + " \n" + attachment.URL
+			}
+		}
+	}
+	fmt.Println(username, url)
+	//filter Rs
+	ok, config := d.CheckChannelConfigDS(m.ChannelID)
+	if ok {
+		d.SendToRsFilter(m, config)
+		return
+	}
+	//filter hs
+	corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
+	if corpAlliance.Corp != "" {
+		d.sendToFilterHades(m, corpAlliance, 0)
+		return
+	}
+	corpWs1 := d.getCorpHadesWs1(m.ChannelID)
+	if corpWs1.Corp != "" {
+		d.sendToFilterHades(m, corpWs1, 1)
+		return
+	}
+
+	//bridge
+	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
+	if ds || strings.HasPrefix(m.Content, ".") {
+		go d.SendToBridgeChatFilter(m, bridgeConfig)
+	}
+}
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
-	d.TranslateBelRus(m)
 	if d.ifMentionBot(m) {
 		return
 	}
@@ -264,7 +310,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		},
 		Config: config,
 	}
-	if m.MessageReference != nil && m.ReferencedMessage.Author.String() != "" {
+	if m.MessageReference != nil && m.ReferencedMessage.Author != nil && m.ReferencedMessage.Author.String() != "" {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
 		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
 			usernameR = m.ReferencedMessage.Member.Nick
@@ -276,18 +322,4 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 	}
 
 	d.ChanBridgeMessage <- mes
-}
-
-var chatidTr string
-
-func (d *Discord) TranslateBelRus(m *discordgo.MessageCreate) {
-	if m.Content == "trbr" {
-		chatidTr = m.ChannelID
-	}
-	if m.ChannelID == chatidTr {
-		result, _ := gt.Translate(m.Content, "be", "ru")
-		if result != m.Content {
-			d.SendWebhook(result, m.Author.Username, chatidTr, m.GuildID, m.Author.AvatarURL("128"))
-		}
-	}
 }

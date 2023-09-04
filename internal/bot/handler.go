@@ -108,11 +108,12 @@ func (b *Bot) elsetrue(name string) { //удаляем игрока с очер�
 					Nameid:  "",
 					Guildid: ""},
 				Tg: struct {
-					Mesid  int
-					Nameid int64
+					Mesid int
+					//Nameid int64
 				}{
-					Mesid:  t.Tgmesid,
-					Nameid: 0},
+					Mesid: t.Tgmesid,
+					//Nameid: 0
+				},
 				Config: config,
 				Option: models.Option{Elsetrue: true},
 			}

@@ -38,11 +38,11 @@ func (b *Bot) MinusMin() {
 							Guildid: config.Guildid,
 						},
 						Tg: struct {
-							Mesid  int
-							Nameid int64
+							Mesid int
+							//Nameid int64
 						}{
-							Mesid:  t.Tgmesid,
-							Nameid: 0,
+							Mesid: t.Tgmesid,
+							//Nameid: 0,
 						},
 						Wa: struct {
 							Nameid string
