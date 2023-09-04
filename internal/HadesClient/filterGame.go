@@ -15,8 +15,5 @@ func (h *Hades) filterGame(in models.MessageHadesClient) {
 		h.logicWs1()
 	} else if h.in.ChannelType == 2 {
 		//ws2
-	} else if h.in.ChannelType == 3 {
-		h.in.Corporation = "global chat"
-		h.logicGlobalChat()
 	}
 }

@@ -26,7 +26,12 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
-		d.log.Println("ошибка получении гильдии при получении роли", err)
+		ge, err1 := d.s.Guild(guildid)
+		d.log.Println("1ошибка получении гильдии при получении роли", err)
+		if err1 != nil {
+			d.log.Println("2ошибка получении гильдии при получении роли", err1)
+		}
+		g = ge
 	}
 	exist, role := d.roleExists(g, rolePing)
 	if !exist {
@@ -45,7 +50,7 @@ func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
-		d.log.Println("ошибка получении гильдии при получении роли", err)
+		d.log.Println("ошибка получении гильдии при получении роли для пинга ", err)
 	}
 	exist, role := d.roleExists(g, rolePing)
 	if !exist {

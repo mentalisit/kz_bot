@@ -24,18 +24,24 @@ func (h *Hades) logicWs1() {
 func (h *Hades) logicWs1Module() {
 	config := h.getConfig(h.in.Corporation)
 	sender := "(🎮)" + h.in.Sender
+	text := h.in.Text
+
+	//mention user ws
+	if h.in.Corporation == "Слава Украине!" {
+		text = h.in.Text + "\n @YaroslavShelest @Yura_Odessa  @GnarlyV "
+	}
 	if config.DsChatWS1 != "" {
-		go h.cl.Ds.SendWebhookForHades(h.in.Text, sender, config.DsChatWS1, config.GuildId, h.in.Avatar)
+		go h.cl.Ds.SendWebhookForHades(text, sender, config.DsChatWS1, config.GuildId, h.in.Avatar)
 	}
 	if config.TgChatWS1 != "" {
-		go h.cl.Tg.SendChannel(config.TgChatWS1, sender+"\n"+h.in.Text)
+		go h.cl.Tg.SendChannel(config.TgChatWS1, sender+"\n"+text)
 	}
 	if config.TgChatWS1 == "" && config.DsChatWS1 == "" {
 		if config.DsChat != "" {
-			go h.cl.Ds.SendWebhookForHades(h.in.Text, sender, config.DsChat, config.GuildId, h.in.Avatar)
+			go h.cl.Ds.SendWebhookForHades(text, sender, config.DsChat, config.GuildId, h.in.Avatar)
 		}
 		if config.TgChat != "" {
-			go h.cl.Tg.SendChannel(config.TgChat, sender+"\n"+h.in.Text)
+			go h.cl.Tg.SendChannel(config.TgChat, sender+"\n"+text)
 		}
 	}
 	fmt.Printf("ws1module %s %s: %s\n", h.in.Corporation, h.in.Sender, h.in.Text)
