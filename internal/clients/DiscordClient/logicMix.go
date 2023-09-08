@@ -310,9 +310,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		},
 		Config: config,
 	}
-	if m.MessageReference != nil &&
-		m.ReferencedMessage.Author != nil &&
-		m.ReferencedMessage.Author.String() != "" {
+	if m.ReferencedMessage != nil {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
 		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
 			usernameR = m.ReferencedMessage.Member.Nick
