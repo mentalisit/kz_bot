@@ -35,6 +35,9 @@ func (h *Hades) ifEditMessage(msg models.MessageHadesClient, corp models.Corpora
 				if corp.TgChat != "" {
 					text := sender + ": " + msg.Text
 					s.mesidtg = h.cl.Tg.SendChannel(corp.TgChat, text)
+					if corp.Corp == "Ещё один Миф" {
+						go h.cl.Tg.SendChannel("-1001527134772/13261", text) /// HardCode
+					}
 				}
 				s.corpname = msg.Corporation
 				s.time = time.Now().Unix()

@@ -223,6 +223,9 @@ func (t *Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
 }
 func (t *Telegram) updatesComand(c *tgbotapi.Message) {
 	ChatId := strconv.FormatInt(c.Chat.ID, 10) + fmt.Sprintf("/%d", c.MessageThreadID)
+	if c.Command() == "chatid" {
+		t.SendChannelDelSecond(ChatId, ChatId, 20)
+	}
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
 		MessageID := strconv.Itoa(c.MessageID)

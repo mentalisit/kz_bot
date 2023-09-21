@@ -26,6 +26,9 @@ func (h *Hades) logicAlliance() {
 				go h.cl.Ds.SendWebhookForHades(h.in.Text, sender, config.DsChat, config.GuildId, h.in.Avatar)
 			}
 			if config.TgChat != "" {
+				if h.ifEditMessage(h.in, config) {
+					return
+				}
 				go h.cl.Tg.SendChannel(config.TgChat, sender+"\n"+h.in.Text)
 			}
 			fmt.Printf("Alliance %s Name %s: %s\n", h.in.Corporation, h.in.Sender, h.in.Text)
