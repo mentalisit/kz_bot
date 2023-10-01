@@ -49,7 +49,14 @@ func (d *Discord) SendComplexContent(chatid, text string) (mesId string) { //о�
 	mesCompl, err := d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 		Content: text})
 	if err != nil {
-		d.log.Println("Ошибка отправки комплексного сообщения ", err)
+		channel, _ := d.s.Channel(chatid)
+		d.log.Println("Ошибка отправки комплексного сообщения text "+channel.Name+" ", err)
+		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
+			Content: text})
+		if err == nil {
+			return mesCompl.ID
+		}
+		return ""
 	}
 	return mesCompl.ID
 }
@@ -59,7 +66,16 @@ func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed) (mes
 		Embed:   &embeds,
 	})
 	if err != nil {
-		d.log.Println("Ошибка отправки комплексного сообщения ", err)
+		channel, _ := d.s.Channel(chatid)
+		d.log.Println("Ошибка отправки комплексного сообщения embed "+channel.Name+" ", err)
+		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
+			Content: mesContentNil,
+			Embed:   &embeds,
+		})
+		if err == nil {
+			return mesCompl.ID
+		}
+		return ""
 	}
 	return mesCompl.ID
 }

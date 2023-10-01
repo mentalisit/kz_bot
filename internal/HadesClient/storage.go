@@ -3,6 +3,7 @@ package HadesClient
 import (
 	"fmt"
 	"kz_bot/internal/models"
+	"os"
 )
 
 func (h *Hades) loadDB() {
@@ -62,7 +63,7 @@ func (h *Hades) CheckMember(member, corporation string, mId int64) (ok bool) {
 		}
 	}
 	if !ok {
-		h.log.Printf("CheckMember for %s: '%s'", corporation, member)
+		h.saveLog(corporation, fmt.Sprintf("CheckMember for %s: '%s'", corporation, member))
 	}
 	return ok
 }
@@ -86,4 +87,24 @@ func (h *Hades) CheckMemberRang(member, corporation string, playerId int64) (ok 
 		fmt.Printf("CheckMemberRang for %s: '%s'", corporation, member)
 	}
 	return ok
+}
+func (h *Hades) saveLog(file, text string) {
+	pathFile := "./log/logFile" + file
+	_, err := os.Stat(pathFile)
+	if os.IsNotExist(err) {
+		f, err2 := os.Create(pathFile)
+		if err2 != nil {
+			return
+		}
+		f.Close()
+	}
+	open, err := os.Open(pathFile)
+	if err != nil {
+		return
+	}
+	defer open.Close()
+	_, err = open.WriteString(text + "\n")
+	if err != nil {
+		return
+	}
 }
