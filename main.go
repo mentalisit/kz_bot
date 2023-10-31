@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"kz_bot/internal/BridgeChat"
-	"kz_bot/internal/HadesClient"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
@@ -53,7 +52,7 @@ func RunNew() error {
 	//clients Discord, Telegram, //Whatsapp
 	cl := clients.NewClients(log, st, cfg)
 	go bot.NewBot(st, cl, log, cfg)
-	go HadesClient.NewHades(log, cl, st)
+	//go HadesClient.NewHades(log, cl, st)
 	go BridgeChat.NewBridge(log, cl, st)
 
 	//ожидаем сигнала завершения

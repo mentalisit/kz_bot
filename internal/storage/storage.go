@@ -72,15 +72,15 @@ func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
 	return s
 }
 func (s *Storage) loadDbArray() {
-	var h = 0
-	var hades string
-	corp := s.HadesClient.GetAllCorporationHades()
-	for _, client := range corp {
-		s.CorporationHades[client.Corp] = client
-		h++
-		hades = hades + fmt.Sprintf("%s, ", client.Corp)
-	}
-	fmt.Printf("Загружено конфиг хадеса %d : %s\n", h, hades)
+	//var h = 0
+	//var hades string
+	//corp := s.HadesClient.GetAllCorporationHades()
+	//for _, client := range corp {
+	//	s.CorporationHades[client.Corp] = client
+	//	h++
+	//	hades = hades + fmt.Sprintf("%s, ", client.Corp)
+	//}
+	//fmt.Printf("Загружено конфиг хадеса %d : %s\n", h, hades)
 
 	var b = 0
 	var bridge string

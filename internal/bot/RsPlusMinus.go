@@ -72,21 +72,21 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.WaChannel != "" {
-				//Тут будет логика ватса
-				b.wg.Add(1)
-				go func() {
-					text := fmt.Sprintf("%s%s (%d)\n"+
-						"1. %s - %s%s (%d) \n\n"+
-						"%s++ - %s",
-						b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL,
-						b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN,
-						b.in.Lvlkz, b.GetLang("prinuditelniStart"))
-					wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
-					//b.SubscribePing(1) ne telega
-					b.wg.Done()
-				}()
-			}
+			//if b.in.Config.WaChannel != "" {
+			//	//Тут будет логика ватса
+			//	b.wg.Add(1)
+			//	go func() {
+			//		text := fmt.Sprintf("%s%s (%d)\n"+
+			//			"1. %s - %s%s (%d) \n\n"+
+			//			"%s++ - %s",
+			//			b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL,
+			//			b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN,
+			//			b.in.Lvlkz, b.GetLang("prinuditelniStart"))
+			//		wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
+			//		//b.SubscribePing(1) ne telega
+			//		b.wg.Done()
+			//	}()
+			//}
 		}
 
 		u := b.storage.DbFunc.ReadAll(ctx, b.in.Lvlkz, b.in.Config.CorpName)
@@ -123,23 +123,23 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.WaChannel != "" {
-				//Тут будет логика ватса
-				b.wg.Add(1)
-				go func() {
-					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
-					name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
-						b.emReadName(u.User1.Name, wa), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-					name2 := fmt.Sprintf("2. %s - %s%s (%d) \n",
-						b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN)
-					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
-					text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
-					wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
-					go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
-					b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
-					b.wg.Done()
-				}()
-			}
+			//if b.in.Config.WaChannel != "" {
+			//	//Тут будет логика ватса
+			//	b.wg.Add(1)
+			//	go func() {
+			//		text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
+			//		name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+			//			b.emReadName(u.User1.Name, wa), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
+			//		name2 := fmt.Sprintf("2. %s - %s%s (%d) \n",
+			//			b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN)
+			//		text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
+			//		text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
+			//		wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
+			//		go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+			//		b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+			//		b.wg.Done()
+			//	}()
+			//}
 
 		} else if countQueue == 2 {
 			dsmesid = u.User1.Dsmesid
@@ -179,26 +179,26 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.WaChannel != "" {
-				//Тут будет логика ватса
-				b.wg.Add(1)
-				go func() {
-					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
-					name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
-						b.emReadName(u.User1.Name, wa), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-					name2 := fmt.Sprintf("2. %s - %d%s (%d) \n",
-						b.emReadName(u.User2.Name, wa), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
-					name3 := fmt.Sprintf("3. %s - %s%s (%d) \n",
-						b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN)
-					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
-					text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
-					wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
-					go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
-					b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
-					//b.SubscribePing(3)
-					b.wg.Done()
-				}()
-			}
+			//if b.in.Config.WaChannel != "" {
+			//	//Тут будет логика ватса
+			//	b.wg.Add(1)
+			//	go func() {
+			//		text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
+			//		name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+			//			b.emReadName(u.User1.Name, wa), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
+			//		name2 := fmt.Sprintf("2. %s - %d%s (%d) \n",
+			//			b.emReadName(u.User2.Name, wa), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
+			//		name3 := fmt.Sprintf("3. %s - %s%s (%d) \n",
+			//			b.emReadName(b.in.Name, wa), b.in.Timekz, b.GetLang("min."), numkzN)
+			//		text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
+			//		text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
+			//		wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
+			//		go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+			//		b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+			//		//b.SubscribePing(3)
+			//		b.wg.Done()
+			//	}()
+			//}
 
 		}
 		if countQueue <= 2 {
@@ -266,26 +266,26 @@ func (b *Bot) RsPlus() {
 					b.wg.Done()
 				}()
 			}
-			if b.in.Config.WaChannel != "" {
-				//Тут будет логика ватса
-				b.wg.Add(1)
-				go func() {
-					n1, n2, n3, n4 := b.nameMention(u, wa)
-					go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
-					text := fmt.Sprintf("%s%s %s\n"+
-						"%s\n"+
-						"%s\n"+
-						"%s\n"+
-						"%s\n"+
-						"%s \n%s",
-						b.GetLang("ocheredKz"), b.in.Lvlkz, b.GetLang("sformirovana"),
-						n1, n2, n3, n4,
-						b.GetLang("Vigru"), textEvent)
-					wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
-					b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
-					b.wg.Done()
-				}()
-			}
+			//if b.in.Config.WaChannel != "" {
+			//	//Тут будет логика ватса
+			//	b.wg.Add(1)
+			//	go func() {
+			//		n1, n2, n3, n4 := b.nameMention(u, wa)
+			//		go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
+			//		text := fmt.Sprintf("%s%s %s\n"+
+			//			"%s\n"+
+			//			"%s\n"+
+			//			"%s\n"+
+			//			"%s\n"+
+			//			"%s \n%s",
+			//			b.GetLang("ocheredKz"), b.in.Lvlkz, b.GetLang("sformirovana"),
+			//			n1, n2, n3, n4,
+			//			b.GetLang("Vigru"), textEvent)
+			//		wamesid = b.client.Wa.SendText(b.in.Config.WaChannel, text)
+			//		b.storage.Update.MesidWaUpdate(ctx, wamesid, b.in.Lvlkz, b.in.Config.CorpName)
+			//		b.wg.Done()
+			//	}()
+			//}
 
 			b.wg.Wait()
 			b.storage.DbFunc.InsertQueue(ctx, dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)

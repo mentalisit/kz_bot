@@ -14,7 +14,7 @@ func (b *Bot) iftipdelete() {
 	} else if b.in.Tip == tg && !b.in.Option.Reaction && !b.in.Option.Update {
 		go b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 	} else if b.in.Tip == wa {
-		go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, b.in.Wa.Mesid)
+		//go b.client.Wa.DeleteMessage(b.in.Config.WaChannel, b.in.Wa.Mesid)
 	}
 }
 func (b *Bot) ifTipSendMentionText(text string) {
@@ -23,7 +23,7 @@ func (b *Bot) ifTipSendMentionText(text string) {
 	} else if b.in.Tip == tg {
 		go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, b.in.NameMention+text, 10)
 	} else if b.in.Tip == wa {
-		go b.client.Wa.SendChannelDelSecond(b.in.Config.WaChannel, b.in.NameMention+text, []string{b.in.Wa.Nameid}, 20)
+		//go b.client.Wa.SendChannelDelSecond(b.in.Config.WaChannel, b.in.NameMention+text, []string{b.in.Wa.Nameid}, 20)
 	}
 }
 func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
@@ -32,7 +32,7 @@ func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
 	} else if b.in.Tip == tg {
 		go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, time)
 	} else if b.in.Tip == wa {
-		go b.client.Wa.SendChannelDelSecond(b.in.Config.WaChannel, text, []string{}, time)
+		//go b.client.Wa.SendChannelDelSecond(b.in.Config.WaChannel, text, []string{}, time)
 	}
 }
 

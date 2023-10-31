@@ -4,16 +4,16 @@ import (
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients/DiscordClient"
 	"kz_bot/internal/clients/TelegramClient"
-	"kz_bot/internal/clients/WhatsappClient"
+	//"kz_bot/internal/clients/WhatsappClient"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
 	"time"
 )
 
 type Clients struct {
-	Ds      *DiscordClient.Discord
-	Tg      *TelegramClient.Telegram
-	Wa      *WhatsappClient.Whatsapp
+	Ds *DiscordClient.Discord
+	Tg *TelegramClient.Telegram
+	//Wa      *WhatsappClient.Whatsapp
 	storage *storage.Storage
 }
 
