@@ -131,6 +131,9 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 		//len(m.Photo)
 	}
 	fmt.Printf("   tg message %+v \n", m)
+	fmt.Printf("   tg messageFrom %+v \n", m.From)
+	fmt.Printf("   tg messageChat %+v \n", m.Chat)
+	fmt.Printf("   tg messageForwardFromChat %+v \n", m.ForwardFromChat)
 	ThreadID := m.MessageThreadID
 
 	if m.MessageThreadID != 0 && m.MessageID-m.MessageThreadID < 10 {
