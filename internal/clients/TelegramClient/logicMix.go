@@ -132,10 +132,19 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	}
 
 	fmt.Printf("   tg message %+v \n\n", m)
-	fmt.Printf("   tg messageReplyToMessage %+v \n\n", m.ReplyToMessage)
-	fmt.Printf("   tg messageFrom %+v \n\n", m.From)
 	fmt.Printf("   tg messageChat %+v \n\n", m.Chat)
-	fmt.Printf("   tg messageForwardFromChat %+v \n\n\n\n", m.ForwardFromChat)
+
+	if m.ReplyToMessage != nil {
+		fmt.Printf("   tg messageReplyToMessage %+v \n\n", m.ReplyToMessage)
+	}
+	if m.ForwardFromChat != nil {
+		fmt.Printf("   tg messageForwardFromChat %+v \n\n", m.ForwardFromChat)
+	}
+	if m.ForwardFrom != nil {
+		fmt.Printf("   tg messageForwardFrom %+v \n\n", m.ForwardFrom)
+	}
+
+	fmt.Printf("\n\n")
 	ThreadID := m.MessageThreadID
 
 	if m.MessageThreadID != 0 && m.MessageID-m.MessageThreadID < 10 {
