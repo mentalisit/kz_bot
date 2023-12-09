@@ -92,6 +92,9 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 func (t *Telegram) SendThreadID(ChatId int64, ThreadID int, text string) {
 	m := tgbotapi.NewMessage(ChatId, text)
 	m.MessageThreadID = ThreadID
-	t.t.Send(m)
+	_, err := t.t.Send(m)
+	if err != nil {
+		return
+	}
 
 }
