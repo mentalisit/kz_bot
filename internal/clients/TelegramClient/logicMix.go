@@ -131,7 +131,10 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 		//len(m.Photo)
 	}
 
-	fmt.Printf("   tg new message chat %s OT %s \n\n", m.Chat.Title, m.From)
+	ttt := fmt.Sprintf("   tg new message chat %s OT %s ", m.Chat.Title, m.From)
+	if m.ReplyToMessage != nil {
+		ttt += fmt.Sprintf(" ответ %s на сообщение %s", m.ReplyToMessage.From, m.ReplyToMessage.Text)
+	}
 	fmt.Printf("   tg message %+v \n\n", m)
 
 	if m.ReplyToMessage != nil {
