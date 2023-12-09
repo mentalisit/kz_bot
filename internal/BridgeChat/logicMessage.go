@@ -30,6 +30,8 @@ func (b *Bridge) logicMessage() {
 							b.in.Ds.Reply.Avatar,
 							b.in.Ds.Reply.UserName,
 							b.in.Ds.Reply.TimeMessage)
+					} else if b.in.FileUrl != "" {
+						mes = b.client.Ds.SendFiles(d.ChannelId, b.in.FileUrl)
 					} else {
 						texts := b.replaceTextMentionRsRole(text, d.GuildId)
 						mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
@@ -100,6 +102,8 @@ func (b *Bridge) logicMessage() {
 						b.in.Tg.Reply.Avatar,
 						b.in.Tg.Reply.UserName,
 						b.in.Tg.Reply.TimeMessage)
+				} else if b.in.FileUrl != "" {
+					mes = b.client.Ds.SendFiles(d.ChannelId, b.in.FileUrl)
 				} else {
 					texts := b.replaceTextMentionRsRole(text, d.GuildId)
 					mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
