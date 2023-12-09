@@ -135,6 +135,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 	if m.ReplyToMessage != nil {
 		ttt += fmt.Sprintf(" ответ %s на сообщение %s", m.ReplyToMessage.From, m.ReplyToMessage.Text)
 	}
+	fmt.Println(ttt + "\n")
 	fmt.Printf("   tg message %+v \n\n", m)
 
 	if m.ReplyToMessage != nil {
