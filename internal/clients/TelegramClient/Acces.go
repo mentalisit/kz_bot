@@ -9,7 +9,11 @@ import (
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
-	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", m.MessageThreadID)
+	ThreadID := 0
+	if !m.IsTopicMessage && m.MessageThreadID != 0 {
+		ThreadID = 0
+	}
+	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
 	if res == true && m.Text == ".add" {
 		go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 		t.accessAddChannelTg(ChatId)

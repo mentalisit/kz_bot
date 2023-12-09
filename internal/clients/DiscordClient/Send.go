@@ -139,7 +139,7 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (m
 	return mes.ID
 }
 
-func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar string, replytext, replyAvatar, replyName string, replyTime time.Time) (mesId string) {
+func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar string, replytext, replyAvatar, replyName string, replyTime int64) (mesId string) {
 	if text == "" {
 		return ""
 	}
@@ -147,7 +147,7 @@ func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar strin
 	var embeds []*discordgo.MessageEmbed
 	e := discordgo.MessageEmbed{
 		Description: replytext,
-		Timestamp:   replyTime.Format(time.RFC3339),
+		Timestamp:   time.Unix(replyTime, 0).Format(time.RFC3339),
 		Color:       14232643,
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    replyName,

@@ -65,7 +65,7 @@ func (t *Telegram) update() {
 				t.updatesComand(update.Message) //если сообщение является командой
 
 			} else { //остальные сообщения
-				t.logicMix(update.Message)
+				t.logicMix2(update.Message)
 			}
 
 		} else if update.MyChatMember != nil {
@@ -75,7 +75,7 @@ func (t *Telegram) update() {
 			t.chatMember(update.ChatMember)
 
 		} else {
-			fmt.Println(1, update)
+			fmt.Printf(" else update %+v", update)
 		}
 	}
 }
@@ -87,14 +87,4 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 			"я еще не решил как тут сделать"+
 			"Присылай идеи для работы с ботом мне @mentalisit ")
 	}
-}
-
-func (t *Telegram) SendThreadID(ChatId int64, ThreadID int, text string) {
-	m := tgbotapi.NewMessage(ChatId, text)
-	m.MessageThreadID = ThreadID
-	_, err := t.t.Send(m)
-	if err != nil {
-		return
-	}
-
 }

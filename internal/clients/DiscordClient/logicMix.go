@@ -122,17 +122,17 @@ func (d *Discord) logicMix2(m *discordgo.MessageCreate) {
 		d.SendToRsFilter(m, config)
 		return
 	}
-	//filter hs
-	corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
-	if corpAlliance.Corp != "" {
-		d.sendToFilterHades(m, corpAlliance, 0)
-		return
-	}
-	corpWs1 := d.getCorpHadesWs1(m.ChannelID)
-	if corpWs1.Corp != "" {
-		d.sendToFilterHades(m, corpWs1, 1)
-		return
-	}
+	////filter hs
+	//corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
+	//if corpAlliance.Corp != "" {
+	//	d.sendToFilterHades(m, corpAlliance, 0)
+	//	return
+	//}
+	//corpWs1 := d.getCorpHadesWs1(m.ChannelID)
+	//if corpWs1.Corp != "" {
+	//	d.sendToFilterHades(m, corpWs1, 1)
+	//	return
+	//}
 
 	//bridge
 	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
@@ -156,17 +156,17 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 		d.SendToRsFilter(m, config)
 		return
 	}
-	//filter hs
-	corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
-	if corpAlliance.Corp != "" {
-		d.sendToFilterHades(m, corpAlliance, 0)
-		return
-	}
-	corpWs1 := d.getCorpHadesWs1(m.ChannelID)
-	if corpWs1.Corp != "" {
-		d.sendToFilterHades(m, corpWs1, 1)
-		return
-	}
+	////filter hs
+	//corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
+	//if corpAlliance.Corp != "" {
+	//	d.sendToFilterHades(m, corpAlliance, 0)
+	//	return
+	//}
+	//corpWs1 := d.getCorpHadesWs1(m.ChannelID)
+	//if corpWs1.Corp != "" {
+	//	d.sendToFilterHades(m, corpWs1, 1)
+	//	return
+	//}
 
 	//bridge
 	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
@@ -282,7 +282,7 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 func (d *Discord) deleteMessageBridgeChat(DelMessageId string) {
 	d.ChanBridgeMessage <- models.BridgeMessage{
 		Tip: "del",
-		Ds: models.BridgeMessageDs{
+		Ds: &models.BridgeMessageDs{
 			MesId: DelMessageId,
 		},
 	}
@@ -292,23 +292,24 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 	if m.Member != nil && m.Member.Nick != "" {
 		username = m.Member.Nick
 	}
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			m.Content = m.Content + "\n" + attach.URL
-		}
-	}
+
 	mes := models.BridgeMessage{
 		Text:   d.replaceTextMessage(m.Content, m.GuildID),
 		Sender: username,
 		Tip:    "ds",
-		Ds: models.BridgeMessageDs{
+		Ds: &models.BridgeMessageDs{
 			ChatId:        m.ChannelID,
 			MesId:         m.ID,
 			Avatar:        m.Author.AvatarURL("128"),
 			GuildId:       m.GuildID,
 			TimestampUnix: m.Timestamp.Unix(),
 		},
-		Config: config,
+		Config: &config,
+	}
+	if len(m.Attachments) > 0 {
+		for _, attach := range m.Attachments { //вложеные файлы
+			mes.FileUrl = mes.FileUrl + "\n" + attach.URL
+		}
 	}
 	if m.ReferencedMessage != nil {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
@@ -318,7 +319,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		mes.Ds.Reply.UserName = usernameR
 		mes.Ds.Reply.Text = d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID)
 		mes.Ds.Reply.Avatar = m.ReferencedMessage.Author.AvatarURL("128")
-		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp
+		mes.Ds.Reply.TimeMessage = m.ReferencedMessage.Timestamp.Unix()
 	}
 
 	d.ChanBridgeMessage <- mes

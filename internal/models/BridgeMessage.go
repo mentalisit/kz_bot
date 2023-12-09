@@ -1,15 +1,13 @@
 package models
 
-import "time"
-
 type BridgeMessage struct {
 	Text    string
 	Sender  string
 	Tip     string
-	Ds      BridgeMessageDs
-	Tg      BridgeMessageTg
+	Ds      *BridgeMessageDs
+	Tg      *BridgeMessageTg
 	FileUrl string
-	Config  BridgeConfig
+	Config  *BridgeConfig
 }
 type BridgeMessageDs struct {
 	ChatId        string
@@ -17,8 +15,8 @@ type BridgeMessageDs struct {
 	Avatar        string
 	GuildId       string
 	TimestampUnix int64
-	Reply         struct {
-		TimeMessage time.Time
+	Reply         *struct {
+		TimeMessage int64
 		Text        string
 		Avatar      string
 		UserName    string
@@ -30,12 +28,13 @@ type BridgeMessageTg struct {
 	Avatar        string
 	TimestampUnix int64
 	GroupName     string
-	Reply         struct {
-		TimeMessage int64
-		Text        string
-		Avatar      string
-		UserName    string
-	}
+	Reply         *ReplyTg
+}
+type ReplyTg struct {
+	TimeMessage int64
+	Text        string
+	Avatar      string
+	UserName    string
 }
 
 type BridgeConfig struct {

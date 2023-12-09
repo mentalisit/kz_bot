@@ -33,11 +33,12 @@ func RunNew() error {
 	//создаем логгер в телегу
 	log := logger.NewLoggerTG(cfg.Logger.Token, cfg.Logger.ChatId)
 
-	if cfg.BotMode == "dev1" {
+	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
-
+		st := storage.NewStorage(log, cfg)
+		go clients.NewClients(log, st, cfg)
 		//test func
-		time.Sleep(1 * time.Minute)
+		time.Sleep(5 * time.Minute)
 		return nil
 	}
 

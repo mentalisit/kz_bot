@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"kz_bot/internal/models"
 	"strings"
-	"time"
 )
 
 func (b *Bridge) logicMessage() {
@@ -100,7 +99,7 @@ func (b *Bridge) logicMessage() {
 						b.in.Tg.Reply.Text,
 						b.in.Tg.Reply.Avatar,
 						b.in.Tg.Reply.UserName,
-						time.Unix(b.in.Tg.Reply.TimeMessage, 0))
+						b.in.Tg.Reply.TimeMessage)
 				} else {
 					texts := b.replaceTextMentionRsRole(text, d.GuildId)
 					mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
