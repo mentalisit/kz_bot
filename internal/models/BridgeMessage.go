@@ -15,12 +15,13 @@ type BridgeMessageDs struct {
 	Avatar        string
 	GuildId       string
 	TimestampUnix int64
-	Reply         *struct {
-		TimeMessage int64
-		Text        string
-		Avatar      string
-		UserName    string
-	}
+	Reply         *ReplyDs
+}
+type ReplyDs struct {
+	TimeMessage int64
+	Text        string
+	Avatar      string
+	UserName    string
 }
 type BridgeMessageTg struct {
 	ChatId        string
