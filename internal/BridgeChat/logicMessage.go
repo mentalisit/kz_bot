@@ -23,7 +23,7 @@ func (b *Bridge) logicMessage() {
 				if d.ChannelId != "" {
 					var mes string
 					text := replaceTextMap(b.in.Text, d.MappingRoles)
-					if b.in.Ds.Reply.Text != "" {
+					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
 						mes = b.client.Ds.SendWebhookReply(text, b.GetSenderName(),
 							d.ChannelId, d.GuildId, b.in.Ds.Avatar,
 							b.in.Ds.Reply.Text,
@@ -51,7 +51,7 @@ func (b *Bridge) logicMessage() {
 			if d.ChannelId != "" {
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
-				if b.in.Ds.Reply.Text != "" {
+				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
 					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
 				}
 				mesTg := b.client.Tg.SendChannel(d.ChannelId, textTg)
@@ -72,7 +72,7 @@ func (b *Bridge) logicMessage() {
 				if c.ChannelId != "" {
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
-					if b.in.Tg.Reply.Text != "" {
+					if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
 						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Tg.Reply.Text)
 					}
 					mesTg := b.client.Tg.SendChannel(c.ChannelId, textTg)
@@ -88,7 +88,7 @@ func (b *Bridge) logicMessage() {
 			if d.ChannelId != "" {
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				var mes string
-				if b.in.Tg.Reply.Text != "" {
+				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
 					if b.in.Tg.Reply.UserName == "gote1st_bot" {
 						at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
 						b.in.Tg.Reply.UserName = at[0]
