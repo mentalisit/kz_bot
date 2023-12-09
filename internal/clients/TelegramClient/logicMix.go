@@ -143,16 +143,16 @@ func (t *Telegram) logicMix(m *tgbotapi.Message) {
 		t.sendToFilterRs(m, config)
 	}
 	// client hs
-	corpAlliance := t.getCorpHadesAlliance(ChatId)
-	if corpAlliance.Corp != "" {
-		t.sendToFilterHades(m, corpAlliance, 0)
-		return
-	}
-	corpWs1 := t.getCorpHadesWs1(ChatId)
-	if corpWs1.Corp != "" {
-		t.sendToFilterHades(m, corpWs1, 1)
-		return
-	}
+	//corpAlliance := t.getCorpHadesAlliance(ChatId)
+	//if corpAlliance.Corp != "" {
+	//	t.sendToFilterHades(m, corpAlliance, 0)
+	//	return
+	//}
+	//corpWs1 := t.getCorpHadesWs1(ChatId)
+	//if corpWs1.Corp != "" {
+	//	t.sendToFilterHades(m, corpWs1, 1)
+	//	return
+	//}
 
 	tg, bridgeConfig := t.BridgeCheckChannelConfigTg(ChatId)
 	if tg || strings.HasPrefix(m.Text, ".") {

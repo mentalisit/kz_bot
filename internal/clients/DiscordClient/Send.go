@@ -29,7 +29,9 @@ func (d *Discord) SendChannelDelSecond(chatid, text string, second int) {
 	if text != "" {
 		message, err := d.s.ChannelMessageSend(chatid, text)
 		if err != nil {
-			d.log.Println("ошибка отправки сообщения SendChannelDelSecond", err)
+			d.log.Println("ошибка отправки сообщения SendChannelDelSecond "+chatid+text, err)
+			d.log.Println("SendChannelDelSecond " + chatid + "  " + text)
+			return
 		}
 		if second <= 60 {
 			go func() {
