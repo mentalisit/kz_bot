@@ -27,7 +27,7 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	g, err := d.s.Guild(guildid)
 	if err != nil {
 		ge, err1 := d.s.Guild(guildid)
-		d.log.Println("1ошибка получении гильдии при получении роли"+guildid+" "+rolePing, err)
+		d.log.Println("1ошибка получении гильдии при получении роли "+guildid+" "+rolePing, err)
 		if err1 != nil {
 			d.log.Println("2ошибка получении гильдии при получении роли"+guildid+" "+rolePing, err1)
 			return rolePing

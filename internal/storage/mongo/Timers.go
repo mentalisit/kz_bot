@@ -21,7 +21,7 @@ func (d *DB) TimerDeleteMessage() []models.Timer {
 	update := bson.D{{"$inc", bson.D{{"timed", -60}}}}
 	t, err := collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
-		d.log.Println("TimerDeleteMessage24 " + err.Error())
+		//d.log.Println("TimerDeleteMessage24 " + err.Error())
 		return nil
 	}
 	if t.MatchedCount > 0 {

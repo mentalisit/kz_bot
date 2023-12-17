@@ -27,11 +27,11 @@ func (d *Discord) CheckChannelConfigDS(chatid string) (channelGood bool, config 
 }
 
 // AddDsCorpConfig add RsConfig
-func (d *Discord) AddDsCorpConfig(chatName, chatid, guildid string) {
+func (d *Discord) AddDsCorpConfig(chatName, chatid, guildid, lang string) {
 	c := models.CorporationConfig{
 		CorpName:  chatName,
 		DsChannel: chatid,
-		Country:   "ru",
+		Country:   lang,
 		Guildid:   guildid,
 	}
 	d.storage.ConfigRs.InsertConfigRs(c)

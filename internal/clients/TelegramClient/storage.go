@@ -25,10 +25,10 @@ func (t *Telegram) CheckChannelConfigTG(chatid string) (channelGood bool, config
 }
 
 // AddTgCorpConfig add RsConfig
-func (t *Telegram) AddTgCorpConfig(chatName string, chatid string) {
+func (t *Telegram) AddTgCorpConfig(chatName string, chatid, lang string) {
 	c := models.CorporationConfig{
 		CorpName:  chatName,
-		Country:   "ua",
+		Country:   lang,
 		TgChannel: chatid,
 	}
 	t.storage.ConfigRs.InsertConfigRs(c)

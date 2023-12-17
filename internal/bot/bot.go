@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
@@ -88,11 +87,8 @@ func (b *Bot) LogicRs() {
 		} else if b.lTop() {
 		} else if b.lEmoji() {
 		} else if b.logicIfText() {
-		} else if b.lIfCommand() {
+			//} else if b.lIfCommand() {
 			//} else if b.SendALLChannel() {
-			//пробуем мост между месенджерами
-		} else if b.in.Config.TgChannel != "" && b.in.Config.DsChannel != "" {
-			b.bridge()
 		} else {
 			b.cleanChat()
 		}
@@ -129,13 +125,13 @@ func (b *Bot) logicIfText() bool {
 	return iftext
 }
 
-func (b *Bot) bridge() {
-	if b.in.Tip == ds {
-		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
-		b.cleanChat()
-	} else if b.in.Tip == tg {
-		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
-	}
-}
+//func (b *Bot) bridge() {
+//	if b.in.Tip == ds {
+//		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
+//		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
+//		b.cleanChat()
+//	} else if b.in.Tip == tg {
+//		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
+//		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
+//	}
+//}
