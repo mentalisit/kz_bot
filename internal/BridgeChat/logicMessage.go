@@ -12,12 +12,23 @@ func (b *Bridge) logicMessage() {
 	}
 	var memory models.BridgeTempMemory
 	memory.RelayName = b.in.Config.NameRelay
+	if b.ifTipDs(&memory) {
+	} else if b.ifTipTg(&memory) {
+	} else if b.in.Tip == "del" {
+		b.RemoveMessage()
+	}
+	b.messages = append(b.messages, memory)
+}
+
+func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "ds" {
+		ok = true
 		memory.Timestamp = b.in.Ds.TimestampUnix
 		memory.MessageDs = append(memory.MessageDs, struct {
 			MessageId string
 			ChatId    string
 		}{MessageId: b.in.Ds.MesId, ChatId: b.in.Ds.ChatId})
+
 		for _, d := range b.in.Config.ChannelDs {
 			if d.ChannelId != b.in.Ds.ChatId {
 				if d.ChannelId != "" {
@@ -31,7 +42,7 @@ func (b *Bridge) logicMessage() {
 							b.in.Ds.Reply.UserName,
 							b.in.Ds.Reply.TimeMessage)
 					} else if b.in.FileUrl != "" {
-						mes = b.client.Ds.SendFiles(d.ChannelId, b.in.FileUrl)
+						mes = b.client.Ds.SendFile(text, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar)
 					} else {
 						texts := b.replaceTextMentionRsRole(text, d.GuildId)
 						mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
@@ -51,19 +62,30 @@ func (b *Bridge) logicMessage() {
 		}
 		for _, d := range b.in.Config.ChannelTg {
 			if d.ChannelId != "" {
+				var mesTg int
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
 					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
 				}
-				mesTg := b.client.Tg.SendChannel(d.ChannelId, textTg)
+				if b.in.FileUrl != "" {
+					//mesTg = b.client.Tg.SendFileFromURL(d.ChannelId, b.in.FileUrl)
+				} else {
+					mesTg = b.client.Tg.SendChannel(d.ChannelId, textTg)
+				}
+
 				memory.MessageTg = append(memory.MessageTg, struct {
 					MessageId int
 					ChatId    string
 				}{MessageId: mesTg, ChatId: d.ChannelId})
 			}
 		}
-	} else if b.in.Tip == "tg" {
+	}
+	return ok
+}
+func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
+	if b.in.Tip == "tg" {
+		ok = true
 		memory.Timestamp = b.in.Tg.TimestampUnix
 		memory.MessageTg = append(memory.MessageTg, struct {
 			MessageId int
@@ -103,7 +125,7 @@ func (b *Bridge) logicMessage() {
 						b.in.Tg.Reply.UserName,
 						b.in.Tg.Reply.TimeMessage)
 				} else if b.in.FileUrl != "" {
-					mes = b.client.Ds.SendFiles(d.ChannelId, b.in.FileUrl)
+					mes = b.client.Ds.SendFile(text, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar)
 				} else {
 					texts := b.replaceTextMentionRsRole(text, d.GuildId)
 					mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
@@ -120,8 +142,6 @@ func (b *Bridge) logicMessage() {
 
 			}
 		}
-	} else if b.in.Tip == "del" {
-		b.RemoveMessage()
 	}
-	b.messages = append(b.messages, memory)
+	return ok
 }

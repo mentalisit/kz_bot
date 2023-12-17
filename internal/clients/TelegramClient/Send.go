@@ -1,11 +1,14 @@
 package TelegramClient
 
 import (
+	"fmt"
 	tgbotapi "github.com/musianisamuele/telegram-bot-api"
 	"io"
 	"kz_bot/internal/models"
 	"net/http"
+	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -121,7 +124,88 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 		})
 	}
 }
+func (t *Telegram) SendFileFromURL(chatid string, fileURL string) int {
+	fileURL = strings.TrimSpace(fileURL)
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Println(err)
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Println(err)
+		}
+	}
 
+	parsedURL, err := url.Parse(fileURL)
+	if err != nil {
+		fmt.Println(err)
+		//return 0
+	}
+
+	// Используем path.Base для получения последней части URL, которая представляет собой имя файла
+	fileName := path.Base(parsedURL.Path)
+	parsedURL.RawQuery = ""
+
+	fmt.Println(parsedURL.String())
+
+	// Получаем содержимое файла по URL
+	response, err := http.Get(parsedURL.String())
+	if err != nil {
+
+	}
+	defer response.Body.Close()
+
+	// Открываем временный файл для сохранения содержимого
+	tempFile, err := os.CreateTemp("", fileName)
+	if err != nil {
+		fmt.Println("151")
+		return 0
+	}
+	defer tempFile.Close()
+	fmt.Println("153")
+	// Копируем содержимое файла из ответа во временный файл
+	_, err = io.Copy(tempFile, response.Body)
+	if err != nil {
+		return 0
+	}
+	fmt.Println("159")
+	// Создаем объект InputFile для отправки файла
+	document := &tgbotapi.FileBytes{
+		Name:  fileName,
+		Bytes: getFileBytes(tempFile),
+	}
+
+	// Создаем сообщение с файлом
+	msg := tgbotapi.NewDocument(chatId, *document)
+	msg.MessageThreadID = ThreadID
+	msg.Caption = "Текст к файлу (если нужен)"
+	fmt.Println("170")
+	// Отправляем сообщение с файлом
+	m, err := t.t.Send(&msg)
+	if err != nil {
+		return 0
+	}
+
+	fmt.Println("Файл успешно отправлен в Telegram.")
+	return m.MessageID
+}
+
+// getFileBytes считывает байты из файла
+func getFileBytes(file *os.File) []byte {
+	fileInfo, _ := file.Stat()
+	size := fileInfo.Size()
+	bytes := make([]byte, size)
+
+	_, err := file.Read(bytes)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return bytes
+}
 func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {
 	a := strings.SplitN(chatID, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)

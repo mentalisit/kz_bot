@@ -1,8 +1,10 @@
 package DiscordClient
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
 	"net/http"
@@ -88,21 +90,44 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 	}
 	return message.ID
 }
-func (d *Discord) SendFiles(channelID, fileURL string) (mesId string) {
-	// Получаем содержимое файла из интернета
+func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar string) string {
+	// Скачиваем файл по URL
 	resp, err := http.Get(fileURL)
 	if err != nil {
-		d.log.Println("Error downloading file:", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	send, errs := d.s.ChannelFileSend(channelID, filepath.Base(fileURL), resp.Body)
-	if errs != nil {
-		d.log.Println("Error sending file:", errs)
 		return ""
 	}
-	return send.ID
+	defer resp.Body.Close()
+	fileName := filepath.Base(fileURL)
+	// Читаем содержимое файла
+	buffer := new(bytes.Buffer)
+	_, err = io.Copy(buffer, resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+
+	// Подготавливаем параметры вебхука
+	webhook := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+		Files: []*discordgo.File{{
+			Name:        fileName, // Имя файла, которое будет видно в Discord
+			Reader:      buffer,
+			ContentType: resp.Header.Get("Content-type"),
+		},
+		},
+	}
+
+	// Отправляем файл в Discord
+	m, err := web.Send(channelID, webhook)
+	if err != nil {
+		return ""
+	}
+
+	fmt.Println("Файл успешно отправлен в Discord.")
+	return m.ID
 }
 
 func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями

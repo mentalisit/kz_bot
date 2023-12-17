@@ -36,7 +36,9 @@ func RunNew() error {
 	if cfg.BotMode == "dev" {
 		fmt.Println("Develop Running")
 		st := storage.NewStorage(log, cfg)
-		go clients.NewClients(log, st, cfg)
+		cl := clients.NewClients(log, st, cfg)
+		go BridgeChat.NewBridge(log, cl, st)
+
 		//test func
 		time.Sleep(5 * time.Minute)
 		return nil
