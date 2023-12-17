@@ -34,6 +34,12 @@ func (b *Bot) lRsPlus() bool {
 		kzb = arr2[0][2]
 		b.in.Timekz = "30"
 	}
+	if b.in.Config.Country == "dru" {
+		l, _ := strconv.Atoi(b.in.Lvlkz)
+		if l < 7 {
+			return false
+		}
+	}
 	switch kzb {
 	case "+":
 		b.RsPlus()
