@@ -1,8 +1,8 @@
 package TelegramClient
 
 import (
-	"fmt"
-	tgbotapi "github.com/musianisamuele/telegram-bot-api"
+	"bytes"
+	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 	"io"
 	"kz_bot/internal/models"
 	"net/http"
@@ -124,7 +124,7 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 		})
 	}
 }
-func (t *Telegram) SendFileFromURL(chatid string, fileURL string) int {
+func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	fileURL = strings.TrimSpace(fileURL)
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
@@ -141,70 +141,83 @@ func (t *Telegram) SendFileFromURL(chatid string, fileURL string) int {
 
 	parsedURL, err := url.Parse(fileURL)
 	if err != nil {
-		fmt.Println(err)
-		//return 0
+		t.log.Println(err)
+		return 0
 	}
 
 	// Используем path.Base для получения последней части URL, которая представляет собой имя файла
 	fileName := path.Base(parsedURL.Path)
 	parsedURL.RawQuery = ""
+	fileURL = parsedURL.String()
 
-	fmt.Println(parsedURL.String())
-
-	// Получаем содержимое файла по URL
-	response, err := http.Get(parsedURL.String())
+	// Скачиваем файл по URL
+	resp, err := http.Get(fileURL)
 	if err != nil {
-
-	}
-	defer response.Body.Close()
-
-	// Открываем временный файл для сохранения содержимого
-	tempFile, err := os.CreateTemp("", fileName)
-	if err != nil {
-		fmt.Println("151")
+		t.log.Println(err)
 		return 0
 	}
-	defer tempFile.Close()
-	fmt.Println("153")
-	// Копируем содержимое файла из ответа во временный файл
-	_, err = io.Copy(tempFile, response.Body)
+	defer resp.Body.Close()
+
+	// Читаем содержимое файла
+	buffer := new(bytes.Buffer)
+	_, err = io.Copy(buffer, resp.Body)
 	if err != nil {
+		t.log.Println(err)
 		return 0
 	}
-	fmt.Println("159")
-	// Создаем объект InputFile для отправки файла
-	document := &tgbotapi.FileBytes{
+	var media []interface{}
+
+	file := tgbotapi.FileBytes{
 		Name:  fileName,
-		Bytes: getFileBytes(tempFile),
+		Bytes: buffer.Bytes(),
 	}
 
-	// Создаем сообщение с файлом
-	msg := tgbotapi.NewDocument(chatId, *document)
-	msg.MessageThreadID = ThreadID
-	msg.Caption = "Текст к файлу (если нужен)"
-	fmt.Println("170")
-	// Отправляем сообщение с файлом
-	m, err := t.t.Send(&msg)
-	if err != nil {
+	switch filepath.Ext(fileName) {
+
+	case ".jpg", ".jpe", ".png":
+		pc := tgbotapi.NewInputMediaPhoto(file)
+		if text != "" {
+			pc.Caption = text
+		}
+		media = append(media, pc)
+	case ".mp4", ".m4v":
+		vc := tgbotapi.NewInputMediaVideo(file)
+		if text != "" {
+			vc.Caption = text
+		}
+		media = append(media, vc)
+	case ".mp3", ".oga":
+		ac := tgbotapi.NewInputMediaAudio(file)
+		if text != "" {
+			ac.Caption = text
+		}
+		media = append(media, ac)
+	default:
+		dc := tgbotapi.NewInputMediaDocument(file)
+		if text != "" {
+			dc.Caption = text
+		}
+		media = append(media, dc)
+	}
+
+	if len(media) == 0 {
 		return 0
 	}
-
-	fmt.Println("Файл успешно отправлен в Telegram.")
-	return m.MessageID
-}
-
-// getFileBytes считывает байты из файла
-func getFileBytes(file *os.File) []byte {
-	fileInfo, _ := file.Stat()
-	size := fileInfo.Size()
-	bytes := make([]byte, size)
-
-	_, err := file.Read(bytes)
-	if err != nil {
-		fmt.Println(err)
+	mg := tgbotapi.MediaGroupConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID:          chatId,
+			MessageThreadID: ThreadID,
+			//ChannelUsername:  msg.Username,
+			//ReplyToMessageID: parentID,
+		},
+		Media: media,
 	}
-
-	return bytes
+	m, err := t.t.SendMediaGroup(mg)
+	if err != nil {
+		t.log.Println(err)
+		return 0
+	}
+	return m[0].MessageID
 }
 func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {
 	a := strings.SplitN(chatID, "/", 2)

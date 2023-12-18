@@ -1,7 +1,7 @@
 package TelegramClient
 
 import (
-	tgbotapi "github.com/musianisamuele/telegram-bot-api"
+	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 )
 
 func (t *Telegram) nameOrNick(UserName, FirstName string) (name string) {

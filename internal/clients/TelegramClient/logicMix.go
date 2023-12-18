@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/musianisamuele/telegram-bot-api"
+	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 	"strconv"
 
 	"kz_bot/internal/models"
@@ -16,14 +16,11 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 		ThreadID = 0
 	}
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
-	url := ""
-	if len(m.Photo) > 0 {
-		url, _ = t.t.GetFileDirectURL(m.Photo[len(m.Photo)-1].FileID)
-		if m.Text == "" && m.Caption != "" {
-			m.Text = m.Caption
-		}
+	url := t.handleDownload(m)
+	if m.Text == "" && m.Caption != "" {
+		m.Text = m.Caption
 	}
-
+	t.handlePoll(m)
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {

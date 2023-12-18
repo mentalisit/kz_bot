@@ -126,7 +126,6 @@ func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar s
 		return ""
 	}
 
-	fmt.Println("Файл успешно отправлен в Discord.")
 	return m.ID
 }
 
