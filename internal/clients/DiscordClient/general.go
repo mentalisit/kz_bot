@@ -140,14 +140,31 @@ func (d *Discord) EditMessage(chatID, messageID, content string) {
 		d.log.Println("Ошибка изменения текса сообщения ", err)
 	}
 }
-func (d *Discord) EmbedDS(mapa map[string]string, numkz int) discordgo.MessageEmbed {
+func (d *Discord) EmbedDS(mapa map[string]string, numkz int, count int, dark bool) discordgo.MessageEmbed {
+	textcount := ""
+	if count == 1 {
+		textcount = fmt.Sprintf("\n1️⃣ %s \n",
+			mapa["name1"])
+	} else if count == 2 {
+		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n",
+			mapa["name1"], mapa["name2"])
+	} else if count == 3 {
+		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n",
+			mapa["name1"], mapa["name2"], mapa["name3"])
+	} else {
+		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n4️⃣ %s \n",
+			mapa["name1"], mapa["name2"], mapa["name3"], mapa["name4"])
+	}
+	title := d.storage.Words.GetWords(mapa["lang"], "ocheredKz")
+	if dark {
+		title = d.storage.Words.GetWords(mapa["lang"], "ocheredTKz")
+	}
 	return discordgo.MessageEmbed{
 		Author: &discordgo.MessageEmbedAuthor{},
 		Color:  16711680,
 		Description: fmt.Sprintf("👇 %s <:rs:918545444425072671> %s (%d) ",
 			d.storage.Words.GetWords(mapa["lang"], "jelaushieNa"), mapa["lvlkz"], numkz) +
-			fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n4️⃣ %s \n",
-				mapa["name1"], mapa["name2"], mapa["name3"], mapa["name4"]),
+			textcount,
 
 		Fields: []*discordgo.MessageEmbedField{
 			&discordgo.MessageEmbedField{
@@ -159,6 +176,6 @@ func (d *Discord) EmbedDS(mapa map[string]string, numkz int) discordgo.MessageEm
 				Inline: true,
 			}},
 		Timestamp: time.Now().Format(time.RFC3339), // ТЕКУЩЕЕ ВРЕМЯ ДИСКОРДА
-		Title:     d.storage.Words.GetWords(mapa["lang"], "ocheredKz"),
+		Title:     title,
 	}
 }

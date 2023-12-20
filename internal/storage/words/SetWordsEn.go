@@ -21,7 +21,7 @@ func (w *Words) setWordsEn() {
 	w.en["nujenEsheOdinDlyFulki"] = "need another one for the full line"
 	w.en["sformirovana"] = "formed"
 	w.en["Vigru"] = "in Game"
-	w.en["zakrilOcheredKz"] = "closed the queue of rs"
+	w.en["zakrilOcheredKz"] = " closed the queue of rs"
 	w.en["tiNeVOcheredi"] = "you're out of line"
 	w.en["pokinulOchered"] = " left the queue"
 	w.en["bilaUdalena"] = "was deleted"
@@ -73,4 +73,7 @@ func (w *Words) setWordsEn() {
 	w.en["accessTY"] = "Thanks for activating."
 	w.en["accessYourChannel"] = "your channel is not connected to the bot's logic anyway "
 	w.en["YouDisabledMyFeatures"] = "you disabled my features"
+	w.en["dkz"] = "drs"
+	w.en["ocheredTKz"] = "Queue drs"
+	w.en["zakrilOcheredTKz"] = " closed the queue of drs"
 }

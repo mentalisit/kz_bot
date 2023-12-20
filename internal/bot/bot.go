@@ -80,7 +80,9 @@ func (b *Bot) RemoveMessage() { //цикл для удаления сообще�
 func (b *Bot) LogicRs() {
 	if len(b.in.Mtext) > 0 && b.in.Mtext != " `edit`" {
 		if b.lRsPlus() {
+		} else if b.lDarkRsPlus() {
 		} else if b.lSubs() {
+		} else if b.lDarkSubs() {
 		} else if b.lQueue() {
 		} else if b.lRsStart() {
 		} else if b.lEvent() {

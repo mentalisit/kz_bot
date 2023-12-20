@@ -73,5 +73,8 @@ func (w *Words) setWordsRu() {
 	w.ru["accessTY"] = "Спасибо за активацию."
 	w.ru["accessYourChannel"] = "ваш канал и так не подключен к логике бота "
 	w.ru["YouDisabledMyFeatures"] = "вы отключили мои возможности"
+	w.ru["dkz"] = "ткз"
+	w.ru["ocheredTKz"] = "Очередь ткз"
+	w.ru["zakrilOcheredTKz"] = " закрыл очередь ткз"
 
 }

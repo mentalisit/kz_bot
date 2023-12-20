@@ -73,4 +73,7 @@ func (w *Words) setWordsUa() {
 	w.ua["accessTY"] = "Дякую за активацію."
 	w.ua["accessYourChannel"] = "ваш канал і так не підключений до логіки бота "
 	w.ua["YouDisabledMyFeatures"] = "ви відключили мої можливості"
+	w.ua["dkz"] = "тчз"
+	w.ua["ocheredTKz"] = "Черга тчз"
+	w.ua["zakrilOcheredTKz"] = "  закрив чергу тчз"
 }
