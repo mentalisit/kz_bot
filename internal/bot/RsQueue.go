@@ -37,14 +37,21 @@ func (b *Bot) QueueLevel() {
 	var n map[string]string
 	n = make(map[string]string)
 	n["lang"] = b.in.Config.Country
+	darkStar, lvlkz := containsSymbolD(b.in.Lvlkz)
 
+	if darkStar {
+		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+lvlkz, b.in.Config.Guildid)
+	} else {
+		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+	}
+	fmt.Println("ochered ", b.in.Lvlkz)
 	if count == 1 {
 
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 1, false)
 				if b.in.Option.Edit {
 					errr := b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -80,31 +87,12 @@ func (b *Bot) QueueLevel() {
 				b.wg.Done()
 			}()
 		}
-		if b.in.Config.WaChannel != "" {
-			//b.wg.Add(1)
-			//go func() {
-			//	text1 := fmt.Sprintf("Очередь кз%s (%d)\n", b.in.Lvlkz, numberLvl)
-			//	name1 := fmt.Sprintf("1. %s - %dмин. (%d) \n", b.emReadName(u.User1.Name, wa), u.User1.Timedown, u.User1.Numkzn)
-			//	text2 := fmt.Sprintf("\n%s++ - принудительный старт", b.in.Lvlkz)
-			//	text := fmt.Sprintf("%s %s %s", text1, name1, text2)
-			//	wamesid, errs := b.Wa.Send(b.in.Config.WaChannel, text)
-			//	if errs != nil {
-			//		b.log.Println("error sending rsQueue1")
-			//	}
-			//	b.Db.Update.MesidWaUpdate(wamesid, b.in.Lvlkz, b.in.Config.CorpName)
-			//	b.Wa.DeleteMessage(b.in.Config.WaChannel, u.User1.Wamesid)
-			//	b.wg.Done()
-			//}()
-		}
-
 	} else if count == 2 {
-
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 2, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -150,7 +138,6 @@ func (b *Bot) QueueLevel() {
 				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
 				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, ds), u.User3.Timedown, u.User3.Numkzn)
-				n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 3, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)

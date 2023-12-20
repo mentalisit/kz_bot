@@ -32,13 +32,14 @@ func (b *Bot) lDarkRsPlus() bool {
 	re2 := regexp.MustCompile(`^([7-9]|[1][0-2])([\*]|[-])$`) // две переменные
 	arr2 := (re2.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr2) > 0 {
+		fmt.Println(b.in.Mtext)
 		kz = true
 		b.in.Lvlkz = dark + arr2[0][1]
 		kzb = arr2[0][2]
 		b.in.Timekz = "30"
 	}
 	switch kzb {
-	case "+":
+	case "*":
 		b.RsDarkPlus()
 	case "-":
 		b.RsMinus()
@@ -50,7 +51,7 @@ func (b *Bot) lDarkRsPlus() bool {
 func (b *Bot) RsDarkPlus() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	if b.debug {
+	if !b.debug {
 		fmt.Printf("\n\nin RsDarkPlus %+v\n", b.in)
 	}
 	b.iftipdelete()
@@ -71,23 +72,26 @@ func (b *Bot) RsDarkPlus() {
 		if err2 != nil {
 			return
 		}
+		fmt.Println("  RsDarkPlus77 ", b.in.Lvlkz)
 		numkzL, err3 := b.storage.DbFunc.NumberQueueLvl(ctx, b.in.Lvlkz, b.in.Config.CorpName) //проверяем какой номер боя определенной красной звезды
 		if err3 != nil {
 			return
 		}
+		fmt.Println("  RsDarkPlus82 ", b.in.Lvlkz)
 
 		dsmesid := ""
 		tgmesid := 0
 		var n map[string]string
 		n = make(map[string]string)
 		n["lang"] = b.in.Config.Country
-
+		fmt.Println("  RsDarkPlus86 ", b.in.Lvlkz)
 		if countQueue == 0 {
+			fmt.Println("  RsDarkPlus0 ", b.in.Lvlkz)
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz, b.in.Config.Guildid)
+					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, true)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
@@ -102,9 +106,9 @@ func (b *Bot) RsDarkPlus() {
 					text := fmt.Sprintf("%s%s (%d)\n"+
 						"1. %s - %s%s (%d) \n\n"+
 						"%s++ - %s",
-						b.GetLang("ocheredTKz"), b.in.Lvlkz, numkzL,
+						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], numkzL,
 						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN,
-						b.in.Lvlkz, b.GetLang("prinuditelniStart"))
+						b.in.Lvlkz[1:], b.GetLang("prinuditelniStart"))
 					tgmesid = b.client.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
 					b.SubscribePing(1)
 					b.wg.Done()
@@ -122,7 +126,7 @@ func (b *Bot) RsDarkPlus() {
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz, b.in.Config.Guildid)
+					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, true)
 					text := n["lvlkz"] + " 2/3 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
@@ -173,7 +177,7 @@ func (b *Bot) RsDarkPlus() {
 						" %s\n"+
 						" %s\n"+
 						"%s %s",
-						b.GetLang("ocheredTKz"), b.in.Lvlkz, b.GetLang("sformirovana"),
+						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
 						b.emReadName(n1, ds),
 						b.emReadName(n2, ds),
 						b.emReadName(n3, ds),
@@ -194,14 +198,14 @@ func (b *Bot) RsDarkPlus() {
 					n1, n2, n3, _ := b.nameMention(u, tg)
 					go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 					go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel,
-						b.in.Name+b.GetLang("zakrilOcheredTKz")+b.in.Lvlkz, 10)
+						b.in.Name+b.GetLang("zakrilOcheredTKz")+b.in.Lvlkz[1:], 10)
 					text := fmt.Sprintf("%s%s %s\n"+
 						"%s\n"+
 						"%s\n"+
 						"%s\n"+
 						" %s \n"+
 						"%s",
-						b.GetLang("ocheredTKz"), b.in.Lvlkz, b.GetLang("sformirovana"),
+						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
 						n1, n2, n3,
 						b.GetLang("Vigru"), textEvent)
 					tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)

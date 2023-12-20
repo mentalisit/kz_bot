@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/utils"
+	"strings"
 )
 
 // lang
@@ -133,4 +134,17 @@ func (b *Bot) hhelp() {
 
 func (b *Bot) GetLang(key string) string {
 	return b.storage.Words.GetWords(b.in.Config.Country, key)
+}
+
+func containsSymbolD(s string) (dark bool, result string) {
+	for _, char := range s {
+		if char == 'd' {
+			dark = true
+		}
+	}
+	if dark {
+		result = strings.Replace(s, "d", "", -1)
+	}
+
+	return dark, result
 }
