@@ -191,6 +191,13 @@ func (b *Bot) lRsStart() (bb bool) {
 		bb = true
 		b.Pl30()
 	}
+	rePd := regexp.MustCompile(`^(d)([3-9]|[1][0-2])([\+][\+][\+])$`) //p30pl
+	arrPd := (rePd.FindAllStringSubmatch(b.in.Mtext, -1))
+	if len(arrPd) > 0 {
+		b.in.Lvlkz = "d" + arrPd[0][2]
+		bb = true
+		b.Pl30()
+	}
 	re5d := regexp.MustCompile(`^(d)([7-9]|[1][0-2])([\+][\+])$`) //rs start
 	arr5d := (re5d.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr5d) > 0 {
