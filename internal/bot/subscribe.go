@@ -73,7 +73,11 @@ func (b *Bot) Unsubscribe(tipPing int) {
 	defer cancel()
 
 	if b.in.Tip == ds {
+		d, result := containsSymbolD(b.in.Lvlkz)
 		argRoles := b.GetLang("kz") + b.in.Lvlkz
+		if d {
+			argRoles = b.GetLang("dkz") + result
+		}
 		if tipPing == 3 {
 			argRoles = b.GetLang("kz") + b.in.Lvlkz + "+"
 		}
