@@ -195,8 +195,8 @@ func (b *Bot) lRsStart() (bb bool) {
 	arr5d := (re5d.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr5d) > 0 {
 		bb = true
-		b.in.Lvlkz = "d" + arr5[0][2]
-		rss = arr5[0][3]
+		b.in.Lvlkz = "d" + arr5d[0][2]
+		rss = arr5d[0][3]
 	}
 	if rss == "++" {
 		b.RsStart()

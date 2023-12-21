@@ -83,26 +83,22 @@ func (b *Bot) RsDarkPlus() {
 		if err2 != nil {
 			return
 		}
-		fmt.Println("  RsDarkPlus77 ", b.in.Lvlkz)
 		numkzL, err3 := b.storage.DbFunc.NumberQueueLvl(ctx, b.in.Lvlkz, b.in.Config.CorpName) //проверяем какой номер боя определенной красной звезды
 		if err3 != nil {
 			return
 		}
-		fmt.Println("  RsDarkPlus82 ", b.in.Lvlkz)
 
 		dsmesid := ""
 		tgmesid := 0
 		var n map[string]string
 		n = make(map[string]string)
 		n["lang"] = b.in.Config.Country
-		fmt.Println("  RsDarkPlus86 ", b.in.Lvlkz)
+		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
 		if countQueue == 0 {
-			fmt.Println("  RsDarkPlus0 ", b.in.Lvlkz)
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, true)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
@@ -137,7 +133,6 @@ func (b *Bot) RsDarkPlus() {
 				go func() {
 					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
 					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
-					n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, true)
 					text := n["lvlkz"] + " 2/3 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
