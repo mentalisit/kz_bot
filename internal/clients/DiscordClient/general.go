@@ -143,13 +143,13 @@ func (d *Discord) EditMessage(chatID, messageID, content string) {
 func (d *Discord) EmbedDS(mapa map[string]string, numkz int, count int, dark bool) discordgo.MessageEmbed {
 	textcount := ""
 	if count == 1 {
-		textcount = fmt.Sprintf("\n1️⃣ %s \n",
+		textcount = fmt.Sprintf("\n1️⃣ %s \n\n",
 			mapa["name1"])
 	} else if count == 2 {
-		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n",
+		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n\n",
 			mapa["name1"], mapa["name2"])
 	} else if count == 3 {
-		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n",
+		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n\n",
 			mapa["name1"], mapa["name2"], mapa["name3"])
 	} else {
 		textcount = fmt.Sprintf("\n1️⃣ %s \n2️⃣ %s \n3️⃣ %s \n4️⃣ %s \n",

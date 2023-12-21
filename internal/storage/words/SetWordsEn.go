@@ -66,7 +66,9 @@ func (w *Words) setWordsEn() {
 	w.en["DlyaDobavleniya"] = "to add to the queue"
 	w.en["DlyaVihodaIz"] = "to exit the queue"
 	w.en["DannieObnovleni"] = "Data updated"
-	w.en["hhelpText"] = "Get in line: [4-11]+ or\n  [4-11]+[specify timeout in minutes]\n(rs level)+(waiting time)\n  9+ stand in line for short circuit 9level.\n  9 + 60 get on short circuit 9level, waiting time is not more than 60 minutes.\nLeave queue: [4-11] -\n  9- exit the queue RS 9level.\nView list of active queues: q[4-11]\n  q9 output queue for your rs\nGet Role Rs: + [5-11]\n  +9 get the role of RS lvl 9.\n  -9 remove the role"
+	w.en["hhelpText"] = "Get in line: [4-11]+ or\n  [4-11]+[specify timeout in minutes]\n(rs level)+(waiting time)\n  9+ stand in line for short circuit 9level.\n  9 + 60 get on short circuit 9level, waiting time is not more than 60 minutes.\nLeave queue: [4-11] -\n  9- exit the queue RS 9level.\nView list of active queues: q[4-11]\n  q9 output queue for your rs\n" +
+		"Get Role Rs: + [5-11]\n  +9 get the role of RS lvl 9.\n  -9 remove the role" +
+		"For Dark Red Stars\nTo start the queue\n  9*\nTo get a role\n  +d9"
 	w.en["spravka"] = "Reference"
 	w.en["botUdalyaet"] = "ATTENTION BOT DELETE MESSAGES\n  FROM USERS IN 3 MINUTES"
 	w.en["accessAlready"] = "I can already work on your channel\nre-activation is not required.\nwrite Help"

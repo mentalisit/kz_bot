@@ -62,7 +62,7 @@ func (b *Bot) lDarkRsPlus() bool {
 func (b *Bot) RsDarkPlus() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	if !b.debug {
+	if b.debug {
 		fmt.Printf("\n\nin RsDarkPlus %+v\n", b.in)
 	}
 	b.iftipdelete()
