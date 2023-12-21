@@ -238,7 +238,7 @@ func (b *Bot) lDarkSubs() (bb bool) {
 	re3 := regexp.MustCompile(`^([\+]|[-])(d)([7-9]|[1][0-2])$`) // две переменные для добавления или удаления подписок
 	arr3 := (re3.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr3) > 0 {
-		b.in.Lvlkz = arr3[0][3]
+		b.in.Lvlkz = "d" + arr3[0][3]
 		subs = arr3[0][1]
 		bb = true
 	}
@@ -247,7 +247,7 @@ func (b *Bot) lDarkSubs() (bb bool) {
 	arr6 := (re6.FindAllStringSubmatch(b.in.Mtext, -1))                 // для добавления или удаления подписок 2/3
 	if len(arr6) > 0 {
 		bb = true
-		b.in.Lvlkz = arr6[0][3]
+		b.in.Lvlkz = "d" + arr6[0][3]
 		subs = arr6[0][1]
 	}
 
