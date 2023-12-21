@@ -174,7 +174,7 @@ func (b *Bot) RsDarkPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n1, n2, n3, _ := b.nameMention(u, ds)
+					n1, n2, _, _ := b.nameMention(u, ds)
 					go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel,
 						" 3/3 "+b.in.Name+" "+b.GetLang("prisoedenilsyKocheredi"), 10)
@@ -184,9 +184,9 @@ func (b *Bot) RsDarkPlus() {
 						" %s\n"+
 						"%s %s",
 						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
-						b.emReadName(n1, ds),
-						b.emReadName(n2, ds),
-						b.emReadName(n3, ds),
+						n1,
+						n2,
+						b.in.NameMention,
 						b.GetLang("Vigru"), textEvent)
 
 					if b.in.Tip == ds {
@@ -201,7 +201,7 @@ func (b *Bot) RsDarkPlus() {
 			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n1, n2, n3, _ := b.nameMention(u, tg)
+					n1, n2, _, _ := b.nameMention(u, tg)
 					go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 					go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel,
 						b.in.Name+b.GetLang("zakrilOcheredTKz")+b.in.Lvlkz[1:], 10)
@@ -212,7 +212,7 @@ func (b *Bot) RsDarkPlus() {
 						" %s \n"+
 						"%s",
 						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
-						n1, n2, n3,
+						n1, n2, b.in.NameMention,
 						b.GetLang("Vigru"), textEvent)
 					tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
 					b.storage.Update.MesidTgUpdate(ctx, tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
@@ -225,7 +225,7 @@ func (b *Bot) RsDarkPlus() {
 			b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, "", numkzL, numberevent, b.in.Config.CorpName)
 
 			//проверка есть ли игрок в других чатах
-			user := []string{u.User1.Name, u.User2.Name, u.User3.Name, b.in.Name}
+			user := []string{u.User1.Name, u.User2.Name, b.in.Name}
 			go b.elseChat(user)
 
 		}

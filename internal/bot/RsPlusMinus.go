@@ -229,10 +229,10 @@ func (b *Bot) RsPlus() {
 						" %s\n"+
 						"%s %s",
 						b.GetLang("ocheredKz"), b.in.Lvlkz, b.GetLang("sformirovana"),
-						b.emReadName(n1, ds),
-						b.emReadName(n2, ds),
-						b.emReadName(n3, ds),
-						b.emReadName(n4, ds),
+						n1,
+						n2,
+						n3,
+						n4,
 						b.GetLang("Vigru"), textEvent)
 
 					if b.in.Tip == ds {

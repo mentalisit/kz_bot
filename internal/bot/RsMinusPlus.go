@@ -33,6 +33,11 @@ func (b *Bot) Plus() bool {
 			b.QueueLevel()
 		}
 		b.ifTipSendTextDelSecond(message, 10)
+		if b.in.Tip == ds {
+			b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		} else if b.in.Tip == tg {
+			b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
+		}
 	}
 	return ins
 }
@@ -55,6 +60,11 @@ func (b *Bot) Minus() bool {
 		} else if t.Name == b.in.Name && t.Timedown <= 3 {
 			b.in.Lvlkz = t.Lvlkz
 			b.RsMinus()
+		}
+		if b.in.Tip == ds {
+			b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		} else if b.in.Tip == tg {
+			b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		}
 
 	}

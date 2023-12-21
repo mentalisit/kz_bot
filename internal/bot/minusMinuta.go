@@ -105,10 +105,10 @@ func (b *Bot) CheckTimeQueue() {
 		text := b.in.NameMention + b.GetLang("VremyaPochtiVishlo")
 		if b.in.Tip == ds {
 			mID := b.client.Ds.SendEmbedTime(b.in.Config.DsChannel, text)
-			go b.client.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 182)
+			go b.client.Ds.DeleteMesageSecond(b.in.Config.DsChannel, mID, 180)
 		} else if b.in.Tip == tg {
 			mID := b.client.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
-			go b.client.Tg.DelMessageSecond(b.in.Config.TgChannel, strconv.Itoa(mID), 182)
+			go b.client.Tg.DelMessageSecond(b.in.Config.TgChannel, strconv.Itoa(mID), 180)
 		} else if b.in.Tip == wa {
 			//b.client.Wa.SendMention(b.in.Config.WaChannel, b.in.NameMention+" время почти вышло...\n"+
 			//	"Для продления времени ожидания на 30м пиши +\n"+

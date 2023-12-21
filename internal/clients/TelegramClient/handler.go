@@ -96,6 +96,7 @@ func (t *Telegram) handleDownload(message *tgbotapi.Message) (url string) {
 		message.Text += " файл слишком большой для пересылки"
 		return ""
 	}
+
 	return url
 }
 

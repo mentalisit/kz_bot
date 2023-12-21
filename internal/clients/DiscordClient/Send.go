@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"io"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
-	"net/http"
-	"path/filepath"
+	"kz_bot/pkg/utils"
 	"time"
 )
 
@@ -91,19 +89,9 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 	return message.ID
 }
 func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar string) string {
-	// Скачиваем файл по URL
-	resp, err := http.Get(fileURL)
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-	fileName := filepath.Base(fileURL)
-	// Читаем содержимое файла
-	buffer := new(bytes.Buffer)
-	_, err = io.Copy(buffer, resp.Body)
-	if err != nil {
-		return ""
-	}
+	fileName, i := utils.Convert(fileURL)
+	// convert byte slice to io.Reader
+	reader := bytes.NewReader(i)
 
 	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
 
@@ -113,9 +101,9 @@ func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar s
 		Username:  username,
 		AvatarURL: Avatar,
 		Files: []*discordgo.File{{
-			Name:        fileName, // Имя файла, которое будет видно в Discord
-			Reader:      buffer,
-			ContentType: resp.Header.Get("Content-type"),
+			Name:   fileName, // Имя файла, которое будет видно в Discord
+			Reader: reader,
+			//ContentType: resp.Header.Get("Content-type"),
 		},
 		},
 	}

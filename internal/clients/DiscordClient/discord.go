@@ -44,6 +44,5 @@ func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	ds.AddHandler(DS.onMessageDelete)
 	ds.AddHandler(DS.slash)
 	ds.AddHandler(DS.ready)
-
 	return DS
 }
