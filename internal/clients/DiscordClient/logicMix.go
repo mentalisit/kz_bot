@@ -64,7 +64,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 			} else if r.Emoji.Name == emMinus {
 				in.Mtext = "-"
 			} else if r.Emoji.Name == emOK || r.Emoji.Name == emCancel || r.Emoji.Name == emRsStart || r.Emoji.Name == emPl30 {
-				ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
 				in.Lvlkz, err = d.storage.DbFunc.ReadMesIdDS(ctx, r.MessageID)
 				if err == nil && in.Lvlkz != "" {

@@ -38,8 +38,19 @@ func (b *Bot) lDarkRsPlus() bool {
 		kzb = arr2[0][2]
 		b.in.Timekz = "30"
 	}
+	re2d := regexp.MustCompile(`^(d)([7-9]|[1][0-2])([\+]|[-])$`) // две переменные
+	arr2d := (re2d.FindAllStringSubmatch(b.in.Mtext, -1))
+	if len(arr2d) > 0 {
+		fmt.Println(b.in.Mtext)
+		kz = true
+		b.in.Lvlkz = dark + arr2d[0][2]
+		kzb = arr2d[0][3]
+		b.in.Timekz = "30"
+	}
 	switch kzb {
 	case "*":
+		b.RsDarkPlus()
+	case "+":
 		b.RsDarkPlus()
 	case "-":
 		b.RsMinus()
