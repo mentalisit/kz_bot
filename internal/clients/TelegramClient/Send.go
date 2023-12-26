@@ -7,7 +7,6 @@ import (
 	"kz_bot/internal/models"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -19,13 +18,13 @@ func (t *Telegram) SendEmded(lvlkz string, chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendEmded_ParseInt ", err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Println(err)
+			t.log.Println("SendEmded_Atoi ", err)
 		}
 	}
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -48,13 +47,13 @@ func (t *Telegram) SendEmbedTime(chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendEmbedTime", err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Println(err)
+			t.log.Println("SendEmbedTimeAtoi", err)
 		}
 	}
 
@@ -77,13 +76,13 @@ func (t *Telegram) SendChannel(chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendChannelParseInt ", err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Println(err)
+			t.log.Println("SendChannelAtoi ", err)
 		}
 	}
 	m := tgbotapi.NewMessage(chatId, text)
@@ -96,20 +95,20 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendChannelDelSecondP", err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Println(err)
+			t.log.Println("SendChannelDelSecondA", err)
 		}
 	}
 	m := tgbotapi.NewMessage(chatId, text)
 	m.MessageThreadID = ThreadID
 	tMessage, err1 := t.t.Send(m)
 	if err1 != nil {
-		t.log.Println(err)
+		t.log.Println("SendChannelDelSecond", err1)
 	}
 	if second <= 60 {
 		go func() {
@@ -129,19 +128,19 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendFileFromURL ParseInt", err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Println(err)
+			t.log.Println("SendFileFromURL Atoi ", err)
 		}
 	}
 
 	parsedURL, err := url.Parse(fileURL)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendFileFromURL parseUrl", err)
 		return 0
 	}
 
@@ -153,7 +152,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	// Скачиваем файл по URL
 	resp, err := http.Get(fileURL)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendFileFromURL Get", err)
 		return 0
 	}
 	defer resp.Body.Close()
@@ -162,7 +161,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	buffer := new(bytes.Buffer)
 	_, err = io.Copy(buffer, resp.Body)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendFileFromURL ioCopy", err)
 		return 0
 	}
 	var media []interface{}
@@ -214,67 +213,68 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	}
 	m, err := t.t.SendMediaGroup(mg)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("SendFileFromURL SendMediaGroup", err)
 		return 0
 	}
 	return m[0].MessageID
 }
-func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {
-	a := strings.SplitN(chatID, "/", 2)
-	chatId, err := strconv.ParseInt(a[0], 10, 64)
-	if err != nil {
-		t.log.Println(err)
-	}
-	ThreadID := 0
-	if len(a) > 1 {
-		ThreadID, err = strconv.Atoi(a[1])
-		if err != nil {
-			t.log.Println(err)
-		}
-	}
-	format := filepath.Ext(photoURL)
-	if format != ".jpg" || format != ".jpe" || format != ".png" {
-		return
-	}
 
-	// Получаем содержимое фотографии по URL
-	response, err := http.Get(photoURL)
-	if err != nil {
-		t.log.Println(err)
-	}
-	defer response.Body.Close()
-
-	fileName := filepath.Base(photoURL)
-
-	// Создаем временный файл для сохранения фотографии
-	tempFile, err := os.Create(fileName)
-	if err != nil {
-		t.log.Println(err)
-	}
-
-	// Копируем содержимое фотографии из ответа HTTP во временный файл
-	_, err = io.Copy(tempFile, response.Body)
-	if err != nil {
-		t.log.Println(err)
-	}
-	tempFile.Close()
-
-	// Создаем объект сообщения с фотографией
-	msg := tgbotapi.NewPhoto(chatId, tgbotapi.FilePath(fileName))
-	msg.Caption = text
-	msg.MessageThreadID = ThreadID
-
-	_, err = t.t.Send(msg)
-	if err != nil {
-		t.log.Println(err)
-		return
-	}
-	err = os.Remove(fileName)
-	if err != nil {
-		t.log.Println(err)
-		return
-	}
-}
+//func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {
+//	a := strings.SplitN(chatID, "/", 2)
+//	chatId, err := strconv.ParseInt(a[0], 10, 64)
+//	if err != nil {
+//		t.log.Println(err)
+//	}
+//	ThreadID := 0
+//	if len(a) > 1 {
+//		ThreadID, err = strconv.Atoi(a[1])
+//		if err != nil {
+//			t.log.Println(err)
+//		}
+//	}
+//	format := filepath.Ext(photoURL)
+//	if format != ".jpg" || format != ".jpe" || format != ".png" {
+//		return
+//	}
+//
+//	// Получаем содержимое фотографии по URL
+//	response, err := http.Get(photoURL)
+//	if err != nil {
+//		t.log.Println(err)
+//	}
+//	defer response.Body.Close()
+//
+//	fileName := filepath.Base(photoURL)
+//
+//	// Создаем временный файл для сохранения фотографии
+//	tempFile, err := os.Create(fileName)
+//	if err != nil {
+//		t.log.Println(err)
+//	}
+//
+//	// Копируем содержимое фотографии из ответа HTTP во временный файл
+//	_, err = io.Copy(tempFile, response.Body)
+//	if err != nil {
+//		t.log.Println(err)
+//	}
+//	tempFile.Close()
+//
+//	// Создаем объект сообщения с фотографией
+//	msg := tgbotapi.NewPhoto(chatId, tgbotapi.FilePath(fileName))
+//	msg.Caption = text
+//	msg.MessageThreadID = ThreadID
+//
+//	_, err = t.t.Send(msg)
+//	if err != nil {
+//		t.log.Println(err)
+//		return
+//	}
+//	err = os.Remove(fileName)
+//	if err != nil {
+//		t.log.Println(err)
+//		return
+//	}
+//}
 
 //	func (t *Telegram) UploadFile(msg *config.Message, chatid int64, threadid int, parentID int) (string, error) {
 //		var media []interface{}

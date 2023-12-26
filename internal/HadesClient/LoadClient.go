@@ -47,7 +47,7 @@ func (h *Hades) reloadConsoleClient() {
 		}
 		err = os.Chdir("..")
 		if err != nil {
-			h.log.Println(err.Error())
+			h.log.Println("reloadConsoleClient" + err.Error())
 		}
 	}
 }

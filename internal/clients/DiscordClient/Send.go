@@ -177,7 +177,7 @@ func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar strin
 	}
 	mes, err := web.Send(chatid, pp)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Println("ошибка отправки вебхука..недостаточно разрешений", err)
 		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
 		return ""
 	}

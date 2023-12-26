@@ -270,7 +270,7 @@ func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config models.
 	sel := "SELECT * FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, dsmesid)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Println("MessageupdateDS", err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -307,7 +307,7 @@ func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config models.Cor
 	sel := "SELECT * FROM kzbot.sborkz WHERE tgmesid = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, tgmesid)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Println("MessageupdateTG", err)
 	}
 	var t models.Sborkz
 	for results.Next() {

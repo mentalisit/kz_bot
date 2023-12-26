@@ -16,7 +16,7 @@ func (d *Db) EmReadUsers(ctx context.Context, name, tip string) models.EmodjiUse
 	for results.Next() {
 		err = results.Scan(&t.Id, &t.Tip, &t.Name, &t.Em1, &t.Em2, &t.Em3, &t.Em4)
 		if err != nil {
-			d.log.Println(err)
+			d.log.Println("EmReadUsers", err)
 		}
 	}
 	return t

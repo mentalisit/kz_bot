@@ -34,7 +34,7 @@ func NewServer(togames chan models.MessageHadesClient, tomess chan models.Messag
 func (s *Server) start() {
 	err := http.ListenAndServe(fmt.Sprintf(":8888"), nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("start", err)
 		return
 	}
 }

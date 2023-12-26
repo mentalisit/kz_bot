@@ -41,7 +41,7 @@ func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit str
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("EditMessageTextKey", err)
 	}
 
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -67,7 +67,7 @@ func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("EditText", err)
 	}
 	_, err = t.t.Send(tgbotapi.NewEditMessageText(chatId, editMesId, textEdit))
 	if err != nil {
@@ -79,7 +79,7 @@ func (t *Telegram) CheckAdminTg(chatid string, name string) bool {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("CheckAdminTg", err)
 	}
 	admins, err := t.t.GetChatAdministrators(tgbotapi.ChatAdministratorsConfig{ChatConfig: struct {
 		ChatID             int64
@@ -142,7 +142,7 @@ func (t *Telegram) ChatName(chatid string) string {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println(err)
+		t.log.Println("ChatName", err)
 	}
 	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
 		ChatID             int64
