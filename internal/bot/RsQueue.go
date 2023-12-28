@@ -38,12 +38,14 @@ func (b *Bot) QueueLevel() {
 	n = make(map[string]string)
 	n["lang"] = b.in.Config.Country
 	darkStar, lvlkz := containsSymbolD(b.in.Lvlkz)
-
-	if darkStar {
-		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+lvlkz, b.in.Config.Guildid)
-	} else {
-		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+	if b.in.Config.DsChannel != "" {
+		if darkStar {
+			n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+lvlkz, b.in.Config.Guildid)
+		} else {
+			n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+		}
 	}
+
 	fmt.Println("ochered ", b.in.Lvlkz)
 	if count == 1 {
 
