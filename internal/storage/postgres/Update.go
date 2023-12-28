@@ -19,6 +19,7 @@ func (d *Db) MesidDsUpdate(ctx context.Context, mesidds, lvlkz, corpname string)
 	if d.debug {
 		fmt.Println("MesidDsUpdate", "mesidds", mesidds, "lvlkz", lvlkz, "corpname", corpname)
 	}
+	ctx = context.Background()
 	upd := `update kzbot.sborkz set dsmesid = $1 where lvlkz = $2 AND corpname = $3 `
 	_, err := d.db.Exec(ctx, upd, mesidds, lvlkz, corpname)
 	if err != nil {
