@@ -9,7 +9,7 @@ import (
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 	res := strings.HasPrefix(m.Text, ".")
-	ThreadID := 0
+	ThreadID := m.MessageThreadID
 	if !m.IsTopicMessage && m.MessageThreadID != 0 {
 		ThreadID = 0
 	}
