@@ -32,10 +32,10 @@ func (b *Bridge) inbox() {
 	for {
 		select {
 		case b.in = <-b.client.Ds.ChanBridgeMessage:
-			fmt.Printf(" in BridgeMessage ds  %+v\n", b.in)
+			fmt.Printf(" in BridgeMessage ds  %+v\n DS:%+v\n Config:%+v\n", b.in, b.in.Ds, b.in.Config)
 			b.logic()
 		case b.in = <-b.client.Tg.ChanBridgeMessage:
-			fmt.Printf(" in BridgeMessage tg  %+v\n", b.in)
+			fmt.Printf(" in BridgeMessage tg  %+v\n TG:%+v\n Config:%+v\n", b.in, b.in.Tg, b.in.Config)
 			b.logic()
 		}
 	}
