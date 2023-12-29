@@ -80,4 +80,5 @@ func (w *Words) setWordsUa() {
 	w.ua["dkz"] = "тчз"
 	w.ua["ocheredTKz"] = "Черга тчз"
 	w.ua["zakrilOcheredTKz"] = "  закрив чергу тчз"
+	w.ua["vashLanguage"] = "Ви переключили мене на українську мову"
 }

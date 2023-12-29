@@ -39,6 +39,9 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 			if d.CleanOldMessage(m) {
 				return
 			}
+			if d.setLang(m) {
+				return
+			}
 		}
 	}
 }
@@ -75,6 +78,31 @@ func (d *Discord) CleanOldMessage(m *discordgo.MessageCreate) bool {
 	if len(matches) > 0 {
 		fmt.Println("limitMessage " + matches[1])
 		d.CleanOldMessageChannel(m.ChannelID, matches[1])
+		return true
+	}
+	return false
+}
+func (d *Discord) setLang(m *discordgo.MessageCreate) bool {
+	re := regexp.MustCompile(`^\.set lang (ru|en|ua)$`)
+	matches := re.FindStringSubmatch(m.Content)
+	if len(matches) > 0 {
+		langUpdate := matches[1]
+		ok, config := d.CheckChannelConfigDS(m.ChannelID)
+		if ok {
+			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
+			if config.MesidDsHelp != "" {
+				go d.DeleteMessage(config.DsChannel, config.MesidDsHelp)
+			}
+			config.Country = langUpdate
+			d.corpConfigRS[config.CorpName] = config
+			config.MesidDsHelp = d.hhelp1(config.DsChannel)
+
+			d.corpConfigRS[config.CorpName] = config
+			d.storage.ConfigRs.AutoHelpUpdateMesid(config)
+			go d.SendChannelDelSecond(m.ChannelID, d.storage.Words.GetWords(config.Country, "vashLanguage"), 20)
+			d.log.Info(fmt.Sprintf("замена языка в %s на %s", config.CorpName, config.Country))
+		}
+
 		return true
 	}
 	return false

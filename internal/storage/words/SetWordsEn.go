@@ -78,4 +78,5 @@ func (w *Words) setWordsEn() {
 	w.en["dkz"] = "drs"
 	w.en["ocheredTKz"] = "Queue drs"
 	w.en["zakrilOcheredTKz"] = " closed the queue of drs"
+	w.en["vashLanguage"] = "You switched me to English"
 }

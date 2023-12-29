@@ -85,5 +85,6 @@ func (w *Words) setWordsRu() {
 	w.ru["dkz"] = "ткз"
 	w.ru["ocheredTKz"] = "Очередь ткз"
 	w.ru["zakrilOcheredTKz"] = " закрыл очередь ткз"
+	w.ru["vashLanguage"] = "Вы переключили меня на Русский язык"
 
 }

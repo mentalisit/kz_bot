@@ -3,6 +3,7 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -37,6 +38,10 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 		case ".видалити":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 			t.accessDelChannelTg(ChatId)
+		default:
+			if t.setLang(m, ChatId) {
+				return
+			}
 		}
 	}
 }
@@ -62,4 +67,23 @@ func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с б�
 		t.log.Info("отключение корпорации " + t.ChatName(chatid))
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(config.Country, "YouDisabledMyFeatures"), 60)
 	}
+}
+func (t *Telegram) setLang(m *tgbotapi.Message, chatid string) bool {
+	re := regexp.MustCompile(`^\.set lang (ru|en|ua)$`)
+	matches := re.FindStringSubmatch(m.Text)
+	if len(matches) > 0 {
+		langUpdate := matches[1]
+		ok, config := t.CheckChannelConfigTG(chatid)
+		if ok {
+			go t.DelMessageSecond(chatid, strconv.Itoa(m.MessageID), 10)
+			config.Country = langUpdate
+			t.corpConfigRS[config.CorpName] = config
+			t.storage.ConfigRs.AutoHelpUpdateMesid(config)
+			go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(config.Country, "vashLanguage"), 20)
+			t.log.Info(fmt.Sprintf("замена языка в %s на %s", config.CorpName, config.Country))
+		}
+
+		return true
+	}
+	return false
 }
