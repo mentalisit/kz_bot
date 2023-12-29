@@ -19,25 +19,25 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 		switch m.Text {
 		case ".add":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessAddChannelTg(ChatId, "en")
+			t.accessAddChannelTg(ChatId, "en", m)
 		case ".добавить":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessAddChannelTg(ChatId, "ru")
+			t.accessAddChannelTg(ChatId, "ru", m)
 		case ".добавитьт":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessAddChannelTg(ChatId, "dru")
+			t.accessAddChannelTg(ChatId, "dru", m)
 		case ".додати":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessAddChannelTg(ChatId, "ua")
+			t.accessAddChannelTg(ChatId, "ua", m)
 		case ".del":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessDelChannelTg(ChatId)
+			t.accessDelChannelTg(ChatId, m)
 		case ".удалить":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessDelChannelTg(ChatId)
+			t.accessDelChannelTg(ChatId, m)
 		case ".видалити":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessDelChannelTg(ChatId)
+			t.accessDelChannelTg(ChatId, m)
 		default:
 			if t.setLang(m, ChatId) {
 				return
@@ -45,18 +45,21 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 		}
 	}
 }
-func (t *Telegram) accessAddChannelTg(chatid, lang string) { // внесение в дб и добавление в масив
+func (t *Telegram) accessAddChannelTg(chatid, lang string, m *tgbotapi.Message) { // внесение в дб и добавление в масив
 	ok, _ := t.CheckChannelConfigTG(chatid)
 	if ok {
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(lang, "accessAlready"), 20)
 	} else {
 		chatName := t.ChatName(chatid)
+		if m.IsTopicMessage && m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated != nil {
+			chatName = fmt.Sprintf(" %s/%s", chatName, m.ReplyToMessage.ForumTopicCreated.Name)
+		}
 		t.AddTgCorpConfig(chatName, chatid, lang)
 		t.log.Info("новая активация корпорации " + chatName)
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(lang, "accessTY"), 60)
 	}
 }
-func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с бд и масива для блокировки
+func (t *Telegram) accessDelChannelTg(chatid string, m *tgbotapi.Message) { //удаление с бд и масива для блокировки
 	ok, config := t.CheckChannelConfigTG(chatid)
 	if !ok {
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords("ru", "accessYourChannel"), 60)
@@ -64,7 +67,11 @@ func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с б�
 		t.storage.ConfigRs.DeleteConfigRs(config)
 		t.storage.ReloadDbArray()
 		t.corpConfigRS = t.storage.CorpConfigRS
-		t.log.Info("отключение корпорации " + t.ChatName(chatid))
+		chatName := t.ChatName(chatid)
+		if m.IsTopicMessage && m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated != nil {
+			chatName = fmt.Sprintf(" %s/%s", chatName, m.ReplyToMessage.ForumTopicCreated.Name)
+		}
+		t.log.Info("отключение корпорации " + chatName)
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(config.Country, "YouDisabledMyFeatures"), 60)
 	}
 }
