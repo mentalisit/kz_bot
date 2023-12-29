@@ -28,11 +28,15 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 	}
 }
 func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
-
-	//good, config := d.storage.CorpsConfig.RelayCache.CheckChannelConfigDS(m.ChannelID)
-	//if good {
-	//	d.deleteMessageRelayChat(m.ID, config)
-	//}
+	good, _ := d.BridgeCheckChannelConfigDS(m.ChannelID)
+	if good {
+		d.ChanBridgeMessage <- models.BridgeMessage{
+			Tip: "del",
+			Ds: &models.BridgeMessageDs{
+				MesId: m.ID,
+			},
+		}
+	}
 }
 
 func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {

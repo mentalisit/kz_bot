@@ -92,54 +92,54 @@ func (d *Discord) reactionUserRemove(r *discordgo.MessageReactionAdd) {
 	}
 }
 
-func (d *Discord) logicMix2(m *discordgo.MessageCreate) {
-	if d.ifMentionBot(m) {
-		return
-	}
-	if d.avatar(m) {
-		return
-	}
-
-	d.AccesChatDS(m)
-
-	username := m.Author.Username
-	if m.Member != nil && m.Member.Nick != "" {
-		username = m.Member.Nick
-	}
-	url := ""
-	if len(m.Attachments) > 0 {
-		url = m.Attachments[0].URL
-		if len(m.Attachments) > 1 {
-			for _, attachment := range m.Attachments {
-				m.Content = m.Content + " \n" + attachment.URL
-			}
-		}
-	}
-	fmt.Println(username, url)
-	//filter Rs
-	ok, config := d.CheckChannelConfigDS(m.ChannelID)
-	if ok {
-		d.SendToRsFilter(m, config)
-		return
-	}
-	////filter hs
-	//corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
-	//if corpAlliance.Corp != "" {
-	//	d.sendToFilterHades(m, corpAlliance, 0)
-	//	return
-	//}
-	//corpWs1 := d.getCorpHadesWs1(m.ChannelID)
-	//if corpWs1.Corp != "" {
-	//	d.sendToFilterHades(m, corpWs1, 1)
-	//	return
-	//}
-
-	//bridge
-	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
-	if ds || strings.HasPrefix(m.Content, ".") {
-		go d.SendToBridgeChatFilter(m, bridgeConfig)
-	}
-}
+//	func (d *Discord) logicMix2(m *discordgo.MessageCreate) {
+//		if d.ifMentionBot(m) {
+//			return
+//		}
+//		if d.avatar(m) {
+//			return
+//		}
+//
+//		d.AccesChatDS(m)
+//
+//		username := m.Author.Username
+//		if m.Member != nil && m.Member.Nick != "" {
+//			username = m.Member.Nick
+//		}
+//		url := ""
+//		if len(m.Attachments) > 0 {
+//			url = m.Attachments[0].URL
+//			if len(m.Attachments) > 1 {
+//				for _, attachment := range m.Attachments {
+//					m.Content = m.Content + " \n" + attachment.URL
+//				}
+//			}
+//		}
+//		fmt.Println(username, url)
+//		//filter Rs
+//		ok, config := d.CheckChannelConfigDS(m.ChannelID)
+//		if ok {
+//			d.SendToRsFilter(m, config)
+//			return
+//		}
+//		////filter hs
+//		//corpAlliance := d.getCorpHadesAlliance(m.ChannelID)
+//		//if corpAlliance.Corp != "" {
+//		//	d.sendToFilterHades(m, corpAlliance, 0)
+//		//	return
+//		//}
+//		//corpWs1 := d.getCorpHadesWs1(m.ChannelID)
+//		//if corpWs1.Corp != "" {
+//		//	d.sendToFilterHades(m, corpWs1, 1)
+//		//	return
+//		//}
+//
+//		//bridge
+//		ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
+//		if ds || strings.HasPrefix(m.Content, ".") {
+//			go d.SendToBridgeChatFilter(m, bridgeConfig)
+//		}
+//	}
 func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	if d.ifMentionBot(m) {
 		return
@@ -176,40 +176,41 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 
 }
 
-func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.CorporationHadesClient, channelType int) {
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			m.Content = m.Content + "\n" + attach.URL
-		}
-	}
-	if m.Content == "" || m.Message.EditedTimestamp != nil {
-		return
-	}
-	name := m.Author.Username
-	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
-	if e != nil {
-		fmt.Println("Ошибка получения ника пользователя", e, m.ID)
-	} else if member != nil {
-		if member.Nick != "" {
-			name = member.Nick
-		}
-	}
+//func (d *Discord) sendToFilterHades(m *discordgo.MessageCreate, corp models.CorporationHadesClient, channelType int) {
+//	if len(m.Attachments) > 0 {
+//		for _, attach := range m.Attachments { //вложеные файлы
+//			m.Content = m.Content + "\n" + attach.URL
+//		}
+//	}
+//	if m.Content == "" || m.Message.EditedTimestamp != nil {
+//		return
+//	}
+//	name := m.Author.Username
+//	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
+//	if e != nil {
+//		fmt.Println("Ошибка получения ника пользователя", e, m.ID)
+//	} else if member != nil {
+//		if member.Nick != "" {
+//			name = member.Nick
+//		}
+//	}
+//
+//	newText := d.replaceTextMessage(m.Content, m.GuildID)
+//	mes := models.MessageHades{
+//		Text:        newText,
+//		Sender:      name,
+//		Avatar:      m.Author.AvatarURL("128"),
+//		ChannelType: channelType, //0 AllianceChat
+//		Corporation: corp.Corp,
+//		Command:     "text",
+//		Messager:    "ds",
+//		MessageId:   m.ID,
+//	}
+//
+//	d.ChanToGame <- mes
+//
+//}
 
-	newText := d.replaceTextMessage(m.Content, m.GuildID)
-	mes := models.MessageHades{
-		Text:        newText,
-		Sender:      name,
-		Avatar:      m.Author.AvatarURL("128"),
-		ChannelType: channelType, //0 AllianceChat
-		Corporation: corp.Corp,
-		Command:     "text",
-		Messager:    "ds",
-		MessageId:   m.ID,
-	}
-
-	d.ChanToGame <- mes
-
-}
 func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
 
 	if len(m.Attachments) > 0 {
@@ -279,14 +280,7 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 	}
 	return found
 }
-func (d *Discord) deleteMessageBridgeChat(DelMessageId string) {
-	d.ChanBridgeMessage <- models.BridgeMessage{
-		Tip: "del",
-		Ds: &models.BridgeMessageDs{
-			MesId: DelMessageId,
-		},
-	}
-}
+
 func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config models.BridgeConfig) {
 	username := m.Author.Username
 	if m.Member != nil && m.Member.Nick != "" {
