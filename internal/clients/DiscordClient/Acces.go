@@ -64,6 +64,7 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 		d.SendChannelDelSecond(chatid, d.getLang(chatid, "YouDisabledMyFeatures"), 60)
 		d.storage.ConfigRs.DeleteConfigRs(config)
 		d.storage.ReloadDbArray()
+		d.corpConfigRS = d.storage.CorpConfigRS
 		d.log.Println("отключение корпорации ", d.GuildChatName(chatid, guildid))
 	}
 }

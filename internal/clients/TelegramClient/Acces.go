@@ -58,6 +58,7 @@ func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с б�
 	} else {
 		t.storage.ConfigRs.DeleteConfigRs(config)
 		t.storage.ReloadDbArray()
+		t.corpConfigRS = t.storage.CorpConfigRS
 		t.log.Println("отключение корпорации ", t.ChatName(chatid))
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(config.Country, "YouDisabledMyFeatures"), 60)
 	}
