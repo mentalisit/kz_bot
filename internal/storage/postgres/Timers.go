@@ -13,7 +13,7 @@ func (d *Db) UpdateMitutsQueue(ctx context.Context, name, CorpName string) model
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND corpname = $2 AND active = 0"
 	results, err := d.db.Query(ctx, sel, name, CorpName)
 	if err != nil {
-		d.log.Println("Ошибка проверки игрока в очереди для функции (-+) ", err)
+		d.log.Error(err.Error())
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -25,7 +25,7 @@ func (d *Db) UpdateMitutsQueue(ctx context.Context, name, CorpName string) model
 			upd := "update kzbot.sborkz set timedown = timedown + 30 where active = 0 AND name = $1 AND corpname = $2"
 			_, err = d.db.Exec(ctx, upd, t.Name, t.Corpname)
 			if err != nil {
-				d.log.Println("Ошибка обновления времени игрока в очереди для функции (-+) ", err)
+				d.log.Error(err.Error())
 			}
 		}
 	}
@@ -39,13 +39,13 @@ func (d *Db) MinusMin(ctx context.Context) []models.Sborkz {
 	upd := `update kzbot.sborkz set timedown = timedown - 1 where active = 0`
 	_, err := d.db.Exec(ctx, upd)
 	if err != nil {
-		d.log.Println("Ошибка удаления минуты ", err)
+		d.log.Error(err.Error())
 	}
 
 	sel := "SELECT * FROM kzbot.sborkz WHERE active = 0"
 	results, err := d.db.Query(ctx, sel)
 	if err != nil {
-		d.log.Println("Ошибка чтения после удаления минуты", err)
+		d.log.Error(err.Error())
 	}
 	var tt []models.Sborkz
 	for results.Next() {

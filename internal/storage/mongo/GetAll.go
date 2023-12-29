@@ -11,12 +11,12 @@ func (d *DB) GetAllCorporationHades() []models.CorporationHadesClient {
 	var mm []models.CorporationHadesClient
 	find, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		d.log.Println("GetAllCorporationHades() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	err = find.All(context.Background(), &mm)
 	if err != nil {
-		d.log.Println("GetAllCorporationHades() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	//fmt.Printf("%+v", mm)
@@ -27,12 +27,12 @@ func (d *DB) GetAllGameMesId() []models.GameMessageId {
 	var m []models.GameMessageId
 	find, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		d.log.Println("GetAllGameMesId() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	err = find.All(context.Background(), &m)
 	if err != nil {
-		d.log.Println("GetAllGameMesId() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 
@@ -43,12 +43,12 @@ func (d *DB) GetAllGameWs1MesId() []models.GameMessageIdWs1 {
 	var m []models.GameMessageIdWs1
 	find, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		d.log.Println("GetAllGameWs1MesId() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	err = find.All(context.Background(), &m)
 	if err != nil {
-		d.log.Println("GetAllGameWs1MesId() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 
@@ -59,12 +59,12 @@ func (d *DB) GetAllMember() []models.AllianceMember {
 	var m []models.AllianceMember
 	find, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		d.log.Println("GetAllMember() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	err = find.All(context.Background(), &m)
 	if err != nil {
-		d.log.Println("GetAllMember() " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 

@@ -10,7 +10,7 @@ import (
 func (d *Discord) CheckAdmin(nameid string, chatid string) bool {
 	perms, err := d.s.UserChannelPermissions(nameid, chatid)
 	if err != nil {
-		d.log.Println("ошибка проверки админ ли ", err)
+		d.log.Error(err.Error())
 	}
 	if perms&discordgo.PermissionAdministrator != 0 {
 		return true
@@ -26,10 +26,10 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
+		d.log.Error(err.Error())
 		ge, err1 := d.s.Guild(guildid)
-		d.log.Println("1ошибка получении гильдии при получении роли "+guildid+" "+rolePing, err)
 		if err1 != nil {
-			d.log.Println("2ошибка получении гильдии при получении роли"+guildid+" "+rolePing, err1)
+			d.log.Error(err1.Error())
 			return rolePing
 		}
 		g = ge
@@ -51,7 +51,7 @@ func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
-		d.log.Println("ошибка получении гильдии при получении роли для пинга ", err)
+		d.log.Error(err.Error())
 	}
 	exist, role := d.roleExists(g, rolePing)
 	if !exist {
@@ -63,7 +63,7 @@ func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
 func (d *Discord) BotName() string { //получаем имя бота
 	u, err := d.s.User("@me")
 	if err != nil {
-		d.log.Println("Ошибка получения имени бота", err)
+		d.log.Error(err.Error())
 	}
 	return u.Username
 }
@@ -100,7 +100,7 @@ func (d *Discord) roleExists(g *discordgo.Guild, nameRoles string) (bool, *disco
 func (d *Discord) GuildChatName(chatid, guildid string) string {
 	g, err := d.s.Guild(guildid)
 	if err != nil {
-		d.log.Println("Ошибка проверка имени канала ", err)
+		d.log.Error(err.Error())
 	}
 	chatName := g.Name
 	channels, _ := d.s.GuildChannels(guildid)
@@ -123,7 +123,7 @@ func (d *Discord) createRole(rolPing, guildid string) *discordgo.Role {
 		Mentionable: &t,
 	})
 	if err != nil {
-		d.log.Println("ошибка создании новой роли ", err)
+		d.log.Error(err.Error())
 		return nil
 	}
 	return create
@@ -141,7 +141,7 @@ func (d *Discord) CleanOldMessageChannel(chatId, lim string) {
 	}
 	messages, err := d.s.ChannelMessages(chatId, limit, "", "", "")
 	if err != nil {
-		d.log.Println("error return[]message " + err.Error())
+		d.log.Error(err.Error())
 		return
 	}
 	for _, message := range messages {
@@ -168,7 +168,7 @@ func (d *Discord) avatar(m *discordgo.MessageCreate) bool {
 				if len(mentionIds) > 0 {
 					members, err := d.s.GuildMembers(m.GuildID, "", 999)
 					if err != nil {
-						d.log.Println("error getGuildMember " + err.Error())
+						d.log.Error(err.Error())
 					}
 					for _, member := range members {
 						if member.User.ID == mentionIds[0][1] {

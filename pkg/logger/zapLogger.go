@@ -8,7 +8,8 @@ import (
 )
 
 type Logger struct {
-	logger *zap.Logger
+	ZapLogger *zap.Logger
+	LoggerInterface
 }
 
 func LoggerZap(botToken string, chatID int64) *Logger {
@@ -61,39 +62,20 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 	}
 
 	defer logger.Sync()
-	return &Logger{logger: logger}
+	return &Logger{ZapLogger: logger, LoggerInterface: logger}
 }
 
-// Debug выводит сообщение отладки
-func (l *Logger) Debug(msg string) {
-	l.logger.Debug(msg)
+type LoggerInterface interface {
+	Debug(msg string, fields ...zapcore.Field)
+	Info(msg string, fields ...zapcore.Field)
+	Warn(msg string, fields ...zapcore.Field)
+	Error(msg string, fields ...zapcore.Field)
+	Panic(msg string, fields ...zapcore.Field)
+	Fatal(msg string, fields ...zapcore.Field)
 }
 
-// Info выводит информационное сообщение
-func (l *Logger) Info(msg string) {
-	l.logger.Info(msg)
-}
-
-// Warn выводит предупреждение
-func (l *Logger) Warn(msg string) {
-	l.logger.Warn(msg)
-}
-
-// Error выводит сообщение об ошибке
-func (l *Logger) Error(msg string) {
-	l.logger.Error(msg)
-}
-
-// Println выводит сообщение с использованием Info логгера
-func (l *Logger) Println(args ...interface{}) {
-	msg := fmt.Sprintln(args...)
-	l.logger.Info(msg)
-}
-
-func (l *Logger) Panic(s string) {
-	l.logger.Panic(s)
-}
-
-func (l *Logger) Fatalln(s string, err error) {
-	l.logger.Fatal(s + " " + err.Error())
-}
+//// Println выводит сообщение с использованием Info логгера
+//func (l *Logger) PrintlnINFO(args ...interface{}) {
+//	msg := fmt.Sprintln(args...)
+//	l.ZapLogger.Info(msg)
+//}

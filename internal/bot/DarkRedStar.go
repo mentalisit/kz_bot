@@ -21,7 +21,7 @@ func (b *Bot) lDarkRsPlus() bool {
 		kzb = arr[0][2]
 		timekzz, err := strconv.Atoi(arr[0][3])
 		if err != nil {
-			b.log.Println("Ошибка преобразования Atoi", err)
+			b.log.Error(err.Error())
 			timekzz = 0
 		}
 		if timekzz > 180 {

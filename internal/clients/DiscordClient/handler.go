@@ -40,15 +40,15 @@ func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageR
 	if err != nil {
 		channel, err1 := s.Channel(r.ChannelID)
 		if err1 != nil {
-			d.log.Println("err1 ", err1.Error())
+			d.log.Error(err1.Error())
 			return
 		}
 		user, err2 := s.User(r.UserID)
 		if err2 != nil {
-			d.log.Println("err2 ", err2.Error())
+			d.log.Error(err2.Error())
 			return
 		}
-		d.log.Println(fmt.Sprintln(channel.Name, r.Emoji.Name, user.Username, err.Error()))
+		d.log.Info(fmt.Sprintln(channel.Name, r.Emoji.Name, user.Username, err.Error()))
 		return
 	}
 
@@ -70,7 +70,7 @@ func (d *Discord) ready(s *discordgo.Session, r *discordgo.Ready) {
 		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "", v)
 		if err != nil {
 
-			d.log.Println("Cannot create '%v' command: %v", v.Name, err)
+			d.log.Error(err.Error())
 		}
 		registeredCommands[i] = cmd
 	}
@@ -79,13 +79,13 @@ func (d *Discord) ready(s *discordgo.Session, r *discordgo.Ready) {
 func (d *Discord) removeComand(s *discordgo.Session) {
 	registeredCommands, err := s.ApplicationCommands(s.State.User.ID, "700238199070523412")
 	if err != nil {
-		d.log.Fatalln("Could not fetch registered commands: %v", err)
+		d.log.Fatal(err.Error())
 	}
 
 	for _, v := range registeredCommands {
 		err := s.ApplicationCommandDelete(s.State.User.ID, "700238199070523412", v.ID)
 		if err != nil {
-			d.log.Println("Cannot delete '%v' command: %v", v.Name, err)
+			d.log.Error(err.Error())
 		}
 	}
 	fmt.Println("удалены")

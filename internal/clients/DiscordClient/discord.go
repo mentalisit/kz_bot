@@ -24,7 +24,7 @@ type Discord struct {
 func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
 	ds, err := clientDiscord.NewDiscord(log, cfg)
 	if err != nil {
-		log.Println("error running Discord " + err.Error())
+		log.Error(err.Error())
 	}
 
 	DS := &Discord{
@@ -34,9 +34,9 @@ func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 		ChanRsMessage:     make(chan models.InMessage, 10),
 		ChanToGame:        make(chan models.MessageHades, 10),
 		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
-		corporationHades:  st.CorporationHades,
-		bridgeConfig:      st.BridgeConfigs,
-		corpConfigRS:      st.CorpConfigRS,
+		//corporationHades:  st.CorporationHades,
+		bridgeConfig: st.BridgeConfigs,
+		corpConfigRS: st.CorpConfigRS,
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)

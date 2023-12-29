@@ -16,7 +16,7 @@ type Db struct {
 func NewDb(log *logger.Logger, cfg *config.ConfigBot) *Db {
 	db, err := postgresLocal.NewClient(context.Background(), log, 5, cfg)
 	if err != nil {
-		log.Fatalln("Ошибка подключения к local ДБ ", err)
+		log.Fatal(err.Error())
 	}
 	return &Db{
 		db:    db,

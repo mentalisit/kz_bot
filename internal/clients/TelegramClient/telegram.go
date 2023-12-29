@@ -40,9 +40,9 @@ func NewTelegram(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot)
 		log:               log,
 		storage:           st,
 		debug:             cfg.IsDebug,
-		corporationHades:  st.CorporationHades,
-		bridgeConfig:      st.BridgeConfigs,
-		corpConfigRS:      st.CorpConfigRS,
+		//corporationHades:  st.CorporationHades,
+		bridgeConfig: st.BridgeConfigs,
+		corpConfigRS: st.CorpConfigRS,
 	}
 
 	go tg.update()

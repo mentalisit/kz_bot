@@ -12,19 +12,19 @@ import (
 func (d *Discord) AddEnojiRsQueue(chatid, mesid string) {
 	err := d.s.MessageReactionAdd(chatid, mesid, emOK)
 	if err != nil {
-		d.log.Println("Ошибка добавления реакции на сообщения "+emOK, err)
+		d.log.Error(err.Error())
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emCancel)
 	if err != nil {
-		d.log.Println("Ошибка добавления реакции на сообщения "+emCancel, err)
+		d.log.Error(err.Error())
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emRsStart)
 	if err != nil {
-		d.log.Println("Ошибка добавления реакции на сообщения "+emRsStart, err)
+		d.log.Error(err.Error())
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emPl30)
 	if err != nil {
-		d.log.Println("Ошибка добавления реакции на сообщения "+emPl30, err)
+		d.log.Error(err.Error())
 	}
 
 }
@@ -63,10 +63,10 @@ func (d *Discord) EditComplex(dsmesid, dschatid string, Embeds discordgo.Message
 func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 	g, err := d.s.State.Guild(guildid)
 	if err != nil {
-		d.log.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
+		d.log.Error(err.Error())
 		g, err = d.s.Guild(guildid)
 		if err != nil {
-			d.log.Println("Ошибка чтения гуилд ... паниковать ", err)
+			d.log.Error(err.Error())
 		}
 	}
 
@@ -78,7 +78,7 @@ func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 
 	member, err := d.s.GuildMember(guildid, nameid)
 	if err != nil {
-		d.log.Println("Ошибка чтения участников гуилд", err)
+		d.log.Error(err.Error())
 	}
 	var subscribe int = 0
 	if exist {
@@ -91,7 +91,7 @@ func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 
 	err = d.s.GuildMemberRoleAdd(guildid, nameid, role.ID)
 	if err != nil {
-		d.log.Println("Ошибка выдачи роли ", err)
+		d.log.Error(err.Error())
 		subscribe = 2
 	}
 
@@ -101,10 +101,10 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 	var unsubscribe int = 0
 	g, err := d.s.State.Guild(guildid)
 	if err != nil {
-		d.log.Println("Ошибка запроса стате.гуилд,читаю гуилд", err)
+		d.log.Error(err.Error())
 		g, err = d.s.Guild(guildid)
 		if err != nil {
-			d.log.Println("Ошибка чтения гуилд ... паниковать ", err)
+			d.log.Error(err.Error())
 		}
 	}
 
@@ -115,7 +115,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 
 	member, err := d.s.GuildMember(guildid, nameid)
 	if err != nil {
-		d.log.Println("Ошибка чтения участников гуилд", err)
+		d.log.Error(err.Error())
 	}
 	if exist {
 		for _, _role := range member.Roles {
@@ -127,7 +127,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 	if unsubscribe == 2 {
 		err = d.s.GuildMemberRoleRemove(guildid, nameid, role.ID)
 		if err != nil {
-			d.log.Println("Ошибка снятия роли ", err)
+			d.log.Error(err.Error())
 			unsubscribe = 3
 		}
 	}
@@ -137,7 +137,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 func (d *Discord) EditMessage(chatID, messageID, content string) {
 	_, err := d.s.ChannelMessageEdit(chatID, messageID, content)
 	if err != nil {
-		d.log.Println("Ошибка изменения текса сообщения ", err)
+		d.log.Error(err.Error())
 	}
 }
 func (d *Discord) EmbedDS(mapa map[string]string, numkz int, count int, dark bool) discordgo.MessageEmbed {

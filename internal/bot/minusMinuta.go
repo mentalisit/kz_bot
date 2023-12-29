@@ -98,7 +98,7 @@ func (b *Bot) UpdateMessage() {
 func (b *Bot) CheckTimeQueue() {
 	atoi, err := strconv.Atoi(b.in.Timekz)
 	if err != nil {
-		b.log.Println("ошибка CheckTimeQueue Atoi", err)
+		b.log.Error(err.Error())
 		return
 	}
 	if atoi == 3 {

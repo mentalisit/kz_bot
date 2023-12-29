@@ -49,7 +49,7 @@ func (d *Discord) accessAddChannelDs(chatid, guildid, lang string) { // внес
 		go d.SendChannelDelSecond(chatid, d.storage.Words.GetWords(lang, "accessAlready"), 30)
 	} else {
 		chatName := d.GuildChatName(chatid, guildid)
-		d.log.Println("новая активация корпорации ", chatName)
+		d.log.Info("новая активация корпорации " + chatName)
 		d.AddDsCorpConfig(chatName, chatid, guildid, lang)
 		go d.SendChannelDelSecond(chatid, d.storage.Words.GetWords(lang, "accessTY"), 10)
 
@@ -65,7 +65,7 @@ func (d *Discord) accessDelChannelDs(chatid, guildid string) { //удалени�
 		d.storage.ConfigRs.DeleteConfigRs(config)
 		d.storage.ReloadDbArray()
 		d.corpConfigRS = d.storage.CorpConfigRS
-		d.log.Println("отключение корпорации ", d.GuildChatName(chatid, guildid))
+		d.log.Info("отключение корпорации " + d.GuildChatName(chatid, guildid))
 	}
 }
 

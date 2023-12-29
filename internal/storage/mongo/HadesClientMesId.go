@@ -18,7 +18,7 @@ func (d *DB) InsertCorpMesId(CorpName string, mId int64) {
 	}
 	ins, err := collection.InsertOne(context.Background(), mes)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 	}
 	fmt.Printf("%+v %+v\n", mes, ins.InsertedID)
 }
@@ -32,7 +32,7 @@ func (d *DB) GetCorpMesId(CorpName string) int64 {
 
 	err := collection.FindOne(context.Background(), bson.M{"CorpName": CorpName}).Decode(&mm)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 		return 0
 	}
 
@@ -44,7 +44,7 @@ func (d *DB) UpdateCorpMesId(CorpName string, mID int64) error {
 	update := bson.M{"CorpName": CorpName, "MessageId": mID}
 	one, err := collection.ReplaceOne(context.Background(), filter, update)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 		return err
 	}
 	//fmt.Printf("%+v\n", one)
@@ -68,7 +68,7 @@ func (d *DB) InsertWs1MesId(CorpName string, mId int64, StarId int64) {
 	}
 	ins, err := collection.InsertOne(context.Background(), mes)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 	}
 	fmt.Printf("%+v %+v\n", mes, ins.InsertedID)
 }

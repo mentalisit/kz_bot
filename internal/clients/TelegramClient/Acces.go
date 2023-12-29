@@ -47,7 +47,7 @@ func (t *Telegram) accessAddChannelTg(chatid, lang string) { // внесение
 	} else {
 		chatName := t.ChatName(chatid)
 		t.AddTgCorpConfig(chatName, chatid, lang)
-		t.log.Println("новая активация корпорации ", chatName)
+		t.log.Info("новая активация корпорации " + chatName)
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(lang, "accessTY"), 60)
 	}
 }
@@ -59,7 +59,7 @@ func (t *Telegram) accessDelChannelTg(chatid string) { //удаление с б�
 		t.storage.ConfigRs.DeleteConfigRs(config)
 		t.storage.ReloadDbArray()
 		t.corpConfigRS = t.storage.CorpConfigRS
-		t.log.Println("отключение корпорации ", t.ChatName(chatid))
+		t.log.Info("отключение корпорации " + t.ChatName(chatid))
 		go t.SendChannelDelSecond(chatid, t.storage.Words.GetWords(config.Country, "YouDisabledMyFeatures"), 60)
 	}
 }

@@ -21,14 +21,14 @@ const (
 func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
 	user, err := d.s.User(r.UserID)
 	if err != nil {
-		d.log.Println("Ошибка получения Юзера по реакции ", err)
+		d.log.Error(err.Error())
 	}
 	if user.ID != message.Author.ID {
 		ok, config := d.CheckChannelConfigDS(r.ChannelID)
 		if ok {
 			member, e := d.s.GuildMember(config.Guildid, user.ID)
 			if e != nil {
-				d.log.Println("Oшибка получения участника ", e)
+				d.log.Error(e.Error())
 			}
 			name := user.Username
 			if member.Nick != "" {
@@ -219,7 +219,7 @@ func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.Corpo
 	}
 	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
 	if e != nil {
-		d.log.Println("Ошибка получения ника пользователя", e, m.ID)
+		d.log.Error(e.Error())
 	}
 	name := m.Author.Username
 	if member.Nick != "" {

@@ -11,13 +11,13 @@ func (d *DB) ReadConfigRs() []models.CorporationConfig {
 	collection := d.s.Database("RsBot").Collection("RsConfig")
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		d.log.Println("ReadConfigRs " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	var m []models.CorporationConfig
 	err = cursor.All(context.Background(), &m)
 	if err != nil {
-		d.log.Println("ReadConfigRs2 " + err.Error())
+		d.log.Error(err.Error())
 		return nil
 	}
 	return m
@@ -27,7 +27,7 @@ func (d *DB) InsertConfigRs(c models.CorporationConfig) {
 	collection := d.s.Database("RsBot").Collection("RsConfig")
 	ins, err := collection.InsertOne(context.Background(), c)
 	if err != nil {
-		d.log.Println("InsertConfigRs " + err.Error())
+		d.log.Error(err.Error())
 	}
 	fmt.Println(ins.InsertedID)
 }
@@ -35,7 +35,7 @@ func (d *DB) DeleteConfigRs(c models.CorporationConfig) {
 	collection := d.s.Database("RsBot").Collection("RsConfig")
 	ins, err := collection.DeleteOne(context.Background(), c)
 	if err != nil {
-		d.log.Println("DeleteConfigRs " + err.Error())
+		d.log.Error(err.Error())
 	}
 	fmt.Println(ins.DeletedCount)
 }
@@ -45,7 +45,7 @@ func (d *DB) AutoHelpUpdateMesid(c models.CorporationConfig) {
 	//update := bson.M{"dschannel": dschannel, "mesiddshelp": newMesidHelp}
 	_, err := collection.ReplaceOne(context.Background(), filter, c)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 	}
 }
 func (d *DB) AutoHelp() []models.CorporationConfig {

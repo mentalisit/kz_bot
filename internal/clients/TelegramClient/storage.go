@@ -33,7 +33,7 @@ func (t *Telegram) AddTgCorpConfig(chatName string, chatid, lang string) {
 	}
 	t.storage.ConfigRs.InsertConfigRs(c)
 	t.corpConfigRS[c.CorpName] = c
-	t.log.Println(chatName, "Добавлена в конфиг корпораций ")
+	t.log.Info(chatName + " Добавлена в конфиг корпораций ")
 }
 
 // hadesClient

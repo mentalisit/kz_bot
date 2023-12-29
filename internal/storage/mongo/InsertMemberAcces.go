@@ -16,7 +16,7 @@ func (d *DB) InsertMember(CorpName, UserName string, Rang int) {
 	}
 	ins, err := collection.InsertOne(context.Background(), m)
 	if err != nil {
-		d.log.Println(err)
+		d.log.Error(err.Error())
 	}
 	fmt.Println(ins.InsertedID)
 }

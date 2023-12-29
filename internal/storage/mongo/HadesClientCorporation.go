@@ -1,32 +1,25 @@
 package mongo
 
-import (
-	"context"
-	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"kz_bot/internal/models"
-)
-
-func (d *DB) GetCorporation(Corp string) models.CorporationHadesClient {
-	collection := d.s.Database("HadesClient").Collection("Corporation")
-	var mm models.CorporationHadesClient
-	err := collection.FindOne(context.Background(), bson.M{"corp": Corp}).Decode(&mm)
-	if err != nil {
-		d.log.Println(err)
-		return models.CorporationHadesClient{}
-	}
-	//fmt.Printf("%+v", mm)
-	return mm
-}
-func (d *DB) InsertCorporation(c models.CorporationHadesClient) {
-	collection := d.s.Database("HadesClient").Collection("Corporation")
-
-	ins, err := collection.InsertOne(context.Background(), c)
-	if err != nil {
-		d.log.Println(err)
-	}
-	fmt.Printf("%+v %+v\n", c, ins.InsertedID)
-}
+//func (d *DB) GetCorporation(Corp string) models.CorporationHadesClient {
+//	collection := d.s.Database("HadesClient").Collection("Corporation")
+//	var mm models.CorporationHadesClient
+//	err := collection.FindOne(context.Background(), bson.M{"corp": Corp}).Decode(&mm)
+//	if err != nil {
+//		d.log.Println(err)
+//		return models.CorporationHadesClient{}
+//	}
+//	//fmt.Printf("%+v", mm)
+//	return mm
+//}
+//func (d *DB) InsertCorporation(c models.CorporationHadesClient) {
+//	collection := d.s.Database("HadesClient").Collection("Corporation")
+//
+//	ins, err := collection.InsertOne(context.Background(), c)
+//	if err != nil {
+//		d.log.Println(err)
+//	}
+//	fmt.Printf("%+v %+v\n", c, ins.InsertedID)
+//}
 
 //
 //func (d *DB) GetCorporationDS(ChatId string) models.CorporationHadesClient {

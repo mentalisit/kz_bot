@@ -13,7 +13,7 @@ func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println("DelMessage " + err.Error())
+		t.log.Error(err.Error())
 	}
 	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatId, idSendMessage)))
 	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }
@@ -41,7 +41,7 @@ func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit str
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println("EditMessageTextKey", err)
+		t.log.Error(err.Error())
 	}
 
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -67,7 +67,7 @@ func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println("EditText", err)
+		t.log.Error(err.Error())
 	}
 	_, err = t.t.Send(tgbotapi.NewEditMessageText(chatId, editMesId, textEdit))
 	if err != nil {
@@ -79,14 +79,14 @@ func (t *Telegram) CheckAdminTg(chatid string, name string) bool {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println("CheckAdminTg", err)
+		t.log.Error(err.Error())
 	}
 	admins, err := t.t.GetChatAdministrators(tgbotapi.ChatAdministratorsConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
 	}{ChatID: chatId, SuperGroupUsername: ""}})
 	if err != nil {
-		t.log.Println("Ошибка проверки админа телеги ", err)
+		t.log.Error(err.Error())
 	}
 	for _, ad := range admins {
 		if name == ad.User.UserName && (ad.IsAdministrator() || ad.IsCreator()) {
@@ -142,14 +142,14 @@ func (t *Telegram) ChatName(chatid string) string {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Println("ChatName", err)
+		t.log.Error(err.Error())
 	}
 	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
 	}{ChatID: chatId}})
 	if err != nil {
-		t.log.Println("ошибка получения имени чата ", err)
+		t.log.Error(err.Error())
 	}
 	return r.Title
 }

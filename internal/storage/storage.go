@@ -29,10 +29,10 @@ type Storage struct {
 	Timers            Timers
 	DbFunc            DbFunc
 	//Cache            *postgres.Db
-	Event            Event
-	CorporationHades map[string]models.CorporationHadesClient
-	BridgeConfigs    map[string]models.BridgeConfig
-	CorpConfigRS     map[string]models.CorporationConfig
+	Event Event
+	//CorporationHades map[string]models.CorporationHadesClient
+	BridgeConfigs map[string]models.BridgeConfig
+	CorpConfigRS  map[string]models.CorporationConfig
 }
 
 func NewStorage(log *logger.Logger, cfg *config.ConfigBot) *Storage {
@@ -50,7 +50,7 @@ func NewStorage(log *logger.Logger, cfg *config.ConfigBot) *Storage {
 
 	s := &Storage{
 		//CorpsConfig:       corp,
-		HadesClient:       mongoDB,
+		//HadesClient:       mongoDB,
 		BridgeConfig:      mongoDB,
 		TimeDeleteMessage: mongoDB,
 		ConfigRs:          mongoDB,
@@ -64,9 +64,9 @@ func NewStorage(log *logger.Logger, cfg *config.ConfigBot) *Storage {
 		Timers:            local,
 		DbFunc:            local,
 		Event:             local,
-		CorporationHades:  make(map[string]models.CorporationHadesClient),
-		BridgeConfigs:     make(map[string]models.BridgeConfig),
-		CorpConfigRS:      make(map[string]models.CorporationConfig),
+		//CorporationHades:  make(map[string]models.CorporationHadesClient),
+		BridgeConfigs: make(map[string]models.BridgeConfig),
+		CorpConfigRS:  make(map[string]models.CorporationConfig),
 	}
 
 	go s.loadDbArray()
@@ -106,16 +106,16 @@ func (s *Storage) loadDbArray() {
 func (s *Storage) ReloadDbArray() {
 	CorpConfigRS := make(map[string]models.CorporationConfig)
 	BridgeConfigs := make(map[string]models.BridgeConfig)
-	CorporationHades := make(map[string]models.CorporationHadesClient)
+	//CorporationHades := make(map[string]models.CorporationHadesClient)
 
 	s.CorpConfigRS = CorpConfigRS
 	s.BridgeConfigs = BridgeConfigs
-	s.CorporationHades = CorporationHades
+	//s.CorporationHades = CorporationHades
 
-	corp := s.HadesClient.GetAllCorporationHades()
-	for _, client := range corp {
-		s.CorporationHades[client.Corp] = client
-	}
+	//corp := s.HadesClient.GetAllCorporationHades()
+	//for _, client := range corp {
+	//	s.CorporationHades[client.Corp] = client
+	//}
 
 	bc := s.BridgeConfig.DBReadBridgeConfig()
 	for _, configBridge := range bc {

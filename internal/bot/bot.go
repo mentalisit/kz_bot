@@ -45,7 +45,7 @@ func NewBot(storage *storage.Storage, client *clients.Clients, log *logger.Logge
 }
 
 func (b *Bot) loadInbox() {
-	b.log.Println("Бот загружен и готов к работе ")
+	b.log.Info("Бот загружен и готов к работе ")
 
 	for {
 		//ПОЛУЧЕНИЕ СООБЩЕНИЙ

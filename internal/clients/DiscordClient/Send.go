@@ -21,7 +21,7 @@ func (d *Discord) SendEmbedText(chatid, title, text string) *discordgo.Message {
 	}
 	m, err := d.s.ChannelMessageSendEmbed(chatid, Emb)
 	if err != nil {
-		d.log.Println("Ошибка отправки сообщения со вставкой ", err)
+		d.log.Error(err.Error())
 	}
 	return m
 }
@@ -29,8 +29,7 @@ func (d *Discord) SendChannelDelSecond(chatid, text string, second int) {
 	if text != "" {
 		message, err := d.s.ChannelMessageSend(chatid, text)
 		if err != nil {
-			d.log.Println("ошибка отправки сообщения SendChannelDelSecond "+chatid+text, err)
-			d.log.Println("SendChannelDelSecond " + chatid + "  " + text)
+			d.log.Error(err.Error())
 			return
 		}
 		if second <= 60 {
@@ -52,7 +51,8 @@ func (d *Discord) SendComplexContent(chatid, text string) (mesId string) { //о�
 		Content: text})
 	if err != nil {
 		channel, _ := d.s.Channel(chatid)
-		d.log.Println("Ошибка отправки комплексного сообщения text "+channel.Name+" ", err)
+		d.log.Info("Ошибка отправки комплексного сообщения text " + channel.Name)
+		d.log.Error(err.Error())
 		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 			Content: text})
 		if err == nil {
@@ -69,7 +69,8 @@ func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed) (mes
 	})
 	if err != nil {
 		channel, _ := d.s.Channel(chatid)
-		d.log.Println("Ошибка отправки комплексного сообщения embed "+channel.Name+" ", err)
+		d.log.Info("Ошибка отправки комплексного сообщения embed " + channel.Name)
+		d.log.Error(err.Error())
 		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 			Content: mesContentNil,
 			Embed:   &embeds,
@@ -84,7 +85,7 @@ func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed) (mes
 func (d *Discord) Send(chatid, text string) (mesId string) { //отправка текста
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {
-		d.log.Println("ошибка отправки текста ", err)
+		d.log.Error(err.Error())
 	}
 	return message.ID
 }
@@ -120,15 +121,15 @@ func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar s
 func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {
-		d.log.Println("ошибка отправки текста ", err)
+		d.log.Error(err.Error())
 	}
 	err = d.s.MessageReactionAdd(chatid, message.ID, emPlus)
 	if err != nil {
-		d.log.Println("Ошибка добавления эмоджи ", emPlus, err)
+		d.log.Error(err.Error())
 	}
 	err = d.s.MessageReactionAdd(chatid, message.ID, emMinus)
 	if err != nil {
-		d.log.Println("Ошибка добавления эмоджи ", emMinus, err)
+		d.log.Error(err.Error())
 	}
 	return message.ID
 }
@@ -177,7 +178,7 @@ func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar strin
 	}
 	mes, err := web.Send(chatid, pp)
 	if err != nil {
-		d.log.Println("ошибка отправки вебхука..недостаточно разрешений", err)
+		d.log.Error(err.Error())
 		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
 		return ""
 	}
