@@ -1,11 +1,11 @@
 package bot
 
 import (
-	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
+	"kz_bot/pkg/logger"
 	"sync"
 	"time"
 )
@@ -21,7 +21,7 @@ type Bot struct {
 	storage    *storage.Storage
 	client     *clients.Clients
 	inbox      chan models.InMessage
-	log        *logrus.Logger
+	log        *logger.Logger
 	debug      bool
 	in         models.InMessage
 	wg         sync.WaitGroup
@@ -29,7 +29,7 @@ type Bot struct {
 	configCorp map[string]models.CorporationConfig
 }
 
-func NewBot(storage *storage.Storage, client *clients.Clients, log *logrus.Logger, cfg *config.ConfigBot) *Bot {
+func NewBot(storage *storage.Storage, client *clients.Clients, log *logger.Logger, cfg *config.ConfigBot) *Bot {
 	b := &Bot{
 		storage:    storage,
 		client:     client,

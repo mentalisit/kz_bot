@@ -1,8 +1,8 @@
 package config
 
 import (
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
-	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -44,8 +44,7 @@ func InitConfig() *ConfigBot {
 		err := cleanenv.ReadConfig("config/config.yml", Instance)
 		if err != nil {
 			help, _ := cleanenv.GetDescription(Instance, nil)
-			log.Println(help)
-			log.Fatal(err)
+			fmt.Println(help)
 		}
 	})
 	return Instance

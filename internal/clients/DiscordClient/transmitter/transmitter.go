@@ -3,12 +3,12 @@ package transmitter
 import (
 	"errors"
 	"fmt"
+	"kz_bot/pkg/logger"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/sirupsen/logrus"
 )
 
 // A Transmitter represents a message manager for a single guild.
@@ -23,7 +23,7 @@ type Transmitter struct {
 
 	mutex sync.RWMutex
 
-	log *logrus.Logger
+	log *logger.Logger
 }
 
 // ErrWebhookNotFound is returned when a valid webhook for this channel/message combination does not exist
@@ -36,7 +36,7 @@ var ErrWebhookNotFound = errors.New("webhook for this channel and message does n
 var ErrPermissionDenied = errors.New("missing 'Manage Webhooks' permission")
 
 // New returns a new Transmitter given a Discord session, guild ID, and title.
-func New(session *discordgo.Session, guild string, title string, autoCreate bool, log *logrus.Logger) *Transmitter {
+func New(session *discordgo.Session, guild string, title string, autoCreate bool, log *logger.Logger) *Transmitter {
 	return &Transmitter{
 		session:    session,
 		guild:      guild,
@@ -98,7 +98,7 @@ func (t *Transmitter) HasWebhook(id string) bool {
 
 // AddWebhook allows you to register a channel's webhook with the transmitter.
 func (t *Transmitter) AddWebhook(channelID string, webhook *discordgo.Webhook) bool {
-	t.log.Debugf("Manually added webhook %#v to channel %#v", webhook.ID, channelID)
+	t.log.Debug("Manually added webhook to channel " + channelID)
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -128,7 +128,7 @@ func (t *Transmitter) AddWebhook(channelID string, webhook *discordgo.Webhook) b
 //
 // If any channel has more than one "relevant" webhook, it will randomly pick one.
 func (t *Transmitter) RefreshGuildWebhooks(channelIDs []string) error {
-	t.log.Debugln("Refreshing guild webhooks")
+	t.log.Debug("Refreshing guild webhooks")
 
 	botID, err := getDiscordUserID(t.session)
 	if err != nil {
@@ -146,14 +146,14 @@ func (t *Transmitter) RefreshGuildWebhooks(channelIDs []string) error {
 			if len(channelIDs) == 0 {
 				return ErrPermissionDenied
 			}
-			t.log.Debugln("Missing global 'Manage Webhooks' permission, falling back on per-channel permission")
+			t.log.Debug("Missing global 'Manage Webhooks' permission, falling back on per-channel permission")
 			return t.fetchChannelsHooks(channelIDs, botID)
 		default:
 			return fmt.Errorf("could not get webhooks: %w", err)
 		}
 	}
 
-	t.log.Debugln("Refreshing guild webhooks using global permission")
+	t.log.Debug("Refreshing guild webhooks using global permission")
 	t.assignHooksByAppID(hooks, botID, false)
 	return nil
 }
@@ -224,7 +224,7 @@ func (t *Transmitter) getOrCreateWebhook(channelID string) (*discordgo.Webhook, 
 		return nil, ErrWebhookNotFound
 	}
 	//t.log.Println(214)
-	t.log.Infof("Creating a webhook for %s\n", channelID)
+	t.log.Info("Creating a webhook for " + channelID)
 	wh, err := t.createWebhook(channelID)
 	if err != nil {
 		t.log.Println(218)

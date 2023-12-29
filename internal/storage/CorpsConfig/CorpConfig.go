@@ -2,12 +2,12 @@ package CorpsConfig
 
 //type Corps struct {
 //	client postgresqlS.Client
-//	log    *logrus.Logger
+//	log    *logger.Logger
 //	debug  bool
 //	//db     *db.Repository
 //}
 
-//func NewCorps(log *logrus.Logger, cfg *config.ConfigBot) *Corps {
+//func NewCorps(log *logger.Logger, cfg *config.ConfigBot) *Corps {
 //	//создаем клиента инет базы данных
 //	client, err := postgresqlS.NewClient(context.Background(), log, 5, cfg)
 //	if err != nil {

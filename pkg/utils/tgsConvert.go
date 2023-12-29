@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Benau/tgsconverter/libtgsconverter"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -50,7 +49,7 @@ func maybeConvertTgs(name *string, data *[]byte) {
 
 	err := ConvertTgsToX(data, "png")
 	if err != nil {
-		log.Errorf("conversion failed: %v", err)
+		fmt.Errorf("conversion failed: %v", err)
 	} else {
 		*name = strings.Replace(*name, "tgs.webp", "png", 1)
 	}

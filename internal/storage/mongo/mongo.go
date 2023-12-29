@@ -1,20 +1,20 @@
 package mongo
 
 import (
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"kz_bot/pkg/clientDB/mongodb"
+	"kz_bot/pkg/logger"
 )
 
 type DB struct {
 	s   *mongo.Client
-	log *logrus.Logger
+	log *logger.Logger
 }
 
-func InitMongoDB(log *logrus.Logger) *DB {
+func InitMongoDB(log *logger.Logger) *DB {
 	client, err := mongodb.NewMongoClient()
 	if err != nil {
-		log.Println("InitMongoDB() " + err.Error())
+		log.Error(err.Error())
 		return nil
 	}
 

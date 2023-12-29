@@ -3,10 +3,10 @@ package db
 //
 //type Repository struct {
 //	client postgresqlS.Client
-//	log    *logrus.Logger
+//	log    *logger.Logger
 //}
 
-//func NewRepository(client postgresqlS.Client, loger *logrus.Logger) *Repository {
+//func NewRepository(client postgresqlS.Client, loger *logger.Logger) *Repository {
 //	return &Repository{
 //		client: client,
 //		log:    loger,

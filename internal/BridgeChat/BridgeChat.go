@@ -2,15 +2,15 @@ package BridgeChat
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
+	"kz_bot/pkg/logger"
 	"strings"
 )
 
 type Bridge struct {
-	log      *logrus.Logger
+	log      *logger.Logger
 	client   *clients.Clients
 	in       models.BridgeMessage
 	messages []models.BridgeTempMemory
@@ -18,7 +18,7 @@ type Bridge struct {
 	configs  map[string]models.BridgeConfig
 }
 
-func NewBridge(log *logrus.Logger, client *clients.Clients, storage *storage.Storage) *Bridge {
+func NewBridge(log *logger.Logger, client *clients.Clients, storage *storage.Storage) *Bridge {
 	b := &Bridge{
 		log:     log,
 		client:  client,

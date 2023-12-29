@@ -3,14 +3,14 @@ package clientTelegram
 import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
-	"github.com/sirupsen/logrus"
 	"kz_bot/internal/config"
+	"kz_bot/pkg/logger"
 )
 
-func NewTelegram(log *logrus.Logger, cfg *config.ConfigBot) (*tgbotapi.BotAPI, error) {
+func NewTelegram(log *logger.Logger, cfg *config.ConfigBot) (*tgbotapi.BotAPI, error) {
 	tgBot, err := tgbotapi.NewBotAPI(cfg.Token.TokenTelegram)
 	if err != nil {
-		log.Panic("ошибка подключения к телеграм ", err)
+		log.Panic("ошибка подключения к телеграм " + err.Error())
 	}
 	tgBot.Debug = false
 	fmt.Printf("Бот TELEGRAM загружен  %s\n", tgBot.Self.UserName)

@@ -70,24 +70,22 @@ func (d *Discord) ready(s *discordgo.Session, r *discordgo.Ready) {
 		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "", v)
 		if err != nil {
 
-			d.log.Printf("Cannot create '%v' command: %v", v.Name, err)
+			d.log.Println("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
 	}
 }
 
 func (d *Discord) removeComand(s *discordgo.Session) {
-	fmt.Println("Removing commands...", "700238199070523412")
 	registeredCommands, err := s.ApplicationCommands(s.State.User.ID, "700238199070523412")
-	fmt.Println("registeredCommands", registeredCommands)
 	if err != nil {
-		d.log.Fatalf("Could not fetch registered commands: %v", err)
+		d.log.Fatalln("Could not fetch registered commands: %v", err)
 	}
 
 	for _, v := range registeredCommands {
 		err := s.ApplicationCommandDelete(s.State.User.ID, "700238199070523412", v.ID)
 		if err != nil {
-			d.log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+			d.log.Println("Cannot delete '%v' command: %v", v.Name, err)
 		}
 	}
 	fmt.Println("удалены")

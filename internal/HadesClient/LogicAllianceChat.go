@@ -1,10 +1,6 @@
 package HadesClient
 
-import (
-	"fmt"
-)
-
-func (h *Hades) logicAlliance() {
+/*func (h *Hades) logicAlliance() {
 	sender := "(🎮)" + h.in.Sender
 	config := h.getConfig(h.in.Corporation)
 	if h.in.Command == "text" {
@@ -54,3 +50,4 @@ func (h *Hades) logicAlliance() {
 		}
 	}
 }
+*/

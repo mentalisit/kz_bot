@@ -2,16 +2,17 @@ package storage
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/mongo"
 	"kz_bot/internal/storage/postgres"
 	"kz_bot/internal/storage/words"
+	"kz_bot/pkg/logger"
 )
 
 type Storage struct {
-	log   *logrus.Logger
+	log   *zap.Logger
 	debug bool
 	//	CorpsConfig       *CorpsConfig.Corps
 	HadesClient       HadesClient
@@ -34,7 +35,7 @@ type Storage struct {
 	CorpConfigRS     map[string]models.CorporationConfig
 }
 
-func NewStorage(log *logrus.Logger, cfg *config.ConfigBot) *Storage {
+func NewStorage(log *logger.Logger, cfg *config.ConfigBot) *Storage {
 
 	//инициализируем и читаем репозиторий из облока конфига конфигурации
 	mongoDB := mongo.InitMongoDB(log)

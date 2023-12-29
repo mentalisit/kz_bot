@@ -3,20 +3,18 @@ module kz_bot
 go 1.17
 
 require (
+	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
-	github.com/krasun/logrus2telegram v1.0.0
-	github.com/mitchellh/go-ps v1.0.0
 	github.com/samuelemusiani/telegram-bot-api v0.0.6
-	github.com/sirupsen/logrus v1.9.3
 	go.mongodb.org/mongo-driver v1.13.1
+	go.uber.org/zap v1.26.0
 )
 
 require (
 	github.com/Benau/go_rlottie v0.0.0-20210807002906-98c1b2421989 // indirect
-	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/av-elier/go-decimal-to-rational v0.0.0-20191127152832-89e6aad02ecf // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -40,6 +38,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect

@@ -30,12 +30,13 @@ func RunNew() error {
 	//читаем конфигурацию с ENV
 	cfg := config.InitConfig()
 
-	//создаем логгер в телегу
-	log := logger.NewLoggerTG(cfg.Logger.Token, cfg.Logger.ChatId)
+	//создаем логгер
+	log := logger.LoggerZap(cfg.Logger.Token, cfg.Logger.ChatId)
 
 	if cfg.BotMode == "dev1" {
 		fmt.Println("Develop Running")
-		//utils.Convert()
+
+		time.Sleep(5 * time.Second)
 
 		//test func
 		time.Sleep(5 * time.Minute)
@@ -43,9 +44,9 @@ func RunNew() error {
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
-	config.Reserv(log)
+	//config.Reserv(log)
 
-	log.Println("🚀  загрузка  🚀 " + cfg.BotMode)
+	log.Info("🚀  загрузка  🚀 " + cfg.BotMode)
 
 	//storage
 	st := storage.NewStorage(log, cfg)

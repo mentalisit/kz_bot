@@ -1,9 +1,10 @@
 package clients
 
 import (
-	"github.com/sirupsen/logrus"
 	"kz_bot/internal/clients/DiscordClient"
 	"kz_bot/internal/clients/TelegramClient"
+	"kz_bot/pkg/logger"
+
 	//"kz_bot/internal/clients/WhatsappClient"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
@@ -17,7 +18,7 @@ type Clients struct {
 	storage *storage.Storage
 }
 
-func NewClients(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Clients {
+func NewClients(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) *Clients {
 	c := &Clients{storage: st}
 
 	c.Ds = DiscordClient.NewDiscord(log, st, cfg)

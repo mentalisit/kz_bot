@@ -3,7 +3,7 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
-	"github.com/sirupsen/logrus"
+	"kz_bot/pkg/logger"
 	"strconv"
 
 	"kz_bot/internal/config"
@@ -18,7 +18,7 @@ type Telegram struct {
 	ChanToGame        chan models.MessageHades
 	ChanBridgeMessage chan models.BridgeMessage
 	t                 *tgbotapi.BotAPI
-	log               *logrus.Logger
+	log               *logger.Logger
 	storage           *storage.Storage
 	debug             bool
 	corporationHades  map[string]models.CorporationHadesClient
@@ -26,7 +26,7 @@ type Telegram struct {
 	corpConfigRS      map[string]models.CorporationConfig
 }
 
-func NewTelegram(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
+func NewTelegram(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) *Telegram {
 	client, err := clientTelegram.NewTelegram(log, cfg)
 	if err != nil {
 		return nil

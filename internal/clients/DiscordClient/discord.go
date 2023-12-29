@@ -2,11 +2,11 @@ package DiscordClient
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/sirupsen/logrus"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/clientDiscord"
+	"kz_bot/pkg/logger"
 )
 
 type Discord struct {
@@ -14,14 +14,14 @@ type Discord struct {
 	ChanToGame        chan models.MessageHades
 	ChanBridgeMessage chan models.BridgeMessage
 	s                 *discordgo.Session
-	log               *logrus.Logger
+	log               *logger.Logger
 	storage           *storage.Storage
 	corporationHades  map[string]models.CorporationHadesClient
 	bridgeConfig      map[string]models.BridgeConfig
 	corpConfigRS      map[string]models.CorporationConfig
 }
 
-func NewDiscord(log *logrus.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
+func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
 	ds, err := clientDiscord.NewDiscord(log, cfg)
 	if err != nil {
 		log.Println("error running Discord " + err.Error())
