@@ -19,7 +19,7 @@ func (t *Telegram) nameOrNick(UserName, FirstName string) (name string) {
 func (t *Telegram) GetAvatar(userid int64) string {
 	userProfilePhotos, err := t.t.GetUserProfilePhotos(tgbotapi.UserProfilePhotosConfig{UserID: userid})
 	if err != nil {
-		t.log.Error(err.Error())
+		//t.log.Error(err.Error())
 		return "https://thumb.cloud.mail.ru/weblink/thumb/xw1/VLES/v7tqy1nXQ/telegram.png"
 	}
 	//t.log.Printf("size photo %d", len(userProfilePhotos.Photos))
