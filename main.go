@@ -8,6 +8,7 @@ import (
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
+	"kz_bot/pkg/utils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,13 +17,13 @@ import (
 
 func main() {
 	fmt.Println("Bot loading ")
+	defer utils.RestorePanic()
 
 	err := RunNew()
 	if err != nil {
 		fmt.Println("Error loading bot", err)
 		time.Sleep(10 * time.Second)
 		panic(err.Error())
-
 	}
 }
 
