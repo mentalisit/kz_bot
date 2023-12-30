@@ -35,6 +35,7 @@ func (d *Discord) Autohelpds() {
 }
 
 func (d *Discord) HelpChannelUpdate(c models.CorporationConfig) {
+	d.log.Info(fmt.Sprintf("   HelpChannelUpdate %+v\n", c))
 	newMesidHelp := d.hhelp1(c.DsChannel)
 	c.MesidDsHelp = newMesidHelp
 	d.storage.ConfigRs.AutoHelpUpdateMesid(c)

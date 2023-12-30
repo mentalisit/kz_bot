@@ -21,7 +21,7 @@ func (d *Discord) SendEmbedText(chatid, title, text string) *discordgo.Message {
 	}
 	m, err := d.s.ChannelMessageSendEmbed(chatid, Emb)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.Error(chatid + " " + err.Error())
 	}
 	return m
 }
