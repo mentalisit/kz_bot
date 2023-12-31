@@ -10,12 +10,14 @@ func (b *Bridge) logicMessage() {
 	if b.checkingForIdenticalMessage() {
 		return
 	}
+	if b.in.Tip == "del" {
+		b.RemoveMessage()
+		return
+	}
 	var memory models.BridgeTempMemory
 	memory.RelayName = b.in.Config.NameRelay
 	if b.ifTipDs(&memory) {
 	} else if b.ifTipTg(&memory) {
-	} else if b.in.Tip == "del" {
-		b.RemoveMessage()
 	}
 	b.messages = append(b.messages, memory)
 }
