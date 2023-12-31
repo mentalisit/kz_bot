@@ -63,13 +63,17 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 		for _, d := range b.in.Config.ChannelTg {
 			if d.ChannelId != "" {
 				var mesTg int
+				var err error
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
 					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
 				}
 				if b.in.FileUrl != "" {
-					mesTg = b.client.Tg.SendFileFromURL(d.ChannelId, textTg, b.in.FileUrl)
+					mesTg, err = b.client.Tg.SendFileFromURL(d.ChannelId, textTg, b.in.FileUrl)
+					if err != nil {
+						b.log.Error(fmt.Sprintf("error sendFile in Channel %s error %s", d.ChannelId, err.Error()))
+					}
 				} else {
 					mesTg = b.client.Tg.SendChannel(d.ChannelId, textTg)
 				}
@@ -95,13 +99,17 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			if c.ChannelId != b.in.Tg.ChatId {
 				if c.ChannelId != "" {
 					var mesTg int
+					var err error
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 					if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
 						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Tg.Reply.Text)
 					}
 					if b.in.FileUrl != "" {
-						mesTg = b.client.Tg.SendFileFromURL(c.ChannelId, textTg, b.in.FileUrl)
+						mesTg, err = b.client.Tg.SendFileFromURL(c.ChannelId, textTg, b.in.FileUrl)
+						if err != nil {
+							b.log.Error(fmt.Sprintf("error sendFile in Channel %s error %s", c.ChannelId, err.Error()))
+						}
 					} else {
 						mesTg = b.client.Tg.SendChannel(c.ChannelId, textTg)
 					}

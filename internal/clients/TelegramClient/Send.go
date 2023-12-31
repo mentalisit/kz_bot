@@ -2,6 +2,7 @@ package TelegramClient
 
 import (
 	"bytes"
+	"errors"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 	"io"
 	"kz_bot/internal/models"
@@ -123,7 +124,7 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 		})
 	}
 }
-func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
+func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) (mId int, err error) {
 	fileURL = strings.TrimSpace(fileURL)
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
@@ -141,7 +142,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	parsedURL, err := url.Parse(fileURL)
 	if err != nil {
 		t.log.Error(err.Error())
-		return 0
+		return 0, err
 	}
 
 	// Используем path.Base для получения последней части URL, которая представляет собой имя файла
@@ -153,7 +154,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	resp, err := http.Get(fileURL)
 	if err != nil {
 		t.log.Error(err.Error())
-		return 0
+		return 0, err
 	}
 	defer resp.Body.Close()
 
@@ -162,7 +163,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	_, err = io.Copy(buffer, resp.Body)
 	if err != nil {
 		t.log.Error(err.Error())
-		return 0
+		return 0, err
 	}
 	var media []interface{}
 
@@ -200,7 +201,7 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	}
 
 	if len(media) == 0 {
-		return 0
+		return 0, errors.New("media len zero ")
 	}
 	mg := tgbotapi.MediaGroupConfig{
 		BaseChat: tgbotapi.BaseChat{
@@ -214,9 +215,9 @@ func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) int {
 	m, err := t.t.SendMediaGroup(mg)
 	if err != nil {
 		t.log.Error(err.Error())
-		return 0
+		return 0, err
 	}
-	return m[0].MessageID
+	return m[0].MessageID, nil
 }
 
 //func (t *Telegram) SendPhoto(chatID string, photoURL, text string) {

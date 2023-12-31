@@ -26,7 +26,6 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
-		d.log.Error(err.Error())
 		ge, err1 := d.s.Guild(guildid)
 		if err1 != nil {
 			d.log.Error(err1.Error())
