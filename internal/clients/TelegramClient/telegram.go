@@ -63,12 +63,12 @@ func (t *Telegram) update() {
 				t.ifPrivatMesage(update.Message)
 			} else if update.Message.IsCommand() {
 				t.updatesComand(update.Message) //если сообщение является командой
-			} else if update.EditedMessage != nil {
-				fmt.Printf("edit message %s", update.EditedMessage.Text)
 			} else { //остальные сообщения
 				t.logicMix2(update.Message)
 			}
-
+		} else if update.EditedMessage != nil {
+			//нужно сделать обработку для моста
+			fmt.Printf("edit message sender %s text %s", update.EditedMessage.From.UserName, update.EditedMessage.Text)
 		} else if update.MyChatMember != nil {
 			t.myChatMember(update.MyChatMember)
 
