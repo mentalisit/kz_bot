@@ -93,7 +93,12 @@ func (b *Bot) RsDarkPlus() {
 		var n map[string]string
 		n = make(map[string]string)
 		n["lang"] = b.in.Config.Country
-		n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
+		if b.in.Config.DsChannel != "" {
+			n["lvlkz"], err = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+b.in.Lvlkz[1:], b.in.Config.Guildid)
+			if err != nil {
+				b.log.Info(fmt.Sprintf("RoleToIdPing %+v lvl %s", b.in.Config, b.in.Lvlkz[1:]))
+			}
+		}
 		if countQueue == 0 {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)

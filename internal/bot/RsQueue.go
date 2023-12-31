@@ -40,9 +40,12 @@ func (b *Bot) QueueLevel() {
 	darkStar, lvlkz := containsSymbolD(b.in.Lvlkz)
 	if b.in.Config.DsChannel != "" {
 		if darkStar {
-			n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+lvlkz, b.in.Config.Guildid)
+			n["lvlkz"], err = b.client.Ds.RoleToIdPing(b.GetLang("dkz")+lvlkz, b.in.Config.Guildid)
 		} else {
-			n["lvlkz"] = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+			n["lvlkz"], err = b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz, b.in.Config.Guildid)
+		}
+		if err != nil {
+			b.log.Info(fmt.Sprintf("RoleToIdPing %+v lvl %s", b.in.Config, b.in.Lvlkz))
 		}
 	}
 

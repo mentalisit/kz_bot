@@ -18,18 +18,17 @@ func (d *Discord) CheckAdmin(nameid string, chatid string) bool {
 		return false
 	}
 }
-func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
+func (d *Discord) RoleToIdPing(rolePing, guildid string) (string, error) {
 
 	if guildid == "" {
 		d.log.Panic("почему то нет гуилд ид")
-		panic("почему то нет гуилд ид")
 	}
 	g, err := d.s.Guild(guildid)
 	if err != nil {
 		ge, err1 := d.s.Guild(guildid)
 		if err1 != nil {
 			d.log.Error(err1.Error())
-			return rolePing
+			return rolePing, err1
 		}
 		g = ge
 	}
@@ -37,9 +36,9 @@ func (d *Discord) RoleToIdPing(rolePing, guildid string) string {
 	if !exist {
 		//создаем роль и возврашаем пинг
 		role = d.createRole(rolePing, guildid)
-		return role.Mention()
+		return role.Mention(), nil
 	} else {
-		return role.Mention()
+		return role.Mention(), nil
 	}
 }
 func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
