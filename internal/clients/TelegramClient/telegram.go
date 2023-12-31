@@ -63,7 +63,8 @@ func (t *Telegram) update() {
 				t.ifPrivatMesage(update.Message)
 			} else if update.Message.IsCommand() {
 				t.updatesComand(update.Message) //если сообщение является командой
-
+			} else if update.EditedMessage != nil {
+				fmt.Printf("edit message %s", update.EditedMessage.Text)
 			} else { //остальные сообщения
 				t.logicMix2(update.Message)
 			}
