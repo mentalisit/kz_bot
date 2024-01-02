@@ -43,6 +43,7 @@ func (b *Bot) Subscribe(tipPing int) {
 			text = fmt.Sprintf("%s %s %s", b.in.NameMention, b.GetLang("ViUjePodpisan"), argRoles)
 		} else if subscribeCode == 2 {
 			text = b.GetLang("oshibkaNedostatochno") + argRoles
+			b.log.Info(fmt.Sprintf("%+v %+v", b.in, b.in.Config))
 		}
 		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 
@@ -91,6 +92,7 @@ func (b *Bot) Unsubscribe(tipPing int) {
 			text = fmt.Sprintf("%s %s %s", b.in.NameMention, b.GetLang("ViOtpisalis"), argRoles)
 		} else if unsubscribeCode == 3 {
 			text = b.GetLang("OshibkaNedostatochnadlyaS") + argRoles
+			b.log.Info(fmt.Sprintf("%+v %+v", b.in, b.in.Config))
 		}
 		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 	} else if b.in.Tip == tg {
