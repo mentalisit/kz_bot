@@ -67,8 +67,7 @@ func (t *Telegram) update() {
 				t.logicMix2(update.Message)
 			}
 		} else if update.EditedMessage != nil {
-			//нужно сделать обработку для моста
-			fmt.Printf("edit message sender %s text %s", update.EditedMessage.From.UserName, update.EditedMessage.Text)
+			t.logicMix2(update.EditedMessage)
 		} else if update.MyChatMember != nil {
 			t.myChatMember(update.MyChatMember)
 
