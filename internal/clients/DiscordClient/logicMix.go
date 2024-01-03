@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -300,11 +301,8 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		},
 		Config: &config,
 	}
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			mes.FileUrl = mes.FileUrl + "\n" + attach.URL
-		}
-	}
+	mes.FileUrl = d.ifAttachments(m)
+
 	if m.ReferencedMessage != nil {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
 		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
@@ -319,4 +317,23 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 	}
 
 	d.ChanBridgeMessage <- mes
+}
+func (d *Discord) ifAttachments(m *discordgo.MessageCreate) (FileUrl string) {
+	if len(m.Attachments) > 0 {
+		d.log.Info(fmt.Sprintf("вложение %d", len(m.Attachments)))
+		// Разбираем URL
+		parsedURL, err := url.Parse(m.Attachments[0].URL)
+		if err != nil {
+			d.log.Error(err.Error())
+			return ""
+		}
+
+		// Очищаем параметры запроса (query parameters) и фрагмент
+		parsedURL.RawQuery = ""
+		parsedURL.Fragment = ""
+
+		// Получаем очищенную ссылку
+		return parsedURL.String()
+	}
+	return ""
 }
