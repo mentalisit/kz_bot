@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/utils"
+	"sync"
 	"time"
 )
 
@@ -90,34 +91,6 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 	}
 	return message.ID
 }
-func (d *Discord) SendFile(text, username, channelID, guildId, fileURL, Avatar string) string {
-	fileName, i := utils.Convert(fileURL)
-	// convert byte slice to io.Reader
-	reader := bytes.NewReader(i)
-
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
-
-	// Подготавливаем параметры вебхука
-	webhook := &discordgo.WebhookParams{
-		Content:   text,
-		Username:  username,
-		AvatarURL: Avatar,
-		Files: []*discordgo.File{{
-			Name:   fileName, // Имя файла, которое будет видно в Discord
-			Reader: reader,
-			//ContentType: resp.Header.Get("Content-type"),
-		},
-		},
-	}
-
-	// Отправляем файл в Discord
-	m, err := web.Send(channelID, webhook)
-	if err != nil {
-		return ""
-	}
-
-	return m.ID
-}
 
 func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
 	message, err := d.s.ChannelMessageSend(chatid, text)
@@ -134,57 +107,7 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 	}
 	return message.ID
 }
-func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (mesId string) {
-	if text == "" {
-		return ""
-	}
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
-	pp := discordgo.WebhookParams{
-		Content:   text,
-		Username:  username,
-		AvatarURL: Avatar,
-	}
-	mes, err := web.Send(chatid, &pp)
-	if err != nil {
-		fmt.Println(err)
-		d.Send(chatid, text)
-		return ""
-	}
-	return mes.ID
-}
 
-func (d *Discord) SendWebhookReply(text, username, chatid, guildId, Avatar string, replytext, replyAvatar, replyName string, replyTime int64) (mesId string) {
-	if text == "" {
-		return ""
-	}
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
-	var embeds []*discordgo.MessageEmbed
-	e := discordgo.MessageEmbed{
-		Description: replytext,
-		Timestamp:   time.Unix(replyTime, 0).Format(time.RFC3339),
-		Color:       14232643,
-		Author: &discordgo.MessageEmbedAuthor{
-			Name:    replyName,
-			IconURL: replyAvatar,
-		},
-	}
-
-	embeds = append(embeds, &e)
-
-	pp := &discordgo.WebhookParams{
-		Content:   text,
-		Username:  username,
-		AvatarURL: Avatar,
-		Embeds:    embeds,
-	}
-	mes, err := web.Send(chatid, pp)
-	if err != nil {
-		d.log.Error(err.Error())
-		d.Send(chatid, "ошибка отправки вебхука..недостаточно разрешений"+err.Error())
-		return ""
-	}
-	return mes.ID
-}
 func (d *Discord) Name() {
 	fmt.Println(d.s.State.User.Username)
 }
@@ -223,4 +146,122 @@ func (d *Discord) EditWebhookForHades(text, username, chatid, guildId, Avatar, m
 		return
 	}
 	return
+}
+
+func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (mesId string) {
+	if text == "" {
+		return ""
+	}
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+	pp := discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+	}
+	mes, err := web.Send(chatid, &pp)
+	if err != nil {
+		fmt.Println(err)
+		d.Send(chatid, text)
+		return ""
+	}
+	return mes.ID
+}
+
+func (d *Discord) SendWebhookAsync(text, username, chatID, guildID, avatarURL string, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	if text == "" {
+		return
+	}
+
+	web := transmitter.New(d.s, guildID, "KzBot", true, d.log)
+	params := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: avatarURL,
+	}
+	mes, err := web.Send(chatID, params)
+	if err != nil {
+		fmt.Println(err)
+		d.Send(chatID, text) // Если вебхук не отправился, отправляем через обычное сообщение
+		return
+	}
+
+	messageData := models.MessageDs{
+		MessageId: mes.ID,
+		ChatId:    chatID,
+	}
+
+	resultChannel <- messageData
+}
+func (d *Discord) SendWebhookReplyAsync(text, username, chatid, guildId, Avatar string, reply *models.ReplyDs, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	if text == "" {
+		return
+	}
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+	var embeds []*discordgo.MessageEmbed
+	e := discordgo.MessageEmbed{
+		Description: reply.Text,
+		Timestamp:   time.Unix(reply.TimeMessage, 0).Format(time.RFC3339),
+		Color:       14232643,
+		Author: &discordgo.MessageEmbedAuthor{
+			Name:    reply.UserName,
+			IconURL: reply.Avatar,
+		},
+	}
+
+	embeds = append(embeds, &e)
+
+	pp := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+		Embeds:    embeds,
+	}
+	mes, err := web.Send(chatid, pp)
+	if err != nil {
+		d.log.Error(err.Error())
+		d.Send(chatid, text)
+		return
+	}
+	messageData := models.MessageDs{
+		MessageId: mes.ID,
+		ChatId:    chatid,
+	}
+
+	resultChannel <- messageData
+}
+func (d *Discord) SendFileAsync(text, username, channelID, guildId, fileURL, Avatar string, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName, i := utils.Convert(fileURL)
+	// convert byte slice to io.Reader
+	reader := bytes.NewReader(i)
+
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+
+	// Подготавливаем параметры вебхука
+	webhook := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+		Files: []*discordgo.File{{
+			Name:   fileName, // Имя файла, которое будет видно в Discord
+			Reader: reader,
+		},
+		},
+	}
+
+	// Отправляем файл в Discord
+	m, err := web.Send(channelID, webhook)
+	if err != nil {
+		return
+	}
+	messageData := models.MessageDs{
+		MessageId: m.ID,
+		ChatId:    channelID,
+	}
+
+	resultChannel <- messageData
 }

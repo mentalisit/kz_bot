@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kz_bot/internal/models"
 	"strings"
+	"sync"
 )
 
 func (b *Bridge) logicMessage() {
@@ -26,42 +27,40 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "ds" {
 		ok = true
 		memory.Timestamp = b.in.Ds.TimestampUnix
-		memory.MessageDs = append(memory.MessageDs, struct {
-			MessageId string
-			ChatId    string
-		}{MessageId: b.in.Ds.MesId, ChatId: b.in.Ds.ChatId})
+		memory.MessageDs = append(memory.MessageDs, models.MessageDs{
+			MessageId: b.in.Ds.MesId,
+			ChatId:    b.in.Ds.ChatId,
+		})
+
+		// Создаем WaitGroup для ожидания завершения всех горутин
+		var wg sync.WaitGroup
+		// Создаем канал для получения результатов (ID сообщений)
+		resultChannel := make(chan models.MessageDs, 10)
 
 		for _, d := range b.in.Config.ChannelDs {
 			if d.ChannelId != b.in.Ds.ChatId {
 				if d.ChannelId != "" {
-					var mes string
-					text := replaceTextMap(b.in.Text, d.MappingRoles)
+					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
+					wg.Add(1)
 					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
-						mes = b.client.Ds.SendWebhookReply(text, b.GetSenderName(),
-							d.ChannelId, d.GuildId, b.in.Ds.Avatar,
-							b.in.Ds.Reply.Text,
-							b.in.Ds.Reply.Avatar,
-							b.in.Ds.Reply.UserName,
-							b.in.Ds.Reply.TimeMessage)
+						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, b.in.Ds.Reply, resultChannel, &wg)
 					} else if b.in.FileUrl != "" {
-						mes = b.client.Ds.SendFile(text, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar)
+						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar, resultChannel, &wg)
 					} else {
-						texts := b.replaceTextMentionRsRole(text, d.GuildId)
-						mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
-							d.ChannelId, d.GuildId,
-							b.in.Ds.Avatar)
+						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, resultChannel, &wg)
 					}
-					memory.MessageDs = append(memory.MessageDs, struct {
-						MessageId string
-						ChatId    string
-					}{
-						MessageId: mes,
-						ChatId:    d.ChannelId,
-					})
-
 				}
 			}
 		}
+
+		go func() {
+			wg.Wait()
+			close(resultChannel)
+			for value := range resultChannel {
+				memory.MessageDs = append(memory.MessageDs, value)
+			}
+		}()
+
 		for _, d := range b.in.Config.ChannelTg {
 			if d.ChannelId != "" {
 				var mesTg int
@@ -123,40 +122,39 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 				}
 			}
 		}
-		for _, d := range b.in.Config.ChannelDs {
-			if d.ChannelId != "" {
-				text := replaceTextMap(b.in.Text, d.MappingRoles)
-				var mes string
-				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
-					if b.in.Tg.Reply.UserName == "gote1st_bot" {
-						at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
-						b.in.Tg.Reply.UserName = at[0]
-						b.in.Tg.Reply.Text = at[1]
-					}
-					mes = b.client.Ds.SendWebhookReply(text, b.GetSenderName(),
-						d.ChannelId, d.GuildId, b.in.Tg.Avatar,
-						b.in.Tg.Reply.Text,
-						b.in.Tg.Reply.Avatar,
-						b.in.Tg.Reply.UserName,
-						b.in.Tg.Reply.TimeMessage)
-				} else if b.in.FileUrl != "" {
-					mes = b.client.Ds.SendFile(text, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar)
-				} else {
-					texts := b.replaceTextMentionRsRole(text, d.GuildId)
-					mes = b.client.Ds.SendWebhook(texts, b.GetSenderName(),
-						d.ChannelId, d.GuildId,
-						b.in.Tg.Avatar)
-				}
-				memory.MessageDs = append(memory.MessageDs, struct {
-					MessageId string
-					ChatId    string
-				}{
-					MessageId: mes,
-					ChatId:    d.ChannelId,
-				})
 
+		// Создаем WaitGroup для ожидания завершения всех горутин
+		var wg sync.WaitGroup
+		// Создаем канал для получения результатов (ID сообщений)
+		resultChannel := make(chan models.MessageDs, 10)
+		for _, d := range b.in.Config.ChannelDs {
+			if d.ChannelId != b.in.Ds.ChatId {
+				if d.ChannelId != "" {
+					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
+					wg.Add(1)
+					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
+						if b.in.Tg.Reply.UserName == "gote1st_bot" {
+							at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
+							b.in.Tg.Reply.UserName = at[0]
+							b.in.Tg.Reply.Text = at[1]
+						}
+						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannel, &wg)
+					} else if b.in.FileUrl != "" {
+						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannel, &wg)
+					} else {
+						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannel, &wg)
+					}
+				}
 			}
 		}
+
+		go func() {
+			wg.Wait()
+			close(resultChannel)
+			for value := range resultChannel {
+				memory.MessageDs = append(memory.MessageDs, value)
+			}
+		}()
 	}
 	return ok
 }
