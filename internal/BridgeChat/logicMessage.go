@@ -128,24 +128,24 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 		// Создаем канал для получения результатов (ID сообщений)
 		resultChannel := make(chan models.MessageDs, 10)
 		for _, d := range b.in.Config.ChannelDs {
-			if d.ChannelId != b.in.Ds.ChatId {
-				if d.ChannelId != "" {
-					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
-					wg.Add(1)
-					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
-						if b.in.Tg.Reply.UserName == "gote1st_bot" {
-							at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
-							b.in.Tg.Reply.UserName = at[0]
-							b.in.Tg.Reply.Text = at[1]
-						}
-						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannel, &wg)
-					} else if b.in.FileUrl != "" {
-						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannel, &wg)
-					} else {
-						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannel, &wg)
+
+			if d.ChannelId != "" {
+				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
+				wg.Add(1)
+				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
+					if b.in.Tg.Reply.UserName == "gote1st_bot" {
+						at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
+						b.in.Tg.Reply.UserName = at[0]
+						b.in.Tg.Reply.Text = at[1]
 					}
+					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannel, &wg)
+				} else if b.in.FileUrl != "" {
+					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannel, &wg)
+				} else {
+					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannel, &wg)
 				}
 			}
+
 		}
 
 		go func() {
