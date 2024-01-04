@@ -132,7 +132,7 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			if d.ChannelId != "" {
 				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 				wg.Add(1)
-				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
+				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
 					if b.in.Tg.Reply.UserName == "gote1st_bot" {
 						at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
 						b.in.Tg.Reply.UserName = at[0]
