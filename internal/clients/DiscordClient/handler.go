@@ -20,6 +20,7 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 }
 func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) { //nolint:unparam
 	if m.Message.EditedTimestamp != nil && m.Content != "" {
+		// хочу реализовать
 		m.Content += " `edit`"
 		msg := &discordgo.MessageCreate{
 			Message: m.Message,
@@ -28,13 +29,14 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 	}
 }
 func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
-	good, _ := d.BridgeCheckChannelConfigDS(m.ChannelID)
+	good, config := d.BridgeCheckChannelConfigDS(m.ChannelID)
 	if good {
 		d.ChanBridgeMessage <- models.BridgeMessage{
 			Tip: "del",
 			Ds: &models.BridgeMessageDs{
 				MesId: m.ID,
 			},
+			Config: &config,
 		}
 	}
 }

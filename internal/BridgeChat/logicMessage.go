@@ -20,12 +20,14 @@ func (b *Bridge) logicMessage() {
 	if b.ifTipDs(&memory) {
 	} else if b.ifTipTg(&memory) {
 	}
+	memory.Wg.Wait()
 	b.messages = append(b.messages, memory)
 }
 
 func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "ds" {
 		ok = true
+		memory.Wg.Add(1)
 		memory.Timestamp = b.in.Ds.TimestampUnix
 		memory.MessageDs = append(memory.MessageDs, models.MessageDs{
 			MessageId: b.in.Ds.MesId,
@@ -59,6 +61,7 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 			for value := range resultChannel {
 				memory.MessageDs = append(memory.MessageDs, value)
 			}
+			memory.Wg.Done()
 		}()
 
 		for _, d := range b.in.Config.ChannelTg {
@@ -130,6 +133,7 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 		for _, d := range b.in.Config.ChannelDs {
 
 			if d.ChannelId != "" {
+				memory.Wg.Add(1)
 				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 				wg.Add(1)
 				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
@@ -154,6 +158,7 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			for value := range resultChannel {
 				memory.MessageDs = append(memory.MessageDs, value)
 			}
+			memory.Wg.Done()
 		}()
 	}
 	return ok
