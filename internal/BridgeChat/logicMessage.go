@@ -37,7 +37,7 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 		// Создаем WaitGroup для ожидания завершения всех горутин
 		var wg sync.WaitGroup
 		// Создаем канал для получения результатов (ID сообщений)
-		resultChannel := make(chan models.MessageDs, 10)
+		resultChannelDs := make(chan models.MessageDs, 10)
 
 		for _, d := range b.in.Config.ChannelDs {
 			if d.ChannelId != b.in.Ds.ChatId {
@@ -45,95 +45,86 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 					wg.Add(1)
 					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
-						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, b.in.Ds.Reply, resultChannel, &wg)
+						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, b.in.Ds.Reply, resultChannelDs, &wg)
 					} else if b.in.FileUrl != "" {
-						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar, resultChannel, &wg)
+						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar, resultChannelDs, &wg)
 					} else {
-						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, resultChannel, &wg)
+						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, resultChannelDs, &wg)
 					}
 				}
 			}
 		}
 
-		go func() {
-			wg.Wait()
-			close(resultChannel)
-			for value := range resultChannel {
-				memory.MessageDs = append(memory.MessageDs, value)
-			}
-			memory.Wg.Done()
-		}()
-
+		// Создаем канал для получения результатов (ID сообщений)
+		resultChannelTg := make(chan models.MessageTg, 10)
 		for _, d := range b.in.Config.ChannelTg {
 			if d.ChannelId != "" {
-				var mesTg int
-				var err error
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
 					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
 				}
+				wg.Add(1)
 				if b.in.FileUrl != "" {
-					mesTg, err = b.client.Tg.SendFileFromURL(d.ChannelId, textTg, b.in.FileUrl)
-					if err != nil {
-						b.log.Error(fmt.Sprintf("error sendFile in Channel %s error %s", d.ChannelId, err.Error()))
-					}
+					go b.client.Tg.SendFileFromURLAsync(d.ChannelId, textTg, b.in.FileUrl, resultChannelTg, &wg)
 				} else {
-					mesTg = b.client.Tg.SendChannel(d.ChannelId, textTg)
+					go b.client.Tg.SendChannelAsync(d.ChannelId, textTg, resultChannelTg, &wg)
 				}
-
-				memory.MessageTg = append(memory.MessageTg, struct {
-					MessageId int
-					ChatId    string
-				}{MessageId: mesTg, ChatId: d.ChannelId})
 			}
 		}
+		go func() {
+			wg.Wait()
+			close(resultChannelDs)
+			close(resultChannelTg)
+			for value := range resultChannelDs {
+				memory.MessageDs = append(memory.MessageDs, value)
+			}
+			for value := range resultChannelTg {
+				memory.MessageTg = append(memory.MessageTg, value)
+			}
+			memory.Wg.Done()
+		}()
+
 	}
 	return ok
 }
 func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "tg" {
 		ok = true
+		memory.Wg.Add(1)
 		memory.Timestamp = b.in.Tg.TimestampUnix
 		memory.MessageTg = append(memory.MessageTg, struct {
 			MessageId int
 			ChatId    string
 		}{MessageId: b.in.Tg.MesId, ChatId: b.in.Tg.ChatId})
+
+		// Создаем WaitGroup для ожидания завершения всех горутин
+		var wg sync.WaitGroup
+		// Создаем канал для получения результатов (ID сообщений)
+		resultChannelTg := make(chan models.MessageTg, 10)
+
 		for _, c := range b.in.Config.ChannelTg {
 			if c.ChannelId != b.in.Tg.ChatId {
 				if c.ChannelId != "" {
-					var mesTg int
-					var err error
+					wg.Add(1)
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
 					if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
 						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Tg.Reply.Text)
 					}
 					if b.in.FileUrl != "" {
-						mesTg, err = b.client.Tg.SendFileFromURL(c.ChannelId, textTg, b.in.FileUrl)
-						if err != nil {
-							b.log.Error(fmt.Sprintf("error sendFile in Channel %s error %s", c.ChannelId, err.Error()))
-						}
+						go b.client.Tg.SendFileFromURLAsync(c.ChannelId, textTg, b.in.FileUrl, resultChannelTg, &wg)
 					} else {
-						mesTg = b.client.Tg.SendChannel(c.ChannelId, textTg)
+						go b.client.Tg.SendChannelAsync(c.ChannelId, textTg, resultChannelTg, &wg)
 					}
-					memory.MessageTg = append(memory.MessageTg, struct {
-						MessageId int
-						ChatId    string
-					}{MessageId: mesTg, ChatId: c.ChannelId})
-
 				}
 			}
 		}
 
-		// Создаем WaitGroup для ожидания завершения всех горутин
-		var wg sync.WaitGroup
 		// Создаем канал для получения результатов (ID сообщений)
-		resultChannel := make(chan models.MessageDs, 10)
+		resultChannelDs := make(chan models.MessageDs, 10)
 		for _, d := range b.in.Config.ChannelDs {
-
 			if d.ChannelId != "" {
-				memory.Wg.Add(1)
 				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 				wg.Add(1)
 				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
@@ -142,11 +133,11 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 						b.in.Tg.Reply.UserName = at[0]
 						b.in.Tg.Reply.Text = at[1]
 					}
-					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannel, &wg)
+					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannelDs, &wg)
 				} else if b.in.FileUrl != "" {
-					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannel, &wg)
+					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannelDs, &wg)
 				} else {
-					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannel, &wg)
+					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannelDs, &wg)
 				}
 			}
 
@@ -154,8 +145,12 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 
 		go func() {
 			wg.Wait()
-			close(resultChannel)
-			for value := range resultChannel {
+			close(resultChannelTg)
+			close(resultChannelDs)
+			for value := range resultChannelTg {
+				memory.MessageTg = append(memory.MessageTg, value)
+			}
+			for value := range resultChannelDs {
 				memory.MessageDs = append(memory.MessageDs, value)
 			}
 			memory.Wg.Done()

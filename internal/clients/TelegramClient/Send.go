@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -124,6 +125,132 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 		})
 	}
 }
+
+func (t *Telegram) SendChannelAsync(chatid string, text string, resultChannel chan<- models.MessageTg, wg *sync.WaitGroup) {
+	defer wg.Done()
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Error(err.Error())
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Error(err.Error())
+		}
+	}
+	m := tgbotapi.NewMessage(chatId, text)
+	m.MessageThreadID = ThreadID
+	tMessage, _ := t.t.Send(m)
+	messageData := models.MessageTg{
+		MessageId: tMessage.MessageID,
+		ChatId:    chatid,
+	}
+	resultChannel <- messageData
+}
+func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, resultChannel chan<- models.MessageTg, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileURL = strings.TrimSpace(fileURL)
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.Error(err.Error())
+	}
+	ThreadID := 0
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.Error(err.Error())
+		}
+	}
+
+	parsedURL, err := url.Parse(fileURL)
+	if err != nil {
+		t.log.Error(err.Error())
+		return
+	}
+
+	// Используем path.Base для получения последней части URL, которая представляет собой имя файла
+	fileName := path.Base(parsedURL.Path)
+	parsedURL.RawQuery = ""
+	fileURL = parsedURL.String()
+
+	// Скачиваем файл по URL
+	resp, err := http.Get(fileURL)
+	if err != nil {
+		t.log.Error(err.Error())
+		return
+	}
+	defer resp.Body.Close()
+
+	// Читаем содержимое файла
+	buffer := new(bytes.Buffer)
+	_, err = io.Copy(buffer, resp.Body)
+	if err != nil {
+		t.log.Error(err.Error())
+		return
+	}
+	var media []interface{}
+
+	file := tgbotapi.FileBytes{
+		Name:  fileName,
+		Bytes: buffer.Bytes(),
+	}
+
+	switch filepath.Ext(fileName) {
+
+	case ".jpg", ".jpe", ".png":
+		pc := tgbotapi.NewInputMediaPhoto(file)
+		if text != "" {
+			pc.Caption = text
+		}
+		media = append(media, pc)
+	case ".mp4", ".m4v":
+		vc := tgbotapi.NewInputMediaVideo(file)
+		if text != "" {
+			vc.Caption = text
+		}
+		media = append(media, vc)
+	case ".mp3", ".oga":
+		ac := tgbotapi.NewInputMediaAudio(file)
+		if text != "" {
+			ac.Caption = text
+		}
+		media = append(media, ac)
+	default:
+		dc := tgbotapi.NewInputMediaDocument(file)
+		if text != "" {
+			dc.Caption = text
+		}
+		media = append(media, dc)
+	}
+
+	if len(media) == 0 {
+		return
+	}
+	mg := tgbotapi.MediaGroupConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID:          chatId,
+			MessageThreadID: ThreadID,
+			//ChannelUsername:  msg.Username,
+			//ReplyToMessageID: parentID,
+		},
+		Media: media,
+	}
+	m, err := t.t.SendMediaGroup(mg)
+	if err != nil {
+		t.log.Error(err.Error())
+		return
+	}
+
+	messageData := models.MessageTg{
+		MessageId: m[0].MessageID,
+		ChatId:    chatid,
+	}
+	resultChannel <- messageData
+}
+
 func (t *Telegram) SendFileFromURL(chatid, text string, fileURL string) (mId int, err error) {
 	fileURL = strings.TrimSpace(fileURL)
 	a := strings.SplitN(chatid, "/", 2)

@@ -320,7 +320,10 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 }
 func (d *Discord) ifAttachments(m *discordgo.MessageCreate) (FileUrl string) {
 	if len(m.Attachments) > 0 {
-		d.log.Info(fmt.Sprintf("вложение %d", len(m.Attachments)))
+		if len(m.Attachments) != 1 {
+			d.log.Info(fmt.Sprintf("вложение %d", len(m.Attachments)))
+		}
+
 		// Разбираем URL
 		parsedURL, err := url.Parse(m.Attachments[0].URL)
 		if err != nil {
