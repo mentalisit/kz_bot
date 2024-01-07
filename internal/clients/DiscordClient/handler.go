@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
+	"net/url"
 	"time"
 )
 
@@ -19,13 +20,65 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 
 }
 func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) { //nolint:unparam
+	if m.Message.WebhookID != "" {
+		return
+	}
+
 	if m.Message.EditedTimestamp != nil && m.Content != "" {
-		// хочу реализовать
-		m.Content += " `edit`"
-		msg := &discordgo.MessageCreate{
-			Message: m.Message,
+		good, config := d.BridgeCheckChannelConfigDS(m.ChannelID)
+		if good {
+			username := m.Author.Username
+			if m.Member != nil && m.Member.Nick != "" {
+				username = m.Member.Nick
+			}
+			mes := models.BridgeMessage{
+				Text:   d.replaceTextMessage(m.Content, m.GuildID),
+				Sender: username,
+				Tip:    "dse",
+				Ds: &models.BridgeMessageDs{
+					ChatId:        m.ChannelID,
+					MesId:         m.ID,
+					Avatar:        m.Author.AvatarURL("128"),
+					GuildId:       m.GuildID,
+					TimestampUnix: m.Timestamp.Unix(),
+				},
+				Config: &config,
+			}
+
+			if len(m.Attachments) > 0 {
+				if len(m.Attachments) != 1 {
+					d.log.Info(fmt.Sprintf("вложение %d", len(m.Attachments)))
+				}
+
+				// Разбираем URL
+				parsedURL, err := url.Parse(m.Attachments[0].URL)
+				if err != nil {
+					d.log.Error(err.Error())
+				}
+
+				// Очищаем параметры запроса (query parameters) и фрагмент
+				parsedURL.RawQuery = ""
+				parsedURL.Fragment = ""
+
+				// Получаем очищенную ссылку
+				mes.FileUrl = parsedURL.String()
+			}
+
+			if m.ReferencedMessage != nil {
+				usernameR := m.ReferencedMessage.Author.String() //.Username
+				if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
+					usernameR = m.ReferencedMessage.Member.Nick
+				}
+				mes.Ds.Reply = &models.ReplyDs{
+					TimeMessage: m.ReferencedMessage.Timestamp.Unix(),
+					Text:        d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID),
+					Avatar:      m.ReferencedMessage.Author.AvatarURL("128"),
+					UserName:    usernameR,
+				}
+			}
+
+			d.ChanBridgeMessage <- mes
 		}
-		d.logicMix(msg)
 	}
 }
 func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {

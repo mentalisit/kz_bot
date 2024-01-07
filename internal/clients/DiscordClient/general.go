@@ -3,6 +3,7 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
 	"time"
 )
@@ -138,6 +139,22 @@ func (d *Discord) EditMessage(chatID, messageID, content string) {
 	_, err := d.s.ChannelMessageEdit(chatID, messageID, content)
 	if err != nil {
 		d.log.Error(err.Error())
+	}
+}
+func (d *Discord) EditWebhook(text, username, chatID, mID string, guildID, avatarURL string) {
+	if text == "" {
+		return
+	}
+
+	web := transmitter.New(d.s, guildID, "KzBot", true, d.log)
+	params := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: avatarURL,
+	}
+	err := web.Edit(chatID, mID, params)
+	if err != nil {
+		return
 	}
 }
 func (d *Discord) EmbedDS(mapa map[string]string, numkz int, count int, dark bool) discordgo.MessageEmbed {

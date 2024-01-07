@@ -15,6 +15,10 @@ func (b *Bridge) logicMessage() {
 		b.RemoveMessage()
 		return
 	}
+	if b.in.Tip == "dse" {
+		b.EditMessageDS()
+		return
+	}
 	var memory models.BridgeTempMemory
 	memory.RelayName = b.in.Config.NameRelay
 	if b.ifTipDs(&memory) {
