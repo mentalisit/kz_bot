@@ -32,17 +32,15 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 				username = m.Member.Nick
 			}
 			mes := models.BridgeMessage{
-				Text:   d.replaceTextMessage(m.Content, m.GuildID),
-				Sender: username,
-				Tip:    "dse",
-				Avatar: m.Author.AvatarURL("128"),
-				Ds: &models.BridgeMessageDs{
-					ChatId:        m.ChannelID,
-					MesId:         m.ID,
-					GuildId:       m.GuildID,
-					TimestampUnix: m.Timestamp.Unix(),
-				},
-				Config: &config,
+				Text:          d.replaceTextMessage(m.Content, m.GuildID),
+				Sender:        username,
+				Tip:           "dse",
+				Avatar:        m.Author.AvatarURL("128"),
+				ChatId:        m.ChannelID,
+				MesId:         m.ID,
+				GuildId:       m.GuildID,
+				TimestampUnix: m.Timestamp.Unix(),
+				Config:        &config,
 			}
 
 			if len(m.Attachments) > 0 {
@@ -85,10 +83,8 @@ func (d *Discord) onMessageDelete(s *discordgo.Session, m *discordgo.MessageDele
 	good, config := d.BridgeCheckChannelConfigDS(m.ChannelID)
 	if good {
 		d.ChanBridgeMessage <- models.BridgeMessage{
-			Tip: "del",
-			Ds: &models.BridgeMessageDs{
-				MesId: m.ID,
-			},
+			Tip:    "delDs",
+			MesId:  m.ID,
 			Config: &config,
 		}
 	}

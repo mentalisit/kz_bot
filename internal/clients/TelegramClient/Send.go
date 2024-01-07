@@ -144,7 +144,7 @@ func (t *Telegram) SendChannelAsync(chatid string, text string, resultChannel ch
 	m.MessageThreadID = ThreadID
 	tMessage, _ := t.t.Send(m)
 	messageData := models.MessageTg{
-		MessageId: tMessage.MessageID,
+		MessageId: strconv.Itoa(tMessage.MessageID),
 		ChatId:    chatid,
 	}
 	resultChannel <- messageData
@@ -245,7 +245,7 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	}
 
 	messageData := models.MessageTg{
-		MessageId: m[0].MessageID,
+		MessageId: strconv.Itoa(m[0].MessageID),
 		ChatId:    chatid,
 	}
 	resultChannel <- messageData

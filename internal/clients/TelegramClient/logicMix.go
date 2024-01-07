@@ -53,10 +53,8 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message, edit bool) {
 				Text:   m.Text,
 				Sender: username,
 				Tip:    "tg",
-				Tg: &models.BridgeMessageTg{
-					ChatId: ChatId,
-					MesId:  m.MessageID,
-				},
+				ChatId: ChatId,
+				MesId:  strconv.Itoa(m.MessageID),
 			}
 			t.ChanBridgeMessage <- mes
 		}()
@@ -71,18 +69,16 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message, edit bool) {
 			}
 			username := t.nameOrNick(m.From.UserName, m.From.FirstName)
 			mes := models.BridgeMessage{
-				Text:    m.Text,
-				Sender:  username,
-				Tip:     "tg",
-				FileUrl: url,
-				Avatar:  t.GetAvatar(m.From.ID),
-				Tg: &models.BridgeMessageTg{
-					ChatId:        ChatId,
-					MesId:         m.MessageID,
-					TimestampUnix: m.Time().Unix(),
-					GroupName:     m.Chat.Title,
-				},
-				Config: &bridgeConfig,
+				Text:          m.Text,
+				Sender:        username,
+				Tip:           "tg",
+				FileUrl:       url,
+				Avatar:        t.GetAvatar(m.From.ID),
+				ChatId:        ChatId,
+				MesId:         strconv.Itoa(m.MessageID),
+				TimestampUnix: m.Time().Unix(),
+				GuildId:       m.Chat.Title,
+				Config:        &bridgeConfig,
 			}
 
 			if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {

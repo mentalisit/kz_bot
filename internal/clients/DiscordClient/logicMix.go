@@ -289,17 +289,15 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 	}
 
 	mes := models.BridgeMessage{
-		Text:   d.replaceTextMessage(m.Content, m.GuildID),
-		Sender: username,
-		Tip:    "ds",
-		Avatar: m.Author.AvatarURL("128"),
-		Ds: &models.BridgeMessageDs{
-			ChatId:        m.ChannelID,
-			MesId:         m.ID,
-			GuildId:       m.GuildID,
-			TimestampUnix: m.Timestamp.Unix(),
-		},
-		Config: &config,
+		Text:          d.replaceTextMessage(m.Content, m.GuildID),
+		Sender:        username,
+		Tip:           "ds",
+		Avatar:        m.Author.AvatarURL("128"),
+		ChatId:        m.ChannelID,
+		MesId:         m.ID,
+		GuildId:       m.GuildID,
+		TimestampUnix: m.Timestamp.Unix(),
+		Config:        &config,
 	}
 	mes.FileUrl = d.ifAttachments(m)
 

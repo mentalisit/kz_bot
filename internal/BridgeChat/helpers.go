@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kz_bot/internal/models"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -23,9 +24,13 @@ func (b *Bridge) checkingForIdenticalMessage() bool {
 // удаление входящего сообщения
 func (b *Bridge) delIncomingMessage() {
 	if b.in.Tip == "ds" {
-		go b.client.Ds.DeleteMessage(b.in.Ds.ChatId, b.in.Ds.MesId)
+		go b.client.Ds.DeleteMessage(b.in.ChatId, b.in.MesId)
 	} else if b.in.Tip == "tg" {
-		go b.client.Tg.DelMessage(b.in.Tg.ChatId, b.in.Tg.MesId)
+		mid, err := strconv.Atoi(b.in.MesId)
+		if err != nil {
+			return
+		}
+		go b.client.Tg.DelMessage(b.in.ChatId, mid)
 	}
 }
 
@@ -34,13 +39,13 @@ func (b *Bridge) GetSenderName() string {
 	AliasName := ""
 	if b.in.Tip == "ds" {
 		for _, d := range b.in.Config.ChannelDs {
-			if d.ChannelId == b.in.Ds.ChatId {
+			if d.ChannelId == b.in.ChatId {
 				AliasName = d.AliasName
 			}
 		}
 	} else if b.in.Tip == "tg" {
 		for _, d := range b.in.Config.ChannelTg {
-			if d.ChannelId == b.in.Tg.ChatId {
+			if d.ChannelId == b.in.ChatId {
 				AliasName = d.AliasName
 			}
 		}
@@ -49,29 +54,33 @@ func (b *Bridge) GetSenderName() string {
 }
 func (b *Bridge) GuildName() string {
 	if b.in.Tip == "ds" {
-		return b.client.Ds.GuildChatName(b.in.Ds.ChatId, b.in.Ds.GuildId)
+		return b.client.Ds.GuildChatName(b.in.ChatId, b.in.GuildId)
 	}
 	if b.in.Tip == "tg" {
-		return b.in.Tg.GroupName
+		return b.in.GuildId
 	}
 	return ""
 }
 
 func (b *Bridge) ifTipDelSend(text string) {
 	if b.in.Tip == "ds" {
-		go b.client.Ds.SendChannelDelSecond(b.in.Ds.ChatId, "```"+text+"```", 30)
-		go b.client.Ds.DeleteMessage(b.in.Ds.ChatId, b.in.Ds.MesId)
+		go b.client.Ds.SendChannelDelSecond(b.in.ChatId, "```"+text+"```", 30)
+		go b.client.Ds.DeleteMessage(b.in.ChatId, b.in.MesId)
 	} else if b.in.Tip == "tg" {
-		go b.client.Tg.SendChannelDelSecond(b.in.Tg.ChatId, text, 30)
-		go b.client.Tg.DelMessage(b.in.Tg.ChatId, b.in.Tg.MesId)
+		go b.client.Tg.SendChannelDelSecond(b.in.ChatId, text, 30)
+		mid, err := strconv.Atoi(b.in.MesId)
+		if err != nil {
+			return
+		}
+		go b.client.Tg.DelMessage(b.in.ChatId, mid)
 	}
 }
 
 func (b *Bridge) ifChannelTip(relay *models.BridgeConfig) {
 	if b.in.Tip == "ds" {
 		relay.ChannelDs = append(relay.ChannelDs, models.BridgeConfigDs{
-			ChannelId:       b.in.Ds.ChatId,
-			GuildId:         b.in.Ds.GuildId,
+			ChannelId:       b.in.ChatId,
+			GuildId:         b.in.GuildId,
 			CorpChannelName: b.GuildName(),
 			AliasName:       "",
 			MappingRoles:    map[string]string{},
@@ -79,7 +88,7 @@ func (b *Bridge) ifChannelTip(relay *models.BridgeConfig) {
 	}
 	if b.in.Tip == "tg" {
 		relay.ChannelTg = append(relay.ChannelTg, models.BridgeConfigTg{
-			ChannelId:       b.in.Tg.ChatId,
+			ChannelId:       b.in.ChatId,
 			CorpChannelName: b.GuildName(),
 			AliasName:       "",
 			MappingRoles:    map[string]string{},

@@ -57,9 +57,9 @@ func (b *Bridge) Command() {
 			good, host := b.CacheNameBridge(arg[2])
 			channelGood := false
 			if b.in.Tip == "ds" {
-				channelGood, _ = b.CacheCheckChannelConfigDS(b.in.Ds.ChatId)
+				channelGood, _ = b.CacheCheckChannelConfigDS(b.in.ChatId)
 			} else if b.in.Tip == "tg" {
-				channelGood, _ = b.CacheCheckChannelConfigTg(b.in.Tg.ChatId)
+				channelGood, _ = b.CacheCheckChannelConfigTg(b.in.ChatId)
 			}
 			if good && !channelGood {
 				bridge := models.BridgeConfig{

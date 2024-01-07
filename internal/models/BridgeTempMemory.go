@@ -14,6 +14,6 @@ type MessageDs struct {
 	ChatId    string
 }
 type MessageTg struct {
-	MessageId int
+	MessageId string
 	ChatId    string
 }

@@ -1,16 +1,22 @@
 package BridgeChat
 
+import "strconv"
+
 func (b *Bridge) EditMessageDS() {
 	if len(b.messages) > 0 {
 		for _, memory := range b.messages {
-			if b.ifMessageIdDs(memory, b.in.Ds.MesId) {
+			if b.ifMessageIdDs(memory, b.in.MesId) {
 				for _, s := range memory.MessageDs {
-					if b.in.Ds.MesId != s.MessageId {
+					if b.in.MesId != s.MessageId {
 						go b.client.Ds.EditWebhook(b.in.Text, b.in.Sender, s.ChatId, s.MessageId, "", b.in.Avatar)
 					}
 				}
 				for _, s := range memory.MessageTg {
-					go b.client.Tg.EditText(s.ChatId, s.MessageId, b.in.Text)
+					mid, err := strconv.Atoi(s.MessageId)
+					if err != nil {
+						return
+					}
+					go b.client.Tg.EditText(s.ChatId, mid, b.in.Text)
 				}
 			}
 		}
@@ -19,10 +25,14 @@ func (b *Bridge) EditMessageDS() {
 func (b *Bridge) EditMessageTG() {
 	if len(b.messages) > 0 {
 		for _, memory := range b.messages {
-			if b.ifMessageIdTg(memory, b.in.Tg.MesId) {
+			if b.ifMessageIdTg(memory, b.in.MesId) {
 				for _, s := range memory.MessageTg {
-					if b.in.Tg.MesId != s.MessageId {
-						go b.client.Tg.EditText(s.ChatId, s.MessageId, b.in.Text)
+					if b.in.MesId != s.MessageId {
+						mid, err := strconv.Atoi(s.MessageId)
+						if err != nil {
+							return
+						}
+						go b.client.Tg.EditText(s.ChatId, mid, b.in.Text)
 					}
 				}
 				for _, s := range memory.MessageDs {

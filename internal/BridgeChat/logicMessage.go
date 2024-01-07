@@ -11,7 +11,7 @@ func (b *Bridge) logicMessage() {
 	if b.checkingForIdenticalMessage() {
 		return
 	}
-	if b.in.Tip == "del" {
+	if b.in.Tip == "delDs" {
 		b.RemoveMessage()
 		return
 	}
@@ -36,10 +36,10 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "ds" {
 		ok = true
 		memory.Wg.Add(1)
-		memory.Timestamp = b.in.Ds.TimestampUnix
+		memory.Timestamp = b.in.TimestampUnix
 		memory.MessageDs = append(memory.MessageDs, models.MessageDs{
-			MessageId: b.in.Ds.MesId,
-			ChatId:    b.in.Ds.ChatId,
+			MessageId: b.in.MesId,
+			ChatId:    b.in.ChatId,
 		})
 
 		// Создаем WaitGroup для ожидания завершения всех горутин
@@ -48,7 +48,7 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 		resultChannelDs := make(chan models.MessageDs, 10)
 
 		for _, d := range b.in.Config.ChannelDs {
-			if d.ChannelId != b.in.Ds.ChatId {
+			if d.ChannelId != b.in.ChatId {
 				if d.ChannelId != "" {
 					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 					wg.Add(1)
@@ -100,11 +100,11 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 	if b.in.Tip == "tg" {
 		ok = true
 		memory.Wg.Add(1)
-		memory.Timestamp = b.in.Tg.TimestampUnix
+		memory.Timestamp = b.in.TimestampUnix
 		memory.MessageTg = append(memory.MessageTg, struct {
-			MessageId int
+			MessageId string
 			ChatId    string
-		}{MessageId: b.in.Tg.MesId, ChatId: b.in.Tg.ChatId})
+		}{MessageId: b.in.MesId, ChatId: b.in.ChatId})
 
 		// Создаем WaitGroup для ожидания завершения всех горутин
 		var wg sync.WaitGroup
@@ -112,7 +112,7 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 		resultChannelTg := make(chan models.MessageTg, 10)
 
 		for _, c := range b.in.Config.ChannelTg {
-			if c.ChannelId != b.in.Tg.ChatId {
+			if c.ChannelId != b.in.ChatId {
 				if c.ChannelId != "" {
 					wg.Add(1)
 					text := replaceTextMap(b.in.Text, c.MappingRoles)

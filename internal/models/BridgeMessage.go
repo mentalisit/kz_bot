@@ -1,29 +1,19 @@
 package models
 
 type BridgeMessage struct {
-	Text    string
-	Sender  string
-	Tip     string
-	Ds      *BridgeMessageDs
-	Tg      *BridgeMessageTg
-	Reply   *BridgeMessageReply
-	FileUrl string
-	Avatar  string
-	Config  *BridgeConfig
-}
-type BridgeMessageDs struct {
+	Text          string
+	Sender        string
+	Tip           string
 	ChatId        string
 	MesId         string
 	GuildId       string
 	TimestampUnix int64
+	FileUrl       string
+	Avatar        string
+	Reply         *BridgeMessageReply
+	Config        *BridgeConfig
 }
 
-type BridgeMessageTg struct {
-	ChatId        string
-	MesId         int
-	TimestampUnix int64
-	GroupName     string
-}
 type BridgeMessageReply struct {
 	TimeMessage int64
 	Text        string
