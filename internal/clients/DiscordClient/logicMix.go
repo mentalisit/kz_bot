@@ -299,7 +299,6 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		TimestampUnix: m.Timestamp.Unix(),
 		Config:        &config,
 	}
-	mes.FileUrl = d.ifAttachments(m)
 
 	if m.ReferencedMessage != nil {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
@@ -313,28 +312,18 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 			UserName:    usernameR,
 		}
 	}
-
-	d.ChanBridgeMessage <- mes
-}
-func (d *Discord) ifAttachments(m *discordgo.MessageCreate) (FileUrl string) {
 	if len(m.Attachments) > 0 {
-		if len(m.Attachments) != 1 {
-			d.log.Info(fmt.Sprintf("вложение %d", len(m.Attachments)))
+		for _, a := range m.Attachments {
+			parsedURL, err := url.Parse(a.URL)
+			if err != nil {
+				d.log.Error(err.Error())
+			}
+			parsedURL.RawQuery = ""
+			parsedURL.Fragment = ""
+			mes.FileUrl = parsedURL.String()
+			d.ChanBridgeMessage <- mes
 		}
-
-		// Разбираем URL
-		parsedURL, err := url.Parse(m.Attachments[0].URL)
-		if err != nil {
-			d.log.Error(err.Error())
-			return ""
-		}
-
-		// Очищаем параметры запроса (query parameters) и фрагмент
-		parsedURL.RawQuery = ""
-		parsedURL.Fragment = ""
-
-		// Получаем очищенную ссылку
-		return parsedURL.String()
+	} else {
+		d.ChanBridgeMessage <- mes
 	}
-	return ""
 }
