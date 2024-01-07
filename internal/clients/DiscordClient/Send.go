@@ -194,7 +194,7 @@ func (d *Discord) SendWebhookAsync(text, username, chatID, guildID, avatarURL st
 
 	resultChannel <- messageData
 }
-func (d *Discord) SendWebhookReplyAsync(text, username, chatid, guildId, Avatar string, reply *models.ReplyDs, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+func (d *Discord) SendWebhookReplyAsync(text, username, chatid, guildId, Avatar string, reply *models.BridgeMessageReply, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	if text == "" {

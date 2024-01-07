@@ -292,10 +292,10 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		Text:   d.replaceTextMessage(m.Content, m.GuildID),
 		Sender: username,
 		Tip:    "ds",
+		Avatar: m.Author.AvatarURL("128"),
 		Ds: &models.BridgeMessageDs{
 			ChatId:        m.ChannelID,
 			MesId:         m.ID,
-			Avatar:        m.Author.AvatarURL("128"),
 			GuildId:       m.GuildID,
 			TimestampUnix: m.Timestamp.Unix(),
 		},
@@ -308,7 +308,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		if m.ReferencedMessage.Member != nil && m.ReferencedMessage.Member.Nick != "" {
 			usernameR = m.ReferencedMessage.Member.Nick
 		}
-		mes.Ds.Reply = &models.ReplyDs{
+		mes.Reply = &models.BridgeMessageReply{
 			TimeMessage: m.ReferencedMessage.Timestamp.Unix(),
 			Text:        d.replaceTextMessage(m.ReferencedMessage.Content, m.GuildID),
 			Avatar:      m.ReferencedMessage.Author.AvatarURL("128"),

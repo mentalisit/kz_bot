@@ -6,32 +6,25 @@ type BridgeMessage struct {
 	Tip     string
 	Ds      *BridgeMessageDs
 	Tg      *BridgeMessageTg
+	Reply   *BridgeMessageReply
 	FileUrl string
+	Avatar  string
 	Config  *BridgeConfig
 }
 type BridgeMessageDs struct {
 	ChatId        string
 	MesId         string
-	Avatar        string
 	GuildId       string
 	TimestampUnix int64
-	Reply         *ReplyDs
 }
-type ReplyDs struct {
-	TimeMessage int64
-	Text        string
-	Avatar      string
-	UserName    string
-}
+
 type BridgeMessageTg struct {
 	ChatId        string
 	MesId         int
-	Avatar        string
 	TimestampUnix int64
 	GroupName     string
-	Reply         *ReplyTg
 }
-type ReplyTg struct {
+type BridgeMessageReply struct {
 	TimeMessage int64
 	Text        string
 	Avatar      string

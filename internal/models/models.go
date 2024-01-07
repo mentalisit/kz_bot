@@ -14,7 +14,6 @@ type InMessage struct {
 	}
 	Tg struct {
 		Mesid int
-		//Nameid int64
 	}
 	Wa struct {
 		Nameid string
