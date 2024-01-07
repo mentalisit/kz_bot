@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (t *Telegram) logicMix2(m *tgbotapi.Message) {
+func (t *Telegram) logicMix2(m *tgbotapi.Message, edit bool) {
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 	ThreadID := m.MessageThreadID
 	if !m.IsTopicMessage && ThreadID != 0 {
@@ -32,10 +32,8 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 			NameMention: "@" + name,
 			Tg: struct {
 				Mesid int
-				//Nameid int64
 			}{
 				Mesid: m.MessageID,
-				//Nameid: m.From.ID,
 			},
 			Config: config,
 			Option: models.Option{
@@ -45,48 +43,6 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 
 		t.ChanRsMessage <- in
 	}
-
-	//// client hs
-	//corpAlliance := t.getCorpHadesAlliance(ChatId)
-	//if corpAlliance.Corp != "" {
-	//	if m.Text != "" {
-	//		if filterRsPl(m.Text) {
-	//			return
-	//		}
-	//		mes := models.MessageHades{
-	//			Text:        m.Text,
-	//			Sender:      t.nameOrNick(m.From.UserName, m.From.FirstName),
-	//			Avatar:      t.GetAvatar(m.From.ID),
-	//			ChannelType: 0,
-	//			Corporation: corpAlliance.Corp,
-	//			Command:     "text",
-	//			Messager:    "tg",
-	//			MessageId:   strconv.Itoa(m.MessageID),
-	//		}
-	//		t.ChanToGame <- mes
-	//	}
-	//	return
-	//}
-	//corpWs1 := t.getCorpHadesWs1(ChatId)
-	//if corpWs1.Corp != "" {
-	//	if m.Text != "" {
-	//		if filterRsPl(m.Text) {
-	//			return
-	//		}
-	//		mes := models.MessageHades{
-	//			Text:        m.Text,
-	//			Sender:      t.nameOrNick(m.From.UserName, m.From.FirstName),
-	//			Avatar:      t.GetAvatar(m.From.ID),
-	//			ChannelType: 1,
-	//			Corporation: corpWs1.Corp,
-	//			Command:     "text",
-	//			Messager:    "tg",
-	//			MessageId:   strconv.Itoa(m.MessageID),
-	//		}
-	//		t.ChanToGame <- mes
-	//	}
-	//	return
-	//}
 
 	tg, bridgeConfig := t.BridgeCheckChannelConfigTg(ChatId)
 
@@ -119,10 +75,10 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 				Sender:  username,
 				Tip:     "tg",
 				FileUrl: url,
+				Avatar:  t.GetAvatar(m.From.ID),
 				Tg: &models.BridgeMessageTg{
 					ChatId:        ChatId,
 					MesId:         m.MessageID,
-					Avatar:        t.GetAvatar(m.From.ID),
 					TimestampUnix: m.Time().Unix(),
 					GroupName:     m.Chat.Title,
 				},
@@ -130,7 +86,7 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 			}
 
 			if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
-				mes.Tg.Reply = &models.ReplyTg{
+				mes.Reply = &models.BridgeMessageReply{
 					Text:        m.ReplyToMessage.Text,
 					UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 					TimeMessage: m.ReplyToMessage.Time().Unix(),
@@ -141,6 +97,9 @@ func (t *Telegram) logicMix2(m *tgbotapi.Message) {
 				forwardName := t.nameOrNick(m.ForwardFrom.UserName, m.ForwardFrom.FirstName)
 				text := fmt.Sprintf("Пересланное сообщение от %s \n %s ", forwardName, mes.Text)
 				mes.Text = text
+			}
+			if edit {
+				mes.Tip = "tge"
 			}
 
 			t.ChanBridgeMessage <- mes

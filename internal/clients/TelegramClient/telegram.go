@@ -64,10 +64,10 @@ func (t *Telegram) update() {
 			} else if update.Message.IsCommand() {
 				t.updatesComand(update.Message) //если сообщение является командой
 			} else { //остальные сообщения
-				t.logicMix2(update.Message)
+				t.logicMix2(update.Message, false)
 			}
 		} else if update.EditedMessage != nil {
-			t.logicMix2(update.EditedMessage)
+			t.logicMix2(update.EditedMessage, true)
 		} else if update.MyChatMember != nil {
 			t.myChatMember(update.MyChatMember)
 

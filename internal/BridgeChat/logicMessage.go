@@ -19,6 +19,10 @@ func (b *Bridge) logicMessage() {
 		b.EditMessageDS()
 		return
 	}
+	if b.in.Tip == "tge" {
+		b.EditMessageTG()
+		return
+	}
 	var memory models.BridgeTempMemory
 	memory.RelayName = b.in.Config.NameRelay
 	if b.ifTipDs(&memory) {
@@ -48,12 +52,12 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 				if d.ChannelId != "" {
 					texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 					wg.Add(1)
-					if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
-						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, b.in.Ds.Reply, resultChannelDs, &wg)
+					if b.in.Reply != nil && b.in.Reply.Text != "" {
+						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
 					} else if b.in.FileUrl != "" {
-						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Ds.Avatar, resultChannelDs, &wg)
+						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Avatar, resultChannelDs, &wg)
 					} else {
-						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Ds.Avatar, resultChannelDs, &wg)
+						go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, resultChannelDs, &wg)
 					}
 				}
 			}
@@ -65,8 +69,8 @@ func (b *Bridge) ifTipDs(memory *models.BridgeTempMemory) (ok bool) {
 			if d.ChannelId != "" {
 				text := replaceTextMap(b.in.Text, d.MappingRoles)
 				textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
-				if b.in.Ds.Reply != nil && b.in.Ds.Reply.Text != "" {
-					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Ds.Reply.Text)
+				if b.in.Reply != nil && b.in.Reply.Text != "" {
+					textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Reply.Text)
 				}
 				wg.Add(1)
 				if b.in.FileUrl != "" {
@@ -113,8 +117,8 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 					wg.Add(1)
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
-					if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
-						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Tg.Reply.Text)
+					if b.in.Reply != nil && b.in.Reply.Text != "" {
+						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Reply.Text)
 					}
 					if b.in.FileUrl != "" {
 						go b.client.Tg.SendFileFromURLAsync(c.ChannelId, textTg, b.in.FileUrl, resultChannelTg, &wg)
@@ -131,17 +135,17 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			if d.ChannelId != "" {
 				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 				wg.Add(1)
-				if b.in.Tg.Reply != nil && b.in.Tg.Reply.Text != "" {
-					if b.in.Tg.Reply.UserName == "gote1st_bot" {
-						at := strings.SplitN(b.in.Tg.Reply.Text, "\n", 2)
-						b.in.Tg.Reply.UserName = at[0]
-						b.in.Tg.Reply.Text = at[1]
+				if b.in.Reply != nil && b.in.Reply.Text != "" {
+					if b.in.Reply.UserName == "gote1st_bot" {
+						at := strings.SplitN(b.in.Reply.Text, "\n", 2)
+						b.in.Reply.UserName = at[0]
+						b.in.Reply.Text = at[1]
 					}
-					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, (*models.ReplyDs)(b.in.Tg.Reply), resultChannelDs, &wg)
+					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
 				} else if b.in.FileUrl != "" {
-					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Tg.Avatar, resultChannelDs, &wg)
+					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Avatar, resultChannelDs, &wg)
 				} else {
-					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Tg.Avatar, resultChannelDs, &wg)
+					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, resultChannelDs, &wg)
 				}
 			}
 
