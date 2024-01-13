@@ -15,13 +15,11 @@ import (
 
 type Telegram struct {
 	ChanRsMessage     chan models.InMessage
-	ChanToGame        chan models.MessageHades
 	ChanBridgeMessage chan models.BridgeMessage
 	t                 *tgbotapi.BotAPI
 	log               *logger.Logger
 	storage           *storage.Storage
 	debug             bool
-	corporationHades  map[string]models.CorporationHadesClient
 	bridgeConfig      map[string]models.BridgeConfig
 	corpConfigRS      map[string]models.CorporationConfig
 }
@@ -34,15 +32,13 @@ func NewTelegram(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot)
 
 	tg := &Telegram{
 		ChanRsMessage:     make(chan models.InMessage, 10),
-		ChanToGame:        make(chan models.MessageHades, 10),
 		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
 		t:                 client,
 		log:               log,
 		storage:           st,
 		debug:             cfg.IsDebug,
-		//corporationHades:  st.CorporationHades,
-		bridgeConfig: st.BridgeConfigs,
-		corpConfigRS: st.CorpConfigRS,
+		bridgeConfig:      st.BridgeConfigs,
+		corpConfigRS:      st.CorpConfigRS,
 	}
 
 	go tg.update()
@@ -64,10 +60,10 @@ func (t *Telegram) update() {
 			} else if update.Message.IsCommand() {
 				t.updatesComand(update.Message) //если сообщение является командой
 			} else { //остальные сообщения
-				t.logicMix2(update.Message, false)
+				t.logicMix(update.Message, false)
 			}
 		} else if update.EditedMessage != nil {
-			t.logicMix2(update.EditedMessage, true)
+			t.logicMix(update.EditedMessage, true)
 		} else if update.MyChatMember != nil {
 			t.myChatMember(update.MyChatMember)
 
@@ -85,6 +81,6 @@ func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
 	} else {
 		t.SendChannel(strconv.FormatInt(m.Chat.ID, 10), "сорян это в разработке \n"+
 			"я еще не решил как тут сделать"+
-			"Присылай идеи для работы с ботом мне @mentalisit ")
+			"Присылай идеи для работы с ботом мне @Mentalisit ")
 	}
 }

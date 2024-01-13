@@ -58,13 +58,6 @@ func (d *Discord) TextToRoleRsPing(rolePing, guildid string) string {
 		return role.Mention()
 	}
 }
-func (d *Discord) BotName() string { //получаем имя бота
-	u, err := d.s.User("@me")
-	if err != nil {
-		d.log.Error(err.Error())
-	}
-	return u.Username
-}
 func (d *Discord) DMchannel(AuthorID string) (chatidDM string) {
 	create, err := d.s.UserChannelCreate(AuthorID)
 	if err != nil {

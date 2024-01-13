@@ -16,7 +16,6 @@ func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
 		t.log.Error(err.Error())
 	}
 	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatId, idSendMessage)))
-	//if err != nil { t.log.Println("Ошибка удаления сообщения телеги ", err) }
 }
 
 func (t *Telegram) DelMessageSecond(chatid string, idSendMessage string, second int) {
@@ -96,17 +95,7 @@ func (t *Telegram) CheckAdminTg(chatid string, name string) bool {
 	}
 	return admin
 }
-func (t *Telegram) RemoveDuplicateElementInt(mesididid []int) []int {
-	result := make([]int, 0, len(mesididid))
-	temp := map[int]struct{}{}
-	for _, item := range mesididid {
-		if _, ok := temp[item]; !ok {
-			temp[item] = struct{}{}
-			result = append(result, item)
-		}
-	}
-	return result
-}
+
 func (t *Telegram) updatesComand(c *tgbotapi.Message) {
 	ChatId := strconv.FormatInt(c.Chat.ID, 10) + fmt.Sprintf("/%d", c.MessageThreadID)
 	if c.Command() == "chatid" {
@@ -152,7 +141,4 @@ func (t *Telegram) ChatName(chatid string) string {
 		t.log.Error(err.Error())
 	}
 	return r.Title
-}
-func (t *Telegram) BotName() string {
-	return t.t.Self.UserName
 }

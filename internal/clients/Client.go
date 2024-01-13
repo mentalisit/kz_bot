@@ -12,9 +12,8 @@ import (
 )
 
 type Clients struct {
-	Ds *DiscordClient.Discord
-	Tg *TelegramClient.Telegram
-	//Wa      *WhatsappClient.Whatsapp
+	Ds      *DiscordClient.Discord
+	Tg      *TelegramClient.Telegram
 	storage *storage.Storage
 }
 
@@ -24,8 +23,6 @@ func NewClients(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	c.Ds = DiscordClient.NewDiscord(log, st, cfg)
 
 	c.Tg = TelegramClient.NewTelegram(log, st, cfg)
-
-	//c.Wa = WhatsappClient.NewWhatsapp(c.Inbox, log, st, cfg)
 
 	go c.deleteMessageTimer()
 	return c

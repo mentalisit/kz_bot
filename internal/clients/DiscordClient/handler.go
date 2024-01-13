@@ -19,7 +19,7 @@ func (d *Discord) messageHandler(s *discordgo.Session, m *discordgo.MessageCreat
 	d.logicMix(m)
 
 }
-func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) { //nolint:unparam
+func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	if m.Message.WebhookID != "" {
 		return
 	}

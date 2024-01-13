@@ -108,46 +108,6 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 	return message.ID
 }
 
-func (d *Discord) Name() {
-	fmt.Println(d.s.State.User.Username)
-}
-func (d *Discord) SendWebhookForHades(text, username, chatid, guildId, Avatar string) string {
-	if text == "" {
-		return ""
-	}
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
-	pp := discordgo.WebhookParams{
-		Content:   text,
-		Username:  username,
-		AvatarURL: Avatar,
-	}
-	m, err := web.Send(chatid, &pp)
-	if err != nil {
-		//d.log.Println("error create webhook message  " + err.Error())
-		m, _ = d.s.ChannelMessageSend(chatid, text)
-		return m.ID
-	}
-	return m.ID
-}
-func (d *Discord) EditWebhookForHades(text, username, chatid, guildId, Avatar, mesid string) {
-	if text == "" {
-		return
-	}
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
-	pp := discordgo.WebhookParams{
-		Content:   text,
-		Username:  username,
-		AvatarURL: Avatar,
-	}
-	err := web.Edit(chatid, mesid, &pp)
-	if err != nil {
-		//d.log.Println("error create webhook message  " + err.Error())
-		//_, _ = d.s.ChannelMessageSend(chatid, "ошибка edit вебхука..недостаточно разрешений")
-		return
-	}
-	return
-}
-
 func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (mesId string) {
 	if text == "" {
 		return ""

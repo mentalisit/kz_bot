@@ -29,6 +29,7 @@ func (d *Discord) AddEnojiRsQueue(chatid, mesid string) {
 	}
 
 }
+
 func (d *Discord) DeleteMessage(chatid, mesid string) {
 	_ = d.s.ChannelMessageDelete(chatid, mesid)
 }

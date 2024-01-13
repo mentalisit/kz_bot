@@ -11,7 +11,6 @@ import (
 
 type Discord struct {
 	ChanRsMessage     chan models.InMessage
-	ChanToGame        chan models.MessageHades
 	ChanBridgeMessage chan models.BridgeMessage
 	s                 *discordgo.Session
 	log               *logger.Logger
@@ -32,11 +31,9 @@ func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 		log:               log,
 		storage:           st,
 		ChanRsMessage:     make(chan models.InMessage, 10),
-		ChanToGame:        make(chan models.MessageHades, 10),
 		ChanBridgeMessage: make(chan models.BridgeMessage, 20),
-		//corporationHades:  st.CorporationHades,
-		bridgeConfig: st.BridgeConfigs,
-		corpConfigRS: st.CorpConfigRS,
+		bridgeConfig:      st.BridgeConfigs,
+		corpConfigRS:      st.CorpConfigRS,
 	}
 	ds.AddHandler(DS.messageHandler)
 	ds.AddHandler(DS.messageUpdate)

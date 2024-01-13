@@ -25,10 +25,8 @@ func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 			NameMention: "@" + name,
 			Tg: struct {
 				Mesid int
-				//Nameid int64
 			}{
 				Mesid: cb.Message.MessageID,
-				//Nameid: cb.From.ID,
 			},
 			Config: config,
 			Option: models.Option{
@@ -44,7 +42,7 @@ func (t *Telegram) myChatMember(member *tgbotapi.ChatMemberUpdated) {
 	if member.NewChatMember.Status == "member" {
 		t.SendChannelDelSecond(ChatId, fmt.Sprintf("@%s мне нужны права админа для коректной работы", member.From.UserName), 60)
 	} else if member.NewChatMember.Status == "administrator" {
-		t.SendChannelDelSecond(ChatId, fmt.Sprintf("@%s спасибо ... я готов к работе \nподтверди активацию .add", member.From.UserName), 60)
+		t.SendChannelDelSecond(ChatId, fmt.Sprintf("@%s спасибо ... я готов к работе \nАктивируй нужный режим бота,\n если сложности пиши мне @Mentalisit", member.From.UserName), 60)
 	}
 }
 

@@ -39,21 +39,3 @@ func (d *Discord) AddDsCorpConfig(chatName, chatid, guildid, lang string) {
 	d.log.Info(chatName + " Добавлена в конфиг корпораций ")
 	d.HelpChannelUpdate(c)
 }
-
-// hadesClient
-//func (d *Discord) getCorpHadesAlliance(ChatId string) models.CorporationHadesClient {
-//	for _, client := range d.corporationHades {
-//		if client.DsChat == ChatId {
-//			return client
-//		}
-//	}
-//	return models.CorporationHadesClient{}
-//}
-//func (d *Discord) getCorpHadesWs1(ChatId string) models.CorporationHadesClient {
-//	for _, client := range d.corporationHades {
-//		if client.DsChatWS1 == ChatId {
-//			return client
-//		}
-//	}
-//	return models.CorporationHadesClient{}
-//}

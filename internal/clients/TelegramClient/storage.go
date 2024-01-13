@@ -35,21 +35,3 @@ func (t *Telegram) AddTgCorpConfig(chatName string, chatid, lang string) {
 	t.corpConfigRS[c.CorpName] = c
 	t.log.Info(chatName + " Добавлена в конфиг корпораций ")
 }
-
-// hadesClient
-func (t *Telegram) getCorpHadesAlliance(ChatId string) models.CorporationHadesClient {
-	for _, client := range t.corporationHades {
-		if client.TgChat == ChatId {
-			return client
-		}
-	}
-	return models.CorporationHadesClient{}
-}
-func (t *Telegram) getCorpHadesWs1(ChatId string) models.CorporationHadesClient {
-	for _, client := range t.corporationHades {
-		if client.TgChatWS1 == ChatId {
-			return client
-		}
-	}
-	return models.CorporationHadesClient{}
-}

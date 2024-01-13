@@ -4,14 +4,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"regexp"
 	"strings"
-	"unicode"
 )
 
 var (
 	channelMentionRE = regexp.MustCompile("<#[0-9]+>")
 	userMentionRE    = regexp.MustCompile("<@(\\d+)>")
 	roleMentionRE    = regexp.MustCompile("<@&(\\d+)>")
-	//emoteRE          = regexp.MustCompile(`<a?(:\w+:)\d+>`)
 )
 
 func (d *Discord) replaceTextMessage(text string, guildid string) (newtext string) {
@@ -85,51 +83,4 @@ func (d *Discord) getUserNameById(userId string, guildId string) string {
 		}
 	}
 	return "Unknown user"
-}
-func (d *Discord) getUserById(userId string, guildId string) *discordgo.Member {
-	members, err := d.s.GuildMembers(guildId, "", 999)
-	if err != nil {
-		d.log.Error(err.Error())
-	}
-	for _, member := range members {
-		if member.User.ID == userId {
-			return member
-		}
-	}
-	return nil
-}
-
-func enumerateUsernames(s string) []string {
-	onlySpace := true
-	for _, r := range s {
-		if !unicode.IsSpace(r) {
-			onlySpace = false
-			break
-		}
-	}
-	if onlySpace {
-		return nil
-	}
-
-	var username, endSpace string
-	var usernames []string
-	skippingSpace := true
-	for _, r := range s {
-		if unicode.IsSpace(r) {
-			if !skippingSpace {
-				usernames = append(usernames, username)
-				skippingSpace = true
-			}
-			endSpace += string(r)
-			username += string(r)
-		} else {
-			endSpace = ""
-			username += string(r)
-			skippingSpace = false
-		}
-	}
-	if endSpace == "" {
-		usernames = append(usernames, username)
-	}
-	return usernames
 }
