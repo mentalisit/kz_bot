@@ -1,9 +1,13 @@
 package TelegramClient
 
-import "kz_bot/internal/models"
+import (
+	"fmt"
+	"kz_bot/internal/models"
+)
 
-func (t *Telegram) Help(Channel string) {
-	t.SendChannelDelSecond(Channel, "Справка\n"+models.HhelpText+"\n/help", 180)
+func (t *Telegram) Help(Channel string, lang string) {
+	text := fmt.Sprintf("%s\n%s ", t.storage.Words.GetWords(lang, "spravka"), t.storage.Words.GetWords(lang, "hhelpText"))
+	t.SendChannelDelSecond(Channel, text, 180)
 }
 
 // команда хелп

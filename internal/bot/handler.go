@@ -128,7 +128,7 @@ func (b *Bot) hhelp() {
 	if b.in.Tip == ds {
 		go b.client.Ds.Help(b.in.Config.DsChannel)
 	} else if b.in.Tip == tg {
-		go b.client.Tg.Help(b.in.Config.TgChannel)
+		go b.client.Tg.Help(b.in.Config.TgChannel, b.in.Config.Country)
 	}
 }
 
