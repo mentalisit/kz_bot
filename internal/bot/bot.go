@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
+	"kz_bot/pkg/utils"
 	"strconv"
 	"sync"
 	"time"
@@ -71,8 +72,8 @@ func (b *Bot) loadInbox() {
 func (b *Bot) RemoveMessage() { //цикл для удаления сообщений
 	for {
 		<-time.After(1 * time.Minute)
-		b.MinusMin()             //ежеминутное обновление активной очереди
-		b.client.Ds.Autohelpds() //автозапуск справки для дискорда
+		b.MinusMin() //ежеминутное обновление активной очереди
+		b.Autohelp() //автозапуск справки
 		time.Sleep(1 * time.Second)
 	}
 
@@ -145,4 +146,43 @@ func (b *Bot) bridge() bool {
 		b.cleanChat()
 	}
 	return b.in.Config.Forward
+}
+func (b *Bot) Autohelp() {
+	tm := time.Now()
+	mtime := tm.Format("15:04")
+	if mtime == "12:00" {
+		a := b.storage.ConfigRs.AutoHelp()
+		for _, s := range a {
+			if s.DsChannel != "" {
+				if s.MesidDsHelp != "" {
+					go b.client.Ds.DeleteMessage(s.DsChannel, s.MesidDsHelp)
+					s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
+				} else {
+					s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
+				}
+				if !s.Forward {
+					b.storage.ConfigRs.AutoHelpUpdateMesid(s)
+				}
+			}
+			if s.Forward && s.TgChannel != "" {
+				text := fmt.Sprintf("%s \n%s", b.storage.Words.GetWords(s.Country, "botUdalyaet"), b.storage.Words.GetWords(s.Country, "hhelpText"))
+				if s.MesidTgHelp != "" {
+					mID, err := strconv.Atoi(s.MesidTgHelp)
+					if err != nil {
+						return
+					}
+					go b.client.Tg.DelMessage(s.TgChannel, mID)
+					s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, text))
+				} else {
+					s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, text))
+				}
+				b.storage.ConfigRs.AutoHelpUpdateMesid(s)
+
+			}
+		}
+		time.Sleep(time.Minute)
+	} else if mtime == "03:00" {
+		time.Sleep(1 * time.Second)
+		utils.UpdateRun()
+	}
 }

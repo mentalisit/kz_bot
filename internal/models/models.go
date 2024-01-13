@@ -87,6 +87,7 @@ type CorporationConfig struct {
 	Country        string
 	DelMesComplite int
 	MesidDsHelp    string
+	MesidTgHelp    string
 	Forward        bool
 	Guildid        string
 	//ThreadID       int
