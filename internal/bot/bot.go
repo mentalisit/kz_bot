@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -106,11 +107,11 @@ func (b *Bot) LogicRs() {
 
 func (b *Bot) cleanChat() {
 	if b.in.Tip == ds && b.in.Config.DelMesComplite == 0 && !b.in.Option.Edit {
-		b.client.Ds.CleanChat(b.in.Config.DsChannel, b.in.Ds.Mesid, b.in.Mtext)
+		go b.client.Ds.CleanChat(b.in.Config.DsChannel, b.in.Ds.Mesid, b.in.Mtext)
 	}
 	// if hs ua
 	if b.in.Tip == tg && b.in.Config.TgChannel == "-1002116077159/44" {
-		b.client.Tg.DelMessage("-1002116077159/44", b.in.Tg.Mesid)
+		go b.client.Tg.DelMessageSecond("-1002116077159/44", strconv.Itoa(b.in.Tg.Mesid), 180)
 	}
 }
 
