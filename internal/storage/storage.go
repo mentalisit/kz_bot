@@ -12,10 +12,8 @@ import (
 )
 
 type Storage struct {
-	log   *zap.Logger
-	debug bool
-	//	CorpsConfig       *CorpsConfig.Corps
-	HadesClient       HadesClient
+	log               *zap.Logger
+	debug             bool
 	BridgeConfig      BridgeConfig
 	ConfigRs          ConfigRs
 	TimeDeleteMessage TimeDeleteMessage
@@ -28,11 +26,9 @@ type Storage struct {
 	Update            Update
 	Timers            Timers
 	DbFunc            DbFunc
-	//Cache            *postgres.Db
-	Event Event
-	//CorporationHades map[string]models.CorporationHadesClient
-	BridgeConfigs map[string]models.BridgeConfig
-	CorpConfigRS  map[string]models.CorporationConfig
+	Event             Event
+	BridgeConfigs     map[string]models.BridgeConfig
+	CorpConfigRS      map[string]models.CorporationConfig
 }
 
 func NewStorage(log *logger.Logger, cfg *config.ConfigBot) *Storage {

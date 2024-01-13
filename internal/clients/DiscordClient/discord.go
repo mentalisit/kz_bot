@@ -15,7 +15,6 @@ type Discord struct {
 	s                 *discordgo.Session
 	log               *logger.Logger
 	storage           *storage.Storage
-	corporationHades  map[string]models.CorporationHadesClient
 	bridgeConfig      map[string]models.BridgeConfig
 	corpConfigRS      map[string]models.CorporationConfig
 }
