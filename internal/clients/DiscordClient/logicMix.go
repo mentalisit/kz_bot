@@ -185,6 +185,9 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		TimestampUnix: m.Timestamp.Unix(),
 		Config:        &config,
 	}
+	if len(m.StickerItems) > 0 {
+		mes.Text = fmt.Sprintf("https://cdn.discordapp.com/stickers/%s.png", m.Message.StickerItems[0].ID)
+	}
 
 	if m.ReferencedMessage != nil {
 		usernameR := m.ReferencedMessage.Author.String() //.Username
