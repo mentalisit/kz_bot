@@ -213,25 +213,10 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 //}
 
 func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
-
-	if len(m.Attachments) > 0 {
-		for _, attach := range m.Attachments { //вложеные файлы
-			m.Content = m.Content + "\n" + attach.URL
-		}
-	}
-	member, e := d.s.GuildMember(m.GuildID, m.Author.ID) //проверка есть ли изменения имени в этом дискорде
-	if e != nil {
-		d.log.Error(e.Error())
-	}
-	name := m.Author.Username
-	if member.Nick != "" {
-		name = member.Nick
-	}
-
 	in := models.InMessage{
 		Mtext:       m.Content,
 		Tip:         "ds",
-		Name:        name,
+		Name:        d.getAuthorName(m),
 		NameMention: m.Author.Mention(),
 		Ds: struct {
 			Mesid   string
@@ -283,14 +268,9 @@ func (d *Discord) ifMentionBot(m *discordgo.MessageCreate) bool {
 }
 
 func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config models.BridgeConfig) {
-	username := m.Author.Username
-	if m.Member != nil && m.Member.Nick != "" {
-		username = m.Member.Nick
-	}
-
 	mes := models.BridgeMessage{
 		Text:          d.replaceTextMessage(m.Content, m.GuildID),
-		Sender:        username,
+		Sender:        d.getAuthorName(m),
 		Tip:           "ds",
 		Avatar:        m.Author.AvatarURL("128"),
 		ChatId:        m.ChannelID,

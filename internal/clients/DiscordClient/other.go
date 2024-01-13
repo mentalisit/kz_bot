@@ -202,3 +202,11 @@ func (d *Discord) avatar(m *discordgo.MessageCreate) bool {
 	}
 	return false
 }
+
+func (d *Discord) getAuthorName(m *discordgo.MessageCreate) string {
+	username := m.Author.Username
+	if m.Member != nil && m.Member.Nick != "" {
+		username = m.Member.Nick
+	}
+	return username
+}
