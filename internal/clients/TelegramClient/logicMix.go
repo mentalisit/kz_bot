@@ -50,11 +50,12 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 		go func() {
 			username := t.nameOrNick(m.From.UserName, m.From.FirstName)
 			mes := models.BridgeMessage{
-				Text:   m.Text,
-				Sender: username,
-				Tip:    "tg",
-				ChatId: ChatId,
-				MesId:  strconv.Itoa(m.MessageID),
+				Text:    m.Text,
+				Sender:  username,
+				Tip:     "tg",
+				ChatId:  ChatId,
+				MesId:   strconv.Itoa(m.MessageID),
+				GuildId: m.Chat.Title,
 			}
 			t.ChanBridgeMessage <- mes
 		}()
