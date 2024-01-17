@@ -55,7 +55,7 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
 
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 1, false)
 				if b.in.Option.Edit {
@@ -96,8 +96,8 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, ds), u.User2.Timedown, u.User2.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 2, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -140,9 +140,9 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, ds), u.User2.Timedown, u.User2.Numkzn)
-				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, ds), u.User3.Timedown, u.User3.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, ds), u.User2.Timedown, u.User2.Numkzn)
+				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Mention, ds), u.User3.Timedown, u.User3.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 3, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)

@@ -54,7 +54,7 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, ds), b.in.Timekz, numkzN)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, false)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
@@ -87,8 +87,8 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, ds), u.User1.Timedown, u.User1.Numkzn)
-					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, ds), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, ds), b.in.Timekz, numkzN)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, false)
 					text := n["lvlkz"] + " 2/4 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
@@ -118,9 +118,9 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
-					n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
-					n["name3"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.Tip), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
+					n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
+					n["name3"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, b.in.Tip), b.in.Timekz, numkzN)
 					lvlk3, err4 := b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz+"+", b.in.Config.Guildid)
 					if err4 != nil {
 						b.log.Info(fmt.Sprintf("RoleToIdPing %+v lvl %s", b.in.Config, b.in.Lvlkz[1:]))
