@@ -12,9 +12,17 @@ var messageTextAuthor [2]string
 
 // проверка на повторное сообщение
 func (b *Bridge) checkingForIdenticalMessage() bool {
-	if messageTextAuthor[0] == b.in.Text && messageTextAuthor[1] == b.in.Sender {
-		b.delIncomingMessage()
-		return true
+	if messageTextAuthor[1] == b.in.Sender {
+		if b.in.FileUrl != "" {
+			if messageTextAuthor[0] != b.in.FileUrl {
+				messageTextAuthor[0] = b.in.FileUrl
+				return false
+			}
+		}
+		if messageTextAuthor[0] == b.in.Text {
+			b.delIncomingMessage()
+			return true
+		}
 	}
 	messageTextAuthor[0] = b.in.Text
 	messageTextAuthor[1] = b.in.Sender
