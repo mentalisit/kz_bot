@@ -78,7 +78,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 				Sender:        username,
 				Tip:           "tg",
 				FileUrl:       url,
-				Avatar:        t.GetAvatar(m.From.ID),
+				Avatar:        t.GetAvatar(m.From.ID, m.From.String()),
 				ChatId:        ChatId,
 				MesId:         strconv.Itoa(m.MessageID),
 				TimestampUnix: m.Time().Unix(),
@@ -91,7 +91,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 					Text:        m.ReplyToMessage.Text,
 					UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 					TimeMessage: m.ReplyToMessage.Time().Unix(),
-					Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID),
+					Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
 				}
 			}
 			if m.ForwardFrom != nil {

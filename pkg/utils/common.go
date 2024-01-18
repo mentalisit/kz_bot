@@ -1,6 +1,11 @@
 package utils
 
-import "time"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+	"unicode"
+)
 
 func DoWithTries(fn func() error, attemtps int, delay time.Duration) (err error) {
 	for attemtps > 0 {
@@ -34,5 +39,30 @@ func RemoveDuplicateElementInt(a []int) []int {
 			result = append(result, item)
 		}
 	}
+	return result
+}
+func GetRandomColor() string {
+	// Генерируем случайные значения для красного, зеленого и синего цветов
+	red := rand.Intn(256)
+	green := rand.Intn(256)
+	blue := rand.Intn(256)
+
+	// Форматируем цвет в HEX
+	colorHex := fmt.Sprintf("%02X%02X%02X", red, green, blue)
+
+	return colorHex
+}
+func ExtractUppercase(input string) string {
+	var result string
+
+	for _, char := range input {
+		if unicode.IsUpper(char) {
+			result += string(char)
+		}
+	}
+	if result == "" {
+		return input
+	}
+
 	return result
 }
