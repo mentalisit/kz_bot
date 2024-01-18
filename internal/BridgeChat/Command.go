@@ -3,6 +3,7 @@ package BridgeChat
 import (
 	"fmt"
 	"kz_bot/internal/models"
+	"kz_bot/pkg/utils"
 	"strings"
 )
 
@@ -48,6 +49,7 @@ func (b *Bridge) Command() {
 				b.AddNewBridgeConfig(bridge)
 				text := fmt.Sprintf("%s создано, \nиспользуй команду в другом канале для подключения .подключить реле %s", arg[2], arg[2])
 				b.ifTipDelSend(text)
+				b.log.Info(fmt.Sprintf("Создано новое реле: %s Sender:%s", arg[2], b.in.Sender))
 			} else {
 				b.ifTipDelSend(arg[2] + " уже существует")
 			}
@@ -70,7 +72,13 @@ func (b *Bridge) Command() {
 				b.AddBridgeConfig(bridge)
 				text := fmt.Sprintf("Реле %s: добавлен текущий канал\nСписок подключеных канлов к реле %s доступен по команде `.список каналов`", arg[2], arg[2])
 				b.ifTipDelSend(text)
-				//отправить сообщение о подкоючении канала
+				b.log.Info(fmt.Sprintf("Подключено к реле: %s Sender:%s", arg[2], b.in.Sender))
+
+				b.in.Config = &host
+				b.in.Sender = "БОТ"
+				b.in.Avatar = fmt.Sprintf("https://via.placeholder.com/128x128.png/%s/FFFFFF/?text=bot", utils.GetRandomColor())
+				b.in.Text = fmt.Sprintf("Канал %s добавлен к реле %s", b.GuildName(), bridge.NameRelay)
+				b.logicMessage()
 			} else {
 				b.ifTipDelSend(arg[2] + " уже существует")
 			}
