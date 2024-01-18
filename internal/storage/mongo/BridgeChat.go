@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"kz_bot/internal/models"
 )
@@ -31,11 +30,9 @@ func (d *DB) UpdateBridgeChat(br models.BridgeConfig) {
 func (d *DB) InsertBridgeChat(br models.BridgeConfig) {
 	collection := d.s.Database("BridgeChat").Collection("Bridge")
 	bsonData, _ := bson.Marshal(br)
-	a, err := collection.InsertOne(context.Background(), bsonData)
+	_, err := collection.InsertOne(context.Background(), bsonData)
 	if err != nil {
 		d.log.Error(err.Error())
 		//return
 	}
-
-	fmt.Printf("insert ok %+v", a.InsertedID)
 }
