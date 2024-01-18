@@ -82,7 +82,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 				ChatId:        ChatId,
 				MesId:         strconv.Itoa(m.MessageID),
 				TimestampUnix: m.Time().Unix(),
-				GuildId:       m.Chat.Title,
+				GuildId:       chatName,
 				Config:        &bridgeConfig,
 			}
 
