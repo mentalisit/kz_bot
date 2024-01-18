@@ -46,16 +46,21 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 
 	tg, bridgeConfig := t.BridgeCheckChannelConfigTg(ChatId)
 
+	username := t.nameOrNick(m.From.UserName, m.From.FirstName)
+	chatName := m.Chat.Title
+	if m.IsTopicMessage && m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated != nil {
+		chatName = fmt.Sprintf("%s/%s", chatName, m.ReplyToMessage.ForumTopicCreated.Name)
+	}
+
 	if strings.HasPrefix(m.Text, ".") {
 		go func() {
-			username := t.nameOrNick(m.From.UserName, m.From.FirstName)
 			mes := models.BridgeMessage{
 				Text:    m.Text,
 				Sender:  username,
 				Tip:     "tg",
 				ChatId:  ChatId,
 				MesId:   strconv.Itoa(m.MessageID),
-				GuildId: m.Chat.Title,
+				GuildId: chatName,
 			}
 			t.ChanBridgeMessage <- mes
 		}()
@@ -68,7 +73,6 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 					m.Text = m.Document.FileName
 				}
 			}
-			username := t.nameOrNick(m.From.UserName, m.From.FirstName)
 			mes := models.BridgeMessage{
 				Text:          m.Text,
 				Sender:        username,
