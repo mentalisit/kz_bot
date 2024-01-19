@@ -110,10 +110,11 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 	}
 	nd, nt, t := b.storage.Event.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
 	mes1 := fmt.Sprintf("%s №%d\n", b.GetLang("iventIgra"), t.Numberkz)
-	mesOld := fmt.Sprintf("%s %d", b.GetLang("vneseno"), points)
+	mesOld := fmt.Sprintf("%s %s %d", b.GetLang("vneseno"), b.in.Name, points)
 	if countEvent == 1 {
 		if b.in.Config.DsChannel != "" {
-			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld))
+			text := fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld)
+			b.client.Ds.EditWebhook(text, b.in.Name, b.in.Config.DsChannel, t.Dsmesid, b.in.Ds.Guildid, b.in.Ds.Avatar)
 		}
 		if b.in.Config.TgChannel != "" {
 			b.client.Tg.EditText(b.in.Config.TgChannel, t.Tgmesid, fmt.Sprintf("%s %s \n%s", mes1, nt.Name1, mesOld))
@@ -121,7 +122,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 	} else if countEvent == 2 {
 		if b.in.Config.DsChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nd.Name1, nd.Name2, mesOld)
-			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+			b.client.Ds.EditWebhook(text, b.in.Name, b.in.Config.DsChannel, t.Dsmesid, b.in.Ds.Guildid, b.in.Ds.Avatar)
 		}
 		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s", mes1, nt.Name1, nt.Name2, mesOld)
@@ -130,7 +131,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 	} else if countEvent == 3 {
 		if b.in.Config.DsChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, mesOld)
-			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+			b.client.Ds.EditWebhook(text, b.in.Name, b.in.Config.DsChannel, t.Dsmesid, b.in.Ds.Guildid, b.in.Ds.Avatar)
 		}
 		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, mesOld)
@@ -139,7 +140,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 	} else if countEvent == 4 {
 		if b.in.Config.DsChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nd.Name1, nd.Name2, nd.Name3, nd.Name4, mesOld)
-			b.client.Ds.EditMessage(b.in.Config.DsChannel, t.Dsmesid, text)
+			b.client.Ds.EditWebhook(text, b.in.Name, b.in.Config.DsChannel, t.Dsmesid, b.in.Ds.Guildid, b.in.Ds.Avatar)
 		}
 		if b.in.Config.TgChannel != "" {
 			text := fmt.Sprintf("%s %s\n %s\n %s\n %s\n %s", mes1, nt.Name1, nt.Name2, nt.Name3, nt.Name4, mesOld)
