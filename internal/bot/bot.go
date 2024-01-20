@@ -93,6 +93,7 @@ func (b *Bot) LogicRs() {
 			//} else if b.SendALLChannel() {
 		} else {
 			b.cleanChat()
+			go b.Transtale()
 		}
 
 	} else if b.in.Option.MinusMin {

@@ -38,3 +38,10 @@ func Translate(text string) {
 	}
 	//fmt.Println(result)
 }
+func TranslateAnswer(text, langTarget string) string {
+	if langTarget == "ua" {
+		langTarget = "uk"
+	}
+	result, _ := translategooglefree.Translate(text, "auto", langTarget)
+	return result
+}

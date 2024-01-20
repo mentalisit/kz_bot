@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/translator"
 	"net/url"
 	"strings"
 	"time"
@@ -101,7 +100,7 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	if d.avatar(m) {
 		return
 	}
-	go translator.Translate(m.Content)
+
 	d.AccesChatDS(m)
 
 	//filter Rs
