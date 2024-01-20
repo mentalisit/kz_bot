@@ -148,3 +148,9 @@ func containsSymbolD(s string) (dark bool, result string) {
 
 	return dark, result
 }
+func (b *Bot) nameMentionOrNot(u models.Sborkz) string {
+	if u.Tip == ds {
+		return u.Mention
+	}
+	return u.Name
+}
