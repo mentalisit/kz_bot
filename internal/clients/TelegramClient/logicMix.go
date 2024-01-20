@@ -3,6 +3,7 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
+	"kz_bot/pkg/translator"
 	"strconv"
 
 	"kz_bot/internal/models"
@@ -20,6 +21,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 	if m.Text == "" && m.Caption != "" {
 		m.Text = m.Caption
 	}
+	go translator.Translate(m.Text)
 	t.handlePoll(m)
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)
