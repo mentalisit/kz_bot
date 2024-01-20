@@ -133,6 +133,7 @@ func (b *Bot) logicIfText() bool {
 }
 
 func (b *Bot) bridge() bool {
+	go b.Transtale()
 	if b.in.Tip == ds && b.in.Config.Forward {
 		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
 		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
