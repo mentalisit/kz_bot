@@ -16,10 +16,8 @@ import (
 const (
 	ds = "ds"
 	tg = "tg"
-	wa = "wa"
 )
 
-// spravka
 type Bot struct {
 	storage    *storage.Storage
 	client     *clients.Clients
@@ -63,8 +61,6 @@ func (b *Bot) loadInbox() {
 		case in := <-b.inbox:
 			b.in = in
 			b.LogicRs()
-
-			//fmt.Printf("\n\nin message %+v\n", in)
 		}
 	}
 	b.log.Panic("Ошибка в боте")

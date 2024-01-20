@@ -15,10 +15,6 @@ type InMessage struct {
 	Tg struct {
 		Mesid int
 	}
-	Wa struct {
-		Nameid string
-		Mesid  string
-	}
 	Config CorporationConfig
 	Option Option
 }

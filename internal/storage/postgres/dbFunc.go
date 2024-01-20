@@ -226,14 +226,13 @@ func (d *Db) OneMinutsTimer(ctx context.Context) []string {
 	}
 	return CorpActive0
 }
-func (d *Db) MessageUpdateMin(ctx context.Context, corpname string) ([]string, []int, []string) {
+func (d *Db) MessageUpdateMin(ctx context.Context, corpname string) ([]string, []int) {
 	if d.debug {
 		fmt.Println("MessageUpdateMin", corpname)
 	}
 	var countCorp int
 	ds := []string{}
 	tg := []int{}
-	wa := []string{}
 	sel := "SELECT  COUNT(*) as count FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
 	row := d.db.QueryRow(ctx, sel, corpname)
 	err := row.Scan(&countCorp)
@@ -251,16 +250,14 @@ func (d *Db) MessageUpdateMin(ctx context.Context, corpname string) ([]string, [
 			err = results.Scan(&t.Id, &t.Corpname, &t.Name, &t.Mention, &t.Tip, &t.Dsmesid, &t.Tgmesid, &t.Wamesid, &t.Time, &t.Date, &t.Lvlkz, &t.Numkzn, &t.Numberkz, &t.Numberevent, &t.Eventpoints, &t.Active, &t.Timedown)
 			ds = append(ds, t.Dsmesid)
 			tg = append(tg, t.Tgmesid)
-			wa = append(wa, t.Wamesid)
 		}
 	}
 	ds = utils.RemoveDuplicateElementString(ds)
 	tg = utils.RemoveDuplicateElementInt(tg)
-	wa = utils.RemoveDuplicateElementString(wa)
 	if d.debug {
-		fmt.Println("MessageUpdateMin", "ds", ds, "tg", tg, "wa", wa)
+		fmt.Println("MessageUpdateMin", "ds", ds, "tg", tg)
 	}
-	return ds, tg, wa
+	return ds, tg
 }
 func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config models.CorporationConfig) models.InMessage {
 	if d.debug {

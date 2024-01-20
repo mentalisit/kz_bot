@@ -48,7 +48,6 @@ func (b *Bot) Subscribe(tipPing int) {
 		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
 
 	} else if b.in.Tip == tg {
-		//go b.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 		//проверка активной подписки
 		counts := b.storage.Subscribe.CheckSubscribe(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.TgChannel, tipPing)
 		if counts == 1 {

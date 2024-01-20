@@ -15,7 +15,7 @@ type DbFunc interface {
 	UpdateTimedown(ctx context.Context, lvlkz, CorpName, name string)
 	Queue(ctx context.Context, corpname string) []string
 	OneMinutsTimer(ctx context.Context) []string
-	MessageUpdateMin(ctx context.Context, corpname string) ([]string, []int, []string)
+	MessageUpdateMin(ctx context.Context, corpname string) ([]string, []int)
 	MessageupdateDS(ctx context.Context, dsmesid string, config models.CorporationConfig) models.InMessage
 	MessageupdateTG(ctx context.Context, tgmesid int, config models.CorporationConfig) models.InMessage
 	NumberQueueLvl(ctx context.Context, lvlkzs, CorpName string) (int, error)

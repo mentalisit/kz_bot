@@ -33,10 +33,9 @@ func (b *Bot) RsStart() {
 		if err2 != nil {
 			return
 		}
-		//var name1, name2, name3 string
+
 		dsmesid := ""
 		tgmesid := 0
-		wamesid := ""
 		if count > 0 {
 			u := b.storage.DbFunc.ReadAll(ctx, b.in.Lvlkz, b.in.Config.CorpName)
 			textEvent, numkzEvent := b.EventText()
@@ -149,7 +148,7 @@ func (b *Bot) RsStart() {
 				}
 			}
 			b.wg.Wait()
-			b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, wamesid, numberkz, numberevent, b.in.Config.CorpName)
+			b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, "", numberkz, numberevent, b.in.Config.CorpName)
 			user := []string{u.User1.Name, u.User2.Name, u.User3.Name, b.in.Name}
 			b.elseChat(user)
 		}

@@ -39,7 +39,6 @@ func (b *Bot) RsPlus() {
 
 		dsmesid := ""
 		tgmesid := 0
-		wamesid := ""
 		var n map[string]string
 		n = make(map[string]string)
 		n["lang"] = b.in.Config.Country
@@ -155,7 +154,7 @@ func (b *Bot) RsPlus() {
 		}
 		if countQueue <= 2 {
 			b.wg.Wait()
-			b.storage.DbFunc.InsertQueue(ctx, dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
+			b.storage.DbFunc.InsertQueue(ctx, dsmesid, "", b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
 		}
 
 		if countQueue == 3 {
@@ -220,8 +219,8 @@ func (b *Bot) RsPlus() {
 			}
 
 			b.wg.Wait()
-			b.storage.DbFunc.InsertQueue(ctx, dsmesid, wamesid, b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
-			b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, wamesid, numkzL, numberevent, b.in.Config.CorpName)
+			b.storage.DbFunc.InsertQueue(ctx, dsmesid, "", b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
+			b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, "", numkzL, numberevent, b.in.Config.CorpName)
 
 			//проверка есть ли игрок в других чатах
 			user := []string{u.User1.Name, u.User2.Name, u.User3.Name, b.in.Name}
@@ -259,7 +258,7 @@ func (b *Bot) RsMinus() {
 			b.log.Error(err2.Error())
 			return
 		}
-		//numkzL := numberQueueLvl(in, lvlkz) + 1
+
 		if b.in.Config.DsChannel != "" {
 			go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, b.in.Name+b.GetLang("pokinulOchered"), 10)
 			if countQueue == 0 {

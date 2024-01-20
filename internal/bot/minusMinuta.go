@@ -39,17 +39,8 @@ func (b *Bot) MinusMin() {
 						},
 						Tg: struct {
 							Mesid int
-							//Nameid int64
 						}{
 							Mesid: t.Tgmesid,
-							//Nameid: 0,
-						},
-						Wa: struct {
-							Nameid string
-							Mesid  string
-						}{
-							Nameid: "",
-							Mesid:  t.Wamesid,
 						},
 						Config: config,
 						Option: models.Option{
@@ -73,7 +64,7 @@ func (b *Bot) UpdateMessage() {
 
 		_, config := b.CheckCorpNameConfig(corp)
 
-		dss, tgs, _ := b.storage.DbFunc.MessageUpdateMin(context.Background(), corp)
+		dss, tgs := b.storage.DbFunc.MessageUpdateMin(context.Background(), corp)
 
 		if config.DsChannel != "" {
 			for _, d := range dss {
@@ -86,11 +77,6 @@ func (b *Bot) UpdateMessage() {
 				a := b.storage.DbFunc.MessageupdateTG(context.Background(), t, config)
 				b.inbox <- a
 			}
-		}
-		if config.WaChannel != "" {
-			//тут будет логика ватса
-			//fmt.Println(was)
-			//не будет пока нет редактировать сообщение
 		}
 	}
 }
@@ -109,10 +95,6 @@ func (b *Bot) CheckTimeQueue() {
 		} else if b.in.Tip == tg {
 			mID := b.client.Tg.SendEmbedTime(b.in.Config.TgChannel, text)
 			go b.client.Tg.DelMessageSecond(b.in.Config.TgChannel, strconv.Itoa(mID), 180)
-		} else if b.in.Tip == wa {
-			//b.client.Wa.SendMention(b.in.Config.WaChannel, b.in.NameMention+" время почти вышло...\n"+
-			//	"Для продления времени ожидания на 30м пиши +\n"+
-			//	"Для выхода из очереди пиши -", []string{b.in.Wa.Nameid})
 		}
 	} else if atoi == 0 {
 		b.RsMinus()

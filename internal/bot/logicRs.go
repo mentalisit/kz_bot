@@ -34,12 +34,7 @@ func (b *Bot) lRsPlus() bool {
 		kzb = arr2[0][2]
 		b.in.Timekz = "30"
 	}
-	if b.in.Config.Country == "dru" {
-		l, _ := strconv.Atoi(b.in.Lvlkz)
-		if l < 7 {
-			return false
-		}
-	}
+
 	switch kzb {
 	case "+":
 		b.RsPlus()
@@ -72,7 +67,6 @@ func (b *Bot) lSubs() (bb bool) {
 		} else if subs == "U" || subs == "u" {
 			subs = "-"
 		}
-		//b.log.Println("Тестирование подписок совместимости")
 	}
 	re6 := regexp.MustCompile(`^([\+][\+]|[-][-])([3-9]|[1][0-2])$`) // две переменные
 	arr6 := (re6.FindAllStringSubmatch(b.in.Mtext, -1))              // для добавления или удаления подписок 3/4
@@ -351,16 +345,20 @@ func (b *Bot) lEmoji() (bb bool) {
 //					b.client.Tg.SendChannel(chattg, text)
 //				}
 //			}
-//			if len(w) > 0 {
-//				for _, chatwa := range w {
-//					b.client.Wa.SendText(chatwa, text)
-//				}
-//			}
+//
 //		}
+// Создаем регулярное выражение для поиска "История" и захвата всего после него
+//re := regexp.MustCompile(`^История\s*(.*)$`)
+//
+//// Используем регулярное выражение для извлечения всего после "История"
+//match := re.FindStringSubmatch(inputString)
+//
+//if len(match) == 2 {
+//resultString := match[1]
+//fmt.Println(resultString + ".")
+//} else {
+//fmt.Println("Совпадение не найдено")
+//}
 //	}
 //	return bb
 //}
-
-func (b *Bot) lIfCommand() bool {
-	return false
-}
