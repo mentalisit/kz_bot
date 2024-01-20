@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f
-	github.com/abadojack/whatlanggo v1.0.1
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgconn v1.14.1
