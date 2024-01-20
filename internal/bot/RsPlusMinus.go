@@ -67,7 +67,7 @@ func (b *Bot) RsPlus() {
 				b.wg.Add(1)
 				go func() {
 					text := fmt.Sprintf("%s%s (%d)\n"+
-						"1. %s - %s%s (%d) \n\n"+
+						"1️⃣ %s - %s%s (%d) \n\n"+
 						"%s++ - %s",
 						b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL,
 						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN,
@@ -100,9 +100,9 @@ func (b *Bot) RsPlus() {
 				b.wg.Add(1)
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
-					name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+					name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
 						b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-					name2 := fmt.Sprintf("2. %s - %s%s (%d) \n",
+					name2 := fmt.Sprintf("2️⃣ %s - %s%s (%d) \n",
 						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN)
 					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 					text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
@@ -137,11 +137,11 @@ func (b *Bot) RsPlus() {
 				b.wg.Add(1)
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
-					name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+					name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
 						b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-					name2 := fmt.Sprintf("2. %s - %d%s (%d) \n",
+					name2 := fmt.Sprintf("2️⃣ %s - %d%s (%d) \n",
 						b.emReadName(u.User2.Name, tg), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
-					name3 := fmt.Sprintf("3. %s - %s%s (%d) \n",
+					name3 := fmt.Sprintf("3️⃣ %s - %s%s (%d) \n",
 						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN)
 					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 					text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)

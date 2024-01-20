@@ -55,7 +55,7 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User1), ds), u.User1.Timedown, u.User1.Numkzn)
 
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 1, false)
 				if b.in.Option.Edit {
@@ -78,7 +78,7 @@ func (b *Bot) QueueLevel() {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)
-				name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+				name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
 				text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 				text := fmt.Sprintf("%s %s %s", text1, name1, text2)
@@ -96,8 +96,8 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, ds), u.User2.Timedown, u.User2.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User1), ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User2), ds), u.User2.Timedown, u.User2.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 2, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -115,9 +115,9 @@ func (b *Bot) QueueLevel() {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)
-				name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+				name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %d%s (%d) \n",
+				name2 := fmt.Sprintf("2️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User2.Name, tg), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
 				text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 				text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
@@ -140,9 +140,9 @@ func (b *Bot) QueueLevel() {
 		if b.in.Config.DsChannel != "" {
 			b.wg.Add(1)
 			go func() {
-				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
-				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, ds), u.User2.Timedown, u.User2.Numkzn)
-				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Mention, ds), u.User3.Timedown, u.User3.Numkzn)
+				n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User1), ds), u.User1.Timedown, u.User1.Numkzn)
+				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User2), ds), u.User2.Timedown, u.User2.Numkzn)
+				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(b.nameMentionOrNot(u.User3), ds), u.User3.Timedown, u.User3.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 3, false)
 				if b.in.Option.Edit {
 					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
@@ -160,11 +160,11 @@ func (b *Bot) QueueLevel() {
 			b.wg.Add(1)
 			go func() {
 				text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numberLvl)
-				name1 := fmt.Sprintf("1. %s - %d%s (%d) \n",
+				name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
-				name2 := fmt.Sprintf("2. %s - %d%s (%d) \n",
+				name2 := fmt.Sprintf("2️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User2.Name, tg), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
-				name3 := fmt.Sprintf("3. %s - %d%s (%d) \n",
+				name3 := fmt.Sprintf("3️⃣ %s - %d%s (%d) \n",
 					b.emReadName(u.User3.Name, tg), u.User3.Timedown, b.GetLang("min."), u.User3.Numkzn)
 				text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 				text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
