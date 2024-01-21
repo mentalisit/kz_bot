@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -100,7 +101,7 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	if d.avatar(m) {
 		return
 	}
-
+	go d.latinOrNot(m) //пытаемся переводить гостевой чат
 	d.AccesChatDS(m)
 
 	//filter Rs
@@ -214,5 +215,44 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		}
 	} else {
 		d.ChanBridgeMessage <- mes
+	}
+}
+
+func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *discordgo.Message) {
+	user, err := d.s.User(r.UserID)
+	if err != nil {
+		d.log.Error(err.Error())
+	}
+	if user.ID != m.Author.ID {
+
+		//
+		fmt.Println(r.Emoji.Name)
+		saveToFile("emoji.txt", r.Emoji.Name)
+		//
+
+		if r.Emoji.Name == "🇺🇸" {
+			d.transtale(m, "en")
+		}
+		if r.Emoji.Name == "🇷🇺" {
+			d.transtale(m, "ru")
+		}
+		if r.Emoji.Name == "🇺🇦" {
+			d.transtale(m, "ua")
+		}
+		if r.Emoji.Name == "🇬🇧" {
+			d.transtale(m, "en")
+		}
+	}
+}
+func saveToFile(filename string, lines string) {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(lines + "\n")
+	if err != nil {
+		fmt.Println(err)
 	}
 }

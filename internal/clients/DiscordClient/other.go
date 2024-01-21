@@ -3,6 +3,8 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/pkg/translator"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -202,4 +204,31 @@ func (d *Discord) getAuthorName(m *discordgo.MessageCreate) string {
 		username = m.Member.Nick
 	}
 	return username
+}
+
+func (d *Discord) latinOrNot(m *discordgo.MessageCreate) {
+	cyrillicPattern := regexp.MustCompile(`[а-яА-ЯґҐєЄіІїЇ]`)
+	if len(m.Content) >= 1 {
+		if !cyrillicPattern.MatchString(m.Content) {
+			channel, err := d.s.Channel(m.ChannelID)
+			if err != nil {
+				return
+			}
+			gostPattern := regexp.MustCompile(`гост`)
+
+			if gostPattern.MatchString(channel.Name) {
+				//возможно нужно доп условие
+				go func() {
+					text2 := translator.TranslateAnswer(m.Content, "ru")
+					mes := d.SendWebhook(text2, m.Author.Username, m.ChannelID, m.GuildID, m.Author.AvatarURL("128"))
+					d.DeleteMesageSecond(m.ChannelID, mes, 90)
+				}()
+			}
+		}
+	}
+}
+func (d *Discord) transtale(m *discordgo.Message, lang string) {
+	text2 := translator.TranslateAnswer(m.Content, lang)
+	mes := d.SendWebhook(text2, m.Author.Username, m.ChannelID, m.GuildID, m.Author.AvatarURL("128"))
+	d.DeleteMesageSecond(m.ChannelID, mes, 90)
 }

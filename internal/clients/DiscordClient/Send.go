@@ -121,8 +121,8 @@ func (d *Discord) SendWebhook(text, username, chatid, guildId, Avatar string) (m
 	mes, err := web.Send(chatid, &pp)
 	if err != nil {
 		fmt.Println(err)
-		d.Send(chatid, text)
-		return ""
+		m := d.Send(chatid, text)
+		return m
 	}
 	return mes.ID
 }

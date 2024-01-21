@@ -109,6 +109,8 @@ func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageR
 
 	if message.Author.ID == s.State.User.ID {
 		d.readReactionQueue(r, message)
+	} else {
+		d.readReactionTranslate(r, message)
 	}
 }
 
