@@ -10,6 +10,7 @@ import (
 )
 
 func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
+	go t.imHere(m.Chat.ID, m.Chat)
 	t.accesChatTg(m) //это была начальная функция при добавлени бота в группу
 	ThreadID := m.MessageThreadID
 	if !m.IsTopicMessage && ThreadID != 0 {

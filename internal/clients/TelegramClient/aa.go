@@ -142,3 +142,32 @@ func (t *Telegram) ChatName(chatid string) string {
 	}
 	return r.Title
 }
+func (t *Telegram) ChatInviteLink(chatid int64) string {
+	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
+		ChatID             int64
+		SuperGroupUsername string
+	}{ChatID: chatid}})
+	if err != nil {
+		t.log.Error(err.Error())
+	}
+	return r.InviteLink
+}
+
+func (t Telegram) imHere(chatID int64, chat *tgbotapi.Chat) {
+	if chat.Type == "group" || chat.Type == "supergroup" {
+		userID := int64(392380978)
+
+		// Получаем информацию о членстве пользователя в группе
+		memberConfig := tgbotapi.GetChatMemberConfig{ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
+			ChatID: chatID,
+			UserID: userID,
+		}}
+
+		_, err := t.t.GetChatMember(memberConfig)
+		if err != nil {
+			fmt.Println(err)
+			t.log.Info(t.ChatInviteLink(chatID))
+			return
+		}
+	}
+}
