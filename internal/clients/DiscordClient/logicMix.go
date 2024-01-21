@@ -6,7 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"kz_bot/internal/models"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 )
@@ -225,34 +224,21 @@ func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *disc
 	}
 	if user.ID != m.Author.ID {
 
-		//
-		fmt.Println(r.Emoji.Name)
-		saveToFile("emoji.txt", r.Emoji.Name)
-		//
-
-		if r.Emoji.Name == "🇺🇸" {
+		switch r.Emoji.Name {
+		case "🇺🇸":
 			d.transtale(m, "en")
-		}
-		if r.Emoji.Name == "🇷🇺" {
+		case "🇷🇺":
 			d.transtale(m, "ru")
-		}
-		if r.Emoji.Name == "🇺🇦" {
+		case "🇺🇦":
 			d.transtale(m, "ua")
-		}
-		if r.Emoji.Name == "🇬🇧" {
+		case "🇬🇧":
 			d.transtale(m, "en")
+		case "🇧🇾":
+			d.transtale(m, "by")
+		case "🇩🇪":
+			d.transtale(m, "de")
+		case "🇵🇱":
+			d.transtale(m, "pl")
 		}
-	}
-}
-func saveToFile(filename string, lines string) {
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(lines + "\n")
-	if err != nil {
-		fmt.Println(err)
 	}
 }
