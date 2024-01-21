@@ -133,15 +133,17 @@ func (b *Bot) logicIfText() bool {
 }
 
 func (b *Bot) bridge() bool {
-	go b.Transtale()
-	if b.in.Tip == ds && b.in.Config.Forward {
-		text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
-		b.cleanChat()
-	} else if b.in.Tip == tg && b.in.Config.Forward {
-		text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
-		b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
-		b.cleanChat()
+	if b.in.Config.Forward {
+		go b.Transtale()
+		if b.in.Tip == ds {
+			text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
+			b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
+			b.cleanChat()
+		} else if b.in.Tip == tg {
+			text := fmt.Sprintf("(TG)%s \n%s", b.in.Name, b.in.Mtext)
+			b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 180)
+			b.cleanChat()
+		}
 	}
 	return b.in.Config.Forward
 }
