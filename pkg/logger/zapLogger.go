@@ -50,7 +50,7 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 				zapcore.NewConsoleEncoder(cfgNew),
 				zapcore.AddSync(telegramWriter),
 				cfg.Level,
-			), zapcore.NewTee(core, zapcore.NewCore(
+			), zapcore.NewTee(zapcore.NewCore(
 				zapcore.NewConsoleEncoder(cfgNew),
 				zapcore.AddSync(discordWriter),
 				cfg.Level,
@@ -79,9 +79,3 @@ type LoggerInterface interface {
 	Panic(msg string, fields ...zapcore.Field)
 	Fatal(msg string, fields ...zapcore.Field)
 }
-
-//// Println выводит сообщение с использованием Info логгера
-//func (l *Logger) PrintlnINFO(args ...interface{}) {
-//	msg := fmt.Sprintln(args...)
-//	l.ZapLogger.Info(msg)
-//}
