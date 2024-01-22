@@ -158,16 +158,16 @@ func (t Telegram) imHere(chatID int64, chat *tgbotapi.Chat) {
 		userID := int64(392380978)
 
 		// Получаем информацию о членстве пользователя в группе
-		memberConfig := tgbotapi.GetChatMemberConfig{ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
+		m, err := t.t.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
 			ChatID: chatID,
 			UserID: userID,
-		}}
-
-		_, err := t.t.GetChatMember(memberConfig)
+		}})
 		if err != nil {
 			fmt.Println(err)
-			t.log.Info(t.ChatInviteLink(chatID))
 			return
+		}
+		if m.Status == "left" {
+			t.log.Info(t.ChatInviteLink(chatID))
 		}
 	}
 }
