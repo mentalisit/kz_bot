@@ -22,7 +22,6 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 		m.Text = m.Caption
 	}
 
-	t.handlePoll(m)
 	// RsClient
 	ok, config := t.CheckChannelConfigTG(ChatId)
 	if ok {
@@ -69,6 +68,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 	}
 	if tg {
 		go func() {
+			t.handlePoll(m)
 			if m.Document != nil {
 				url, _ = t.t.GetFileDirectURL(m.Document.FileID)
 				if m.Text == "" {
