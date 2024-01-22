@@ -153,21 +153,34 @@ func (t *Telegram) ChatInviteLink(chatid int64) string {
 	return r.InviteLink
 }
 
-func (t Telegram) imHere(chatID int64, chat *tgbotapi.Chat) {
+// Кеш для чатов проверки моего присутствия
+var imHereChat []int64
+
+func (t *Telegram) imHere(chatID int64, chat *tgbotapi.Chat) {
 	if chat.Type == "group" || chat.Type == "supergroup" {
 		userID := int64(392380978)
 
-		// Получаем информацию о членстве пользователя в группе
-		m, err := t.t.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
-			ChatID: chatID,
-			UserID: userID,
-		}})
-		if err != nil {
-			fmt.Println(err)
-			return
+		here := false
+		for _, i := range imHereChat {
+			if i == chatID {
+				here = true
+				break
+			}
 		}
-		if m.Status == "left" {
-			t.log.Info(t.ChatInviteLink(chatID))
+		if !here {
+			// Получаем информацию о членстве пользователя в группе
+			m, err := t.t.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
+				ChatID: chatID,
+				UserID: userID,
+			}})
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			if m.Status == "left" {
+				t.log.Info(t.ChatInviteLink(chatID))
+			}
+			imHereChat = append(imHereChat, chatID)
 		}
 	}
 }
