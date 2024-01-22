@@ -14,6 +14,8 @@ type Logger struct {
 
 func LoggerZap(botToken string, chatID int64) *Logger {
 	telegramWriter := NewTelegramWriter(botToken, chatID)
+	discordWriter := NewDiscordWriter("https://discord.com/api/webhooks/1198796243032358973/zI1cqrJg94jEHFS-9rASi-9gwlj4aqu3xz-Fy1RLIP_TAVm7JjJClSuMF3DUHTasyqwT")
+
 	// Определяем имя файла с логами, включающее "log", дату и время
 	logFileName := fmt.Sprintf("log\\log_%s.log", time.Now().Format("2006-01-02_15-04-05"))
 
@@ -48,11 +50,15 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 				zapcore.NewConsoleEncoder(cfgNew),
 				zapcore.AddSync(telegramWriter),
 				cfg.Level,
+			), zapcore.NewTee(core, zapcore.NewCore(
+				zapcore.NewConsoleEncoder(cfgNew),
+				zapcore.AddSync(discordWriter),
+				cfg.Level,
 			), zapcore.NewCore(
 				zapcore.NewConsoleEncoder(cfgNew),
 				fileWriteSyncer,
 				cfg.Level,
-			))
+			)))
 		}),
 	)
 
