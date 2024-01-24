@@ -32,12 +32,22 @@ func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
 	}
 }
 
-func (b *Bot) emReadName(name, tip string) string { // склеиваем имя и эмоджи
-	t := b.storage.Emoji.EmReadUsers(context.Background(), name, tip)
+func (b *Bot) emReadName(name, nameMention, tip string) string { // склеиваем имя и эмоджи
+	t := b.storage.Emoji.EmojiModuleReadUsers(context.Background(), name, tip)
 	newName := name
-	if tip == t.Tip {
-		newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
+	fmt.Println(37)
+	if tip == ds {
+		fmt.Println(39, tip, t.Tip)
+		if tip == t.Tip {
+			fmt.Println(41)
+			newName = fmt.Sprintf("%s %s %s %s %s %s%s%s%s", nameMention, t.Module1, t.Module2, t.Module3, t.Weapon, t.Em1, t.Em2, t.Em3, t.Em4)
+		}
+	} else {
+		if tip == t.Tip {
+			newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
+		}
 	}
+
 	return newName
 }
 
@@ -141,12 +151,7 @@ func containsSymbolD(s string) (dark bool, result string) {
 
 	return dark, result
 }
-func (b *Bot) nameMentionOrNot(u models.Sborkz) string {
-	if u.Tip == ds {
-		return u.Mention
-	}
-	return u.Name
-}
+
 func (b *Bot) Transtale() {
 	text2 := translator.TranslateAnswer(b.in.Mtext, b.in.Config.Country)
 	if b.in.Mtext != text2 {

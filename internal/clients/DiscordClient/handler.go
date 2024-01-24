@@ -115,11 +115,29 @@ func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageR
 }
 
 func (d *Discord) slash(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	commandHandlers := d.addSlashHandler()
-	if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-		h(s, i)
+	switch i.Type {
+	//case discordgo.InteractionMessageComponent:
+	//	// Обработка взаимодействий с компонентами сообщений
+	//	handleMessageComponentInteraction(s, i)
+	case discordgo.InteractionApplicationCommand:
+		{
+			switch i.ApplicationCommandData().Name {
+			case "module":
+				// Обработка вашей слеш-команды
+				d.handleModuleCommand(s, i)
+			case "weapon":
+				d.handleWeaponCommand(s, i)
+			}
+		}
+	default:
+		fmt.Printf("slash %+v\n", i.Type)
 	}
+	//commandHandlers := d.addSlashHandler()
+	//if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+	//	h(s, i)
+	//}
 }
+
 func (d *Discord) ready(s *discordgo.Session, r *discordgo.Ready) {
 	commands := d.addSlashCommand()
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))

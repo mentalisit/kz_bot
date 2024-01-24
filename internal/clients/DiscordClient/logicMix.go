@@ -106,6 +106,7 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	//filter Rs
 	ok, config := d.CheckChannelConfigDS(m.ChannelID)
 	if ok {
+		d.messageCreate(m)
 		d.SendToRsFilter(m, config)
 		return
 	}
@@ -122,7 +123,7 @@ func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.Corpo
 	in := models.InMessage{
 		Mtext:       m.Content,
 		Tip:         "ds",
-		Name:        d.getAuthorName(m),
+		Name:        m.Author.Username,
 		NameMention: m.Author.Mention(),
 		Ds: struct {
 			Mesid   string

@@ -1,0 +1,335 @@
+package DiscordClient
+
+import (
+	"context"
+	"fmt"
+	"github.com/bwmarrin/discordgo"
+	"log"
+	"strconv"
+	"time"
+)
+
+//func handleMessageComponentInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
+//	fmt.Printf("InteractionCreate %+v\n", i.Interaction.Data)
+//	switch i.MessageComponentData().CustomID {
+//	case "moduleSelect":
+//
+//		handleButtonClick(s, i)
+//	//
+//	//
+//
+//	case "button_with_input":
+//		// Отправить сообщение с запросом текстового ввода
+//
+//		sendTextPrompt(s, i)
+//	}
+//}
+//func handleButtonClick(s *discordgo.Session, i *discordgo.InteractionCreate) {
+//	fmt.Println(i.Type)
+//	switch i.Type {
+//	case discordgo.InteractionMessageComponent:
+//		fmt.Println("ffff")
+//		// Обработка взаимодействий с командами приложения
+//		//handleApplicationCommand(s, data)
+//		//case discordgo.InteractionMessageComponent:
+//		// Обработка взаимодействий с компонентами сообщений (кнопки, выборы и т.д.)
+//		//handleMessageComponentInteraction(s, data)
+//	}
+//	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+//		Type: discordgo.InteractionResponseUpdateMessage,
+//		Data: &discordgo.InteractionResponseData{
+//			Content: "Кнопка была нажата!",
+//			Components: []discordgo.MessageComponent{discordgo.ActionsRow{
+//				Components: []discordgo.MessageComponent{createModuleSelectMenu1()},
+//			},
+//			},
+//		}}); err != nil {
+//		log.Println("Error responding to button click:", err)
+//	}
+//}
+//
+//func sendTextPrompt(s *discordgo.Session, i *discordgo.InteractionCreate) {
+//	// Отправить сообщение с текстовым полем для ввода
+//	msg := &discordgo.MessageSend{
+//		Content: "Введите текст:",
+//		Components: []discordgo.MessageComponent{
+//			discordgo.ActionsRow{
+//				Components: []discordgo.MessageComponent{
+//					discordgo.Button{
+//						//Type:    discordgo.ButtonPrimary,
+//						Style:    discordgo.PrimaryButton,
+//						Label:    "Отправить",
+//						CustomID: "send_text_button",
+//					},
+//				},
+//			},
+//		},
+//	}
+//
+//	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+//		Type: discordgo.InteractionResponseUpdateMessage,
+//		Data: &discordgo.InteractionResponseData{
+//			Content:    "Введите текст:",
+//			Components: msg.Components,
+//			//IsEphemeral:     true, // Можете сделать ответ видимым только для отправившего пользователя
+//		},
+//	})
+//	if err != nil {
+//		fmt.Println(err)
+//		return
+//	}
+//
+//	// Сохраните информацию о том, что пользователь ожидает текстового ввода
+//	// Это может быть полезно, чтобы понимать, на какое именно взаимодействие отвечает пользователь
+//	// или для следующих шагов взаимодействия
+//	fmt.Println("186answer ", i.User.ID)
+//	//saveUserExpectingTextInput(interactionResponse.ID, i.User.ID)
+//}
+
+//
+
+// register slash command module
+func registerCommand(s *discordgo.Session, guildID string) {
+	// Регистрация слеш-команды с параметрами "module" и "level"
+	cmd := &discordgo.ApplicationCommand{
+		Name:        "module",
+		Description: "Выберите нужный модуль и уровень / Select the desired module and level",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "module",
+				Description: "Выберите модуль / Select module",
+				Required:    true,
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
+					{
+						Name:  "Ингибитор КЗ / RSE",
+						Value: "RSE",
+					},
+					{
+						Name:  "Генезис / Genesis",
+						Value: "GENESIS",
+					},
+					{
+						Name:  "Обогатить / Enrich",
+						Value: "ENRICH",
+					},
+					// Добавьте другие модули по мере необходимости
+				},
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "level",
+				Description: "Выберите уровень / Select level",
+				Required:    true,
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
+					{
+						Name:  "Уровень / Level 0",
+						Value: 0,
+					},
+					{
+						Name:  "Уровень / Level 1",
+						Value: 1,
+					}, {
+						Name:  "Уровень / Level 2",
+						Value: 2,
+					}, {
+						Name:  "Уровень / Level 3",
+						Value: 3,
+					}, {
+						Name:  "Уровень / Level 4",
+						Value: 4,
+					}, {
+						Name:  "Уровень / Level 5",
+						Value: 5,
+					}, {
+						Name:  "Уровень / Level 6",
+						Value: 6,
+					}, {
+						Name:  "Уровень / Level 7",
+						Value: 7,
+					}, {
+						Name:  "Уровень / Level 8",
+						Value: 8,
+					}, {
+						Name:  "Уровень / Level 9",
+						Value: 9,
+					}, {
+						Name:  "Уровень / Level 10",
+						Value: 10,
+					}, {
+						Name:  "Уровень / Level 11",
+						Value: 11,
+					}, {
+						Name:  "Уровень / Level 12",
+						Value: 12,
+					}, {
+						Name:  "Уровень / Level 13",
+						Value: 13,
+					}, {
+						Name:  "Уровень / Level 14",
+						Value: 14,
+					}, {
+						Name:  "Уровень / Level 15",
+						Value: 15,
+					},
+					// Добавьте другие уровни по мере необходимости
+				},
+			},
+		},
+	}
+
+	_, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
+	if err != nil {
+		log.Println("Error registering command:", err)
+		return
+	}
+	// Регистрация слеш-команды оружие
+	cmd = &discordgo.ApplicationCommand{
+		Name:        "weapon",
+		Description: "Выберите основное оружие / Select your main weapon",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "weapon",
+				Description: "Выберите оружие / Select weapon",
+				Required:    true,
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
+					{
+						Name:  "Артобстрел / Barrage",
+						Value: "barrage",
+					},
+					{
+						Name:  "Лазер / Laser",
+						Value: "laser",
+					},
+					{
+						Name:  "Цепной луч / Chain ray",
+						Value: "chainray",
+					},
+					{
+						Name:  "Батарея / Battery",
+						Value: "battery",
+					},
+					{
+						Name:  "Залповая батарея / Mass battery",
+						Value: "massbattery",
+					},
+					{
+						Name:  "Пусковая установка / Dart launcher",
+						Value: "dartlauncher",
+					},
+					{
+						Name:  "Ракетная установка / Rocket launcher",
+						Value: "rocketlauncher",
+					},
+					// Добавьте другие модули по мере необходимости
+				},
+			},
+		},
+	}
+
+	_, err = s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
+	if err != nil {
+		log.Println("Error registering command:", err)
+		return
+	}
+
+	fmt.Println("Command registered successfully.")
+}
+
+// slash command module respond
+func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	module := i.ApplicationCommandData().Options[0].StringValue()
+	level := i.ApplicationCommandData().Options[1].IntValue()
+
+	response := fmt.Sprintf("Выбран модуль: %s, уровень: %d", module, level)
+	if level == 0 {
+		response = fmt.Sprintf("Удален модуль: %s, уровень: %d", module, level)
+	}
+	// Отправка ответа
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: response,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	go func() {
+		time.Sleep(20 * time.Second)
+		err = s.InteractionResponseDelete(i.Interaction)
+		if err != nil {
+			return
+		}
+	}()
+	fmt.Println(module + strconv.FormatInt(level, 10))
+	d.updateModuleOrWeapon(i.Interaction.Member.User.Username, module, strconv.FormatInt(level, 10))
+}
+
+// slash command weapon respond
+func (d *Discord) handleWeaponCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	weapon := i.ApplicationCommandData().Options[0].StringValue()
+
+	response := fmt.Sprintf("Установлено оружие: %s", weapon)
+
+	// Отправка ответа
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: response,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	go func() {
+		time.Sleep(20 * time.Second)
+		err = s.InteractionResponseDelete(i.Interaction)
+		if err != nil {
+			return
+		}
+	}()
+	d.updateModuleOrWeapon(i.Interaction.Member.User.Username, weapon, "")
+}
+func (d *Discord) updateModuleOrWeapon(username, module, level string) {
+	rse := "<:rse:1199068829511335946> " + level
+	genesis := "<:genesis:1199068748280242237> " + level
+	enrich := "<:enrich:1199068793633251338> " + level
+	if level == "0" {
+		rse, genesis, enrich = "", "", ""
+	}
+
+	barrage := "<:barrage:1199084425393225782>"
+	laser := "<:laser:1199084197571207339>"
+	chainray := "<:chainray:1199073579577376888>"
+	battery := "<:batteryw:1199072534562345021>"
+	massbattery := "<:massbattery:1199072493760151593>"
+	dartlauncher := "<:dartlauncher:1199072434674991145>"
+	rocketlauncher := "<:rocketlauncher:1199071677548605562>"
+
+	switch module {
+	case "RSE":
+		d.storage.Emoji.ModuleUpdate(context.Background(), username, "ds", "1", rse)
+	case "GENESIS":
+		d.storage.Emoji.ModuleUpdate(context.Background(), username, "ds", "2", genesis)
+	case "ENRICH":
+		d.storage.Emoji.ModuleUpdate(context.Background(), username, "ds", "3", enrich)
+	case "barrage":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", barrage)
+	case "laser":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", laser)
+	case "chainray":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", chainray)
+	case "battery":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", battery)
+	case "massbattery":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", massbattery)
+	case "dartlauncher":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", dartlauncher)
+	case "rocketlauncher":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", rocketlauncher)
+	}
+}

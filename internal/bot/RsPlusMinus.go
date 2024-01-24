@@ -53,7 +53,7 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, ds), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.NameMention, ds), b.in.Timekz, numkzN)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, false)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
@@ -69,7 +69,7 @@ func (b *Bot) RsPlus() {
 						"1️⃣ %s - %s%s (%d) \n\n"+
 						"%s++ - %s",
 						b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL,
-						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN,
+						b.emReadName(b.in.Name, b.in.NameMention, tg), b.in.Timekz, b.GetLang("min."), numkzN,
 						b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 					tgmesid = b.client.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
 					b.SubscribePing(1)
@@ -86,8 +86,8 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
-					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, ds), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.NameMention, ds), b.in.Timekz, numkzN)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, false)
 					text := n["lvlkz"] + " 2/4 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
@@ -100,9 +100,9 @@ func (b *Bot) RsPlus() {
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
 					name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
-						b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
+						b.emReadName(u.User1.Name, u.User1.Mention, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
 					name2 := fmt.Sprintf("2️⃣ %s - %s%s (%d) \n",
-						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN)
+						b.emReadName(b.in.Name, b.in.NameMention, tg), b.in.Timekz, b.GetLang("min."), numkzN)
 					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 					text := fmt.Sprintf("%s %s %s %s", text1, name1, name2, text2)
 					tgmesid = b.client.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)
@@ -117,9 +117,9 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
-					n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Mention, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
-					n["name3"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.NameMention, b.in.Tip), b.in.Timekz, numkzN)
+					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, u.User1.Mention, b.in.Tip), u.User1.Timedown, u.User1.Numkzn)
+					n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, u.User2.Mention, b.in.Tip), u.User2.Timedown, u.User2.Numkzn)
+					n["name3"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.NameMention, b.in.Tip), b.in.Timekz, numkzN)
 					lvlk3, err4 := b.client.Ds.RoleToIdPing(b.GetLang("kz")+b.in.Lvlkz+"+", b.in.Config.Guildid)
 					if err4 != nil {
 						b.log.Info(fmt.Sprintf("RoleToIdPing %+v lvl %s", b.in.Config, b.in.Lvlkz[1:]))
@@ -137,11 +137,11 @@ func (b *Bot) RsPlus() {
 				go func() {
 					text1 := fmt.Sprintf("%s%s (%d)\n", b.GetLang("ocheredKz"), b.in.Lvlkz, numkzL)
 					name1 := fmt.Sprintf("1️⃣ %s - %d%s (%d) \n",
-						b.emReadName(u.User1.Name, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
+						b.emReadName(u.User1.Name, u.User1.Mention, tg), u.User1.Timedown, b.GetLang("min."), u.User1.Numkzn)
 					name2 := fmt.Sprintf("2️⃣ %s - %d%s (%d) \n",
-						b.emReadName(u.User2.Name, tg), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
+						b.emReadName(u.User2.Name, u.User2.Mention, tg), u.User2.Timedown, b.GetLang("min."), u.User2.Numkzn)
 					name3 := fmt.Sprintf("3️⃣ %s - %s%s (%d) \n",
-						b.emReadName(b.in.Name, tg), b.in.Timekz, b.GetLang("min."), numkzN)
+						b.emReadName(b.in.Name, b.in.NameMention, tg), b.in.Timekz, b.GetLang("min."), numkzN)
 					text2 := fmt.Sprintf("\n%s++ - %s", b.in.Lvlkz, b.GetLang("prinuditelniStart"))
 					text := fmt.Sprintf("%s %s %s %s %s", text1, name1, name2, name3, text2)
 					tgmesid = b.client.Tg.SendEmded(b.in.Lvlkz, b.in.Config.TgChannel, text)

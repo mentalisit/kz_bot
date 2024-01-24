@@ -62,8 +62,9 @@ type Names struct {
 	Name4 string
 }
 type EmodjiUser struct {
-	Id                            int
-	Tip, Name, Em1, Em2, Em3, Em4 string
+	Id                                int
+	Tip, Name, Em1, Em2, Em3, Em4     string
+	Module1, Module2, Module3, Weapon string
 }
 
 type Timer struct {
