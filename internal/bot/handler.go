@@ -35,19 +35,13 @@ func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
 func (b *Bot) emReadName(name, nameMention, tip string) string { // склеиваем имя и эмоджи
 	t := b.storage.Emoji.EmojiModuleReadUsers(context.Background(), name, tip)
 	newName := name
-	fmt.Println(37)
-	if tip == ds {
-		fmt.Println(39, tip, t.Tip)
-		if tip == t.Tip {
-			fmt.Println(41)
+	if len(t.Name) > 0 {
+		if tip == ds && tip == t.Tip {
 			newName = fmt.Sprintf("%s %s %s %s %s %s%s%s%s", nameMention, t.Module1, t.Module2, t.Module3, t.Weapon, t.Em1, t.Em2, t.Em3, t.Em4)
-		}
-	} else {
-		if tip == t.Tip {
+		} else if tip == t.Tip {
 			newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
 		}
 	}
-
 	return newName
 }
 

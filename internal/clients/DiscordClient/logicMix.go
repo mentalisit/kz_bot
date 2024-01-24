@@ -106,7 +106,6 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 	//filter Rs
 	ok, config := d.CheckChannelConfigDS(m.ChannelID)
 	if ok {
-		d.messageCreate(m)
 		d.SendToRsFilter(m, config)
 		return
 	}
@@ -120,6 +119,10 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 }
 
 func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
+	//if m.Content == "registerCommandModules" {
+	//	// Регистрация слеш-команды при получении команды
+	//	d.registerCommand(d.s, m.GuildID)
+	//}
 	in := models.InMessage{
 		Mtext:       m.Content,
 		Tip:         "ds",

@@ -19,10 +19,6 @@ func (d *Db) EmojiModuleReadUsers(ctx context.Context, name, tip string) models.
 			d.log.Error(err.Error())
 		}
 	}
-	fmt.Println(t.Tip)
-	if t.Tip == "" {
-		d.EmInsertEmpty(ctx, tip, name)
-	}
 	return t
 }
 func (d *Db) EmojiUpdate(ctx context.Context, name, tip, slot, emo string) string {

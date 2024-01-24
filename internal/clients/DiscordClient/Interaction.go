@@ -4,92 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"log"
 	"strconv"
 	"time"
 )
 
-//func handleMessageComponentInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
-//	fmt.Printf("InteractionCreate %+v\n", i.Interaction.Data)
-//	switch i.MessageComponentData().CustomID {
-//	case "moduleSelect":
-//
-//		handleButtonClick(s, i)
-//	//
-//	//
-//
-//	case "button_with_input":
-//		// Отправить сообщение с запросом текстового ввода
-//
-//		sendTextPrompt(s, i)
-//	}
-//}
-//func handleButtonClick(s *discordgo.Session, i *discordgo.InteractionCreate) {
-//	fmt.Println(i.Type)
-//	switch i.Type {
-//	case discordgo.InteractionMessageComponent:
-//		fmt.Println("ffff")
-//		// Обработка взаимодействий с командами приложения
-//		//handleApplicationCommand(s, data)
-//		//case discordgo.InteractionMessageComponent:
-//		// Обработка взаимодействий с компонентами сообщений (кнопки, выборы и т.д.)
-//		//handleMessageComponentInteraction(s, data)
-//	}
-//	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-//		Type: discordgo.InteractionResponseUpdateMessage,
-//		Data: &discordgo.InteractionResponseData{
-//			Content: "Кнопка была нажата!",
-//			Components: []discordgo.MessageComponent{discordgo.ActionsRow{
-//				Components: []discordgo.MessageComponent{createModuleSelectMenu1()},
-//			},
-//			},
-//		}}); err != nil {
-//		log.Println("Error responding to button click:", err)
-//	}
-//}
-//
-//func sendTextPrompt(s *discordgo.Session, i *discordgo.InteractionCreate) {
-//	// Отправить сообщение с текстовым полем для ввода
-//	msg := &discordgo.MessageSend{
-//		Content: "Введите текст:",
-//		Components: []discordgo.MessageComponent{
-//			discordgo.ActionsRow{
-//				Components: []discordgo.MessageComponent{
-//					discordgo.Button{
-//						//Type:    discordgo.ButtonPrimary,
-//						Style:    discordgo.PrimaryButton,
-//						Label:    "Отправить",
-//						CustomID: "send_text_button",
-//					},
-//				},
-//			},
-//		},
-//	}
-//
-//	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-//		Type: discordgo.InteractionResponseUpdateMessage,
-//		Data: &discordgo.InteractionResponseData{
-//			Content:    "Введите текст:",
-//			Components: msg.Components,
-//			//IsEphemeral:     true, // Можете сделать ответ видимым только для отправившего пользователя
-//		},
-//	})
-//	if err != nil {
-//		fmt.Println(err)
-//		return
-//	}
-//
-//	// Сохраните информацию о том, что пользователь ожидает текстового ввода
-//	// Это может быть полезно, чтобы понимать, на какое именно взаимодействие отвечает пользователь
-//	// или для следующих шагов взаимодействия
-//	fmt.Println("186answer ", i.User.ID)
-//	//saveUserExpectingTextInput(interactionResponse.ID, i.User.ID)
-//}
-
-//
-
 // register slash command module
-func registerCommand(s *discordgo.Session, guildID string) {
+func (d *Discord) registerCommand(s *discordgo.Session, guildID string) {
 	// Регистрация слеш-команды с параметрами "module" и "level"
 	cmd := &discordgo.ApplicationCommand{
 		Name:        "module",
@@ -180,7 +100,7 @@ func registerCommand(s *discordgo.Session, guildID string) {
 
 	_, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
 	if err != nil {
-		log.Println("Error registering command:", err)
+		d.log.Error("Error registering command: " + err.Error())
 		return
 	}
 	// Регистрация слеш-команды оружие
@@ -230,7 +150,7 @@ func registerCommand(s *discordgo.Session, guildID string) {
 
 	_, err = s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
 	if err != nil {
-		log.Println("Error registering command:", err)
+		d.log.Error("Error registering command:" + err.Error())
 		return
 	}
 
@@ -264,7 +184,6 @@ func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.Interac
 			return
 		}
 	}()
-	fmt.Println(module + strconv.FormatInt(level, 10))
 	d.updateModuleOrWeapon(i.Interaction.Member.User.Username, module, strconv.FormatInt(level, 10))
 }
 
@@ -294,6 +213,7 @@ func (d *Discord) handleWeaponCommand(s *discordgo.Session, i *discordgo.Interac
 	}()
 	d.updateModuleOrWeapon(i.Interaction.Member.User.Username, weapon, "")
 }
+
 func (d *Discord) updateModuleOrWeapon(username, module, level string) {
 	rse := "<:rse:1199068829511335946> " + level
 	genesis := "<:genesis:1199068748280242237> " + level
@@ -309,7 +229,10 @@ func (d *Discord) updateModuleOrWeapon(username, module, level string) {
 	massbattery := "<:massbattery:1199072493760151593>"
 	dartlauncher := "<:dartlauncher:1199072434674991145>"
 	rocketlauncher := "<:rocketlauncher:1199071677548605562>"
-
+	t := d.storage.Emoji.EmojiModuleReadUsers(context.Background(), username, "ds")
+	if len(t.Name) == 0 {
+		d.storage.Emoji.EmInsertEmpty(context.Background(), "ds", username)
+	}
 	switch module {
 	case "RSE":
 		d.storage.Emoji.ModuleUpdate(context.Background(), username, "ds", "1", rse)
