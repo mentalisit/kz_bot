@@ -27,20 +27,9 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 	if user.ID != message.Author.ID {
 		ok, config := d.CheckChannelConfigDS(r.ChannelID)
 		if ok {
-			member, e := d.s.GuildMember(config.Guildid, user.ID)
-			if e != nil {
-				d.log.Error(e.Error())
-			}
-			name := user.Username
-			if member.Nick != "" {
-				name = member.Nick
-			}
-			Avatar := "https://cdn.discordapp.com/avatars/" + user.ID + "/" + user.Avatar + ".jpg"
-
 			in := models.InMessage{
-				Mtext:       "",
 				Tip:         "ds",
-				Name:        name,
+				Name:        user.Username,
 				NameMention: user.Mention(),
 				Ds: struct {
 					Mesid   string
@@ -51,7 +40,7 @@ func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *di
 					Mesid:   r.MessageID,
 					Nameid:  user.ID,
 					Guildid: config.Guildid,
-					Avatar:  Avatar,
+					Avatar:  user.AvatarURL("128"),
 				},
 
 				Config: config,
