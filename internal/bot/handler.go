@@ -34,15 +34,13 @@ func (b *Bot) ifTipSendTextDelSecond(text string, time int) {
 
 func (b *Bot) emReadName(name, nameMention, tip string) string { // склеиваем имя и эмоджи
 	t := b.storage.Emoji.EmojiModuleReadUsers(context.Background(), name, tip)
-	newName := name
+	newName := nameMention
 	if len(t.Name) > 0 {
 		if tip == ds && tip == t.Tip {
 			newName = fmt.Sprintf("%s %s %s %s %s %s%s%s%s", nameMention, t.Module1, t.Module2, t.Module3, t.Weapon, t.Em1, t.Em2, t.Em3, t.Em4)
 		} else if tip == t.Tip {
 			newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
 		}
-	} else if tip == ds {
-		newName = nameMention
 	}
 	return newName
 }
@@ -59,22 +57,22 @@ func (b *Bot) checkAdmin() bool {
 
 func (b *Bot) nameMention(u models.Users, tip string) (n1, n2, n3, n4 string) {
 	if u.User1.Tip == tip {
-		n1 = u.User1.Mention
+		n1 = b.emReadName(u.User1.Name, u.User1.Mention, tip)
 	} else {
 		n1 = u.User1.Name
 	}
 	if u.User2.Tip == tip {
-		n2 = u.User2.Mention
+		n2 = b.emReadName(u.User2.Name, u.User2.Mention, tip)
 	} else {
 		n2 = u.User2.Name
 	}
 	if u.User3.Tip == tip {
-		n3 = u.User3.Mention
+		n3 = b.emReadName(u.User3.Name, u.User3.Mention, tip)
 	} else {
 		n3 = u.User3.Name
 	}
 	if b.in.Tip == tip {
-		n4 = b.in.NameMention
+		n4 = b.emReadName(b.in.Name, b.in.NameMention, tip)
 	} else {
 		n4 = b.in.Name
 	}
