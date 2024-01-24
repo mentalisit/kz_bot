@@ -86,7 +86,7 @@ func (b *Bot) RsPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Mention, u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
+					n["name1"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User1.Name, u.User1.Mention, ds), u.User1.Timedown, u.User1.Numkzn)
 					n["name2"] = fmt.Sprintf("%s  🕒  %s  (%d)", b.emReadName(b.in.Name, b.in.NameMention, ds), b.in.Timekz, numkzN)
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, false)
 					text := n["lvlkz"] + " 2/4 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")

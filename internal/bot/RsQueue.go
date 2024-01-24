@@ -49,7 +49,6 @@ func (b *Bot) QueueLevel() {
 		}
 	}
 
-	fmt.Println("ochered ", b.in.Lvlkz)
 	if count == 1 {
 
 		if b.in.Config.DsChannel != "" {

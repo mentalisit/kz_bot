@@ -41,6 +41,8 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 		} else if tip == t.Tip {
 			newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
 		}
+	} else if tip == ds {
+		newName = nameMention
 	}
 	return newName
 }
