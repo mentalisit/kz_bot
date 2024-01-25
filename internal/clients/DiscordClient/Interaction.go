@@ -9,154 +9,154 @@ import (
 	"time"
 )
 
-// register slash command module
-func (d *Discord) registerCommand(guildID string) {
-	// Регистрация слеш-команды с параметрами "module" и "level"
-	cmd := &discordgo.ApplicationCommand{
-		Name:        "module",
-		Description: "Выберите нужный модуль и уровень / Select the desired module and level",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "module",
-				Description: "Выберите модуль / Select module",
-				Required:    true,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "Ингибитор КЗ / RSE",
-						Value: "RSE",
-					},
-					{
-						Name:  "Генезис / Genesis",
-						Value: "GENESIS",
-					},
-					{
-						Name:  "Обогатить / Enrich",
-						Value: "ENRICH",
-					},
-					// Добавьте другие модули по мере необходимости
-				},
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "level",
-				Description: "Выберите уровень / Select level",
-				Required:    true,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "Уровень / Level 0",
-						Value: 0,
-					},
-					{
-						Name:  "Уровень / Level 1",
-						Value: 1,
-					}, {
-						Name:  "Уровень / Level 2",
-						Value: 2,
-					}, {
-						Name:  "Уровень / Level 3",
-						Value: 3,
-					}, {
-						Name:  "Уровень / Level 4",
-						Value: 4,
-					}, {
-						Name:  "Уровень / Level 5",
-						Value: 5,
-					}, {
-						Name:  "Уровень / Level 6",
-						Value: 6,
-					}, {
-						Name:  "Уровень / Level 7",
-						Value: 7,
-					}, {
-						Name:  "Уровень / Level 8",
-						Value: 8,
-					}, {
-						Name:  "Уровень / Level 9",
-						Value: 9,
-					}, {
-						Name:  "Уровень / Level 10",
-						Value: 10,
-					}, {
-						Name:  "Уровень / Level 11",
-						Value: 11,
-					}, {
-						Name:  "Уровень / Level 12",
-						Value: 12,
-					}, {
-						Name:  "Уровень / Level 13",
-						Value: 13,
-					}, {
-						Name:  "Уровень / Level 14",
-						Value: 14,
-					}, {
-						Name:  "Уровень / Level 15",
-						Value: 15,
-					},
-					// Добавьте другие уровни по мере необходимости
-				},
-			},
-		},
-	}
-
-	_, err := d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
-	if err != nil {
-		d.log.Error("Error registering command: " + err.Error())
-		return
-	}
-	// Регистрация слеш-команды оружие
-	cmd = &discordgo.ApplicationCommand{
-		Name:        "weapon",
-		Description: "Выберите основное оружие / Select your main weapon",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "weapon",
-				Description: "Выберите оружие / Select weapon",
-				Required:    true,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "Артобстрел / Barrage",
-						Value: "barrage",
-					},
-					{
-						Name:  "Лазер / Laser",
-						Value: "laser",
-					},
-					{
-						Name:  "Цепной луч / Chain ray",
-						Value: "chainray",
-					},
-					{
-						Name:  "Батарея / Battery",
-						Value: "battery",
-					},
-					{
-						Name:  "Залповая батарея / Mass battery",
-						Value: "massbattery",
-					},
-					{
-						Name:  "Пусковая установка / Dart launcher",
-						Value: "dartlauncher",
-					},
-					{
-						Name:  "Ракетная установка / Rocket launcher",
-						Value: "rocketlauncher",
-					},
-					// Добавьте другие модули по мере необходимости
-				},
-			},
-		},
-	}
-
-	_, err = d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
-	if err != nil {
-		d.log.Error("Error registering command:" + err.Error())
-		return
-	}
-
-	fmt.Println("Command registered successfully.")
-}
+//// register slash command module
+//func (d *Discord) registerCommand(guildID string) {
+//	// Регистрация слеш-команды с параметрами "module" и "level"
+//	cmd := &discordgo.ApplicationCommand{
+//		Name:        "module",
+//		Description: "Выберите нужный модуль и уровень / Select the desired module and level",
+//		Options: []*discordgo.ApplicationCommandOption{
+//			{
+//				Type:        discordgo.ApplicationCommandOptionString,
+//				Name:        "module",
+//				Description: "Выберите модуль / Select module",
+//				Required:    true,
+//				Choices: []*discordgo.ApplicationCommandOptionChoice{
+//					{
+//						Name:  "Ингибитор КЗ / RSE",
+//						Value: "RSE",
+//					},
+//					{
+//						Name:  "Генезис / Genesis",
+//						Value: "GENESIS",
+//					},
+//					{
+//						Name:  "Обогатить / Enrich",
+//						Value: "ENRICH",
+//					},
+//					// Добавьте другие модули по мере необходимости
+//				},
+//			},
+//			{
+//				Type:        discordgo.ApplicationCommandOptionInteger,
+//				Name:        "level",
+//				Description: "Выберите уровень / Select level",
+//				Required:    true,
+//				Choices: []*discordgo.ApplicationCommandOptionChoice{
+//					{
+//						Name:  "Уровень / Level 0",
+//						Value: 0,
+//					},
+//					{
+//						Name:  "Уровень / Level 1",
+//						Value: 1,
+//					}, {
+//						Name:  "Уровень / Level 2",
+//						Value: 2,
+//					}, {
+//						Name:  "Уровень / Level 3",
+//						Value: 3,
+//					}, {
+//						Name:  "Уровень / Level 4",
+//						Value: 4,
+//					}, {
+//						Name:  "Уровень / Level 5",
+//						Value: 5,
+//					}, {
+//						Name:  "Уровень / Level 6",
+//						Value: 6,
+//					}, {
+//						Name:  "Уровень / Level 7",
+//						Value: 7,
+//					}, {
+//						Name:  "Уровень / Level 8",
+//						Value: 8,
+//					}, {
+//						Name:  "Уровень / Level 9",
+//						Value: 9,
+//					}, {
+//						Name:  "Уровень / Level 10",
+//						Value: 10,
+//					}, {
+//						Name:  "Уровень / Level 11",
+//						Value: 11,
+//					}, {
+//						Name:  "Уровень / Level 12",
+//						Value: 12,
+//					}, {
+//						Name:  "Уровень / Level 13",
+//						Value: 13,
+//					}, {
+//						Name:  "Уровень / Level 14",
+//						Value: 14,
+//					}, {
+//						Name:  "Уровень / Level 15",
+//						Value: 15,
+//					},
+//					// Добавьте другие уровни по мере необходимости
+//				},
+//			},
+//		},
+//	}
+//
+//	_, err := d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
+//	if err != nil {
+//		d.log.Error("Error registering command: " + err.Error())
+//		return
+//	}
+//	// Регистрация слеш-команды оружие
+//	cmd = &discordgo.ApplicationCommand{
+//		Name:        "weapon",
+//		Description: "Выберите основное оружие / Select your main weapon",
+//		Options: []*discordgo.ApplicationCommandOption{
+//			{
+//				Type:        discordgo.ApplicationCommandOptionString,
+//				Name:        "weapon",
+//				Description: "Выберите оружие / Select weapon",
+//				Required:    true,
+//				Choices: []*discordgo.ApplicationCommandOptionChoice{
+//					{
+//						Name:  "Артобстрел / Barrage",
+//						Value: "barrage",
+//					},
+//					{
+//						Name:  "Лазер / Laser",
+//						Value: "laser",
+//					},
+//					{
+//						Name:  "Цепной луч / Chain ray",
+//						Value: "chainray",
+//					},
+//					{
+//						Name:  "Батарея / Battery",
+//						Value: "battery",
+//					},
+//					{
+//						Name:  "Залповая батарея / Mass battery",
+//						Value: "massbattery",
+//					},
+//					{
+//						Name:  "Пусковая установка / Dart launcher",
+//						Value: "dartlauncher",
+//					},
+//					{
+//						Name:  "Ракетная установка / Rocket launcher",
+//						Value: "rocketlauncher",
+//					},
+//					// Добавьте другие модули по мере необходимости
+//				},
+//			},
+//		},
+//	}
+//
+//	_, err = d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
+//	if err != nil {
+//		d.log.Error("Error registering command:" + err.Error())
+//		return
+//	}
+//
+//	fmt.Println("Command registered successfully.")
+//}
 
 // slash command module respond
 func (d *Discord) handleModuleCommand(i *discordgo.InteractionCreate) {
