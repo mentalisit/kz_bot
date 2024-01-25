@@ -10,7 +10,7 @@ import (
 
 //lang ok
 
-func (d *Discord) AddEnojiRsQueue(chatid, mesid string) {
+func (d *Discord) AddEnojiRsQueue1(chatid, mesid string) {
 	err := d.s.MessageReactionAdd(chatid, mesid, emOK)
 	if err != nil {
 		d.log.Error(err.Error())

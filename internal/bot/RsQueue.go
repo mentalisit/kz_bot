@@ -65,9 +65,9 @@ func (b *Bot) QueueLevel() {
 				}
 				if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)
+					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 
-					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					//b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.storage.Update.MesidDsUpdate(ctx, dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				b.wg.Done()
@@ -102,9 +102,9 @@ func (b *Bot) QueueLevel() {
 					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 				} else if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)
+					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 
-					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					//b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.storage.Update.MesidDsUpdate(ctx, dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				b.wg.Done()
@@ -147,9 +147,9 @@ func (b *Bot) QueueLevel() {
 					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 				} else if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
-					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)
+					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 
-					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					//b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.storage.Update.MesidDsUpdate(ctx, dsmesid, b.in.Lvlkz, b.in.Config.CorpName)
 				}
 				b.wg.Done()

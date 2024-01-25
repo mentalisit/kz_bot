@@ -64,10 +64,11 @@ func (d *Discord) SendComplexContent(chatid, text string) (mesId string) { //о�
 	}
 	return mesCompl.ID
 }
-func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed) (mesId string) { //отправка текста комплексного сообщения
+func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed, component []discordgo.MessageComponent) (mesId string) { //отправка текста комплексного сообщения
 	mesCompl, err := d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
-		Content: mesContentNil,
-		Embed:   &embeds,
+		Content:    mesContentNil,
+		Embed:      &embeds,
+		Components: component,
 	})
 	if err != nil {
 		channel, _ := d.s.Channel(chatid)
