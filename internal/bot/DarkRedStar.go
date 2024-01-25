@@ -179,7 +179,7 @@ func (b *Bot) RsDarkPlus() {
 			if b.in.Config.DsChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n1, n2, _, _ := b.nameMention(u, ds)
+					n1, n2, _, n3 := b.nameMention(u, ds)
 					go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel,
 						" 3/3 "+b.in.Name+" "+b.GetLang("prisoedenilsyKocheredi"), 10)
@@ -191,7 +191,7 @@ func (b *Bot) RsDarkPlus() {
 						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
 						n1,
 						n2,
-						b.in.NameMention,
+						n3,
 						b.GetLang("Vigru"), textEvent)
 
 					if b.in.Tip == ds {
@@ -206,7 +206,7 @@ func (b *Bot) RsDarkPlus() {
 			if b.in.Config.TgChannel != "" {
 				b.wg.Add(1)
 				go func() {
-					n1, n2, _, _ := b.nameMention(u, tg)
+					n1, n2, _, n3 := b.nameMention(u, tg)
 					go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 					go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel,
 						b.in.Name+b.GetLang("zakrilOcheredTKz")+b.in.Lvlkz[1:], 10)
@@ -217,7 +217,7 @@ func (b *Bot) RsDarkPlus() {
 						" %s \n"+
 						"%s",
 						b.GetLang("ocheredTKz"), b.in.Lvlkz[1:], b.GetLang("sformirovana"),
-						n1, n2, b.in.NameMention,
+						n1, n2, n3,
 						b.GetLang("Vigru"), textEvent)
 					tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
 					b.storage.Update.MesidTgUpdate(ctx, tgmesid, b.in.Lvlkz, b.in.Config.CorpName)
