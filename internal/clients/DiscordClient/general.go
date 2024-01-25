@@ -29,6 +29,53 @@ func (d *Discord) AddEnojiRsQueue(chatid, mesid string) {
 	}
 
 }
+func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
+	// Создание кнопки
+	buttonOk := discordgo.Button{
+		Style:    discordgo.PrimaryButton,
+		Label:    level + "+",
+		CustomID: level + "+",
+		Emoji: discordgo.ComponentEmoji{
+			Name: emOK,
+		},
+	}
+	buttonCancel := discordgo.Button{
+		Style:    discordgo.PrimaryButton,
+		Label:    level + "-",
+		CustomID: level + "-",
+		Emoji: discordgo.ComponentEmoji{
+			Name: emCancel,
+		},
+	}
+	buttonRsStart := discordgo.Button{
+		Style:    discordgo.PrimaryButton,
+		Label:    level + "++",
+		CustomID: level + "++",
+		Emoji: discordgo.ComponentEmoji{
+			Name: emRsStart,
+		},
+	}
+	buttonPl30 := discordgo.Button{
+		Style:    discordgo.PrimaryButton,
+		Label:    "+30",
+		CustomID: level + "+++",
+		Emoji: discordgo.ComponentEmoji{
+			Name: emPl30,
+		},
+	}
+
+	// Создание компонентов с кнопкой
+	return []discordgo.MessageComponent{
+		discordgo.ActionsRow{
+			Components: []discordgo.MessageComponent{
+				buttonOk,
+				buttonCancel,
+				buttonRsStart,
+				buttonPl30,
+			},
+		},
+	}
+}
 
 func (d *Discord) DeleteMessage(chatid, mesid string) {
 	_ = d.s.ChannelMessageDelete(chatid, mesid)
@@ -50,12 +97,25 @@ func (d *Discord) DeleteMesageSecond(chatid, mesid string, second int) {
 		}()
 	}
 }
-func (d *Discord) EditComplex(dsmesid, dschatid string, Embeds discordgo.MessageEmbed) error {
+func (d *Discord) EditComplex1(dsmesid, dschatid string, Embeds discordgo.MessageEmbed) error {
 	_, err := d.s.ChannelMessageEditComplex(&discordgo.MessageEdit{
 		Content: &mesContentNil,
 		Embed:   &Embeds,
 		ID:      dsmesid,
 		Channel: dschatid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (d *Discord) EditComplexButton(dsmesid, dschatid string, Embeds discordgo.MessageEmbed, component []discordgo.MessageComponent) error {
+	_, err := d.s.ChannelMessageEditComplex(&discordgo.MessageEdit{
+		Content:    &mesContentNil,
+		Embed:      &Embeds,
+		ID:         dsmesid,
+		Channel:    dschatid,
+		Components: component,
 	})
 	if err != nil {
 		return err

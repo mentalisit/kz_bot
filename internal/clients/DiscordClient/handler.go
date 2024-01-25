@@ -124,11 +124,14 @@ func (d *Discord) slash(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			switch i.ApplicationCommandData().Name {
 			case "module":
 				// Обработка вашей слеш-команды
-				d.handleModuleCommand(s, i)
+				d.handleModuleCommand(i)
 			case "weapon":
-				d.handleWeaponCommand(s, i)
+				d.handleWeaponCommand(i)
 			}
 		}
+	case discordgo.InteractionMessageComponent:
+		d.handleButtonPressed(i)
+
 	default:
 		fmt.Printf("slash %+v\n", i.Type)
 	}

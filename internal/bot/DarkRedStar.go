@@ -107,8 +107,8 @@ func (b *Bot) RsDarkPlus() {
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, true)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
-					b.client.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
-					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.client.Ds.EditComplexButton(dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
+					//b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.wg.Done()
 				}()
 			}
@@ -141,7 +141,7 @@ func (b *Bot) RsDarkPlus() {
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, true)
 					text := n["lvlkz"] + " 2/3 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 					b.wg.Done()
 				}()
 			}

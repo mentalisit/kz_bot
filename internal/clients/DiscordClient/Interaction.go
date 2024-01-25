@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"kz_bot/internal/models"
 	"strconv"
 	"time"
 )
 
 // register slash command module
-func (d *Discord) registerCommand(s *discordgo.Session, guildID string) {
+func (d *Discord) registerCommand(guildID string) {
 	// Регистрация слеш-команды с параметрами "module" и "level"
 	cmd := &discordgo.ApplicationCommand{
 		Name:        "module",
@@ -98,7 +99,7 @@ func (d *Discord) registerCommand(s *discordgo.Session, guildID string) {
 		},
 	}
 
-	_, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
+	_, err := d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
 	if err != nil {
 		d.log.Error("Error registering command: " + err.Error())
 		return
@@ -148,7 +149,7 @@ func (d *Discord) registerCommand(s *discordgo.Session, guildID string) {
 		},
 	}
 
-	_, err = s.ApplicationCommandCreate(s.State.User.ID, guildID, cmd)
+	_, err = d.s.ApplicationCommandCreate(d.s.State.User.ID, guildID, cmd)
 	if err != nil {
 		d.log.Error("Error registering command:" + err.Error())
 		return
@@ -158,7 +159,7 @@ func (d *Discord) registerCommand(s *discordgo.Session, guildID string) {
 }
 
 // slash command module respond
-func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (d *Discord) handleModuleCommand(i *discordgo.InteractionCreate) {
 	module := i.ApplicationCommandData().Options[0].StringValue()
 	level := i.ApplicationCommandData().Options[1].IntValue()
 
@@ -167,7 +168,7 @@ func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.Interac
 		response = fmt.Sprintf("Удален модуль: %s, уровень: %d", module, level)
 	}
 	// Отправка ответа
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err := d.s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: response,
@@ -179,7 +180,7 @@ func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.Interac
 	}
 	go func() {
 		time.Sleep(20 * time.Second)
-		err = s.InteractionResponseDelete(i.Interaction)
+		err = d.s.InteractionResponseDelete(i.Interaction)
 		if err != nil {
 			return
 		}
@@ -188,13 +189,13 @@ func (d *Discord) handleModuleCommand(s *discordgo.Session, i *discordgo.Interac
 }
 
 // slash command weapon respond
-func (d *Discord) handleWeaponCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (d *Discord) handleWeaponCommand(i *discordgo.InteractionCreate) {
 	weapon := i.ApplicationCommandData().Options[0].StringValue()
 
 	response := fmt.Sprintf("Установлено оружие: %s", weapon)
 
 	// Отправка ответа
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err := d.s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: response,
@@ -206,7 +207,7 @@ func (d *Discord) handleWeaponCommand(s *discordgo.Session, i *discordgo.Interac
 	}
 	go func() {
 		time.Sleep(20 * time.Second)
-		err = s.InteractionResponseDelete(i.Interaction)
+		err = d.s.InteractionResponseDelete(i.Interaction)
 		if err != nil {
 			return
 		}
@@ -254,5 +255,38 @@ func (d *Discord) updateModuleOrWeapon(username, module, level string) {
 		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", dartlauncher)
 	case "rocketlauncher":
 		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", rocketlauncher)
+	}
+}
+
+func (d *Discord) handleButtonPressed(i *discordgo.InteractionCreate) {
+	ok, config := d.CheckChannelConfigDS(i.ChannelID)
+	if ok {
+		in := models.InMessage{
+			Mtext:       i.MessageComponentData().CustomID,
+			Tip:         "ds",
+			Name:        i.Interaction.Member.User.Username,
+			NameMention: i.Interaction.Member.User.Mention(),
+			Ds: struct {
+				Mesid   string
+				Nameid  string
+				Guildid string
+				Avatar  string
+			}{
+				Mesid:   i.Interaction.ID,
+				Nameid:  i.Interaction.Member.User.ID,
+				Guildid: i.Interaction.GuildID,
+				Avatar:  i.Interaction.Member.User.AvatarURL("128"),
+			},
+			Config: config,
+			Option: models.Option{Reaction: true},
+		}
+		d.ChanRsMessage <- in
+		err := d.s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredMessageUpdate,
+		})
+		if err != nil {
+			d.log.Error(err.Error())
+			return
+		}
 	}
 }

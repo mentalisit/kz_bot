@@ -58,7 +58,7 @@ func (b *Bot) QueueLevel() {
 
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 1, false)
 				if b.in.Option.Edit {
-					errr := b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					errr := b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 					if errr != nil {
 						b.in.Option.Edit = false
 					}
@@ -99,7 +99,7 @@ func (b *Bot) QueueLevel() {
 				n["name2"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User2.Name, u.User2.Mention, ds), u.User2.Timedown, u.User2.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 2, false)
 				if b.in.Option.Edit {
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 				} else if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)
@@ -144,7 +144,7 @@ func (b *Bot) QueueLevel() {
 				n["name3"] = fmt.Sprintf("%s  🕒  %d  (%d)", b.emReadName(u.User3.Name, u.User3.Mention, ds), u.User3.Timedown, u.User3.Numkzn)
 				emb := b.client.Ds.EmbedDS(n, numberLvl, 3, false)
 				if b.in.Option.Edit {
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 				} else if !b.in.Option.Edit {
 					b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					dsmesid := b.client.Ds.SendComplex(b.in.Config.DsChannel, emb)

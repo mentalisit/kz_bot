@@ -57,8 +57,8 @@ func (b *Bot) RsPlus() {
 					emb := b.client.Ds.EmbedDS(n, numkzL, 1, false)
 					dsmesid = b.client.Ds.SendComplexContent(b.in.Config.DsChannel, b.in.Name+b.GetLang("zapustilOchered")+n["lvlkz"])
 					time.Sleep(1 * time.Second)
-					b.client.Ds.EditComplex(dsmesid, b.in.Config.DsChannel, emb)
-					b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
+					b.client.Ds.EditComplexButton(dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
+					//b.client.Ds.AddEnojiRsQueue(b.in.Config.DsChannel, dsmesid)
 					b.wg.Done()
 				}()
 			}
@@ -91,7 +91,7 @@ func (b *Bot) RsPlus() {
 					emb := b.client.Ds.EmbedDS(n, numkzL, 2, false)
 					text := n["lvlkz"] + " 2/4 " + b.in.Name + b.GetLang("prisoedenilsyKocheredi")
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 					b.wg.Done()
 				}()
 			}
@@ -128,7 +128,7 @@ func (b *Bot) RsPlus() {
 					text := fmt.Sprintf("%s  3/4 %s %s %s %s",
 						n["lvlkz"], b.in.Name, b.GetLang("prisoedenilsyKocheredi"), lvlk3, b.GetLang("nujenEsheOdinDlyFulki"))
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel, text, 10)
-					b.client.Ds.EditComplex(u.User1.Dsmesid, b.in.Config.DsChannel, emb)
+					b.client.Ds.EditComplexButton(u.User1.Dsmesid, b.in.Config.DsChannel, emb, b.client.Ds.AddButtonsQueue(b.in.Lvlkz))
 					b.wg.Done()
 				}()
 			}
