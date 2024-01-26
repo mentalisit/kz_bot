@@ -71,7 +71,7 @@ func (t *Telegram) update() {
 			t.chatMember(update.ChatMember)
 
 		} else {
-			fmt.Printf(" else update %+v", update)
+			t.log.Info(fmt.Sprintf(" else update: %+v \nChannelPost:%+v", update, update.ChannelPost))
 		}
 	}
 }
