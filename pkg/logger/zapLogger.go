@@ -70,6 +70,37 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 	defer logger.Sync()
 	return &Logger{ZapLogger: logger, LoggerInterface: logger}
 }
+func LoggerZapDEV() *Logger {
+	cfg := zap.Config{
+		Encoding:         "console",
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "time",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			MessageKey:     "message",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+	}
+	logger, err := cfg.Build()
+	if err != nil {
+		return nil
+	}
+
+	defer logger.Sync()
+
+	logger.Info("Develop Running")
+
+	return &Logger{ZapLogger: logger, LoggerInterface: logger}
+}
 
 type LoggerInterface interface {
 	Debug(msg string, fields ...zapcore.Field)

@@ -34,12 +34,11 @@ func RunNew() error {
 	//создаем логгер
 	log := logger.LoggerZap(cfg.Logger.Token, cfg.Logger.ChatId)
 
-	if cfg.BotMode == "dev1" {
-		fmt.Println("Develop Running")
+	if cfg.BotMode == "dev" {
+		log = logger.LoggerZapDEV()
 
-		time.Sleep(5 * time.Second)
+		//time.Sleep(5 * time.Second)
 		//time.Sleep(5 * time.Minute)
-		return nil
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
