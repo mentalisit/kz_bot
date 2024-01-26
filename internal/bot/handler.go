@@ -66,6 +66,7 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 	return newName
 }
 func (b *Bot) updateCompendiumModules() {
+	b.iftipdelete()
 	genesis, enrich, rsextender := compendium.GetUserId(b.in.Ds.Nameid)
 	one := fmt.Sprintf("<:rse:1199068829511335946> %d ", rsextender)
 	two := fmt.Sprintf("<:genesis:1199068748280242237> %d ", genesis)
