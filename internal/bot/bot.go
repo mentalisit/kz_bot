@@ -126,6 +126,10 @@ func (b *Bot) logicIfText() bool {
 		}
 	case "Справка":
 		b.hhelp()
+	case "update modules":
+	case "обновить модули":
+		b.updateCompendiumModules()
+		iftext = true
 	default:
 		iftext = false
 	}

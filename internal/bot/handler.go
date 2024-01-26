@@ -65,7 +65,22 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 	}
 	return newName
 }
-
+func (b *Bot) updateCompendiumModules() {
+	genesis, enrich, rsextender := compendium.GetUserId(b.in.Ds.Nameid)
+	one := fmt.Sprintf("<:rse:1199068829511335946> %d ", rsextender)
+	two := fmt.Sprintf("<:genesis:1199068748280242237> %d ", genesis)
+	three := fmt.Sprintf("<:enrich:1199068793633251338> %d ", enrich)
+	if rsextender != 0 {
+		b.storage.Emoji.ModuleUpdate(context.Background(), b.in.Name, "ds", "1", one)
+	}
+	if genesis != 0 {
+		b.storage.Emoji.ModuleUpdate(context.Background(), b.in.Name, "ds", "2", two)
+	}
+	if enrich != 0 {
+		b.storage.Emoji.ModuleUpdate(context.Background(), b.in.Name, "ds", "3", three)
+	}
+	b.ifTipSendMentionText(" загружено из компендиум бота " + one + two + three)
+}
 func (b *Bot) checkAdmin() bool {
 	admin := false
 	if b.in.Tip == ds {
