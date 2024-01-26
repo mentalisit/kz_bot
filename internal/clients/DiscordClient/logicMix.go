@@ -108,10 +108,9 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 }
 
 func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
-	//if m.Content == "registerCommandModules" {
-	//	// Регистрация слеш-команды при получении команды
-	//	d.registerCommand(d.s, m.GuildID)
-	//}
+	if len(m.Attachments) > 0 {
+		m.Content += m.Attachments[0].URL
+	}
 	in := models.InMessage{
 		Mtext:       m.Content,
 		Tip:         "ds",
