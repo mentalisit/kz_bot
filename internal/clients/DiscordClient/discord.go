@@ -39,6 +39,7 @@ func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 	ds.AddHandler(DS.messageReactionAdd)
 	ds.AddHandler(DS.onMessageDelete)
 	ds.AddHandler(DS.slash)
-	ds.AddHandler(DS.ready)
+	DS.ready()
+
 	return DS
 }

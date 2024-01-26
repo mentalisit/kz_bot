@@ -115,10 +115,7 @@ func (d *Discord) messageReactionAdd(s *discordgo.Session, r *discordgo.MessageR
 }
 
 func (d *Discord) slash(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	commandHandlers := d.addSlashHandler()
-	if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-		h(s, i)
-	}
+
 	switch i.Type {
 
 	case discordgo.InteractionApplicationCommand:
@@ -130,6 +127,10 @@ func (d *Discord) slash(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			case "weapon":
 				d.handleWeaponCommand(i)
 			}
+			commandHandlers := d.addSlashHandler()
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
 		}
 	case discordgo.InteractionMessageComponent:
 		d.handleButtonPressed(i)
@@ -137,13 +138,14 @@ func (d *Discord) slash(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	default:
 		fmt.Printf("slash %+v\n", i.Type)
 	}
+
 }
 
-func (d *Discord) ready(s *discordgo.Session, r *discordgo.Ready) {
+func (d *Discord) ready() {
 	commands := d.addSlashCommand()
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "", v)
+		cmd, err := d.s.ApplicationCommandCreate(d.s.State.User.ID, "", v)
 		if err != nil {
 
 			d.log.Error(err.Error())
