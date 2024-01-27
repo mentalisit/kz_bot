@@ -111,6 +111,9 @@ func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.Corpo
 	if len(m.Attachments) > 0 {
 		m.Content += m.Attachments[0].URL
 	}
+	if len(m.Message.Embeds) > 0 {
+		m.Content += "\u200B"
+	}
 	in := models.InMessage{
 		Mtext:       m.Content,
 		Tip:         "ds",
