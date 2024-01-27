@@ -130,6 +130,8 @@ func (b *Bot) logicIfText() bool {
 	case "обновить модули":
 		b.updateCompendiumModules()
 		iftext = true
+	case "OptimizationSborkz":
+		b.storage.DbFunc.OptimizationSborkz()
 	default:
 		iftext = false
 	}

@@ -19,4 +19,5 @@ type DbFunc interface {
 	MessageupdateDS(ctx context.Context, dsmesid string, config models.CorporationConfig) models.InMessage
 	MessageupdateTG(ctx context.Context, tgmesid int, config models.CorporationConfig) models.InMessage
 	NumberQueueLvl(ctx context.Context, lvlkzs, CorpName string) (int, error)
+	OptimizationSborkz()
 }
