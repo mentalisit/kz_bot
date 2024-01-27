@@ -75,6 +75,9 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 					m.Text = m.Document.FileName
 				}
 			}
+			if len(m.Photo) > 0 {
+				url, _ = t.t.GetFileDirectURL(m.Photo[0].FileID)
+			}
 			mes := models.BridgeMessage{
 				Text:          m.Text,
 				Sender:        username,
