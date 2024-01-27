@@ -71,7 +71,19 @@ func (t *Telegram) update() {
 			t.chatMember(update.ChatMember)
 
 		} else {
-			t.log.Info(fmt.Sprintf(" else update: %+v \nChannelPost:%+v", update, update.ChannelPost))
+			if update.EditedChannelPost != nil {
+				t.log.Info(fmt.Sprintf(" update.EditedChannelPost %+v\n", update.EditedChannelPost))
+				if update.EditedChannelPost.PinnedMessage != nil {
+					t.log.Info(fmt.Sprintf(" update.EditedChannelPost.PinnedMessage %+v\n", update.EditedChannelPost.PinnedMessage))
+				}
+			} else if update.ChannelPost != nil {
+				t.log.Info(fmt.Sprintf(" update.ChannelPost %+v\n", update.ChannelPost))
+				if update.ChannelPost.PinnedMessage != nil {
+					t.log.Info(fmt.Sprintf(" update.ChannelPost.PinnedMessage %+v\n", update.ChannelPost.PinnedMessage))
+				}
+			} else {
+				t.log.Info(fmt.Sprintf(" else update: %+v \n", update))
+			}
 		}
 	}
 }
