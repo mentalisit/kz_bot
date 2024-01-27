@@ -32,7 +32,7 @@ func (d *Discord) AddEnojiRsQueue1(chatid, mesid string) {
 func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 	// Создание кнопки
 	buttonOk := discordgo.Button{
-		Style:    discordgo.PrimaryButton,
+		Style:    discordgo.SecondaryButton,
 		Label:    level + "+",
 		CustomID: level + "+",
 		Emoji: discordgo.ComponentEmoji{
@@ -48,7 +48,7 @@ func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 		},
 	}
 	buttonRsStart := discordgo.Button{
-		Style:    discordgo.SuccessButton,
+		Style:    discordgo.SecondaryButton,
 		Label:    level + "++",
 		CustomID: level + "++",
 		Emoji: discordgo.ComponentEmoji{
@@ -56,7 +56,7 @@ func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 		},
 	}
 	buttonPl30 := discordgo.Button{
-		Style:    discordgo.DangerButton,
+		Style:    discordgo.SecondaryButton,
 		Label:    "+30",
 		CustomID: level + "+++",
 		Emoji: discordgo.ComponentEmoji{

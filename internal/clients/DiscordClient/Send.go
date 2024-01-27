@@ -115,7 +115,7 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
-						Style:    discordgo.PrimaryButton,
+						Style:    discordgo.SecondaryButton,
 						Label:    "+",
 						CustomID: "+",
 						Emoji: discordgo.ComponentEmoji{
@@ -123,7 +123,7 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 					},
 
 					&discordgo.Button{
-						Style:    discordgo.PrimaryButton,
+						Style:    discordgo.SecondaryButton,
 						Label:    "-",
 						CustomID: "-",
 						Emoji: discordgo.ComponentEmoji{
