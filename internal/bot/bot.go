@@ -131,7 +131,8 @@ func (b *Bot) logicIfText() bool {
 		b.updateCompendiumModules()
 		iftext = true
 	case "OptimizationSborkz":
-		b.storage.DbFunc.OptimizationSborkz()
+		go b.storage.DbFunc.OptimizationSborkz()
+		b.iftipdelete()
 	default:
 		iftext = false
 	}

@@ -63,6 +63,7 @@ func (d *Db) OptimizationSborkz() {
 				d.log.Error(err.Error())
 			}
 			d.log.Info(fmt.Sprintf("Выполнено сжатие данных игрока %s в корпорации %s кз%s изза %d записей", t.Name, t.Corpname, level, activeCount))
+			time.Sleep(1 * time.Second)
 		}
 	}
 
