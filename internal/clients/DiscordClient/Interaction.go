@@ -272,7 +272,7 @@ func (d *Discord) handleButtonPressed(i *discordgo.InteractionCreate) {
 				Guildid string
 				Avatar  string
 			}{
-				Mesid:   i.Interaction.ID,
+				Mesid:   i.Interaction.Message.ID,
 				Nameid:  i.Interaction.Member.User.ID,
 				Guildid: i.Interaction.GuildID,
 				Avatar:  i.Interaction.Member.User.AvatarURL("128"),

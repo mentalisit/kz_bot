@@ -117,12 +117,12 @@ func (b *Bot) logicIfText() bool {
 	iftext := true
 	switch b.in.Mtext {
 	case "+":
-		if !b.Plus() {
-			iftext = false
+		if b.Plus() {
+			return true
 		}
 	case "-":
-		if !b.Minus() {
-			iftext = false
+		if b.Minus() {
+			return true
 		}
 	case "Справка":
 		b.hhelp()

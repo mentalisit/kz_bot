@@ -10,7 +10,7 @@ import (
 
 func (b *Bot) Plus() bool {
 	if b.debug {
-		fmt.Println("in Plus", b.in)
+		fmt.Printf("in Plus %+v\n", b.in)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
@@ -21,29 +21,29 @@ func (b *Bot) Plus() bool {
 	ins := false
 	if countName > 0 && b.in.Option.Reaction {
 		b.iftipdelete()
-		ins = true
 		t := b.storage.Timers.UpdateMitutsQueue(ctx, b.in.Name, b.in.Config.CorpName)
 		if t.Timedown > 3 {
 			message = fmt.Sprintf("%s %s%s %s %d%s",
 				t.Mention, b.GetLang("ranovatoPlysik"), t.Lvlkz, b.GetLang("budeshEshe"), t.Timedown, b.GetLang("min."))
 		} else if t.Timedown <= 3 {
+			ins = true
 			message = t.Mention + b.GetLang("vremyaObnovleno")
 			b.in.Lvlkz = t.Lvlkz
-
+			b.in.Option.Reaction = false
 			b.QueueLevel()
 		}
 		b.ifTipSendTextDelSecond(message, 10)
-		if b.in.Tip == ds {
-			b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
-		} else if b.in.Tip == tg {
-			b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
-		}
+		//if b.in.Tip == ds {
+		//	b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
+		//} else if b.in.Tip == tg {
+		//	b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
+		//}
 	}
 	return ins
 }
 func (b *Bot) Minus() bool {
 	if b.debug {
-		fmt.Println("in Minus", b.in)
+		fmt.Printf("in Minus %+v\n", b.in)
 	}
 	bb := false
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
@@ -51,7 +51,6 @@ func (b *Bot) Minus() bool {
 	countNames := b.storage.Count.CountNameQueueCorp(ctx, b.in.Name, b.in.Config.CorpName)
 	if countNames > 0 && b.in.Option.Reaction {
 		b.iftipdelete()
-		bb = true
 		t := b.storage.Timers.UpdateMitutsQueue(ctx, b.in.Name, b.in.Config.CorpName)
 		if t.Name == b.in.Name && t.Timedown > 3 {
 			message := fmt.Sprintf("%s %s%s %s %d%s",
@@ -59,6 +58,8 @@ func (b *Bot) Minus() bool {
 			b.ifTipSendTextDelSecond(message, 10)
 		} else if t.Name == b.in.Name && t.Timedown <= 3 {
 			b.in.Lvlkz = t.Lvlkz
+			bb = true
+			b.in.Option.Reaction = false
 			b.RsMinus()
 		}
 		if b.in.Tip == ds {
