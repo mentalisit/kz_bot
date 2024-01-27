@@ -40,7 +40,7 @@ func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 		},
 	}
 	buttonCancel := discordgo.Button{
-		Style:    discordgo.PrimaryButton,
+		Style:    discordgo.SecondaryButton,
 		Label:    level + "-",
 		CustomID: level + "-",
 		Emoji: discordgo.ComponentEmoji{
@@ -48,7 +48,7 @@ func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 		},
 	}
 	buttonRsStart := discordgo.Button{
-		Style:    discordgo.PrimaryButton,
+		Style:    discordgo.SuccessButton,
 		Label:    level + "++",
 		CustomID: level + "++",
 		Emoji: discordgo.ComponentEmoji{
@@ -56,7 +56,7 @@ func (d *Discord) AddButtonsQueue(level string) []discordgo.MessageComponent {
 		},
 	}
 	buttonPl30 := discordgo.Button{
-		Style:    discordgo.PrimaryButton,
+		Style:    discordgo.DangerButton,
 		Label:    "+30",
 		CustomID: level + "+++",
 		Emoji: discordgo.ComponentEmoji{
