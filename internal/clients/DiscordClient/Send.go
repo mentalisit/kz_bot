@@ -93,7 +93,7 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 	return message.ID
 }
 
-func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
+func (d *Discord) SendEmbedTime1(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {
 		d.log.Error(err.Error())
@@ -105,6 +105,35 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 	err = d.s.MessageReactionAdd(chatid, message.ID, emMinus)
 	if err != nil {
 		d.log.Error(err.Error())
+	}
+	return message.ID
+}
+func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
+	message, err := d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
+		Content: text,
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						Style:    discordgo.PrimaryButton,
+						Label:    "+",
+						CustomID: "+",
+						Emoji: discordgo.ComponentEmoji{
+							Name: emPlus},
+					},
+
+					&discordgo.Button{
+						Style:    discordgo.PrimaryButton,
+						Label:    "-",
+						CustomID: "-",
+						Emoji: discordgo.ComponentEmoji{
+							Name: emMinus},
+					}}},
+		},
+	})
+	if err != nil {
+		d.log.Error(err.Error())
+		return ""
 	}
 	return message.ID
 }
