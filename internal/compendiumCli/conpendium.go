@@ -1,4 +1,4 @@
-package compendium
+package compendiumCli
 
 import (
 	"encoding/json"

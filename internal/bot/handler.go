@@ -3,8 +3,8 @@ package bot
 import (
 	"context"
 	"fmt"
+	"kz_bot/internal/compendiumCli"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/compendium"
 	"kz_bot/pkg/translator"
 	"kz_bot/pkg/utils"
 	"strings"
@@ -43,7 +43,7 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 			newName = fmt.Sprintf("%s %s%s%s%s", name, t.Em1, t.Em2, t.Em3, t.Em4)
 		}
 	} else if b.in.Tip == ds && b.in.Config.Guildid == "716771579278917702" {
-		genesis, enrich, rsextender := compendium.GetUserId(b.in.Ds.Nameid)
+		genesis, enrich, rsextender := compendiumCli.GetUserId(b.in.Ds.Nameid)
 		b.storage.Emoji.EmInsertEmpty(context.Background(), "ds", name)
 		one := fmt.Sprintf("<:rse:1199068829511335946> %d ", rsextender)
 		two := fmt.Sprintf("<:genesis:1199068748280242237> %d ", genesis)
@@ -67,7 +67,7 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 }
 func (b *Bot) updateCompendiumModules() {
 	b.iftipdelete()
-	genesis, enrich, rsextender := compendium.GetUserId(b.in.Ds.Nameid)
+	genesis, enrich, rsextender := compendiumCli.GetUserId(b.in.Ds.Nameid)
 	one := fmt.Sprintf("<:rse:1199068829511335946> %d ", rsextender)
 	two := fmt.Sprintf("<:genesis:1199068748280242237> %d ", genesis)
 	three := fmt.Sprintf("<:enrich:1199068793633251338> %d ", enrich)
