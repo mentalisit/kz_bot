@@ -71,26 +71,26 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 	return &Logger{ZapLogger: logger, LoggerInterface: logger}
 }
 func LoggerZapDEV() *Logger {
-	cfg := zap.Config{
-		Encoding:         "console",
-		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "time",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "message",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.SecondsDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-	logger, err := cfg.Build()
+	//cfg := zap.Config{
+	//	Encoding:         "console",
+	//	Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
+	//	OutputPaths:      []string{"stdout"},
+	//	ErrorOutputPaths: []string{"stderr"},
+	//	EncoderConfig: zapcore.EncoderConfig{
+	//		TimeKey:        "time",
+	//		LevelKey:       "level",
+	//		NameKey:        "logger",
+	//		CallerKey:      "caller",
+	//		MessageKey:     "message",
+	//		StacktraceKey:  "stacktrace",
+	//		LineEnding:     zapcore.DefaultLineEnding,
+	//		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+	//		EncodeTime:     zapcore.ISO8601TimeEncoder,
+	//		EncodeDuration: zapcore.SecondsDurationEncoder,
+	//		EncodeCaller:   zapcore.ShortCallerEncoder,
+	//	},
+	//}
+	logger, err := zap.NewDevelopment() //cfg.Build()
 	if err != nil {
 		return nil
 	}

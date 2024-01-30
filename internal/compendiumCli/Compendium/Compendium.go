@@ -33,8 +33,8 @@ func (c *Compendium) GetUser() *models.User {
 }
 
 func (c *Compendium) GetGuild() *models.Guild {
-	if c.Ident.Guild[0].Name != "" {
-		return &c.Ident.Guild[0]
+	if c.Ident.Guild.Name != "" {
+		return &c.Ident.Guild
 	}
 	return nil
 }
@@ -69,7 +69,13 @@ func (c *Compendium) Shutdown() {
 }
 
 func (c *Compendium) CheckConnectCode(code string) (*models.Identity, error) {
-	return c.Client.CheckIdentity(code)
+	i, err := c.Client.CheckIdentity(code)
+	iden := models.Identity{
+		User:  i.User,
+		Guild: i.Guild[0],
+		Token: i.Token,
+	}
+	return &iden, err
 }
 
 func (c *Compendium) Connect(ident *models.Identity) (*models.Identity, error) {
@@ -116,6 +122,8 @@ func (c *Compendium) WriteStorage() {
 	if c.Ident.Token == "" {
 		return
 	}
+	//c.log.Info(fmt.Sprintf(" WriteStorage c.Ident %+v\n", c.Ident))
+	//c.log.Info(fmt.Sprintf(" WriteStorage c.Ident.Guild %+v\n", c.Ident.Guild))
 	data := models.StorageData{
 		Ident:        c.Ident,
 		UserData:     c.SyncData,
@@ -178,7 +186,7 @@ func (c *Compendium) SyncUserData(mode string) {
 			Ver:    1,
 			InSync: 1,
 		}
-		c.log.Info(string("len(c.SyncData.TechLevels)"))
+		//c.log.Info(string("len(c.SyncData.TechLevels)"))
 	}
 
 	sync, err := c.Client.Sync(c.Ident.Token, mode, c.SyncData.TechLevels)

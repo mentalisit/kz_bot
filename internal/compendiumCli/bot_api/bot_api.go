@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/logger"
@@ -25,13 +26,13 @@ func NewCompendiumApiClient(log *logger.Logger) *CompendiumApiClient {
 }
 
 // CheckIdentity validates the code and returns a token and identity
-func (c *CompendiumApiClient) CheckIdentity(code string) (*models.Identity, error) {
+func (c *CompendiumApiClient) CheckIdentity(code string) (*models.IdentityGET, error) {
 	apiURL := "https://bot.hs-compendium.com/compendium/applink/identities?ver=2&code=1"
 
 	// Подготовка запроса
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
-		return &models.Identity{}, err
+		return &models.IdentityGET{}, err
 	}
 
 	// Установка параметров запроса
@@ -42,30 +43,32 @@ func (c *CompendiumApiClient) CheckIdentity(code string) (*models.Identity, erro
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return &models.Identity{}, err
+		return &models.IdentityGET{}, err
 	}
 	defer resp.Body.Close()
 
 	// Проверка успешного ответа
 	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
-		return &models.Identity{}, errors.New("Server Error")
+		return &models.IdentityGET{}, errors.New("Server Error")
 	}
 
 	// Чтение тела ответа
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &models.Identity{}, err
+		return &models.IdentityGET{}, err
+	}
+	c.log.Info(string(body))
+	if len(body) < 50 {
+
+		return &models.IdentityGET{}, errors.New("Invalid User Id")
 	}
 
-	if len(body) < 50 {
-		return &models.Identity{}, errors.New("Invalid User Id")
-	}
 	// Декодирование JSON-строки в структуру Identity
-	var identity models.Identity
+	var identity models.IdentityGET
 	err = json.Unmarshal(body, &identity)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
-		return &models.Identity{}, err
+		return &models.IdentityGET{}, err
 	}
 	return &identity, nil
 }
@@ -74,7 +77,7 @@ func (c *CompendiumApiClient) CheckIdentity(code string) (*models.Identity, erro
 func (c *CompendiumApiClient) Connect1(identity models.Identity) (models.Identity, error) {
 	endpoint := fmt.Sprintf("%s/applink/connect", c.URL)
 	payload, _ := json.Marshal(map[string]interface{}{
-		"guild_id": identity.Guild[0].ID,
+		"guild_id": identity.Guild.ID,
 	})
 
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
@@ -92,14 +95,14 @@ func (c *CompendiumApiClient) Connect1(identity models.Identity) (models.Identit
 		return models.Identity{}, err
 	}
 
-	obj.Guild[0].URL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", obj.User.ID, obj.User.Avatar)
+	obj.Guild.URL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", obj.User.ID, obj.User.Avatar)
 	return obj, nil
 }
 func (c *CompendiumApiClient) Connect(identity *models.Identity) (*models.Identity, error) {
 	url := fmt.Sprintf("%s/applink/connect", c.URL)
-
+	c.log.Info("guild_id " + identity.Guild.ID)
 	data := map[string]interface{}{
-		"guild_id": identity.Guild[0].ID,
+		"guild_id": identity.Guild.ID,
 	}
 
 	payload, err := json.Marshal(data)
@@ -111,7 +114,7 @@ func (c *CompendiumApiClient) Connect(identity *models.Identity) (*models.Identi
 	if err != nil {
 		return &models.Identity{}, err
 	}
-
+	c.log.Info("", zap.String("Token ", identity.Token))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", identity.Token)
 
@@ -135,7 +138,8 @@ func (c *CompendiumApiClient) Connect(identity *models.Identity) (*models.Identi
 	if err := json.Unmarshal(body, &obj); err != nil {
 		return &models.Identity{}, err
 	}
-	c.log.Info(fmt.Sprintf("%+v\n", string(body)))
+	c.log.Info(fmt.Sprintf("string(body) %+v\n", string(body)))
+	c.log.Info(fmt.Sprintf("obj %+v\n", obj.Guild))
 	return &obj, nil
 	//if resp.StatusCode >= 400 {
 	//	return &models.Identity{}, errors.New(obj["error"].(string))
@@ -176,7 +180,7 @@ func (c *CompendiumApiClient) RefreshConnection(token string) (*models.Identity,
 		return nil, err
 	}
 
-	obj.Guild[0].URL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", obj.User.ID, obj.User.Avatar)
+	obj.Guild.URL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", obj.User.ID, obj.User.Avatar)
 	return &obj, nil
 }
 
@@ -210,15 +214,16 @@ func (c *CompendiumApiClient) CorpData(token string, roleID string) (*models.Cor
 }
 
 // Sync synchronizes tech levels with the bot
-func (c *CompendiumApiClient) Sync(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
+func (c *CompendiumApiClient) Sync2(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
 	if mode != "get" && mode != "set" && mode != "sync" {
 		return models.SyncData{}, fmt.Errorf("Invalid sync mode %s", mode)
 	}
 
 	endpoint := fmt.Sprintf("%s/cmd/syncTech/%s", c.URL, mode)
 	payload, _ := json.Marshal(map[string]interface{}{
-		"ver":        1,
-		"techLevels": currentTech,
+		"ver":           1,
+		"techLevels":    currentTech,
+		"Authorization": token,
 	})
 
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
@@ -296,6 +301,62 @@ func (c *CompendiumApiClient) Sync1(token string, mode string, currentTech map[i
 	if len(body) < 50 {
 		return models.SyncData{}, errors.New("Invalid Token")
 	}
+	var obj models.SyncData
+	if err := json.Unmarshal(body, &obj); err != nil {
+		return models.SyncData{}, err
+	}
+
+	if resp.StatusCode >= 400 {
+		return models.SyncData{}, errors.New("obj.Error")
+	}
+
+	return obj, nil
+}
+func (c *CompendiumApiClient) Sync(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
+	if mode != "get" && mode != "set" && mode != "sync" {
+		return models.SyncData{}, fmt.Errorf("Invalid sync mode %s", mode)
+	}
+
+	if mode == "get" {
+		currentTech = map[int]models.TechLevel{}
+	}
+
+	url := fmt.Sprintf("%s/cmd/syncTech/%s", c.URL, mode)
+
+	data := map[string]interface{}{
+		"ver":        1,
+		"techLevels": currentTech,
+	}
+
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return models.SyncData{}, err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	if err != nil {
+		return models.SyncData{}, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return models.SyncData{}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return models.SyncData{}, err
+	}
+	//c.log.Info(string(body))
+	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
+		return models.SyncData{}, errors.New("Server Error")
+	}
+
 	var obj models.SyncData
 	if err := json.Unmarshal(body, &obj); err != nil {
 		return models.SyncData{}, err
