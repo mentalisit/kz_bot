@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/logger"
@@ -74,30 +73,6 @@ func (c *CompendiumApiClient) CheckIdentity(code string) (*models.IdentityGET, e
 }
 
 // Connect gets a connection token and identity
-func (c *CompendiumApiClient) Connect1(identity models.Identity) (models.Identity, error) {
-	endpoint := fmt.Sprintf("%s/applink/connect", c.URL)
-	payload, _ := json.Marshal(map[string]interface{}{
-		"guild_id": identity.Guild.ID,
-	})
-
-	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
-	if err != nil {
-		return models.Identity{}, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
-		return models.Identity{}, errors.New("Server Error")
-	}
-
-	var obj models.Identity
-	if err := json.NewDecoder(resp.Body).Decode(&obj); err != nil {
-		return models.Identity{}, err
-	}
-
-	obj.Guild.URL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", obj.User.ID, obj.User.Avatar)
-	return obj, nil
-}
 func (c *CompendiumApiClient) Connect(identity *models.Identity) (*models.Identity, error) {
 	url := fmt.Sprintf("%s/applink/connect", c.URL)
 	c.log.Info("guild_id " + identity.Guild.ID)
@@ -114,7 +89,6 @@ func (c *CompendiumApiClient) Connect(identity *models.Identity) (*models.Identi
 	if err != nil {
 		return &models.Identity{}, err
 	}
-	c.log.Info("", zap.String("Token ", identity.Token))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", identity.Token)
 
@@ -214,104 +188,6 @@ func (c *CompendiumApiClient) CorpData(token string, roleID string) (*models.Cor
 }
 
 // Sync synchronizes tech levels with the bot
-func (c *CompendiumApiClient) Sync2(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
-	if mode != "get" && mode != "set" && mode != "sync" {
-		return models.SyncData{}, fmt.Errorf("Invalid sync mode %s", mode)
-	}
-
-	endpoint := fmt.Sprintf("%s/cmd/syncTech/%s", c.URL, mode)
-	payload, _ := json.Marshal(map[string]interface{}{
-		"ver":           1,
-		"techLevels":    currentTech,
-		"Authorization": token,
-	})
-
-	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
-	if err != nil {
-		return models.SyncData{}, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
-		return models.SyncData{}, errors.New("Server Error")
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return models.SyncData{}, err
-	}
-
-	if len(body) < 50 {
-		c.log.Info(string(body))
-		return models.SyncData{}, errors.New("Invalid Token")
-	}
-	var obj models.SyncData
-	if err := json.NewDecoder(resp.Body).Decode(&obj); err != nil {
-		return models.SyncData{}, err
-	}
-
-	return obj, nil
-}
-func (c *CompendiumApiClient) Sync1(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
-	if mode != "get" && mode != "set" && mode != "sync" {
-		return models.SyncData{}, fmt.Errorf("Invalid sync mode %s", mode)
-	}
-
-	if mode == "get" {
-		currentTech = currentTech
-	}
-
-	url := fmt.Sprintf("%s/cmd/syncTech/%s", c.URL, mode)
-
-	data := map[string]interface{}{
-		"ver":        1,
-		"techLevels": currentTech,
-	}
-
-	payload, err := json.Marshal(data)
-	if err != nil {
-		return models.SyncData{}, err
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
-	if err != nil {
-		return models.SyncData{}, err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", token)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.SyncData{}, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return models.SyncData{}, err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
-		c.log.Info(fmt.Sprintf("resp.StatusCode %d\n", resp.StatusCode))
-		//return models.SyncData{}, errors.New("Server Error")
-	}
-	c.log.Info(fmt.Sprintf("%+v\n", string(body)))
-	fmt.Println(len(body))
-	if len(body) < 50 {
-		return models.SyncData{}, errors.New("Invalid Token")
-	}
-	var obj models.SyncData
-	if err := json.Unmarshal(body, &obj); err != nil {
-		return models.SyncData{}, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return models.SyncData{}, errors.New("obj.Error")
-	}
-
-	return obj, nil
-}
 func (c *CompendiumApiClient) Sync(token string, mode string, currentTech map[int]models.TechLevel) (models.SyncData, error) {
 	if mode != "get" && mode != "set" && mode != "sync" {
 		return models.SyncData{}, fmt.Errorf("Invalid sync mode %s", mode)

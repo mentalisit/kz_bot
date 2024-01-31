@@ -133,13 +133,13 @@ func (c *Compendium) WriteStorage() {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		c.log.Error(err.Error())
+		c.log.ErrorErr(err)
 		return
 	}
 
 	err = ioutil.WriteFile(c.StorageKey, jsonData, 0644)
 	if err != nil {
-		c.log.Error(err.Error())
+		c.log.ErrorErr(err)
 		return
 	}
 
@@ -156,7 +156,7 @@ func (c *Compendium) ReadStorage() *models.Identity {
 	var stored models.StorageData
 	err = json.Unmarshal(identBytes, &stored)
 	if err != nil {
-		c.log.Info(err.Error())
+		c.log.Info(errors.New("нет сохраненной сессии").Error())
 		c.ClearData()
 		return &models.Identity{}
 	}
@@ -191,7 +191,7 @@ func (c *Compendium) SyncUserData(mode string) {
 
 	sync, err := c.Client.Sync(c.Ident.Token, mode, c.SyncData.TechLevels)
 	if err != nil {
-		c.log.Error(err.Error())
+		c.log.ErrorErr(err)
 		return
 	}
 	c.SyncData = &sync

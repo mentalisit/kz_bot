@@ -66,6 +66,24 @@ var ModuleMap = map[string]int{
 	"ChainRayDrone":        905,
 	"DeltaDrones":          906,
 	"DroneSquad":           907,
+	"repair":               604, // Deprecated = устарело
+	"warp":                 605, // Deprecated
+	"unity":                606, // Deprecated
+	"sanctuary":            607, // Deprecated
+	"impulse":              610, // Deprecated
+	"rocket":               611, // deprecated
+	"salvage":              612, // deprecated
+	"suppress":             613, // Deprecated
+	"alphadrone":           620, // Deprecated
+	"hydrobay":             502, // Deprecated
+	"miningunity":          506, // Deprecated
+	"minedrone":            509, // Deprecated
+	"tradeboost":           403, // Deprecated
+	"offload":              407, // deprecated
+	"beam":                 408, // deprecated
+	"entrust":              409, // deprecated
+	"recall":               410, // deprecated
+
 }
 
 var invertedData map[int]string
