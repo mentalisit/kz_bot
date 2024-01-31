@@ -12,7 +12,7 @@ func (d *Db) MesidTgUpdate(ctx context.Context, mesidtg int, lvlkz string, corpn
 	upd := `update kzbot.sborkz set tgmesid = $1 where lvlkz = $2 AND corpname = $3 `
 	_, err := d.db.Exec(ctx, upd, mesidtg, lvlkz, corpname)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Db) MesidDsUpdate(ctx context.Context, mesidds, lvlkz, corpname string) {
@@ -23,7 +23,7 @@ func (d *Db) MesidDsUpdate(ctx context.Context, mesidds, lvlkz, corpname string)
 	upd := `update kzbot.sborkz set dsmesid = $1 where lvlkz = $2 AND corpname = $3 `
 	_, err := d.db.Exec(ctx, upd, mesidds, lvlkz, corpname)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Db) UpdateCompliteRS(ctx context.Context, lvlkz string, dsmesid string, tgmesid int, wamesid string, numberkz int, numberevent int, corpname string) {
@@ -34,19 +34,19 @@ func (d *Db) UpdateCompliteRS(ctx context.Context, lvlkz string, dsmesid string,
 				where lvlkz = $6 AND corpname = $7 AND active = 0`
 	_, err := d.db.Exec(ctx, upd, dsmesid, tgmesid, wamesid, numberkz, numberevent, lvlkz, corpname)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 
 	updN := `update kzbot.numkz set number=number+1 where lvlkz = $1 AND corpname = $2`
 	_, err = d.db.Exec(ctx, updN, lvlkz, corpname)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if numberevent > 0 {
 		updE := `update kzbot.rsevent set number = number+1  where corpname = $1 AND activeevent = 1`
 		_, err = d.db.Exec(ctx, updE, corpname)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 }

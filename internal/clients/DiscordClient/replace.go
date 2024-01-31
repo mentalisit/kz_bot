@@ -71,7 +71,7 @@ func (d *Discord) replaceUserMentions(text string, guildid string) string {
 func (d *Discord) getUserNameById(userId string, guildId string) string {
 	members, err := d.s.GuildMembers(guildId, "", 999)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	for _, member := range members {
 		if member.User.ID == userId {

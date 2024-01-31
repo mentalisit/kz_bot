@@ -14,7 +14,7 @@ type DB struct {
 func InitMongoDB(log *logger.Logger) *DB {
 	client, err := mongodb.NewMongoClient()
 	if err != nil {
-		log.Error(err.Error())
+		log.ErrorErr(err)
 		return nil
 	}
 

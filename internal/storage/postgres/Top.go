@@ -10,7 +10,7 @@ func (d *Db) TopLevel(ctx context.Context, CorpName, lvlkz string) bool {
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1  AND lvlkz = $2 GROUP BY name LIMIT 40"
 	results, err := d.db.Query(ctx, sel, CorpName, lvlkz)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return false
 	}
 
@@ -27,7 +27,7 @@ func (d *Db) TopLevel(ctx context.Context, CorpName, lvlkz string) bool {
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
 			_, err = d.db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 		}
@@ -39,7 +39,7 @@ func (d *Db) TopEventLevel(ctx context.Context, CorpName, lvlkz string, numEvent
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active=1  AND lvlkz = $2 AND numberevent = $3 GROUP BY name LIMIT 40"
 	results, err := d.db.Query(ctx, sel, CorpName, lvlkz, numEvent)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return false
 	}
 	var name string
@@ -52,7 +52,7 @@ func (d *Db) TopEventLevel(ctx context.Context, CorpName, lvlkz string, numEvent
 			row := d.db.QueryRow(ctx, selC, name, CorpName, numEvent, lvlkz)
 			err = row.Scan(&countNames)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 
@@ -61,14 +61,14 @@ func (d *Db) TopEventLevel(ctx context.Context, CorpName, lvlkz string, numEvent
 			row4 := d.db.QueryRow(ctx, selS, name, CorpName, numEvent, lvlkz)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
 			_, err = d.db.Exec(ctx, insertTempTopEvent, name, countNames, points)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 		}
@@ -85,7 +85,7 @@ func (d *Db) TopTemp(ctx context.Context) string {
 	sel := "SELECT * FROM kzbot.temptopevent ORDER BY numkz DESC"
 	results, err := d.db.Query(ctx, sel)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return ""
 	}
 
@@ -97,7 +97,7 @@ func (d *Db) TopTemp(ctx context.Context) string {
 
 	_, err = d.db.Exec(ctx, "DELETE FROM kzbot.temptopevent")
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return ""
 	}
 	return message2
@@ -112,7 +112,7 @@ func (d *Db) TopTempEvent(ctx context.Context) string {
 	sel := "SELECT * FROM kzbot.temptopevent ORDER BY points DESC"
 	results, err := d.db.Query(ctx, sel)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return ""
 	}
 
@@ -124,7 +124,7 @@ func (d *Db) TopTempEvent(ctx context.Context) string {
 
 	_, err = d.db.Exec(ctx, "DELETE FROM kzbot.temptopevent")
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return ""
 	}
 	return message2
@@ -134,7 +134,7 @@ func (d *Db) TopAll(ctx context.Context, CorpName string) bool {
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND active>0 GROUP BY name LIMIT 40"
 	results, err := d.db.Query(ctx, sel, CorpName)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return false
 	}
 	var name string
@@ -148,14 +148,14 @@ func (d *Db) TopAll(ctx context.Context, CorpName string) bool {
 			row := d.db.QueryRow(ctx, selC, CorpName, name)
 			err = row.Scan(&countNames)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
 			_, err = d.db.Exec(ctx, insertTempTopEvent, name, countNames, 0)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 		}
@@ -169,7 +169,7 @@ func (d *Db) TopAllEvent(ctx context.Context, CorpName string, numberevent int) 
 	sel := "SELECT name FROM kzbot.sborkz WHERE corpname=$1 AND numberevent = $2 AND active=1 GROUP BY name LIMIT 40"
 	results, err := d.db.Query(ctx, sel, CorpName, numberevent)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return false
 	}
 
@@ -183,7 +183,7 @@ func (d *Db) TopAllEvent(ctx context.Context, CorpName string, numberevent int) 
 			row := d.db.QueryRow(ctx, selC, name, CorpName, numberevent)
 			err = row.Scan(&countNames)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 			var points int
@@ -191,14 +191,14 @@ func (d *Db) TopAllEvent(ctx context.Context, CorpName string, numberevent int) 
 			row4 := d.db.QueryRow(ctx, selS, name, CorpName, numberevent)
 			err4 := row4.Scan(&points)
 			if err4 != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 
 			insertTempTopEvent := `INSERT INTO kzbot.temptopevent(name,numkz,points) VALUES ($1,$2,$3)`
 			_, err = d.db.Exec(ctx, insertTempTopEvent, name, countNames, points)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 				return false
 			}
 		}

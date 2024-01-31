@@ -242,7 +242,7 @@ func (b *Bot) RsMinus() {
 
 	CountNames, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди
 	if err != nil {
-		b.log.Error(err.Error())
+		b.log.ErrorErr(err)
 		return
 	}
 	if CountNames == 0 {

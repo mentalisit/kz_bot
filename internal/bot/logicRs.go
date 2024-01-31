@@ -18,7 +18,7 @@ func (b *Bot) lRsPlus() bool {
 		kzb = arr[0][2]
 		timekzz, err := strconv.Atoi(arr[0][3])
 		if err != nil {
-			b.log.Error(err.Error())
+			b.log.ErrorErr(err)
 			timekzz = 0
 		}
 		if timekzz > 180 {
@@ -213,11 +213,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			b.log.Error(err.Error())
+			b.log.ErrorErr(err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][2])
 		if err != nil {
-			b.log.Error(err.Error())
+			b.log.ErrorErr(err)
 		}
 		b.EventPoints(numkz, points)
 	}
@@ -227,11 +227,11 @@ func (b *Bot) lEvent() (bb bool) {
 		bb = true
 		points, err := strconv.Atoi(arr7[0][4])
 		if err != nil {
-			b.log.Error(err.Error())
+			b.log.ErrorErr(err)
 		}
 		numkz, err := strconv.Atoi(arr7[0][3])
 		if err != nil {
-			b.log.Error(err.Error())
+			b.log.ErrorErr(err)
 		}
 		b.EventPoints(numkz, points)
 	}

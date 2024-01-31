@@ -12,7 +12,7 @@ const nickname = "Для того что бы БОТ мог Вас индент�
 func (t *Telegram) callback(cb *tgbotapi.CallbackQuery) {
 	callback := tgbotapi.NewCallback(cb.ID, cb.Data)
 	if _, err := t.t.Request(callback); err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ChatId := strconv.FormatInt(cb.Message.Chat.ID, 10) + fmt.Sprintf("/%d", cb.Message.MessageThreadID)
 	ok, config := t.CheckChannelConfigTG(ChatId)

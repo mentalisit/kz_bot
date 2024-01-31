@@ -22,7 +22,7 @@ const (
 func (d *Discord) readReactionQueue(r *discordgo.MessageReactionAdd, message *discordgo.Message) {
 	user, err := d.s.User(r.UserID)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if user.ID != message.Author.ID {
 		ok, config := d.CheckChannelConfigDS(r.ChannelID)
@@ -200,7 +200,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 		for _, a := range m.Attachments {
 			parsedURL, err := url.Parse(a.URL)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 			}
 			parsedURL.RawQuery = ""
 			parsedURL.Fragment = ""
@@ -215,7 +215,7 @@ func (d *Discord) SendToBridgeChatFilter(m *discordgo.MessageCreate, config mode
 func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *discordgo.Message) {
 	user, err := d.s.User(r.UserID)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if user.ID != m.Author.ID {
 

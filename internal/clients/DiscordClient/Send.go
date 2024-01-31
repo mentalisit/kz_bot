@@ -31,7 +31,7 @@ func (d *Discord) SendChannelDelSecond(chatid, text string, second int) {
 	if text != "" {
 		message, err := d.s.ChannelMessageSend(chatid, text)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 			return
 		}
 		if second <= 60 {
@@ -54,7 +54,7 @@ func (d *Discord) SendComplexContent(chatid, text string) (mesId string) { //о�
 	if err != nil {
 		channel, _ := d.s.Channel(chatid)
 		d.log.Info("Ошибка отправки комплексного сообщения text " + channel.Name)
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 			Content: text})
 		if err == nil {
@@ -73,7 +73,7 @@ func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed, comp
 	if err != nil {
 		channel, _ := d.s.Channel(chatid)
 		d.log.Info("Ошибка отправки комплексного сообщения embed " + channel.Name)
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		mesCompl, err = d.s.ChannelMessageSendComplex(chatid, &discordgo.MessageSend{
 			Content: mesContentNil,
 			Embed:   &embeds,
@@ -88,7 +88,7 @@ func (d *Discord) SendComplex(chatid string, embeds discordgo.MessageEmbed, comp
 func (d *Discord) Send(chatid, text string) (mesId string) { //отправка текста
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return message.ID
 }
@@ -96,15 +96,15 @@ func (d *Discord) Send(chatid, text string) (mesId string) { //отправка 
 func (d *Discord) SendEmbedTime1(chatid, text string) (mesId string) { //отправка текста с двумя реакциями
 	message, err := d.s.ChannelMessageSend(chatid, text)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	err = d.s.MessageReactionAdd(chatid, message.ID, emPlus)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	err = d.s.MessageReactionAdd(chatid, message.ID, emMinus)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return message.ID
 }
@@ -132,7 +132,7 @@ func (d *Discord) SendEmbedTime(chatid, text string) (mesId string) { //отпр
 		},
 	})
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return ""
 	}
 	return message.ID
@@ -212,7 +212,7 @@ func (d *Discord) SendWebhookReplyAsync(text, username, chatid, guildId, Avatar 
 	}
 	mes, err := web.Send(chatid, pp)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		d.Send(chatid, text)
 		return
 	}

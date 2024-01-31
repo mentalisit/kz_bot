@@ -10,7 +10,7 @@ package mongo
 //	}
 //	ins, err := collection.InsertOne(context.Background(), m)
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //	}
 //	fmt.Println(ins.InsertedID)
 //}

@@ -19,13 +19,13 @@ func (t *Telegram) SendEmded(lvlkz string, chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -48,13 +48,13 @@ func (t *Telegram) SendEmbedTime(chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 
@@ -77,13 +77,13 @@ func (t *Telegram) SendChannel(chatid string, text string) int {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 	m := tgbotapi.NewMessage(chatId, text)
@@ -96,13 +96,13 @@ func (t *Telegram) SendChannelDelSecond(chatid string, text string, second int) 
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 	m := tgbotapi.NewMessage(chatId, text)
@@ -130,13 +130,13 @@ func (t *Telegram) SendChannelAsync(chatid string, text string, resultChannel ch
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 	m := tgbotapi.NewMessage(chatId, text)
@@ -154,19 +154,19 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	ThreadID := 0
 	if len(a) > 1 {
 		ThreadID, err = strconv.Atoi(a[1])
 		if err != nil {
-			t.log.Error(err.Error())
+			t.log.ErrorErr(err)
 		}
 	}
 
 	parsedURL, err := url.Parse(fileURL)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return
 	}
 
@@ -178,7 +178,7 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	// Скачиваем файл по URL
 	resp, err := http.Get(fileURL)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return
 	}
 	defer resp.Body.Close()
@@ -187,7 +187,7 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	buffer := new(bytes.Buffer)
 	_, err = io.Copy(buffer, resp.Body)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return
 	}
 	var media []interface{}
@@ -239,7 +239,7 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	}
 	m, err := t.t.SendMediaGroup(mg)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return
 	}
 

@@ -53,7 +53,7 @@ func New(session *discordgo.Session, guild string, title string, autoCreate bool
 func (t *Transmitter) Send(channelID string, params *discordgo.WebhookParams) (*discordgo.Message, error) {
 	wh, err := t.getOrCreateWebhook(channelID)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return nil, err
 	}
 
@@ -165,7 +165,7 @@ func (t *Transmitter) createWebhook(channel string) (*discordgo.Webhook, error) 
 
 	wh, err := t.session.WebhookCreate(channel, t.title+time.Now().Format(" 3:04:05PM"), "")
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return nil, err
 	}
 	t.channelWebhooks[channel] = wh
@@ -227,7 +227,7 @@ func (t *Transmitter) getOrCreateWebhook(channelID string) (*discordgo.Webhook, 
 	t.log.Info("Creating a webhook for " + channelID)
 	wh, err := t.createWebhook(channelID)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return nil, fmt.Errorf("could not create webhook: %w", err)
 	}
 

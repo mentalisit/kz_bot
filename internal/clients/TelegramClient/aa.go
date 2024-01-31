@@ -13,7 +13,7 @@ func (t *Telegram) DelMessage(chatid string, idSendMessage int) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	_, _ = t.t.Request(tgbotapi.DeleteMessageConfig(tgbotapi.NewDeleteMessage(chatId, idSendMessage)))
 }
@@ -40,7 +40,7 @@ func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit str
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 
 	var keyboardQueue = tgbotapi.NewInlineKeyboardMarkup(
@@ -66,7 +66,7 @@ func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	_, err = t.t.Send(tgbotapi.NewEditMessageText(chatId, editMesId, textEdit))
 	if err != nil {
@@ -78,14 +78,14 @@ func (t *Telegram) CheckAdminTg(chatid string, name string) bool {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	admins, err := t.t.GetChatAdministrators(tgbotapi.ChatAdministratorsConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
 	}{ChatID: chatId, SuperGroupUsername: ""}})
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	for _, ad := range admins {
 		if name == ad.User.UserName && (ad.IsAdministrator() || ad.IsCreator()) {
@@ -131,14 +131,14 @@ func (t *Telegram) ChatName(chatid string) string {
 	a := strings.SplitN(chatid, "/", 2)
 	chatId, err := strconv.ParseInt(a[0], 10, 64)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
 	}{ChatID: chatId}})
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	return r.Title
 }
@@ -148,7 +148,7 @@ func (t *Telegram) ChatInviteLink(chatid int64) string {
 		SuperGroupUsername string
 	}{ChatID: chatid}})
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 	}
 	return r.InviteLink
 }

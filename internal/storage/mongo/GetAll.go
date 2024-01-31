@@ -5,12 +5,12 @@ package mongo
 //	var mm []models.CorporationHadesClient
 //	find, err := collection.Find(context.Background(), bson.M{})
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //	err = find.All(context.Background(), &mm)
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //	//fmt.Printf("%+v", mm)
@@ -21,12 +21,12 @@ package mongo
 //	var m []models.GameMessageId
 //	find, err := collection.Find(context.Background(), bson.M{})
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //	err = find.All(context.Background(), &m)
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //
@@ -37,12 +37,12 @@ package mongo
 //	var m []models.GameMessageIdWs1
 //	find, err := collection.Find(context.Background(), bson.M{})
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //	err = find.All(context.Background(), &m)
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //
@@ -53,12 +53,12 @@ package mongo
 //	var m []models.AllianceMember
 //	find, err := collection.Find(context.Background(), bson.M{})
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //	err = find.All(context.Background(), &m)
 //	if err != nil {
-//		d.log.Error(err.Error())
+//		d.log.ErrorErr(err)
 //		return nil
 //	}
 //

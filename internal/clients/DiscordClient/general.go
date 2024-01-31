@@ -13,19 +13,19 @@ import (
 func (d *Discord) AddEnojiRsQueue1(chatid, mesid string) {
 	err := d.s.MessageReactionAdd(chatid, mesid, emOK)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emCancel)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emRsStart)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	err = d.s.MessageReactionAdd(chatid, mesid, emPl30)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 
 }
@@ -125,10 +125,10 @@ func (d *Discord) EditComplexButton(dsmesid, dschatid string, Embeds discordgo.M
 func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 	g, err := d.s.State.Guild(guildid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		g, err = d.s.Guild(guildid)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 
@@ -140,7 +140,7 @@ func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 
 	member, err := d.s.GuildMember(guildid, nameid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var subscribe int = 0
 	if exist {
@@ -153,7 +153,7 @@ func (d *Discord) Subscribe(nameid, argRoles, guildid string) int {
 
 	err = d.s.GuildMemberRoleAdd(guildid, nameid, role.ID)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		subscribe = 2
 	}
 
@@ -163,10 +163,10 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 	var unsubscribe int = 0
 	g, err := d.s.State.Guild(guildid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		g, err = d.s.Guild(guildid)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 
@@ -177,7 +177,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 
 	member, err := d.s.GuildMember(guildid, nameid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if exist {
 		for _, _role := range member.Roles {
@@ -189,7 +189,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 	if unsubscribe == 2 {
 		err = d.s.GuildMemberRoleRemove(guildid, nameid, role.ID)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 			unsubscribe = 3
 		}
 	}
@@ -199,7 +199,7 @@ func (d *Discord) Unsubscribe(nameid, argRoles, guildid string) int {
 func (d *Discord) EditMessage(chatID, messageID, content string) {
 	_, err := d.s.ChannelMessageEdit(chatID, messageID, content)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Discord) EditWebhook(text, username, chatID, mID string, guildID, avatarURL string) {

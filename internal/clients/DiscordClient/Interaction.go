@@ -285,7 +285,7 @@ func (d *Discord) handleButtonPressed(i *discordgo.InteractionCreate) {
 			Type: discordgo.InteractionResponseDeferredMessageUpdate,
 		})
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 			return
 		}
 	}

@@ -22,7 +22,7 @@ type Discord struct {
 func NewDiscord(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) *Discord {
 	ds, err := clientDiscord.NewDiscord(log, cfg)
 	if err != nil {
-		log.Error(err.Error())
+		log.ErrorErr(err)
 	}
 
 	DS := &Discord{

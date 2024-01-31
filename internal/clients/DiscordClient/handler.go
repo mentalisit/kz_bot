@@ -51,7 +51,7 @@ func (d *Discord) messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate
 				// Разбираем URL
 				parsedURL, err := url.Parse(m.Attachments[0].URL)
 				if err != nil {
-					d.log.Error(err.Error())
+					d.log.ErrorErr(err)
 				}
 
 				// Очищаем параметры запроса (query parameters) и фрагмент
@@ -148,7 +148,7 @@ func (d *Discord) ready() {
 		cmd, err := d.s.ApplicationCommandCreate(d.s.State.User.ID, "", v)
 		if err != nil {
 
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 		registeredCommands[i] = cmd
 	}
@@ -163,7 +163,7 @@ func (d *Discord) removeComand(s *discordgo.Session) {
 	for _, v := range registeredCommands {
 		err := s.ApplicationCommandDelete(s.State.User.ID, "700238199070523412", v.ID)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 	fmt.Println("удалены")

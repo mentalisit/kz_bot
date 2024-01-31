@@ -28,7 +28,7 @@ func (t *Telegram) GetAvatar(userid int64, name string) string {
 	fileconfig := tgbotapi.FileConfig{FileID: userProfilePhotos.Photos[0][0].FileID}
 	file, err := t.t.GetFile(fileconfig)
 	if err != nil {
-		t.log.Error(err.Error())
+		t.log.ErrorErr(err)
 		return AvatarTG
 	}
 	return "https://api.telegram.org/file/bot" + t.t.Token + "/" + file.FilePath

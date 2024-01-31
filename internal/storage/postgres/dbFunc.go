@@ -24,7 +24,7 @@ func (d *Db) ReadAll(ctx context.Context, lvlkz, CorpName string) (users models.
 	sel := "SELECT * FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0"
 	results, err := d.db.Query(ctx, sel, lvlkz, CorpName)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	for results.Next() {
 		var t models.Sborkz
@@ -67,7 +67,7 @@ func (d *Db) InsertQueue(ctx context.Context, dsmesid, wamesid, CorpName, name, 
 	_, err := d.db.Exec(ctx, insertSborkztg1, CorpName, name, nameMention, tip, dsmesid, tgmesid,
 		wamesid, mtime, mdate, lvlkz, numkzN, 0, numevent, 0, 0, timekzz)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 
@@ -78,7 +78,7 @@ func (d *Db) ElseTrue(ctx context.Context, name string) []models.Sborkz {
 	sel := "SELECT * FROM kzbot.sborkz WHERE name = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, name)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var tt []models.Sborkz
 	var t models.Sborkz
@@ -98,7 +98,7 @@ func (d *Db) DeleteQueue(ctx context.Context, name, lvlkz, CorpName string) {
 	del := "delete from kzbot.sborkz where name = $1 AND lvlkz = $2 AND corpname = $3 AND active = 0"
 	_, err := d.db.Exec(ctx, del, name, lvlkz, CorpName)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 
@@ -109,7 +109,7 @@ func (d *Db) ReadMesIdDS(ctx context.Context, mesid string) (string, error) {
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, mesid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	a := []string{}
 	var dsmesid string
@@ -138,7 +138,7 @@ func (d *Db) P30Pl(ctx context.Context, lvlkz, CorpName, name string) int {
 	sel := "SELECT timedown FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND active = 0 AND name = $3"
 	results, err := d.db.Query(ctx, sel, lvlkz, CorpName, name)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	for results.Next() {
 		err = results.Scan(&timedown)
@@ -155,7 +155,7 @@ func (d *Db) UpdateTimedown(ctx context.Context, lvlkz, CorpName, name string) {
 	upd := `update kzbot.sborkz set timedown = timedown+30 where lvlkz = $1 AND corpname = $2 AND name = $3`
 	_, err := d.db.Exec(ctx, upd, lvlkz, CorpName, name)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Db) Queue(ctx context.Context, corpname string) []string {
@@ -165,7 +165,7 @@ func (d *Db) Queue(ctx context.Context, corpname string) []string {
 	sel := "SELECT lvlkz FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, corpname)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var lvl []string
 	for results.Next() {
@@ -188,7 +188,7 @@ func (d *Db) OneMinutsTimer(ctx context.Context) []string {
 	row := d.db.QueryRow(ctx, sel)
 	err := row.Scan(&count)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var CorpActive0 []string
 	if count > 0 {
@@ -197,7 +197,7 @@ func (d *Db) OneMinutsTimer(ctx context.Context) []string {
 		selC := "SELECT corpname FROM kzbot.sborkz WHERE active = 0"
 		results, err1 := d.db.Query(ctx, selC)
 		if err1 != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 		var corpname string // ищим корпорации
 		for results.Next() {
@@ -237,7 +237,7 @@ func (d *Db) MessageUpdateMin(ctx context.Context, corpname string) ([]string, [
 	row := d.db.QueryRow(ctx, sel, corpname)
 	err := row.Scan(&countCorp)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if countCorp > 0 {
 		selS := "SELECT * FROM kzbot.sborkz WHERE corpname = $1 AND active = 0"
@@ -266,7 +266,7 @@ func (d *Db) MessageupdateDS(ctx context.Context, dsmesid string, config models.
 	sel := "SELECT * FROM kzbot.sborkz WHERE dsmesid = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, dsmesid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -303,7 +303,7 @@ func (d *Db) MessageupdateTG(ctx context.Context, tgmesid int, config models.Cor
 	sel := "SELECT * FROM kzbot.sborkz WHERE tgmesid = $1 AND active = 0"
 	results, err := d.db.Query(ctx, sel, tgmesid)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	var t models.Sborkz
 	for results.Next() {
@@ -348,11 +348,11 @@ func (d *Db) NumberQueueLvl(ctx context.Context, lvlkz, CorpName string) (int, e
 			insertSmt := "INSERT INTO kzbot.numkz(lvlkz, number,corpname) VALUES ($1,$2,$3)"
 			_, err = d.db.Exec(ctx, insertSmt, lvlkz, number, CorpName)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 			}
 			return number + 1, nil
 		} else {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 			return 0, err
 		}
 	}

@@ -11,7 +11,7 @@ func (d *DB) TimerInsert(c models.Timer) {
 	collection := d.s.Database("RsBot").Collection("Timers")
 	_, err := collection.InsertOne(context.Background(), c)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 

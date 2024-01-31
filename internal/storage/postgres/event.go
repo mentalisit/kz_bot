@@ -16,14 +16,14 @@ func (d *Db) UpdatePoints(CorpName string, numberkz, points, event1 int) int {
 	row := d.db.QueryRow(ctx, selec, event1, CorpName, numberkz)
 	err := row.Scan(&countEvent)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	pointsq := points / countEvent
 	//вносим очки
 	upd := `update kzbot.sborkz set eventpoints=$1 WHERE numberevent = $2 AND corpname =$3 AND numberkz=$4 AND active=1`
 	_, err = d.db.Exec(ctx, upd, pointsq, event1, CorpName, numberkz)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return countEvent
 }
@@ -34,7 +34,7 @@ func (d *Db) ReadNamesMessage(CorpName string, numberkz, numberEvent int) (nd, n
 	sel := "SELECT * FROM kzbot.sborkz WHERE corpname=$1 AND numberkz=$2 AND numberevent = $3 AND active=1"
 	results, err := d.db.Query(ctx, sel, CorpName, numberkz, numberEvent)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 
 	num := 1
@@ -79,7 +79,7 @@ func (d *Db) CountEventNames(CorpName, name string, numberkz, numEvent int) (cou
 	row := d.db.QueryRow(ctx, sel, CorpName, numberkz, name, numEvent)
 	err := row.Scan(&countEventNames)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return countEventNames
 }
@@ -91,7 +91,7 @@ func (d *Db) CountEventsPoints(CorpName string, numberkz, numberEvent int) int {
 	row := d.db.QueryRow(ctx, sel, CorpName, numberkz, numberEvent)
 	err := row.Scan(&countEventPoints)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return countEventPoints
 }
@@ -105,7 +105,7 @@ func (d *Db) NumActiveEvent(CorpName string) (event1 int) { //запрос но�
 		if err == pgx.ErrNoRows {
 			event1 = 0
 		} else {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 	return event1
@@ -117,7 +117,7 @@ func (d *Db) NumDeactivEvent(CorpName string) (event0 int) { //запрос но
 	row := d.db.QueryRow(ctx, sel, CorpName)
 	err := row.Scan(&event0)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return event0
 }
@@ -127,7 +127,7 @@ func (d *Db) UpdateActiveEvent0(CorpName string, event1 int) {
 	upd := "UPDATE kzbot.rsevent SET activeevent=0 WHERE corpname=$1 AND numevent=$2"
 	_, err := d.db.Exec(ctx, upd, CorpName, event1)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Db) EventStartInsert(CorpName string) {
@@ -139,12 +139,12 @@ func (d *Db) EventStartInsert(CorpName string) {
 		numberevent := event0 + 1
 		_, err := d.db.Exec(ctx, insertEvent, CorpName, numberevent, 1, 1)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	} else {
 		_, err := d.db.Exec(ctx, insertEvent, CorpName, 1, 1, 1)
 		if err != nil {
-			d.log.Error(err.Error())
+			d.log.ErrorErr(err)
 		}
 	}
 }
@@ -156,7 +156,7 @@ func (d *Db) NumberQueueEvents(CorpName string) int {
 	row := d.db.QueryRow(ctx, sel, CorpName)
 	err := row.Scan(&number)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return number
 }

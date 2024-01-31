@@ -37,7 +37,7 @@ func (d *Db) OptimizationSborkz() {
 			sel := "SELECT * FROM kzbot.sborkz WHERE lvlkz = $1 AND corpname = $2 AND mention = $3"
 			results, err := d.db.Query(context.Background(), sel, level, corpname, mention)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 			}
 			var t models.Sborkz
 			for results.Next() {
@@ -49,7 +49,7 @@ func (d *Db) OptimizationSborkz() {
 			del := "delete from kzbot.sborkz where mention = $1 and corpname = $2 and lvlkz = $3"
 			_, err = d.db.Exec(context.Background(), del, mention, corpname, level)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 			}
 			tm := time.Now()
 			mdate := (tm.Format("2006-01-02"))
@@ -60,7 +60,7 @@ func (d *Db) OptimizationSborkz() {
 			_, err = d.db.Exec(context.Background(), insertSborkztg1, t.Corpname, t.Name, t.Mention, t.Tip, t.Dsmesid, t.Tgmesid,
 				t.Wamesid, mtime, mdate, t.Lvlkz, t.Numkzn, t.Numberkz, t.Numberevent, t.Eventpoints, activeCount, t.Timedown)
 			if err != nil {
-				d.log.Error(err.Error())
+				d.log.ErrorErr(err)
 			}
 			d.log.Info(fmt.Sprintf("Выполнено сжатие данных игрока %s в корпорации %s кз%s изза %d записей", t.Name, t.Corpname, level, activeCount))
 			time.Sleep(1 * time.Second)
@@ -81,7 +81,7 @@ func (d *Db) СountName(ctx context.Context, name, lvlkz, corpName string) (int,
 	row := d.db.QueryRow(ctx, sel, name, lvlkz, corpName)
 	err := row.Scan(&countNames)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return 0, err
 	}
 	if d.debug {
@@ -98,7 +98,7 @@ func (d *Db) CountQueue(ctx context.Context, lvlkz, CorpName string) (int, error
 	row := d.db.QueryRow(ctx, sel, lvlkz, CorpName)
 	err := row.Scan(&count)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return 0, err
 	}
 	if d.debug {
@@ -116,7 +116,7 @@ func (d *Db) CountNumberNameActive1(ctx context.Context, lvlkz, CorpName, name s
 	row := d.db.QueryRow(ctx, sel, lvlkz, CorpName, name)
 	err := row.Scan(&countNumberNameActive1)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return 0, err
 	}
 	return countNumberNameActive1, nil
@@ -127,7 +127,7 @@ func (d *Db) CountNameQueue(ctx context.Context, name string) (countNames int) {
 	row := d.db.QueryRow(ctx, sel, name)
 	err := row.Scan(&countNames)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	if d.debug {
 		fmt.Println("CountNameQueue name", name, countNames)
@@ -139,7 +139,7 @@ func (d *Db) CountNameQueueCorp(ctx context.Context, name, corp string) (countNa
 	row := d.db.QueryRow(ctx, sel, name, corp)
 	err := row.Scan(&countNames)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return 0
 	}
 	if d.debug {

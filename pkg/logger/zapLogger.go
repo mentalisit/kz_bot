@@ -9,7 +9,7 @@ import (
 
 type Logger struct {
 	ZapLogger *zap.Logger
-	LoggerInterface
+	//LoggerInterface
 }
 
 func LoggerZap(botToken string, chatID int64) *Logger {
@@ -68,29 +68,29 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 	}
 
 	defer logger.Sync()
-	return &Logger{ZapLogger: logger, LoggerInterface: logger}
+	return &Logger{ZapLogger: logger} // LoggerInterface: logger}
 }
 func LoggerZapDEV() *Logger {
-	//cfg := zap.Config{
-	//	Encoding:         "console",
-	//	Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
-	//	OutputPaths:      []string{"stdout"},
-	//	ErrorOutputPaths: []string{"stderr"},
-	//	EncoderConfig: zapcore.EncoderConfig{
-	//		TimeKey:        "time",
-	//		LevelKey:       "level",
-	//		NameKey:        "logger",
-	//		CallerKey:      "caller",
-	//		MessageKey:     "message",
-	//		StacktraceKey:  "stacktrace",
-	//		LineEnding:     zapcore.DefaultLineEnding,
-	//		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
-	//		EncodeTime:     zapcore.ISO8601TimeEncoder,
-	//		EncodeDuration: zapcore.SecondsDurationEncoder,
-	//		EncodeCaller:   zapcore.ShortCallerEncoder,
-	//	},
-	//}
-	logger, err := zap.NewDevelopment() //cfg.Build()
+	cfg := zap.Config{
+		Encoding:         "console",
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "time",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			MessageKey:     "message",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+	}
+	logger, err := cfg.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		return nil
 	}
@@ -99,14 +99,47 @@ func LoggerZapDEV() *Logger {
 
 	logger.Info("Develop Running")
 
-	return &Logger{ZapLogger: logger, LoggerInterface: logger}
+	return &Logger{ZapLogger: logger} //, LoggerInterface: logger}
 }
 
-type LoggerInterface interface {
-	Debug(msg string, fields ...zapcore.Field)
-	Info(msg string, fields ...zapcore.Field)
-	Warn(msg string, fields ...zapcore.Field)
-	Error(msg string, fields ...zapcore.Field)
-	Panic(msg string, fields ...zapcore.Field)
-	Fatal(msg string, fields ...zapcore.Field)
+//type LoggerInterface interface {
+//	//Debug(msg string, fields ...zapcore.Field)
+//	//Info(msg string, fields ...zapcore.Field)
+//	//Warn(msg string, fields ...zapcore.Field)
+//	//Error(msg string, fields ...zapcore.Field)
+//	//Panic(msg string, fields ...zapcore.Field)
+//	Fatal(msg string, fields ...zapcore.Field)
+//}
+
+func (l *Logger) ErrorErr(err error) {
+	l.ZapLogger.Error("Произошла ошибка", zap.Error(err))
 }
+func (l *Logger) Debug(s string) {
+	l.ZapLogger.Debug(s)
+}
+func (l *Logger) Info(s string) {
+	l.ZapLogger.Info(s)
+}
+func (l *Logger) Warn(s string) {
+	l.ZapLogger.Warn(s)
+}
+func (l *Logger) Error(s string) {
+	l.ZapLogger.Error(s)
+}
+func (l *Logger) Panic(s string) {
+	l.ZapLogger.Panic(s)
+}
+func (l *Logger) Fatal(s string) {
+	l.ZapLogger.Fatal(s)
+}
+
+func (l *Logger) InfoStruct(s string, i interface{}) {
+	l.ZapLogger.Info(fmt.Sprintf("%s: %+v \n", s, i))
+}
+
+//func (l *Logger) Log(s string,err error)  {
+//
+//}
+//func (l *Logger) Log(s string,err error)  {
+//
+//}

@@ -32,7 +32,7 @@ func NewClient(ctx context.Context, log *logger.Logger, maxAttempts int, conf *c
 
 		pool, err = pgxpool.Connect(ctx, dns)
 		if err != nil {
-			log.Error(err.Error())
+			log.ErrorErr(err)
 			os.Exit(1)
 			//return err
 		}

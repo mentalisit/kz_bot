@@ -37,7 +37,7 @@ func (d *Db) CheckSubscribe(ctx context.Context, name, lvlkz string, TgChannel s
 	row := d.db.QueryRow(ctx, sel, name, lvlkz, TgChannel, tipPing)
 	err := row.Scan(&counts)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 	return counts
 }
@@ -45,13 +45,13 @@ func (d *Db) Subscribe(ctx context.Context, name, nameMention, lvlkz string, tip
 	insertSubscribe := `INSERT INTO kzbot.subscribe (name, nameid, lvlkz, tip, chatid, timestart, timeend) VALUES ($1,$2,$3,$4,$5,$6,$7)`
 	_, err := d.db.Exec(ctx, insertSubscribe, name, nameMention, lvlkz, tipPing, TgChannel, "0", "0")
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }
 func (d *Db) Unsubscribe(ctx context.Context, name, lvlkz string, TgChannel string, tipPing int) {
 	del := "delete from kzbot.subscribe where name = $1 AND lvlkz = $2 AND chatid = $3 AND tip = $4"
 	_, err := d.db.Exec(ctx, del, name, lvlkz, TgChannel, tipPing)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 	}
 }

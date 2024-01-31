@@ -11,12 +11,12 @@ func (d *DB) DBReadBridgeConfig() []models.BridgeConfig {
 	collection := d.s.Database("BridgeChat").Collection("Bridge")
 	find, err := collection.Find(context.Background(), bson.D{})
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return nil
 	}
 	err = find.All(context.Background(), &data)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		return nil
 	}
 	return data
@@ -32,7 +32,7 @@ func (d *DB) InsertBridgeChat(br models.BridgeConfig) {
 	bsonData, _ := bson.Marshal(br)
 	_, err := collection.InsertOne(context.Background(), bsonData)
 	if err != nil {
-		d.log.Error(err.Error())
+		d.log.ErrorErr(err)
 		//return
 	}
 }
