@@ -257,3 +257,10 @@ func (d *Discord) EmbedDS(mapa map[string]string, numkz int, count int, dark boo
 		Title:     title,
 	}
 }
+func (d *Discord) ChannelTyping(ChannelID string) {
+	err := d.s.ChannelTyping(ChannelID)
+	if err != nil {
+		d.log.ErrorErr(err)
+		return
+	}
+}
