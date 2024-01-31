@@ -38,6 +38,8 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 		case ".видалити":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 			t.accessDelChannelTg(ChatId, m)
+		case ".паника":
+			t.log.Panic("перезагрузка по требованию")
 		default:
 			if t.setLang(m, ChatId) {
 				return

@@ -34,6 +34,8 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 		case ".видалити":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
+		case ".паника":
+			d.log.Panic("перезагрузка по требованию")
 
 		default:
 			if d.CleanOldMessage(m) {
