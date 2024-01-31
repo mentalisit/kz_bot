@@ -68,47 +68,49 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 	}
 	if tg {
 		go func() {
-			t.handlePoll(m)
-			if m.Document != nil {
-				url, _ = t.t.GetFileDirectURL(m.Document.FileID)
-				if m.Text == "" {
-					m.Text = m.Document.FileName
+			if len(m.Text) < 3500 { //игнорируем сообщения большой длины
+				t.handlePoll(m)
+				if m.Document != nil {
+					url, _ = t.t.GetFileDirectURL(m.Document.FileID)
+					if m.Text == "" {
+						m.Text = m.Document.FileName
+					}
 				}
-			}
-			if len(m.Photo) > 0 {
-				url, _ = t.t.GetFileDirectURL(m.Photo[0].FileID)
-			}
-			mes := models.BridgeMessage{
-				Text:          m.Text,
-				Sender:        username,
-				Tip:           "tg",
-				FileUrl:       url,
-				Avatar:        t.GetAvatar(m.From.ID, m.From.String()),
-				ChatId:        ChatId,
-				MesId:         strconv.Itoa(m.MessageID),
-				TimestampUnix: m.Time().Unix(),
-				GuildId:       chatName,
-				Config:        &bridgeConfig,
-			}
-
-			if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
-				mes.Reply = &models.BridgeMessageReply{
-					Text:        m.ReplyToMessage.Text,
-					UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
-					TimeMessage: m.ReplyToMessage.Time().Unix(),
-					Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
+				if len(m.Photo) > 0 {
+					url, _ = t.t.GetFileDirectURL(m.Photo[0].FileID)
 				}
-			}
-			if m.ForwardFrom != nil {
-				forwardName := t.nameOrNick(m.ForwardFrom.UserName, m.ForwardFrom.FirstName)
-				text := fmt.Sprintf("Пересланное сообщение от %s \n %s ", forwardName, mes.Text)
-				mes.Text = text
-			}
-			if edit {
-				mes.Tip = "tge"
-			}
+				mes := models.BridgeMessage{
+					Text:          m.Text,
+					Sender:        username,
+					Tip:           "tg",
+					FileUrl:       url,
+					Avatar:        t.GetAvatar(m.From.ID, m.From.String()),
+					ChatId:        ChatId,
+					MesId:         strconv.Itoa(m.MessageID),
+					TimestampUnix: m.Time().Unix(),
+					GuildId:       chatName,
+					Config:        &bridgeConfig,
+				}
 
-			t.ChanBridgeMessage <- mes
+				if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
+					mes.Reply = &models.BridgeMessageReply{
+						Text:        m.ReplyToMessage.Text,
+						UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
+						TimeMessage: m.ReplyToMessage.Time().Unix(),
+						Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
+					}
+				}
+				if m.ForwardFrom != nil {
+					forwardName := t.nameOrNick(m.ForwardFrom.UserName, m.ForwardFrom.FirstName)
+					text := fmt.Sprintf("Пересланное сообщение от %s \n %s ", forwardName, mes.Text)
+					mes.Text = text
+				}
+				if edit {
+					mes.Tip = "tge"
+				}
+
+				t.ChanBridgeMessage <- mes
+			}
 		}()
 	}
 }
