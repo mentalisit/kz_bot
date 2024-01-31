@@ -41,6 +41,9 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 				InClient: true,
 			},
 		}
+		if in.Mtext == "" && config.Forward {
+			t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 180)
+		}
 
 		t.ChanRsMessage <- in
 	}
