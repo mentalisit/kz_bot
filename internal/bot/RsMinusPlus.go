@@ -12,7 +12,7 @@ func (b *Bot) Plus() bool {
 	if b.debug {
 		fmt.Printf("in Plus %+v\n", b.in)
 	}
-
+	b.iftipdelete()
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
@@ -45,6 +45,7 @@ func (b *Bot) Minus() bool {
 	if b.debug {
 		fmt.Printf("in Minus %+v\n", b.in)
 	}
+	b.iftipdelete()
 	bb := false
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
