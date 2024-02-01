@@ -43,6 +43,8 @@ func MainCorp(log *logger.Logger, code string) {
 		log.InfoStruct("connect ", connect)
 
 	}
+	log.InfoStruct(" GetGuild ", c.GetGuild())
+	log.Info(c.Ident.User.AvatarURL)
 	//for i, level := range c.SyncData.TechLevels {
 	//	n := module_types.GetTechFromIndex(i)
 	//

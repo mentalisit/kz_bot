@@ -5,10 +5,10 @@ import (
 	"kz_bot/internal/BridgeChat"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
-	"kz_bot/internal/compendiumCli"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
+	"kz_bot/pkg/utils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,7 +17,7 @@ import (
 
 func main() {
 	fmt.Println("Bot loading ")
-	//defer utils.RestorePanic()
+	defer utils.RestorePanic()
 
 	err := RunNew()
 	if err != nil {
@@ -36,10 +36,10 @@ func RunNew() error {
 
 	if cfg.BotMode == "dev" {
 		log = logger.LoggerZapDEV()
-		compendiumCli.MainCorp(log, "yYqY-DJ4c-LCce")
-		os.Exit(1)
+
+		//os.Exit(1)
 		//time.Sleep(5 * time.Second)
-		time.Sleep(5 * time.Minute)
+		//time.Sleep(5 * time.Minute)
 	}
 
 	//Если запуск на резервном сервере то блокируем выполнение
