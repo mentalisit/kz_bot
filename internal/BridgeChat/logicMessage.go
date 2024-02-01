@@ -135,13 +135,17 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			if d.ChannelId != "" {
 				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
 				wg.Add(1)
-				if b.in.Reply != nil && b.in.Reply.Text != "" {
-					if b.in.Reply.UserName == "gote1st_bot" {
-						at := strings.SplitN(b.in.Reply.Text, "\n", 2)
-						b.in.Reply.UserName = at[0]
-						b.in.Reply.Text = at[1]
+				if b.in.Reply != nil {
+					if b.in.Reply.Text != "" {
+						if b.in.Reply.UserName == "gote1st_bot" {
+							at := strings.SplitN(b.in.Reply.Text, "\n", 2)
+							b.in.Reply.UserName = at[0]
+							b.in.Reply.Text = at[1]
+						}
+						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
+					} else if b.in.Reply.FileUrl != "" {
+						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Reply.FileUrl, b.in.Avatar, resultChannelDs, &wg)
 					}
-					go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
 				} else if b.in.FileUrl != "" {
 					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Avatar, resultChannelDs, &wg)
 				} else {

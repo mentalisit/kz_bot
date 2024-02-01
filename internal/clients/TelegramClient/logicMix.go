@@ -3,9 +3,8 @@ package TelegramClient
 import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
-	"strconv"
-
 	"kz_bot/internal/models"
+	"strconv"
 	"strings"
 )
 
@@ -95,12 +94,17 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 					Config:        &bridgeConfig,
 				}
 
-				if m.ReplyToMessage != nil && m.ReplyToMessage.Text != "" {
+				if m.ReplyToMessage != nil {
 					mes.Reply = &models.BridgeMessageReply{
-						Text:        m.ReplyToMessage.Text,
 						UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 						TimeMessage: m.ReplyToMessage.Time().Unix(),
 						Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
+					}
+					if m.ReplyToMessage.Text != "" {
+						mes.Reply.Text = m.ReplyToMessage.Text
+					} else if len(m.ReplyToMessage.Photo) > 0 {
+						url, _ = t.t.GetFileDirectURL(m.ReplyToMessage.Photo[len(m.ReplyToMessage.Photo)-1].FileID)
+						mes.Reply.FileUrl = url
 					}
 				}
 				if m.ForwardFrom != nil {

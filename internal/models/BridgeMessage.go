@@ -19,6 +19,7 @@ type BridgeMessageReply struct {
 	Text        string
 	Avatar      string
 	UserName    string
+	FileUrl     string
 }
 
 type BridgeConfig struct {
