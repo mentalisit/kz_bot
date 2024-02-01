@@ -19,9 +19,6 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 		case ".добавить":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessAddChannelDs(m.ChannelID, m.GuildID, "ru")
-		case ".добавитьт":
-			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
-			d.accessAddChannelDs(m.ChannelID, m.GuildID, "dru")
 		case ".додати":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessAddChannelDs(m.ChannelID, m.GuildID, "ua")

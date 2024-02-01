@@ -23,9 +23,6 @@ func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
 		case ".добавить":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 			t.accessAddChannelTg(ChatId, "ru", m)
-		case ".добавитьт":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
-			t.accessAddChannelTg(ChatId, "dru", m)
 		case ".додати":
 			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
 			t.accessAddChannelTg(ChatId, "ua", m)
