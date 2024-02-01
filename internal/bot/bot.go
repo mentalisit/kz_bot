@@ -9,6 +9,7 @@ import (
 	"kz_bot/pkg/logger"
 	"kz_bot/pkg/utils"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -109,7 +110,10 @@ func (b *Bot) cleanChat() {
 	}
 	// if hs ua
 	if b.in.Tip == tg && b.in.Config.TgChannel == "-1002116077159/44" {
-		go b.client.Tg.DelMessageSecond("-1002116077159/44", strconv.Itoa(b.in.Tg.Mesid), 180)
+		if !strings.HasPrefix(b.in.Mtext, ".") {
+			go b.client.Tg.DelMessageSecond("-1002116077159/44", strconv.Itoa(b.in.Tg.Mesid), 180)
+		}
+
 	}
 }
 
