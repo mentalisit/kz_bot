@@ -10,7 +10,6 @@ import (
 	"kz_bot/internal/compendiumCli/bot_api"
 	"kz_bot/internal/compendiumCli/module_types"
 	"kz_bot/internal/models"
-	"log"
 	"path/filepath"
 	"time"
 )
@@ -49,13 +48,17 @@ func (c *Compendium) GetTechLevels() map[int]models.TechLevel {
 func (c *Compendium) Initialize() error {
 	c.Ident = new(models.Identity)
 	c.Ident = c.ReadStorage()
-	if c.Ident.Token != "" {
-		if len(c.SyncData.TechLevels) == 0 {
+	if c.Ident != nil && c.Ident.Token != "" {
+		if c.SyncData == nil || len(c.SyncData.TechLevels) == 0 {
+			c.SyncData = &models.SyncData{}
 			c.SyncUserData("get")
 		} else {
 			c.SyncUserData("sync")
 		}
 		// Emit "connected" event
+
+	} else if c.Ident == nil {
+		return errors.New("net token")
 	}
 	c.Ticker = time.NewTicker(RefreshInterval)
 	go c.Tick()
@@ -151,7 +154,8 @@ func (c *Compendium) ReadStorage() *models.Identity {
 	identPath := filepath.Join(".", c.StorageKey)
 	identBytes, err := ioutil.ReadFile(identPath)
 	if err != nil {
-		log.Fatal(err)
+		c.log.Info(err.Error())
+		return &models.Identity{}
 	}
 	var stored models.StorageData
 	err = json.Unmarshal(identBytes, &stored)
