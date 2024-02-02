@@ -154,14 +154,14 @@ func (d *Discord) ready() {
 	}
 }
 
-func (d *Discord) removeComand(s *discordgo.Session) {
-	registeredCommands, err := s.ApplicationCommands(s.State.User.ID, "700238199070523412")
+func (d *Discord) removeCommand(guildid string) {
+	registeredCommands, err := d.s.ApplicationCommands(d.s.State.User.ID, guildid)
 	if err != nil {
 		d.log.Fatal(err.Error())
 	}
 
 	for _, v := range registeredCommands {
-		err := s.ApplicationCommandDelete(s.State.User.ID, "700238199070523412", v.ID)
+		err = d.s.ApplicationCommandDelete(d.s.State.User.ID, guildid, v.ID)
 		if err != nil {
 			d.log.ErrorErr(err)
 		}
@@ -317,6 +317,10 @@ func (d *Discord) addSlashCommand() []*discordgo.ApplicationCommand {
 						{
 							Name:  "Ракетная установка / Rocket launcher",
 							Value: "rocketlauncher",
+						},
+						{
+							Name:  "Удалить оружие / Remove weapon",
+							Value: "Remove",
 						},
 						// Добавьте другие модули по мере необходимости
 					},

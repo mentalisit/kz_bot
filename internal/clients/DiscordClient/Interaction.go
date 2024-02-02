@@ -255,6 +255,8 @@ func (d *Discord) updateModuleOrWeapon(username, module, level string) {
 		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", dartlauncher)
 	case "rocketlauncher":
 		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", rocketlauncher)
+	case "Remove":
+		d.storage.Emoji.WeaponUpdate(context.Background(), username, "ds", "")
 	}
 }
 
