@@ -218,6 +218,13 @@ func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *disc
 		d.log.ErrorErr(err)
 	}
 	if user.ID != m.Author.ID {
+		go func() {
+			time.Sleep(30 * time.Second)
+			err = d.s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+			if err != nil {
+				fmt.Println("Ошибка удаления реакции", err)
+			}
+		}()
 
 		switch r.Emoji.Name {
 		case "🇺🇸":
