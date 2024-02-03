@@ -82,3 +82,6 @@ func (d *CompendiumData) GetMember(roleId, memberName string) (*models.CorpMembe
 func (d *CompendiumData) GetGuild() *models.Guild {
 	return &d.c.Ident.Guild
 }
+func (d *CompendiumData) Shutdown() {
+	d.c.Shutdown()
+}

@@ -29,6 +29,8 @@ func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 				}
 			}
 		}
+	} else if found {
+		t.log.Info(fmt.Sprintf("Запрос с чата %s", t.ChatName(chatid)))
 	}
 	return false
 }
@@ -37,12 +39,14 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)
+		compendium.Shutdown()
 		return false
 	}
 	member, err := compendium.GetMember("", UserName)
 	if err != nil {
-		t.log.ErrorErr(err)
+		t.log.Info(fmt.Sprintf("Игрок под ником %s не найден запрос с %s", UserName, chatid))
 		t.SendChannel(chatid, fmt.Sprintf("Игрок под ником %s не найден", UserName))
+		compendium.Shutdown()
 		return false
 	}
 
@@ -55,11 +59,13 @@ func (t *Telegram) getUsersCompendium(chatid string) bool {
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)
+		compendium.Shutdown()
 		return false
 	}
 	members, err := compendium.GetRoleMembers("")
 	if err != nil {
 		t.log.ErrorErr(err)
+		compendium.Shutdown()
 		return false
 	}
 	text := ""
@@ -71,6 +77,7 @@ func (t *Telegram) getUsersCompendium(chatid string) bool {
 	_, err1 := t.t.Send(mes)
 	if err1 != nil {
 		t.log.Error(err1.Error())
+		compendium.Shutdown()
 	}
 	return true
 }
