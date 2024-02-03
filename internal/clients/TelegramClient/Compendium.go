@@ -1,6 +1,7 @@
 package TelegramClient
 
 import (
+	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 	"kz_bot/internal/compendiumCli"
 	"kz_bot/pkg/imageGenerator"
@@ -9,7 +10,7 @@ import (
 
 func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	after, found := strings.CutPrefix(m.Text, "%")
-	if found && m.Chat.ID == -1002116077159 { //HS UA Community only
+	if found && (m.Chat.ID == -1002116077159 || m.Chat.ID == -1001556223093) { //HS UA Community and test room
 		switch after {
 		case "t i":
 			{
@@ -32,6 +33,7 @@ func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	return false
 }
 func (t *Telegram) techImage(chatid string, UserName string) bool {
+	fmt.Println("techImage")
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)

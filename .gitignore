@@ -3,6 +3,4 @@
 .idea
 *.exe
 *.7z
-config
-ConsoleClient
 log

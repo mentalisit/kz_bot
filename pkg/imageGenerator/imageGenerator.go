@@ -15,7 +15,7 @@ func GenerateUser(avatarURL, corpAvararUrl, nikName, corporation string, tech ma
 	//corporation := "My Corporation"
 	user = tech
 	// Открываем изображение
-	im, err := gg.LoadPNG("./original2.png")
+	im, err := gg.LoadPNG("./config/original2.png")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -24,7 +24,7 @@ func GenerateUser(avatarURL, corpAvararUrl, nikName, corporation string, tech ma
 	dc := gg.NewContextForImage(im)
 
 	// Устанавливаем параметры шрифта
-	err = dc.LoadFontFace("./font.ttf", 32)
+	err = dc.LoadFontFace("./config/font.ttf", 32)
 	if err != nil {
 		fmt.Println(err)
 	}

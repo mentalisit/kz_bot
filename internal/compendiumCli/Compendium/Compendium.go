@@ -139,8 +139,8 @@ func (c *Compendium) WriteStorage() {
 		c.log.ErrorErr(err)
 		return
 	}
-
-	err = ioutil.WriteFile(c.StorageKey, jsonData, 0644)
+	identPath := filepath.Join(".", "config", c.StorageKey)
+	err = ioutil.WriteFile(identPath, jsonData, 0644)
 	if err != nil {
 		c.log.ErrorErr(err)
 		return
@@ -151,7 +151,7 @@ func (c *Compendium) WriteStorage() {
 
 func (c *Compendium) ReadStorage() *models.Identity {
 	// Загрузка существующей идентификации
-	identPath := filepath.Join(".", c.StorageKey)
+	identPath := filepath.Join(".", "config", c.StorageKey)
 	identBytes, err := ioutil.ReadFile(identPath)
 	if err != nil {
 		c.log.Info(err.Error())
