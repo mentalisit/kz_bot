@@ -1,5 +1,5 @@
 .PHONY: all
-all:clean build archive push
+all:clean build archive
 
 clean:
 	del .\kz_bot.zip
