@@ -57,18 +57,3 @@ func GetUserId(userID string) (genesis, enrich, rsextender int) {
 	rsextender = technicalData.Map["rsextender"].Level
 	return
 }
-
-//{Type:rs Level:9 Ws:0}
-//{Type:shipmentrelay Level:9 Ws:0}
-//{Type:corplevel Level:17 Ws:0}
-//{Type:transp Level:5 Ws:0}
-//{Type:miner Level:5 Ws:0}
-//{Type:bs Level:5 Ws:0}
-//{Type:cargobay Level:10 Ws:0}
-//{Type:computer Level:7 Ws:0}
-//{Type:remoterepair Level:2 Ws:0}
-//{Type:rush Level:5 Ws:0}
-//{Type:stealth Level:7 Ws:0}
-//{Type:tradeburst Level:7 Ws:0}
-//{Type:shipdrone Level:8 Ws:0}
-//{Type:rsextender Level:8 Ws:0} {Type:relicdrone Level:12 Ws:0} {Type:dispatch Level:7 Ws:0} {Type:miningboost Level:9 Ws:0} {Type:hydroreplicator Level:10 Ws:0} {Type:artifactboost Level:7 Ws:0} {Type:remote Level:8 Ws:0} {Type:genesis Level:11 Ws:0} {Type:enrich Level:7 Ws:0} {Type:crunch Level:1 Ws:0} {Type:laser Level:9 Ws:0} {Type:mass Level:11 Ws:0} {Type:battery Level:11 Ws:0} {Type:dual Level:4 Ws:0} {Type:barrage Level:8 Ws:0} {Type:alpha Level:2 Ws:0} {Type:delta Level:6 Ws:0} {Type:passive Level:10 Ws:0} {Type:omega Level:9 Ws:0} {Type:blast Level:8 Ws:0} {Type:mirror Level:1 Ws:0} {Type:area Level:5 Ws:0} {Type:emp Level:7 Ws:0} {Type:solitude Level:10 Ws:0} {Type:fortify Level:3 Ws:0} {Type:teleport Level:8 Ws:0} {Type:damageamplifier Level:9 Ws:0} {Type:destiny Level:7 Ws:0} {Type:barrier Level:8 Ws:0} {Type:vengeance Level:7 Ws:0} {Type:deltarocket Level:3 Ws:0} {Type:leap Level:7 Ws:0} {Type:bond Level:2 Ws:0} {Type:suspend Level:1 Ws:0} {Type:omegarocket Level:1 Ws:0} {Type:decoydrone Level:7 Ws:0} {Type:repairdrone Level:4 Ws:0} {Type:rocketdrone Level:9 Ws:0} {Type:chainrayturret Level:1 Ws:0}

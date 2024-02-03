@@ -255,3 +255,10 @@ func (d *Discord) SendFileAsync(text, username, channelID, guildId, fileURL, Ava
 
 	resultChannel <- messageData
 }
+func (d *Discord) SendFilePic(channelID string, f *bytes.Reader) {
+	_, err := d.s.ChannelFileSend(channelID, "image.png", f)
+	if err != nil {
+		d.log.ErrorErr(err)
+		return
+	}
+}

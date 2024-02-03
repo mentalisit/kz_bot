@@ -16,6 +16,9 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 		ThreadID = 0
 	}
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
+	if t.prefixCompendium(m, ChatId) {
+		return
+	}
 	url := t.handleDownload(m)
 	if m.Text == "" && m.Caption != "" {
 		m.Text = m.Caption

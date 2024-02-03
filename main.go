@@ -38,22 +38,20 @@ func RunNew() error {
 		log = logger.LoggerZapDEV()
 
 		//os.Exit(1)
-		//time.Sleep(5 * time.Second)
-		//time.Sleep(5 * time.Minute)
+		go func() {
+			time.Sleep(5 * time.Minute)
+			os.Exit(1)
+		}()
 	}
-
-	//Если запуск на резервном сервере то блокируем выполнение
-	//config.Reserv(log)
 
 	log.Info("🚀  загрузка  🚀 " + cfg.BotMode)
 
 	//storage
 	st := storage.NewStorage(log, cfg)
 
-	//clients Discord, Telegram, //Whatsapp
+	//clients Discord, Telegram
 	cl := clients.NewClients(log, st, cfg)
 	go bot.NewBot(st, cl, log, cfg)
-	//go HadesClient.NewHades(log, cl, st)
 	go BridgeChat.NewBridge(log, cl, st)
 
 	//ожидаем сигнала завершения

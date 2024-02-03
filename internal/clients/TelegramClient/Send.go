@@ -249,3 +249,51 @@ func (t *Telegram) SendFileFromURLAsync(chatid, text string, fileURL string, res
 	}
 	resultChannel <- messageData
 }
+func (t *Telegram) SendFilePic(chatId string, text string, f *bytes.Reader) {
+	chatid, threadID := t.chat(chatId)
+	// Читаем содержимое файла
+	buffer := new(bytes.Buffer)
+	_, err := io.Copy(buffer, f)
+	if err != nil {
+		t.log.ErrorErr(err)
+		return
+	}
+	var media []interface{}
+
+	file := tgbotapi.FileBytes{
+		//Name:  fileName,
+		Bytes: buffer.Bytes(),
+	}
+
+	switch filepath.Ext("fileName.png") {
+
+	case ".jpg", ".jpe", ".png":
+		pc := tgbotapi.NewInputMediaPhoto(file)
+		if text != "" {
+			pc.Caption = text
+		}
+		media = append(media, pc)
+	default:
+		dc := tgbotapi.NewInputMediaDocument(file)
+		if text != "" {
+			dc.Caption = text
+		}
+		media = append(media, dc)
+	}
+
+	if len(media) == 0 {
+		return
+	}
+	mg := tgbotapi.MediaGroupConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID:          chatid,
+			MessageThreadID: threadID,
+		},
+		Media: media,
+	}
+	_, err = t.t.SendMediaGroup(mg)
+	if err != nil {
+		t.log.ErrorErr(err)
+		return
+	}
+}

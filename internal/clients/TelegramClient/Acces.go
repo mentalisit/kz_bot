@@ -9,33 +9,34 @@ import (
 )
 
 func (t *Telegram) accesChatTg(m *tgbotapi.Message) {
-	res := strings.HasPrefix(m.Text, ".")
+	after, res := strings.CutPrefix(m.Text, ".")
 	ThreadID := m.MessageThreadID
 	if !m.IsTopicMessage && m.MessageThreadID != 0 {
 		ThreadID = 0
 	}
 	ChatId := strconv.FormatInt(m.Chat.ID, 10) + fmt.Sprintf("/%d", ThreadID)
 	if res {
-		switch m.Text {
-		case ".add":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		mId := strconv.Itoa(m.MessageID)
+		switch after {
+		case "add":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessAddChannelTg(ChatId, "en", m)
-		case ".добавить":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		case "добавить":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessAddChannelTg(ChatId, "ru", m)
-		case ".додати":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		case "додати":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessAddChannelTg(ChatId, "ua", m)
-		case ".del":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		case "del":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessDelChannelTg(ChatId, m)
-		case ".удалить":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		case "удалить":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessDelChannelTg(ChatId, m)
-		case ".видалити":
-			go t.DelMessageSecond(ChatId, strconv.Itoa(m.MessageID), 10)
+		case "видалити":
+			go t.DelMessageSecond(ChatId, mId, 10)
 			t.accessDelChannelTg(ChatId, m)
-		case ".паника":
+		case "паника":
 			t.log.Panic("перезагрузка по требованию")
 		default:
 			if t.setLang(m, ChatId) {

@@ -127,16 +127,12 @@ func (t *Telegram) updatesComand(c *tgbotapi.Message) {
 		}
 	}
 }
-func (t *Telegram) ChatName(chatid string) string {
-	a := strings.SplitN(chatid, "/", 2)
-	chatId, err := strconv.ParseInt(a[0], 10, 64)
-	if err != nil {
-		t.log.ErrorErr(err)
-	}
+func (t *Telegram) ChatName(chatid string) (chatName string) {
+	id, _ := t.chat(chatid)
 	r, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
 		ChatID             int64
 		SuperGroupUsername string
-	}{ChatID: chatId}})
+	}{ChatID: id}})
 	if err != nil {
 		t.log.ErrorErr(err)
 	}
@@ -183,4 +179,25 @@ func (t *Telegram) imHere(chatID int64, chat *tgbotapi.Chat) {
 			imHereChat = append(imHereChat, chatID)
 		}
 	}
+}
+func (t *Telegram) getChatPhoto(chatid string) string {
+	chatId, _ := t.chat(chatid)
+	chat, err := t.t.GetChat(tgbotapi.ChatInfoConfig{ChatConfig: struct {
+		ChatID             int64
+		SuperGroupUsername string
+	}{ChatID: chatId}})
+	if err != nil {
+		return ""
+	}
+	corpAvatar := ""
+	if chat.Photo != nil {
+		fileconfig := tgbotapi.FileConfig{FileID: chat.Photo.SmallFileID}
+		file, err := t.t.GetFile(fileconfig)
+		if err != nil {
+			t.log.ErrorErr(err)
+		}
+
+		corpAvatar = "https://api.telegram.org/file/bot" + t.t.Token + "/" + file.FilePath
+	}
+	return corpAvatar
 }

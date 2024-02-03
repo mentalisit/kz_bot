@@ -4,6 +4,8 @@ import (
 	"fmt"
 	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
 	"kz_bot/pkg/utils"
+	"strconv"
+	"strings"
 )
 
 func (t *Telegram) nameOrNick(UserName, FirstName string) (name string) {
@@ -32,4 +34,18 @@ func (t *Telegram) GetAvatar(userid int64, name string) string {
 		return AvatarTG
 	}
 	return "https://api.telegram.org/file/bot" + t.t.Token + "/" + file.FilePath
+}
+func (t *Telegram) chat(chatid string) (chatId int64, ThreadID int) {
+	a := strings.SplitN(chatid, "/", 2)
+	chatId, err := strconv.ParseInt(a[0], 10, 64)
+	if err != nil {
+		t.log.ErrorErr(err)
+	}
+	if len(a) > 1 {
+		ThreadID, err = strconv.Atoi(a[1])
+		if err != nil {
+			t.log.ErrorErr(err)
+		}
+	}
+	return chatId, ThreadID
 }

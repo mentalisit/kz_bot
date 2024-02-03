@@ -47,28 +47,6 @@ func GetCompendium(log *logger.Logger, code string, StorageKey string) (*Compend
 		//log.InfoStruct("connect ", connect)
 
 	}
-	//log.InfoStruct(" GetGuild ", c.GetGuild())
-
-	//log.Info(c.Ident.User.AvatarURL)
-	//for i, level := range c.SyncData.TechLevels {
-	//	n := module_types.GetTechFromIndex(i)
-	//
-	//	if n == "" {
-	//		log.Info(fmt.Sprintf("%d %d", i, level.Level))
-	//
-	//	} else {
-	//		log.Info(fmt.Sprintf("%s %d", n, level.Level))
-	//	}
-	//}
-	//data, err := c.CorpData("1202029515556270120")
-	//if err != nil {
-	//	log.ErrorErr(err)
-	//	return
-	//}
-	//
-	//for i, Member := range data.Members {
-	//	fmt.Println(i, Member.Name)
-	//}
 	log.Info(fmt.Sprintf("%+v\n", "ok"))
 	return &compendiumData, nil
 }
@@ -86,10 +64,6 @@ func (d *CompendiumData) GetRoleMembers(roleId string) ([]models.CorpMember, err
 		d.log.ErrorErr(err)
 		return nil, err
 	}
-	//d.log.InfoStruct("Roles ", data.Members)
-	for _, member := range data.Members {
-		d.log.InfoStruct("data.members ", member)
-	}
 	return data.Members, nil
 }
 func (d *CompendiumData) GetMember(roleId, memberName string) (*models.CorpMember, error) {
@@ -104,4 +78,7 @@ func (d *CompendiumData) GetMember(roleId, memberName string) (*models.CorpMembe
 		}
 	}
 	return nil, errors.New(fmt.Sprintf("пользователь %s не найден", memberName))
+}
+func (d *CompendiumData) GetGuild() *models.Guild {
+	return &d.c.Ident.Guild
 }

@@ -10,28 +10,28 @@ import (
 //nujno sdelat lang
 
 func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
-	res := strings.HasPrefix(m.Content, ".")
+	after, res := strings.CutPrefix(m.Content, ".")
 	if res {
-		switch m.Content {
-		case ".add":
+		switch after {
+		case "add":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessAddChannelDs(m.ChannelID, m.GuildID, "en")
-		case ".добавить":
+		case "добавить":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessAddChannelDs(m.ChannelID, m.GuildID, "ru")
-		case ".додати":
+		case "додати":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessAddChannelDs(m.ChannelID, m.GuildID, "ua")
-		case ".del":
+		case "del":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
-		case ".удалить":
+		case "удалить":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
-		case ".видалити":
+		case "видалити":
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
-		case ".паника":
+		case "паника":
 			d.log.Panic("перезагрузка по требованию")
 		case "removeCommand":
 			d.removeCommand(m.GuildID)
