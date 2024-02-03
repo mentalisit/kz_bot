@@ -39,6 +39,7 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)
+		t.SendChannel(chatid, fmt.Sprintf("Произошол сбой нуждается в дороботке "))
 		compendium.Shutdown()
 		return false
 	}
@@ -59,6 +60,7 @@ func (t *Telegram) getUsersCompendium(chatid string) bool {
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)
+		t.SendChannel(chatid, fmt.Sprintf("Произошол сбой нуждается в дороботке "))
 		compendium.Shutdown()
 		return false
 	}
