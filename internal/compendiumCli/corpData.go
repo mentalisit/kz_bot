@@ -47,7 +47,7 @@ func GetCompendium(log *logger.Logger, code string, StorageKey string) (*Compend
 		//log.InfoStruct("connect ", connect)
 
 	}
-	log.Info(fmt.Sprintf("%+v\n", "ok"))
+	//log.Info(fmt.Sprintf("%+v\n", "ok"))
 	return &compendiumData, nil
 }
 func (d *CompendiumData) GetAllRoles() ([]models.CorpRole, error) {

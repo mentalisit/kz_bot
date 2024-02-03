@@ -42,6 +42,7 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 	member, err := compendium.GetMember("", UserName)
 	if err != nil {
 		t.log.ErrorErr(err)
+		t.SendChannel(chatid, fmt.Sprintf("Игрок под ником %s не найден", UserName))
 		return false
 	}
 
