@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/compendiumCli"
 	"kz_bot/pkg/imageGenerator"
 	"strings"
@@ -45,7 +45,7 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 	}
 	member, err := compendium.GetMember("", UserName)
 	if err != nil {
-		t.log.Info(fmt.Sprintf("Игрок под ником %s не найден запрос с %s", UserName, chatid))
+		t.log.Info(fmt.Sprintf("Игрок под ником %s не найден запрос с %s", UserName, t.ChatName(chatid)))
 		t.SendChannel(chatid, fmt.Sprintf("Игрок под ником %s не найден", UserName))
 		compendium.Shutdown()
 		return false

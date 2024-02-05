@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -321,6 +322,16 @@ func (b *Bot) lEmoji() (bb bool) {
 		bb = true
 		b.emodjis()
 	}
+	if b.in.Tip == "tg" {
+		ok, n := b.instalNick(b.in.Mtext)
+		if ok && n == "удалено" {
+			go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, fmt.Sprintf("Удалено дополнительное имя "), 20)
+		} else if ok {
+			go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, fmt.Sprintf("Установлено дополнительное имя %s", n), 20)
+			//bb = true
+		}
+	}
+
 	return bb
 }
 

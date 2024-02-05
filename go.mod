@@ -4,13 +4,14 @@ go 1.20
 
 require (
 	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f
+	github.com/SakoDroid/telego/v2 v2.1.0
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/fogleman/gg v1.3.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/matterbridge/telegram-bot-api/v6 v6.5.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	github.com/samuelemusiani/telegram-bot-api v0.0.6
 	go.mongodb.org/mongo-driver v1.13.1
 	go.uber.org/zap v1.26.0
 )

@@ -9,7 +9,6 @@ import (
 
 type Logger struct {
 	ZapLogger *zap.Logger
-	//LoggerInterface
 }
 
 func LoggerZap(botToken string, chatID int64) *Logger {
@@ -99,17 +98,8 @@ func LoggerZapDEV() *Logger {
 
 	logger.Info("Develop Running")
 
-	return &Logger{ZapLogger: logger} //, LoggerInterface: logger}
+	return &Logger{ZapLogger: logger}
 }
-
-//type LoggerInterface interface {
-//	//Debug(msg string, fields ...zapcore.Field)
-//	//Info(msg string, fields ...zapcore.Field)
-//	//Warn(msg string, fields ...zapcore.Field)
-//	//Error(msg string, fields ...zapcore.Field)
-//	//Panic(msg string, fields ...zapcore.Field)
-//	Fatal(msg string, fields ...zapcore.Field)
-//}
 
 func (l *Logger) ErrorErr(err error) {
 	l.ZapLogger.Error("Произошла ошибка", zap.Error(err))

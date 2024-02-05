@@ -2,7 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
-	tgbotapi "github.com/samuelemusiani/telegram-bot-api"
+	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/pkg/logger"
 	"strconv"
 
@@ -51,7 +51,16 @@ func (t *Telegram) update() {
 	//получаем обновления от телеграм
 	updates := t.t.GetUpdatesChan(ut)
 	for update := range updates {
-		if update.CallbackQuery != nil {
+		if update.InlineQuery != nil {
+			query, err := t.t.AnswerWebAppQuery(tgbotapi.AnswerWebAppQueryConfig{
+				WebAppQueryID: update.InlineQuery.ID,
+				Result:        tgbotapi.NewInlineQueryResultArticle(update.InlineQuery.ID, "title", "message"),
+			})
+			if err != nil {
+				t.log.ErrorErr(err)
+			}
+			fmt.Println(query)
+		} else if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {
 
