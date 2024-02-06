@@ -52,14 +52,7 @@ func (t *Telegram) update() {
 	updates := t.t.GetUpdatesChan(ut)
 	for update := range updates {
 		if update.InlineQuery != nil {
-			query, err := t.t.AnswerWebAppQuery(tgbotapi.AnswerWebAppQueryConfig{
-				WebAppQueryID: update.InlineQuery.ID,
-				Result:        tgbotapi.NewInlineQueryResultArticle(update.InlineQuery.ID, "title", "message"),
-			})
-			if err != nil {
-				t.log.ErrorErr(err)
-			}
-			fmt.Println(query)
+			t.handleInlineQuery(update.InlineQuery)
 		} else if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {

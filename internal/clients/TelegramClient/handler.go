@@ -2,6 +2,7 @@ package TelegramClient
 
 import (
 	"fmt"
+	"github.com/gofrs/uuid"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/models"
 	"strconv"
@@ -108,4 +109,64 @@ func (t *Telegram) handlePoll(message *tgbotapi.Message) {
 		}
 		message.Text = text
 	}
+}
+
+func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
+	fmt.Println(m.Query)
+	if m.Query == "module" {
+		fromString, err := uuid.DefaultGenerator.NewV1()
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+		ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("Button text", "callbackData"),
+			),
+		)
+		anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
+			fromString.String(),
+			"Some title",
+			"Some message",
+		)
+		anArticle.ReplyMarkup = &ReplyMarkup
+
+		request, err := t.t.Request(tgbotapi.InlineConfig{
+			InlineQueryID: m.ID,
+			Results:       []interface{}{anArticle},
+		})
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+		fmt.Println(request)
+	} else if m.Query == "emoji" {
+		fromString, err := uuid.DefaultGenerator.NewV1()
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+		ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("emoji", "callbackData"),
+			),
+		)
+		anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
+			fromString.String(),
+			"list emoji",
+			"you emoji",
+		)
+		anArticle.ReplyMarkup = &ReplyMarkup
+
+		request, err := t.t.Request(tgbotapi.InlineConfig{
+			InlineQueryID: m.ID,
+			Results:       []interface{}{anArticle},
+		})
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+		fmt.Println(request)
+	}
+
 }

@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f
-	github.com/SakoDroid/telego/v2 v2.1.0
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/fogleman/gg v1.3.0
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
