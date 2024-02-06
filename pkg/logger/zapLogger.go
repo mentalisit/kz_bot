@@ -59,6 +59,7 @@ func LoggerZap(botToken string, chatID int64) *Logger {
 				cfg.Level,
 			)))
 		}),
+		zap.AddCallerSkip(1),
 	)
 
 	if err != nil {
