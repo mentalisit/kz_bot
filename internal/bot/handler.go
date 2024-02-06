@@ -16,6 +16,7 @@ func (b *Bot) iftipdelete() {
 		go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, b.in.Ds.Mesid)
 		go b.client.Ds.ChannelTyping(b.in.Config.DsChannel)
 	} else if b.in.Tip == tg && !b.in.Option.Reaction && !b.in.Option.Update {
+		go b.client.Tg.ChatTyping(b.in.Config.TgChannel)
 		go b.client.Tg.DelMessage(b.in.Config.TgChannel, b.in.Tg.Mesid)
 	}
 }

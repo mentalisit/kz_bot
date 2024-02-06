@@ -297,3 +297,9 @@ func (t *Telegram) SendFilePic(chatId string, text string, f *bytes.Reader) {
 		return
 	}
 }
+func (t *Telegram) ChatTyping(chatId string) {
+	chatid, threadID := t.chat(chatId)
+	typingConfig := tgbotapi.NewChatAction(chatid, tgbotapi.ChatTyping)
+	typingConfig.MessageThreadID = threadID
+	_, _ = t.t.Send(typingConfig)
+}

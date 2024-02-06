@@ -35,7 +35,7 @@ func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	return false
 }
 func (t *Telegram) techImage(chatid string, UserName string) bool {
-	fmt.Println("techImage")
+	t.ChatTyping(chatid)
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
 		t.log.ErrorErr(err)
@@ -51,11 +51,15 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 		return false
 	}
 
+	t.SendChannelDelSecond(chatid, "Выполняется генерация картинки", 5)
+	t.ChatTyping(chatid)
+
 	userPic := imageGenerator.GenerateUser(member.AvatarURL, t.getChatPhoto(chatid), UserName, t.ChatName(chatid), member.Tech)
 	t.SendFilePic(chatid, "Вот картинка", userPic)
 	return true
 }
 func (t *Telegram) getUsersCompendium(chatid string) bool {
+	t.ChatTyping(chatid)
 	chatId, threadID := t.chat(chatid)
 	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
 	if err != nil {
