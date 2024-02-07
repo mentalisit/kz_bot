@@ -36,6 +36,10 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 		case "removeCommand":
 			d.removeCommand(m.GuildID)
 			go d.ready()
+		case "мес":
+			d.DeleteMessage(m.ChannelID, m.ID)
+			d.mes()
+
 		default:
 			if d.CleanOldMessage(m) {
 				return
@@ -46,7 +50,9 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 		}
 	}
 }
+func (d *Discord) mes() {
 
+}
 func (d *Discord) accessAddChannelDs(chatid, guildid, lang string) { // внесение в дб и добавление в масив
 	ok, _ := d.CheckChannelConfigDS(chatid)
 	if ok {

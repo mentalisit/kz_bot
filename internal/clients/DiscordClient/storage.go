@@ -34,8 +34,8 @@ func (d *Discord) AddDsCorpConfig(chatName, chatid, guildid, lang string) {
 		Country:   lang,
 		Guildid:   guildid,
 	}
+	c.MesidDsHelp = d.HelpChannelUpdate(c)
 	d.storage.ConfigRs.InsertConfigRs(c)
 	d.corpConfigRS[c.CorpName] = c
 	d.log.Info(chatName + " Добавлена в конфиг корпораций ")
-	d.HelpChannelUpdate(c)
 }

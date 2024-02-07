@@ -11,7 +11,22 @@ func (d *Discord) Help(Channel string) {
 }
 
 func (d *Discord) HelpChannelUpdate(c models.CorporationConfig) string {
-	return d.hhelp1(c.DsChannel)
+	if c.MesidDsHelp == "" {
+		c.MesidDsHelp = d.hhelp1(c.DsChannel)
+		return c.MesidDsHelp
+	} else {
+		messages, err := d.s.ChannelMessages(c.DsChannel, 10, "", c.MesidDsHelp, "")
+		if err != nil {
+			go d.DeleteMessage(c.DsChannel, c.MesidDsHelp)
+			c.MesidDsHelp = d.hhelp1(c.DsChannel)
+			return c.MesidDsHelp
+		}
+		if len(messages) > 2 {
+			go d.DeleteMessage(c.DsChannel, c.MesidDsHelp)
+			c.MesidDsHelp = d.hhelp1(c.DsChannel)
+		}
+	}
+	return c.MesidDsHelp
 }
 
 func (d *Discord) hhelp1(chatid string) string {

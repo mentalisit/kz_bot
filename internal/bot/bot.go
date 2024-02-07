@@ -111,7 +111,7 @@ func (b *Bot) cleanChat() {
 	// if hs ua
 	if b.in.Tip == tg && b.in.Config.TgChannel == "-1002116077159/44" {
 		if !strings.HasPrefix(b.in.Mtext, ".") {
-			go b.client.Tg.DelMessageSecond("-1002116077159/44", strconv.Itoa(b.in.Tg.Mesid), 180)
+			go b.client.Tg.DelMessageSecond("-1002116077159/44", strconv.Itoa(b.in.Tg.Mesid), 600)
 		}
 
 	}
@@ -165,12 +165,7 @@ func (b *Bot) Autohelp() {
 		a := b.storage.ConfigRs.AutoHelp()
 		for _, s := range a {
 			if s.DsChannel != "" {
-				if s.MesidDsHelp != "" {
-					go b.client.Ds.DeleteMessage(s.DsChannel, s.MesidDsHelp)
-					s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
-				} else {
-					s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
-				}
+				s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
 				if !s.Forward {
 					b.storage.ConfigRs.AutoHelpUpdateMesid(s)
 				}
@@ -183,10 +178,8 @@ func (b *Bot) Autohelp() {
 						return
 					}
 					go b.client.Tg.DelMessage(s.TgChannel, mID)
-					s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, text))
-				} else {
-					s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, text))
 				}
+				s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, strings.ReplaceAll(text, "3", "10")))
 				b.storage.ConfigRs.AutoHelpUpdateMesid(s)
 
 			}
