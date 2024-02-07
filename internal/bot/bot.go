@@ -161,16 +161,14 @@ func (b *Bot) bridge() bool {
 func (b *Bot) Autohelp() {
 	tm := time.Now()
 	mtime := tm.Format("15:04")
+	EvenOrOdd, _ := strconv.Atoi((tm.Format("2006-01-02"))[8:])
 	if mtime == "12:00" {
 		a := b.storage.ConfigRs.AutoHelp()
 		for _, s := range a {
 			if s.DsChannel != "" {
 				s.MesidDsHelp = b.client.Ds.HelpChannelUpdate(s)
-				if !s.Forward {
-					b.storage.ConfigRs.AutoHelpUpdateMesid(s)
-				}
 			}
-			if s.Forward && s.TgChannel != "" {
+			if s.Forward && s.TgChannel != "" && EvenOrOdd%2 == 0 {
 				text := fmt.Sprintf("%s \n%s", b.storage.Words.GetWords(s.Country, "botUdalyaet"), b.storage.Words.GetWords(s.Country, "hhelpText"))
 				if s.MesidTgHelp != "" {
 					mID, err := strconv.Atoi(s.MesidTgHelp)
@@ -180,9 +178,9 @@ func (b *Bot) Autohelp() {
 					go b.client.Tg.DelMessage(s.TgChannel, mID)
 				}
 				s.MesidTgHelp = strconv.Itoa(b.client.Tg.SendChannel(s.TgChannel, strings.ReplaceAll(text, "3", "10")))
-				b.storage.ConfigRs.AutoHelpUpdateMesid(s)
 
 			}
+			b.storage.ConfigRs.AutoHelpUpdateMesid(s)
 		}
 		time.Sleep(time.Minute)
 	} else if mtime == "03:00" {
