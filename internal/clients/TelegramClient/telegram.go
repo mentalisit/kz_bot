@@ -90,7 +90,8 @@ func (t *Telegram) update() {
 							t.log.Info(fmt.Sprintf(" update.ChannelPost.PinnedMessage.Text %+v\n", update.ChannelPost.PinnedMessage.Text))
 						}
 					}
-
+				} else if update.Poll != nil {
+					t.log.InfoStruct("pool ", update.Poll)
 				} else {
 					t.log.Info(fmt.Sprintf(" else update: %+v \n", update))
 				}
