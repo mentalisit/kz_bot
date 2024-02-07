@@ -53,7 +53,7 @@ func (b *Bot) emReadName(name, nameMention, tip string) string { // склеив
 				newName = fmt.Sprintf("%s [%s] %s%s%s%s", name, t.Weapon, t.Em1, t.Em2, t.Em3, t.Em4)
 			}
 		}
-	} else if b.in.Tip == ds && b.in.Config.Guildid == "716771579278917702" {
+	} else if b.in.Tip == ds && b.in.Config.Guildid == "716771579278917702" && b.in.Name == name {
 		genesis, enrich, rsextender := compendiumCli.GetUserId(b.in.Ds.Nameid)
 		b.storage.Emoji.EmInsertEmpty(context.Background(), "ds", name)
 		one := fmt.Sprintf("<:rse:1199068829511335946> %d ", rsextender)
