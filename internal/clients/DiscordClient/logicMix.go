@@ -101,10 +101,29 @@ func (d *Discord) logicMix(m *discordgo.MessageCreate) {
 
 	//bridge
 	ds, bridgeConfig := d.BridgeCheckChannelConfigDS(m.ChannelID)
-	if ds || strings.HasPrefix(m.Content, ".") {
+	if ds {
 		go d.SendToBridgeChatFilter(m, bridgeConfig)
 	}
+	if strings.HasPrefix(m.Content, ".") {
 
+		mes := models.BridgeMessage{
+			Text:          m.Content,
+			Sender:        m.Author.Username,
+			Tip:           "ds",
+			Avatar:        m.Author.AvatarURL("128"),
+			ChatId:        m.ChannelID,
+			MesId:         m.ID,
+			GuildId:       m.GuildID,
+			TimestampUnix: m.Timestamp.Unix(),
+			Config:        &models.BridgeConfig{},
+		}
+		d.ChanBridgeMessage <- mes
+		go func() {
+			time.Sleep(3 * time.Second)
+			d.storage.ReloadDbArray()
+			d.bridgeConfig = d.storage.BridgeConfigs
+		}()
+	}
 }
 
 func (d *Discord) SendToRsFilter(m *discordgo.MessageCreate, config models.CorporationConfig) {
@@ -236,7 +255,4 @@ func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *disc
 			d.transtale(m, "pl", r)
 		}
 	}
-}
-func (d *Discord) removeReactionFlag() {
-
 }

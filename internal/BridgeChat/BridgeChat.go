@@ -7,6 +7,7 @@ import (
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
 	"strings"
+	"time"
 )
 
 type Bridge struct {
@@ -43,6 +44,11 @@ func (b *Bridge) inbox() {
 func (b *Bridge) logic() {
 	if strings.HasPrefix(b.in.Text, ".") {
 		b.Command()
+		go func() {
+			time.Sleep(3 * time.Second)
+			b.storage.ReloadDbArray()
+			b.configs = b.storage.BridgeConfigs
+		}()
 		return
 	} else {
 		b.logicMessage()

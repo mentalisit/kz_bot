@@ -6,6 +6,7 @@ import (
 	"kz_bot/internal/models"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
@@ -67,8 +68,12 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 				ChatId:  ChatId,
 				MesId:   strconv.Itoa(m.MessageID),
 				GuildId: chatName,
+				Config:  &models.BridgeConfig{},
 			}
 			t.ChanBridgeMessage <- mes
+			time.Sleep(3 * time.Second)
+			t.storage.ReloadDbArray()
+			t.bridgeConfig = t.storage.BridgeConfigs
 		}()
 	}
 	if tg {
