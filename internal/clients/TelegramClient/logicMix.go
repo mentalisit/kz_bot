@@ -102,7 +102,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 					Config:        &bridgeConfig,
 				}
 
-				if m.ReplyToMessage != nil {
+				if m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated == nil {
 					mes.Reply = &models.BridgeMessageReply{
 						UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 						TimeMessage: m.ReplyToMessage.Time().Unix(),
