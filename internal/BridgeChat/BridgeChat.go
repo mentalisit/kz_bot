@@ -6,6 +6,7 @@ import (
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/logger"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -51,7 +52,8 @@ func (b *Bridge) logic() {
 		}()
 		return
 	} else {
-		b.logicMessage()
+		go b.logicMessage()
+		fmt.Println("активных горутин ", runtime.NumGoroutine())
 	}
 
 }
