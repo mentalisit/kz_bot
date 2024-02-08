@@ -218,29 +218,25 @@ func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *disc
 		d.log.ErrorErr(err)
 	}
 	if user.ID != m.Author.ID {
-		go func() {
-			time.Sleep(30 * time.Second)
-			err = d.s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
-			if err != nil {
-				fmt.Println("Ошибка удаления реакции", err)
-			}
-		}()
 
 		switch r.Emoji.Name {
 		case "🇺🇸":
-			d.transtale(m, "en")
+			d.transtale(m, "en", r)
 		case "🇷🇺":
-			d.transtale(m, "ru")
+			d.transtale(m, "ru", r)
 		case "🇺🇦":
-			d.transtale(m, "ua")
+			d.transtale(m, "ua", r)
 		case "🇬🇧":
-			d.transtale(m, "en")
+			d.transtale(m, "en", r)
 		case "🇧🇾":
-			d.transtale(m, "be")
+			d.transtale(m, "be", r)
 		case "🇩🇪":
-			d.transtale(m, "de")
+			d.transtale(m, "de", r)
 		case "🇵🇱":
-			d.transtale(m, "pl")
+			d.transtale(m, "pl", r)
 		}
 	}
+}
+func (d *Discord) removeReactionFlag() {
+
 }

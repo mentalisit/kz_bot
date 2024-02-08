@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (d *Discord) CheckAdmin(nameid string, chatid string) bool {
@@ -227,8 +228,15 @@ func (d *Discord) latinOrNot(m *discordgo.MessageCreate) {
 		}
 	}
 }
-func (d *Discord) transtale(m *discordgo.Message, lang string) {
+func (d *Discord) transtale(m *discordgo.Message, lang string, r *discordgo.MessageReactionAdd) {
 	text2 := translator.TranslateAnswer(m.Content, lang)
+	go func() {
+		time.Sleep(30 * time.Second)
+		err := d.s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+		if err != nil {
+			fmt.Println("Ошибка удаления реакции", err)
+		}
+	}()
 	mes := d.SendWebhook(text2, m.Author.Username, m.ChannelID, m.GuildID, m.Author.AvatarURL("128"))
 	d.DeleteMesageSecond(m.ChannelID, mes, 90)
 }
