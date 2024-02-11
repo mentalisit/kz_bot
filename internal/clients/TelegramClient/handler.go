@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	"kz_bot/internal/compendiumCli"
 	"kz_bot/internal/models"
 	"strconv"
 )
@@ -112,61 +113,99 @@ func (t *Telegram) handlePoll(message *tgbotapi.Message) {
 }
 
 func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
-	fmt.Println(m.Query)
-	if m.Query == "module" {
+	t.log.Info(fmt.Sprintf("handleInlineQuery от %s text:%s", m.From.UserName, m.Query))
+	if m.Query == "" {
 		fromString, err := uuid.DefaultGenerator.NewV1()
 		if err != nil {
 			t.log.ErrorErr(err)
 			return
 		}
-		ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("Button text", "callbackData"),
-			),
-		)
 		anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
 			fromString.String(),
-			"Some title",
-			"Some message",
+			"Users",
+			"Показать пользователей ?",
 		)
-		anArticle.ReplyMarkup = &ReplyMarkup
+		anArticle.InputMessageContent = tgbotapi.InputTextMessageContent{
+			Text:      "%users",
+			ParseMode: tgbotapi.ModeMarkdownV2,
+		}
 
-		request, err := t.t.Request(tgbotapi.InlineConfig{
+		_, _ = t.t.Request(tgbotapi.InlineConfig{
 			InlineQueryID: m.ID,
 			Results:       []interface{}{anArticle},
+		})
+
+		//} else if m.Query == "emoji" {
+		//	fromString, err := uuid.DefaultGenerator.NewV1()
+		//	if err != nil {
+		//		t.log.ErrorErr(err)
+		//		return
+		//	}
+		//	ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
+		//		tgbotapi.NewInlineKeyboardRow(
+		//			tgbotapi.NewInlineKeyboardButtonData("emoji", "callbackData"),
+		//		),
+		//	)
+		//	anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
+		//		fromString.String(),
+		//		"list emoji",
+		//		"you emoji",
+		//	)
+		//	anArticle.ReplyMarkup = &ReplyMarkup
+		//
+		//	request, err := t.t.Request(tgbotapi.InlineConfig{
+		//		InlineQueryID: m.ID,
+		//		Results:       []interface{}{anArticle},
+		//	})
+		//	if err != nil {
+		//		t.log.ErrorErr(err)
+		//		return
+		//	}
+		//	fmt.Println(request)
+	} else if m.Query == "user" {
+		compendium, err := compendiumCli.GetCompendium(t.log, "", "testkey")
+		if err != nil {
+			t.log.ErrorErr(err)
+			compendium.Shutdown()
+			return
+		}
+		members, err := compendium.GetRoleMembers("")
+		if err != nil {
+			t.log.ErrorErr(err)
+			compendium.Shutdown()
+			return
+		}
+		compendium.Shutdown()
+
+		var art []interface{}
+
+		for _, member := range members {
+			fromString, err := uuid.DefaultGenerator.NewV1()
+			if err != nil {
+				t.log.ErrorErr(err)
+				return
+			}
+			anArticle := tgbotapi.NewInlineQueryResultArticleHTML(
+				fromString.String(),
+				member.Name,
+				member.Name,
+			)
+			anArticle.InputMessageContent = tgbotapi.InputTextMessageContent{
+				Text:      "%user " + member.Name,
+				ParseMode: tgbotapi.ModeHTML,
+			}
+			art = append(art, anArticle)
+		}
+
+		_, err = t.t.Request(tgbotapi.InlineConfig{
+			InlineQueryID: m.ID,
+			Results:       art,
 		})
 		if err != nil {
 			t.log.ErrorErr(err)
 			return
 		}
-		fmt.Println(request)
-	} else if m.Query == "emoji" {
-		fromString, err := uuid.DefaultGenerator.NewV1()
-		if err != nil {
-			t.log.ErrorErr(err)
-			return
-		}
-		ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("emoji", "callbackData"),
-			),
-		)
-		anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
-			fromString.String(),
-			"list emoji",
-			"you emoji",
-		)
-		anArticle.ReplyMarkup = &ReplyMarkup
 
-		request, err := t.t.Request(tgbotapi.InlineConfig{
-			InlineQueryID: m.ID,
-			Results:       []interface{}{anArticle},
-		})
-		if err != nil {
-			t.log.ErrorErr(err)
-			return
-		}
-		fmt.Println(request)
 	}
 
 }

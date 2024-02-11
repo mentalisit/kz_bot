@@ -30,7 +30,9 @@ func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 			}
 		}
 	} else if found {
-		t.log.Info(fmt.Sprintf("Запрос с чата %s", t.ChatName(chatid)))
+		t.log.Info(fmt.Sprintf("Запрос с чата %s %s", t.ChatName(chatid), chatid))
+		t.SendChannel(chatid, "Для подключения режима компендиум в этот чат обратитесь к @mentalisit")
+		_, _ = t.t.Send(tgbotapi.NewMessage(m.From.ID, "Не стесняйся мне интересны новые вызовы :) пиши @mentalisit "))
 	}
 	return false
 }
