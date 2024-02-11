@@ -60,7 +60,10 @@ func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit str
 		Text: textEdit,
 	}
 
-	_, _ = t.t.Send(mes)
+	_, err = t.t.Send(mes)
+	if err != nil {
+		t.log.InfoStruct("error EditMessageTextKey ", err)
+	}
 }
 func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
 	a := strings.SplitN(chatid, "/", 2)
