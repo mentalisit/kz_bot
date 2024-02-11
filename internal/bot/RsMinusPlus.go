@@ -61,6 +61,7 @@ func (b *Bot) Minus() bool {
 			b.in.Lvlkz = t.Lvlkz
 			bb = true
 			b.in.Option.Reaction = false
+			b.in.Option.Update = true
 			b.RsMinus()
 		}
 		if b.in.Tip == ds {
