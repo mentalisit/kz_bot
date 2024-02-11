@@ -40,7 +40,24 @@ func NewTelegram(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot)
 		bridgeConfig:      st.BridgeConfigs,
 		corpConfigRS:      st.CorpConfigRS,
 	}
-
+	a1 := corpCompendium{
+		name:    "HS UA Community",
+		storage: "HS UA Community",
+		chatid:  -1002116077159,
+	}
+	corp = append(corp, a1)
+	a2 := corpCompendium{
+		name:    "UAGC",
+		storage: "UAGC",
+		chatid:  -1001194014201,
+	}
+	corp = append(corp, a2)
+	a3 := corpCompendium{
+		name:    "test3",
+		storage: "HS UA Community",
+		chatid:  -1001556223093,
+	}
+	corp = append(corp, a3)
 	go tg.update()
 
 	return tg
@@ -53,6 +70,8 @@ func (t *Telegram) update() {
 	for update := range updates {
 		if update.InlineQuery != nil {
 			t.handleInlineQuery(update.InlineQuery)
+		} else if update.ChosenInlineResult != nil {
+			//go t.handleChosenInlineResult(update.ChosenInlineResult)
 		} else if update.CallbackQuery != nil {
 			t.callback(update.CallbackQuery) //нажатия в чате
 		} else if update.Message != nil {
@@ -76,6 +95,10 @@ func (t *Telegram) update() {
 			go func() {
 				if update.Poll != nil {
 					t.log.InfoStruct("pool ", update.Poll)
+				} else if update.EditedChannelPost != nil {
+
+				} else if update.EditedChannelPost != nil {
+
 				} else {
 					t.log.Info(fmt.Sprintf(" else update: %+v \n", update))
 				}

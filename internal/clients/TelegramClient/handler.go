@@ -112,9 +112,17 @@ func (t *Telegram) handlePoll(message *tgbotapi.Message) {
 	}
 }
 
+type corpCompendium struct {
+	name    string
+	storage string
+	chatid  int64
+}
+
+var corp []corpCompendium
+
 func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
-	t.log.Info(fmt.Sprintf("handleInlineQuery от %s text:%s", m.From.UserName, m.Query))
-	if m.Query == "" {
+	t.log.Info(fmt.Sprintf("handleInlineQuery от %s text:%s\n", m.From.UserName, m.Query))
+	if m.Query == "u" {
 		fromString, err := uuid.DefaultGenerator.NewV1()
 		if err != nil {
 			t.log.ErrorErr(err)
@@ -123,7 +131,7 @@ func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
 		anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
 			fromString.String(),
 			"Users",
-			"Показать пользователей ?",
+			"",
 		)
 		anArticle.InputMessageContent = tgbotapi.InputTextMessageContent{
 			Text:      "%users",
@@ -135,35 +143,52 @@ func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
 			Results:       []interface{}{anArticle},
 		})
 
-		//} else if m.Query == "emoji" {
-		//	fromString, err := uuid.DefaultGenerator.NewV1()
-		//	if err != nil {
-		//		t.log.ErrorErr(err)
-		//		return
-		//	}
-		//	ReplyMarkup := tgbotapi.NewInlineKeyboardMarkup(
-		//		tgbotapi.NewInlineKeyboardRow(
-		//			tgbotapi.NewInlineKeyboardButtonData("emoji", "callbackData"),
-		//		),
-		//	)
-		//	anArticle := tgbotapi.NewInlineQueryResultArticleMarkdownV2(
-		//		fromString.String(),
-		//		"list emoji",
-		//		"you emoji",
-		//	)
-		//	anArticle.ReplyMarkup = &ReplyMarkup
-		//
-		//	request, err := t.t.Request(tgbotapi.InlineConfig{
-		//		InlineQueryID: m.ID,
-		//		Results:       []interface{}{anArticle},
-		//	})
-		//	if err != nil {
-		//		t.log.ErrorErr(err)
-		//		return
-		//	}
-		//	fmt.Println(request)
+	} else if m.Query == "" {
+		var res []interface{}
+		for _, c := range corp {
+			fromString, err := uuid.DefaultGenerator.NewV1()
+			if err != nil {
+				t.log.ErrorErr(err)
+				return
+			}
+			compendium, err := compendiumCli.GetCompendium(t.log, "", c.storage)
+			if err != nil {
+				t.log.ErrorErr(err)
+				compendium.Shutdown()
+				return
+			}
+			members, err := compendium.GetRoleMembers("")
+			if err != nil {
+				t.log.ErrorErr(err)
+				compendium.Shutdown()
+				return
+			}
+			compendium.Shutdown()
+			text := "Пользователи  дискорд " + c.name + "\n\n"
+			for _, member := range members {
+				text += member.Name + "\n"
+			}
+
+			anArticle := tgbotapi.NewInlineQueryResultArticle(fromString.String(), c.name, "")
+			anArticle.InputMessageContent = tgbotapi.InputTextMessageContent{
+				Text:      text,
+				ParseMode: tgbotapi.ModeHTML,
+			}
+
+			res = append(res, anArticle)
+		}
+
+		_, err := t.t.Request(tgbotapi.InlineConfig{
+			InlineQueryID: m.ID,
+			Results:       res,
+			CacheTime:     0,
+		})
+		if err != nil {
+			t.log.ErrorErr(err)
+		}
+
 	} else if m.Query == "user" {
-		compendium, err := compendiumCli.GetCompendium(t.log, "", "testkey")
+		compendium, err := compendiumCli.GetCompendium(t.log, "", "HS UA Community")
 		if err != nil {
 			t.log.ErrorErr(err)
 			compendium.Shutdown()
@@ -205,7 +230,31 @@ func (t *Telegram) handleInlineQuery(m *tgbotapi.InlineQuery) {
 			t.log.ErrorErr(err)
 			return
 		}
-
 	}
-
 }
+
+//func (t *Telegram) handleChosenInlineResult(m *tgbotapi.ChosenInlineResult) {
+//	t.log.Info(fmt.Sprintf("handleChosenInlineResult  %+v \nFrom: %+v\n", m, m.From))
+//	if m.ResultID == "Corp1" {
+//		// Создаем меню с именами
+//		var members = []string{"Alice", "Bob", "Charlie", "David"}
+//		menu := make([][]tgbotapi.InlineKeyboardButton, 0)
+//		row := make([]tgbotapi.InlineKeyboardButton, 0)
+//		for _, member := range members {
+//			btn := tgbotapi.NewInlineKeyboardButtonData(member, member)
+//			row = append(row, btn)
+//		}
+//		menu = append(menu, row)
+//		chatid, err := strconv.ParseInt(m.InlineMessageID, 10, 64)
+//		if err != nil {
+//			t.log.ErrorErr(err)
+//		}
+//		msg := tgbotapi.NewMessage(chatid, "Выберите имя:")
+//
+//		msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(menu...)
+//
+//		if _, err := t.t.Send(msg); err != nil {
+//			log.Println("Error sending menu:", err)
+//		}
+//	}
+//}

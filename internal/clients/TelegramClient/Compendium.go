@@ -10,22 +10,19 @@ import (
 
 func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	after, found := strings.CutPrefix(m.Text, "%")
-	if found && (m.Chat.ID == -1002116077159 || m.Chat.ID == -1001556223093) { //HS UA Community and test room
+	_, c := t.CheckChannelCompendium(m.Chat.ID)
+	if found && (m.Chat.ID == -1002116077159 || m.Chat.ID == -1001194014201 || m.Chat.ID == -1001556223093) { //HS UA Community,UAGC, test room
 		switch after {
 		case "t i":
-			{
-				return t.techImage(chatid, m.From.UserName)
-			}
+			return t.techImage(chatid, m.From.UserName, c.storage)
 		case "users":
-			{
-				return t.getUsersCompendium(chatid)
-			}
+			return t.getUsersCompendium(chatid, c.storage)
 		default:
 			split := strings.Split(after, " ")
 			if len(split) > 1 {
 				if split[0] == "user" {
 					username := split[1]
-					return t.techImage(chatid, username)
+					return t.techImage(chatid, username, c.storage)
 				}
 			}
 		}
@@ -36,9 +33,9 @@ func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	}
 	return false
 }
-func (t *Telegram) techImage(chatid string, UserName string) bool {
+func (t *Telegram) techImage(chatid string, UserName string, storage string) bool {
 	t.ChatTyping(chatid)
-	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
+	compendium, err := compendiumCli.GetCompendium(t.log, "", storage)
 	if err != nil {
 		t.log.ErrorErr(err)
 		t.SendChannel(chatid, fmt.Sprintf("Произошол сбой нуждается в дороботке "))
@@ -60,10 +57,10 @@ func (t *Telegram) techImage(chatid string, UserName string) bool {
 	t.SendFilePic(chatid, "Вот картинка", userPic)
 	return true
 }
-func (t *Telegram) getUsersCompendium(chatid string) bool {
+func (t *Telegram) getUsersCompendium(chatid string, storage string) bool {
 	t.ChatTyping(chatid)
 	chatId, threadID := t.chat(chatid)
-	compendium, err := compendiumCli.GetCompendium(t.log, "5W9Z-FJgL-VKVW", "testkey")
+	compendium, err := compendiumCli.GetCompendium(t.log, "", storage)
 	if err != nil {
 		t.log.ErrorErr(err)
 		t.SendChannel(chatid, fmt.Sprintf("Произошол сбой нуждается в дороботке "))

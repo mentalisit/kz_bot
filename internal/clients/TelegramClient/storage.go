@@ -13,6 +13,14 @@ func (t *Telegram) BridgeCheckChannelConfigTg(mId string) (bool, models.BridgeCo
 	}
 	return false, models.BridgeConfig{}
 }
+func (t *Telegram) CheckChannelCompendium(chatId64 int64) (bool, corpCompendium) {
+	for _, config := range corp {
+		if config.chatid == chatId64 {
+			return true, config
+		}
+	}
+	return false, corpCompendium{}
+}
 
 // CheckChannelConfigTG RsConfig
 func (t *Telegram) CheckChannelConfigTG(chatid string) (channelGood bool, config models.CorporationConfig) {
