@@ -5,6 +5,7 @@ import (
 	"kz_bot/internal/models"
 	"strings"
 	"sync"
+	"time"
 )
 
 func (b *Bridge) logicMessage() {
@@ -20,7 +21,7 @@ func (b *Bridge) logicMessage() {
 		return
 	}
 	if b.in.Tip == "tge" {
-		b.EditMessageTG()
+		//b.EditMessageTG()// нужно исправить
 		return
 	}
 	var memory models.BridgeTempMemory
@@ -28,7 +29,15 @@ func (b *Bridge) logicMessage() {
 	if b.ifTipDs(&memory) {
 	} else if b.ifTipTg(&memory) {
 	}
+	go func() {
+		time.Sleep(20 * time.Second)
+		if b.in.Text != "" {
+			b.log.InfoStruct("зависло ", b.in)
+			b.log.InfoStruct("Reply", b.in.Reply)
+		}
+	}()
 	memory.Wg.Wait()
+	b.in = models.BridgeMessage{}
 	b.messages = append(b.messages, memory)
 }
 
@@ -117,10 +126,13 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 					wg.Add(1)
 					text := replaceTextMap(b.in.Text, c.MappingRoles)
 					textTg := fmt.Sprintf("%s\n%s", b.GetSenderName(), text)
-					if b.in.Reply != nil && b.in.Reply.Text != "" {
-						textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Reply.Text)
-					}
-					if b.in.FileUrl != "" {
+					if b.in.Reply != nil && (b.in.Reply.Text != "" || b.in.Reply.FileUrl != "") {
+						if b.in.Reply.Text != "" {
+							textTg = fmt.Sprintf("%s\n%s\nReply: %s", b.GetSenderName(), text, b.in.Reply.Text)
+						} else if b.in.Reply.FileUrl != "" {
+							go b.client.Tg.SendFileFromURLAsync(c.ChannelId, textTg, b.in.Reply.FileUrl, resultChannelTg, &wg)
+						}
+					} else if b.in.FileUrl != "" {
 						go b.client.Tg.SendFileFromURLAsync(c.ChannelId, textTg, b.in.FileUrl, resultChannelTg, &wg)
 					} else {
 						go b.client.Tg.SendChannelAsync(c.ChannelId, textTg, resultChannelTg, &wg)
@@ -129,30 +141,23 @@ func (b *Bridge) ifTipTg(memory *models.BridgeTempMemory) (ok bool) {
 			}
 		}
 
-		// Создаем канал для получения результатов (ID сообщений)
-		resultChannelDs := make(chan models.MessageDs, 10)
+		// DS
+		var chatids []string
 		for _, d := range b.in.Config.ChannelDs {
 			if d.ChannelId != "" {
-				texts := b.replaceTextMentionRsRole(replaceTextMap(b.in.Text, d.MappingRoles), d.GuildId)
-				wg.Add(1)
-				if b.in.Reply != nil {
-					if b.in.Reply.Text != "" {
-						if b.in.Reply.UserName == "gote1st_bot" {
-							at := strings.SplitN(b.in.Reply.Text, "\n", 2)
-							b.in.Reply.UserName = at[0]
-							b.in.Reply.Text = at[1]
-						}
-						go b.client.Ds.SendWebhookReplyAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
-					} else if b.in.Reply.FileUrl != "" {
-						go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Reply.FileUrl, b.in.Avatar, resultChannelDs, &wg)
-					}
-				} else if b.in.FileUrl != "" {
-					go b.client.Ds.SendFileAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.FileUrl, b.in.Avatar, resultChannelDs, &wg)
-				} else {
-					go b.client.Ds.SendWebhookAsync(texts, b.GetSenderName(), d.ChannelId, d.GuildId, b.in.Avatar, resultChannelDs, &wg)
-				}
+				chatids = append(chatids, d.ChannelId)
 			}
-
+		}
+		lenChannels := len(chatids)
+		resultChannelDs := make(chan models.MessageDs, lenChannels)
+		if b.in.Reply != nil && b.in.Reply.Text != "" && b.in.Reply.UserName == "gote1st_bot" {
+			at := strings.SplitN(b.in.Reply.Text, "\n", 2)
+			b.in.Reply.UserName = at[0]
+			b.in.Reply.Text = at[1]
+		}
+		if lenChannels > 0 {
+			wg.Add(lenChannels)
+			b.client.Ds.SendBridgeAsync(b.in.Text, b.GetSenderName(), chatids, "", b.in.FileUrl, b.in.Avatar, b.in.Reply, resultChannelDs, &wg)
 		}
 
 		go func() {

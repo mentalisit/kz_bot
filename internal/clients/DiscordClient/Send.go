@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"go.uber.org/zap"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/utils"
@@ -261,4 +262,58 @@ func (d *Discord) SendFilePic(channelID string, f *bytes.Reader) {
 		d.log.ErrorErr(err)
 		return
 	}
+}
+
+func (d *Discord) SendBridgeAsync(text, username string, channelID []string, guildId, fileURL, Avatar string, reply *models.BridgeMessageReply, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+	params := &discordgo.WebhookParams{
+		Content:   text,
+		Username:  username,
+		AvatarURL: Avatar,
+	}
+	if reply != nil {
+		params.Embeds = append(params.Embeds, &discordgo.MessageEmbed{
+			URL:         reply.FileUrl,
+			Description: reply.Text,
+			Timestamp:   time.Unix(reply.TimeMessage, 0).Format(time.RFC3339),
+			Color:       14232643,
+			Author: &discordgo.MessageEmbedAuthor{
+				Name:    reply.UserName,
+				IconURL: reply.Avatar,
+			},
+		})
+	} else if fileURL != "" {
+		params.Content += " " + fileURL
+		//fileName, i := utils.Convert(fileURL)
+		//reader := *bytes.NewReader(i)
+		//params.Files = []*discordgo.File{{
+		//	Name:   fileName, // Имя файла, которое будет видно в Discord
+		//	Reader: &reader}}
+	} else if text == "" {
+		d.log.Error("webhook error",
+			zap.String("text", text),
+			zap.String("username", username),
+			zap.Strings("channelID", channelID),
+			zap.String("fileURL", fileURL),
+			zap.String("Avatar", Avatar),
+			zap.Any("reply", reply))
+	}
+
+	for _, channelId := range channelID {
+		go sendWebhookBridge(channelId, params, web, resultChannel, wg)
+	}
+}
+func sendWebhookBridge(channelId string, webhook *discordgo.WebhookParams, web *transmitter.Transmitter, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	// Отправляем файл в Discord
+	m, err := web.Send(channelId, webhook)
+	if err != nil {
+		return
+	}
+	messageData := models.MessageDs{
+		MessageId: m.ID,
+		ChatId:    channelId,
+	}
+
+	resultChannel <- messageData
+	wg.Done()
 }

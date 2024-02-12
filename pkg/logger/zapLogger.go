@@ -105,27 +105,27 @@ func LoggerZapDEV() *Logger {
 func (l *Logger) ErrorErr(err error) {
 	l.ZapLogger.Error("Произошла ошибка", zap.Error(err))
 }
-func (l *Logger) Debug(s string) {
-	l.ZapLogger.Debug(s)
+func (l *Logger) Debug(s string, fields ...zap.Field) {
+	l.ZapLogger.Debug(s, fields...)
 }
-func (l *Logger) Info(s string) {
-	l.ZapLogger.Info(s)
+func (l *Logger) Info(s string, fields ...zap.Field) {
+	l.ZapLogger.Info(s, fields...)
 }
-func (l *Logger) Warn(s string) {
-	l.ZapLogger.Warn(s)
+func (l *Logger) Warn(s string, fields ...zap.Field) {
+	l.ZapLogger.Warn(s, fields...)
 }
-func (l *Logger) Error(s string) {
-	l.ZapLogger.Error(s)
+func (l *Logger) Error(s string, fields ...zap.Field) {
+	l.ZapLogger.Error(s, fields...)
 }
-func (l *Logger) Panic(s string) {
-	l.ZapLogger.Panic(s)
+func (l *Logger) Panic(s string, fields ...zap.Field) {
+	l.ZapLogger.Panic(s, fields...)
 }
-func (l *Logger) Fatal(s string) {
-	l.ZapLogger.Fatal(s)
+func (l *Logger) Fatal(s string, fields ...zap.Field) {
+	l.ZapLogger.Fatal(s, fields...)
 }
 
-func (l *Logger) InfoStruct(s string, i interface{}) {
-	l.ZapLogger.Info(fmt.Sprintf("%s: %+v \n", s, i))
+func (l *Logger) InfoStruct(s string, i interface{}, fields ...zap.Field) {
+	l.ZapLogger.Info(fmt.Sprintf("%s: %+v \n", s, i), fields...)
 }
 
 //func (l *Logger) Log(s string,err error)  {

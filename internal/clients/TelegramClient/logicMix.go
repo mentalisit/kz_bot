@@ -104,15 +104,11 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 
 				if m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated == nil {
 					mes.Reply = &models.BridgeMessageReply{
+						Text:        m.ReplyToMessage.Text,
 						UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 						TimeMessage: m.ReplyToMessage.Time().Unix(),
 						Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
-					}
-					if m.ReplyToMessage.Text != "" {
-						mes.Reply.Text = m.ReplyToMessage.Text
-					} else if len(m.ReplyToMessage.Photo) > 0 {
-						url, _ = t.t.GetFileDirectURL(m.ReplyToMessage.Photo[len(m.ReplyToMessage.Photo)-1].FileID)
-						mes.Reply.FileUrl = url
+						FileUrl:     t.handleDownload(m.ReplyToMessage),
 					}
 				}
 				if m.ForwardFrom != nil {
