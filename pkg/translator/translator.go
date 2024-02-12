@@ -42,6 +42,9 @@ func TranslateAnswer(text, langTarget string) string {
 	if langTarget == "ua" {
 		langTarget = "uk"
 	}
-	result, _ := translategooglefree.Translate(text, "auto", langTarget)
+	result, err := translategooglefree.Translate(text, "auto", langTarget)
+	if err != nil {
+		return text
+	}
 	return result
 }
