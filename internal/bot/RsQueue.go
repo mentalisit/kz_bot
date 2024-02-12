@@ -11,7 +11,7 @@ import (
 
 func (b *Bot) QueueLevel() {
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
 	defer cancel()
 
 	count, err := b.storage.Count.CountQueue(ctx, b.in.Lvlkz, b.in.Config.CorpName)
