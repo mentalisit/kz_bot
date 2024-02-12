@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"go.uber.org/zap"
 	"kz_bot/internal/clients/DiscordClient/transmitter"
 	"kz_bot/internal/models"
 	"kz_bot/pkg/utils"
@@ -264,8 +263,8 @@ func (d *Discord) SendFilePic(channelID string, f *bytes.Reader) {
 	}
 }
 
-func (d *Discord) SendBridgeAsync(text, username string, channelID []string, guildId, fileURL, Avatar string, reply *models.BridgeMessageReply, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
-	web := transmitter.New(d.s, guildId, "KzBot", true, d.log)
+func (d *Discord) SendBridgeAsync(text, username string, channelID []string, fileURL, Avatar string, reply *models.BridgeMessageReply, resultChannel chan<- models.MessageDs, wg *sync.WaitGroup) {
+	web := transmitter.New(d.s, "", "KzBot", true, d.log)
 	params := &discordgo.WebhookParams{
 		Content:   text,
 		Username:  username,
@@ -283,20 +282,12 @@ func (d *Discord) SendBridgeAsync(text, username string, channelID []string, gui
 			},
 		})
 	} else if fileURL != "" {
-		params.Content += " " + fileURL
+		params.Content = fileURL
 		//fileName, i := utils.Convert(fileURL)
 		//reader := *bytes.NewReader(i)
 		//params.Files = []*discordgo.File{{
 		//	Name:   fileName, // Имя файла, которое будет видно в Discord
 		//	Reader: &reader}}
-	} else if text == "" {
-		d.log.Error("webhook error",
-			zap.String("text", text),
-			zap.String("username", username),
-			zap.Strings("channelID", channelID),
-			zap.String("fileURL", fileURL),
-			zap.String("Avatar", Avatar),
-			zap.Any("reply", reply))
 	}
 
 	for _, channelId := range channelID {

@@ -303,3 +303,110 @@ func (t *Telegram) ChatTyping(chatId string) {
 	typingConfig.MessageThreadID = threadID
 	_, _ = t.t.Send(typingConfig)
 }
+
+func (t *Telegram) SendBridgeAsync(chatid []string, text string, fileURL string, resultChannel chan<- models.MessageTg, wg *sync.WaitGroup) {
+	var media []interface{}
+
+	if fileURL != "" {
+		fileURL = strings.TrimSpace(fileURL)
+		parsedURL, err := url.Parse(fileURL)
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+
+		// Используем path.Base для получения последней части URL, которая представляет собой имя файла
+		fileName := path.Base(parsedURL.Path)
+		parsedURL.RawQuery = ""
+		fileURL = parsedURL.String()
+
+		// Скачиваем файл по URL
+		resp, err := http.Get(fileURL)
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+		defer resp.Body.Close()
+
+		// Читаем содержимое файла
+		buffer := new(bytes.Buffer)
+		_, err = io.Copy(buffer, resp.Body)
+		if err != nil {
+			t.log.ErrorErr(err)
+			return
+		}
+
+		file := tgbotapi.FileBytes{
+			Name:  fileName,
+			Bytes: buffer.Bytes(),
+		}
+
+		switch filepath.Ext(fileName) {
+
+		case ".jpg", ".jpe", ".png":
+			pc := tgbotapi.NewInputMediaPhoto(file)
+			if text != "" {
+				pc.Caption = text
+			}
+			media = append(media, pc)
+		case ".mp4", ".m4v":
+			vc := tgbotapi.NewInputMediaVideo(file)
+			if text != "" {
+				vc.Caption = text
+			}
+			media = append(media, vc)
+		case ".mp3", ".oga":
+			ac := tgbotapi.NewInputMediaAudio(file)
+			if text != "" {
+				ac.Caption = text
+			}
+			media = append(media, ac)
+		default:
+			dc := tgbotapi.NewInputMediaDocument(file)
+			if text != "" {
+				dc.Caption = text
+			}
+			media = append(media, dc)
+		}
+	}
+	for _, chat := range chatid {
+		chatId, threadID := t.chat(chat)
+
+		if len(media) != 0 {
+			go func() {
+				defer wg.Done()
+				mg := tgbotapi.MediaGroupConfig{
+					BaseChat: tgbotapi.BaseChat{
+						ChatID:          chatId,
+						MessageThreadID: threadID,
+					},
+					Media: media,
+				}
+				m, err := t.t.SendMediaGroup(mg)
+				if err != nil {
+					t.log.ErrorErr(err)
+					return
+				}
+
+				messageData := models.MessageTg{
+					MessageId: strconv.Itoa(m[0].MessageID),
+					ChatId:    chat,
+				}
+				resultChannel <- messageData
+			}()
+
+		} else {
+			go func() {
+				defer wg.Done()
+				m := tgbotapi.NewMessage(chatId, text)
+				m.MessageThreadID = threadID
+				tMessage, _ := t.t.Send(m)
+				messageData := models.MessageTg{
+					MessageId: strconv.Itoa(tMessage.MessageID),
+					ChatId:    chat,
+				}
+				resultChannel <- messageData
+			}()
+		}
+	}
+}

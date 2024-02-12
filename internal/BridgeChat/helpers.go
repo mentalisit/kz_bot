@@ -117,3 +117,36 @@ func (b *Bridge) replaceTextMentionRsRole(input, guildId string) string {
 	})
 	return output
 }
+func (b *Bridge) Channels() (chatIdsTG, chatIdsDS []string) {
+	for _, c := range b.in.Config.ChannelTg {
+		if c.ChannelId != b.in.ChatId {
+			if c.ChannelId != "" {
+				chatIdsTG = append(chatIdsTG, c.ChannelId)
+			}
+		}
+	}
+	for _, d := range b.in.Config.ChannelDs {
+		if d.ChannelId != b.in.ChatId {
+			if d.ChannelId != "" {
+				chatIdsDS = append(chatIdsDS, d.ChannelId)
+			}
+		}
+	}
+	return chatIdsTG, chatIdsDS
+}
+func (b *Bridge) addCurrentMessage(memory *models.BridgeTempMemory) {
+	memory.RelayName = b.in.Config.NameRelay
+	memory.Timestamp = b.in.TimestampUnix
+	if b.in.Tip == "tg" {
+		memory.MessageTg = append(memory.MessageTg, models.MessageTg{
+			MessageId: b.in.MesId,
+			ChatId:    b.in.ChatId,
+		})
+	} else if b.in.Tip == "ds" {
+		memory.MessageDs = append(memory.MessageDs, models.MessageDs{
+			MessageId: b.in.MesId,
+			ChatId:    b.in.ChatId,
+		})
+	}
+
+}
