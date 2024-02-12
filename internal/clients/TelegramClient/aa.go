@@ -62,7 +62,7 @@ func (t *Telegram) EditMessageTextKey(chatid string, editMesId int, textEdit str
 
 	_, err = t.t.Send(mes)
 	if err != nil {
-		t.log.InfoStruct("error EditMessageTextKey ", err)
+		//t.log.InfoStruct("error EditMessageTextKey ", err)
 	}
 }
 func (t *Telegram) EditText(chatid string, editMesId int, textEdit string) {
