@@ -91,7 +91,7 @@ func (b *Bot) EventPoints(numKZ, points int) {
 			if pointsGood > 0 && !admin {
 				message = b.GetLang("dannieKzUjeVneseni")
 			} else if pointsGood == 0 || admin {
-				countEvent := b.storage.Event.UpdatePoints(b.in.Config.CorpName, numKZ, points, event1)
+				countEvent := b.storage.Event.UpdatePoints(b.in.Config.CorpName, numKZ, points, event1) //if error
 				message = fmt.Sprintf("%s %d %s", b.in.Name, points, b.GetLang("ochki vnesen"))
 				b.changeMessageEvent(points, countEvent, numKZ, event1)
 			}
@@ -109,8 +109,8 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 		fmt.Println("in changeMessageEvent ", b.in)
 	}
 	nd, nt, t := b.storage.Event.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
-	mes1 := fmt.Sprintf("%s №%d (%s)\n", b.GetLang("iventIgra"), t.Numberkz, t.Lvlkz)
-	mesOld := fmt.Sprintf("%s %s %d\n", b.GetLang("vneseno"), b.in.Name, points)
+	mes1 := fmt.Sprintf("🔴 %s №%d (%s)\n", b.GetLang("iventIgra"), t.Numberkz, t.Lvlkz)
+	mesOld := fmt.Sprintf("🎉 %s %s %d\n", b.GetLang("vneseno"), b.in.Name, points)
 	if countEvent == 1 {
 		if b.in.Config.DsChannel != "" {
 			text := fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld)

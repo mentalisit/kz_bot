@@ -237,7 +237,7 @@ func (b *Bot) RsMinus() {
 		fmt.Printf("\n in RsMinus %+v\n", b.in)
 	}
 	b.iftipdelete()
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 
 	CountNames, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName) //проверяем есть ли игрок в очереди

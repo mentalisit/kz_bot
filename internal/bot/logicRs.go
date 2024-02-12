@@ -208,7 +208,7 @@ func (b *Bot) lRsStart() (bb bool) {
 
 // ivent not lang
 func (b *Bot) lEvent() (bb bool) {
-	re7 := regexp.MustCompile(`^(["К"]|["к"]|["K"]|["k"])\s([0-9]+)\s([0-9]+)$`) // ивент
+	re7 := regexp.MustCompile(`^(["К"]|["к"]|["K"]|["k"])\s+([0-9]+)\s+([0-9]+)$`) // ивент
 	arr7 := (re7.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr7) > 0 {
 		bb = true

@@ -14,7 +14,7 @@ func (b *Bot) RsStart() {
 	if b.debug {
 		fmt.Println("in RsStart", b.in)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 	b.iftipdelete()
 	countName, err := b.storage.Count.СountName(ctx, b.in.Name, b.in.Lvlkz, b.in.Config.CorpName)
@@ -48,7 +48,7 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, _, _, _ := b.nameMention(u, ds)
-						text := fmt.Sprintf("%s%s (%d) %s \n\n1. %s\n%s %s",
+						text := fmt.Sprintf("🚀 %s%s (%d) %s \n\n1. %s\n%s %s",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz,
 							b.GetLang("bilaZapushenaNe"), name1, b.GetLang("Vigru"), textEvent)
 
@@ -70,7 +70,7 @@ func (b *Bot) RsStart() {
 					go func() {
 						name1, _, _, _ := b.nameMention(u, tg)
 						go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-						text := fmt.Sprintf("%s%s (%d) %s \n\n1. %s\n%s %s",
+						text := fmt.Sprintf("🚀 %s%s (%d) %s \n\n1. %s\n%s %s",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz,
 							b.GetLang("bilaZapushenaNe"), name1, b.GetLang("Vigru"), textEvent)
 						tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
@@ -84,7 +84,7 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, name2, _, _ := b.nameMention(u, ds)
-						text1 := fmt.Sprintf("%s%s (%d) %s \n\n",
+						text1 := fmt.Sprintf("🚀 %s%s (%d) %s \n\n",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz, b.GetLang("bilaZapushenaNe"))
 						text2 := fmt.Sprintf("%s\n%s\n%s %s", name1, name2, b.GetLang("Vigru"), textEvent)
 						text := text1 + text2
@@ -104,7 +104,7 @@ func (b *Bot) RsStart() {
 					go func() {
 						name1, name2, _, _ := b.nameMention(u, tg)
 						go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-						text1 := fmt.Sprintf("%s%s (%d) %s \n\n",
+						text1 := fmt.Sprintf("🚀 %s%s (%d) %s \n\n",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz, b.GetLang("bilaZapushenaNe"))
 						text2 := fmt.Sprintf("%s\n%s\n%s %s", name1, name2, b.GetLang("Vigru"), textEvent)
 						text := text1 + text2
@@ -119,7 +119,7 @@ func (b *Bot) RsStart() {
 					b.wg.Add(1)
 					go func() {
 						name1, name2, name3, _ := b.nameMention(u, ds)
-						text := fmt.Sprintf("%s%s (%d) %s \n\n%s\n%s\n%s\n%s %s",
+						text := fmt.Sprintf("🚀 %s%s (%d) %s \n\n%s\n%s\n%s\n%s %s",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz, b.GetLang("bilaZapushenaNe"),
 							name1, name2, name3, b.GetLang("Vigru"), textEvent)
 						if b.in.Tip == ds {
@@ -137,7 +137,7 @@ func (b *Bot) RsStart() {
 					go func() {
 						name1, name2, name3, _ := b.nameMention(u, tg)
 						go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
-						text := fmt.Sprintf("%s%s (%d) %s \n\n%s\n%s\n%s\n%s %s",
+						text := fmt.Sprintf("🚀 %s%s (%d) %s \n\n%s\n%s\n%s\n%s %s",
 							b.GetLang("ocheredKz"), b.in.Lvlkz, numberkz, b.GetLang("bilaZapushenaNe"),
 							name1, name2, name3, b.GetLang("Vigru"), textEvent)
 						tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
