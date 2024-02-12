@@ -19,7 +19,7 @@ func (t *Telegram) CheckChannelCompendium(chatId64 int64) (bool, corpCompendium)
 			return true, config
 		}
 	}
-	return false, corpCompendium{}
+	return false, corpCompendium{storage: "HS UA Community"}
 }
 
 // CheckChannelConfigTG RsConfig

@@ -11,7 +11,7 @@ import (
 func (t *Telegram) prefixCompendium(m *tgbotapi.Message, chatid string) bool {
 	after, found := strings.CutPrefix(m.Text, "%")
 	_, c := t.CheckChannelCompendium(m.Chat.ID)
-	if found && (m.Chat.ID == -1002116077159 || m.Chat.ID == -1001194014201 || m.Chat.ID == -1001556223093) { //HS UA Community,UAGC, test room
+	if found && (m.Chat.ID == -1002116077159 || m.Chat.ID == -1001194014201 || m.Chat.ID == -1001556223093 || m.Chat.ID == -1001873861265) { //HS UA Community,UAGC, test room,bz
 		switch after {
 		case "t i":
 			return t.techImage(chatid, m.From.UserName, c.storage)
