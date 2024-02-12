@@ -10,7 +10,7 @@ func (b *Bot) EventText() (text string, numE int) {
 		return "", 0
 	} else if numberevent > 0 { //активный ивент
 		numE = b.storage.Event.NumberQueueEvents(b.in.Config.CorpName) //номер кз number FROM rsevent
-		text = fmt.Sprintf("\nID %d %s\n", numE, b.GetLang("dly iventa"))
+		text = fmt.Sprintf("\nID %d %s\nㅤ\nㅤ", numE, b.GetLang("dly iventa"))
 		return text, numE
 	}
 	return text, numE
@@ -110,7 +110,7 @@ func (b *Bot) changeMessageEvent(points, countEvent, numberkz, numberEvent int) 
 	}
 	nd, nt, t := b.storage.Event.ReadNamesMessage(b.in.Config.CorpName, numberkz, numberEvent)
 	mes1 := fmt.Sprintf("🔴 %s №%d (%s)\n", b.GetLang("iventIgra"), t.Numberkz, t.Lvlkz)
-	mesOld := fmt.Sprintf("🎉 %s %s %d\n", b.GetLang("vneseno"), b.in.Name, points)
+	mesOld := fmt.Sprintf("🎉 %s %s %d\nㅤ\nㅤ", b.GetLang("vneseno"), b.in.Name, points)
 	if countEvent == 1 {
 		if b.in.Config.DsChannel != "" {
 			text := fmt.Sprintf("%s %s \n%s", mes1, nd.Name1, mesOld)
