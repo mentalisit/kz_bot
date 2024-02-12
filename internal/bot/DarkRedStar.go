@@ -32,7 +32,6 @@ func (b *Bot) lDarkRsPlus() bool {
 	re2 := regexp.MustCompile(`^([7-9]|[1][0-2])([\*]|[-])$`) // две переменные
 	arr2 := (re2.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr2) > 0 {
-		fmt.Println(b.in.Mtext)
 		kz = true
 		b.in.Lvlkz = dark + arr2[0][1]
 		kzb = arr2[0][2]
@@ -41,12 +40,26 @@ func (b *Bot) lDarkRsPlus() bool {
 	re2d := regexp.MustCompile(`^(d)([7-9]|[1][0-2])([\+]|[-])$`) // две переменные
 	arr2d := (re2d.FindAllStringSubmatch(b.in.Mtext, -1))
 	if len(arr2d) > 0 {
-		fmt.Println(b.in.Mtext)
 		kz = true
 		b.in.Lvlkz = dark + arr2d[0][2]
 		kzb = arr2d[0][3]
 		b.in.Timekz = "30"
 	}
+
+	//solo
+	re2s := regexp.MustCompile(`^([s]|[S])([7-9]|[1][0-2])(\+)$`) // две переменные
+	arr2s := (re2s.FindAllStringSubmatch(b.in.Mtext, -1))
+	if len(arr2s) > 0 {
+		kz = true
+		b.in.Lvlkz = arr2s[0][2]
+		kzbs := arr2s[0][3]
+		b.in.Timekz = "1"
+		if kzbs == "+" {
+			b.RsSoloPlus()
+			return kz
+		}
+	}
+
 	switch kzb {
 	case "*":
 		b.RsDarkPlus()
@@ -182,7 +195,7 @@ func (b *Bot) RsDarkPlus() {
 					n1, n2, _, n3 := b.nameMention(u, ds)
 					go b.client.Ds.DeleteMessage(b.in.Config.DsChannel, u.User1.Dsmesid)
 					go b.client.Ds.SendChannelDelSecond(b.in.Config.DsChannel,
-						" 3/3 "+b.in.Name+" "+b.GetLang("prisoedenilsyKocheredi"), 10)
+						"🚀 3/3 "+b.in.Name+" "+b.GetLang("prisoedenilsyKocheredi"), 10)
 					text := fmt.Sprintf("3/3 %s%s %s\n"+
 						" %s\n"+
 						" %s\n"+
@@ -210,7 +223,7 @@ func (b *Bot) RsDarkPlus() {
 					go b.client.Tg.DelMessage(b.in.Config.TgChannel, u.User1.Tgmesid)
 					go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel,
 						b.in.Name+b.GetLang("zakrilOcheredTKz")+b.in.Lvlkz[1:], 10)
-					text := fmt.Sprintf("%s%s %s\n"+
+					text := fmt.Sprintf("🚀 %s%s %s\n"+
 						"%s\n"+
 						"%s\n"+
 						"%s\n"+
@@ -267,4 +280,47 @@ func (b *Bot) lDarkSubs() (bb bool) {
 		b.Unsubscribe(3)
 	}
 	return bb
+}
+func (b *Bot) RsSoloPlus() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.debug {
+		fmt.Printf("\n\nin RsSoloPlus %+v\n", b.in)
+	}
+	b.iftipdelete()
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+	numkzN, err2 := b.storage.Count.CountNumberNameActive1(ctx, b.in.Lvlkz[1:], b.in.Config.CorpName, b.in.Name) //проверяем количество боёв по уровню кз игрока
+	if err2 != nil {
+		return
+	}
+	numkzL, err3 := b.storage.DbFunc.NumberQueueLvl(ctx, b.in.Lvlkz[1:], b.in.Config.CorpName) //проверяем какой номер боя определенной красной звезды
+	if err3 != nil {
+		return
+	}
+	dsmesid := ""
+	tgmesid := 0
+	textEvent, numkzEvent := b.EventText()
+	numberevent := b.storage.Event.NumActiveEvent(b.in.Config.CorpName) //получаем номер ивета если он активен
+	if numberevent > 0 {
+		numkzL = numkzEvent
+	}
+	text := fmt.Sprintf("Соло 😱 %s \n🤘  %s \n%s%s", b.in.Lvlkz, b.in.NameMention, b.GetLang("Vigru"), textEvent)
+	if b.in.Config.DsChannel != "" {
+		if b.in.Tip == ds {
+			dsmesid = b.client.Ds.SendWebhook(text, "КзБот", b.in.Config.DsChannel, b.in.Config.Guildid, b.in.Ds.Avatar)
+		} else {
+			dsmesid = b.client.Ds.Send(b.in.Config.DsChannel, text)
+		}
+	}
+	if b.in.Config.TgChannel != "" {
+		tgmesid = b.client.Tg.SendChannel(b.in.Config.TgChannel, text)
+	}
+
+	b.storage.DbFunc.InsertQueue(ctx, dsmesid, "", b.in.Config.CorpName, b.in.Name, b.in.NameMention, b.in.Tip, b.in.Lvlkz, b.in.Timekz, tgmesid, numkzN)
+	b.storage.Update.UpdateCompliteRS(ctx, b.in.Lvlkz, dsmesid, tgmesid, "", numkzL, numberevent, b.in.Config.CorpName)
+
+	//проверка есть ли игрок в других чатах
+	go b.elseChat([]string{b.in.Name})
+
 }
