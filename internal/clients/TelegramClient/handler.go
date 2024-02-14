@@ -5,8 +5,10 @@ import (
 	"github.com/gofrs/uuid"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"kz_bot/internal/compendiumCli"
+	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"strconv"
+	"strings"
 )
 
 const nickname = "Для того что бы БОТ мог Вас индентифицировать, создайте уникальный НикНей в настройках. Вы можете использовать a-z, 0-9 и символы подчеркивания. Минимальная длина - 5 символов."
@@ -67,7 +69,7 @@ func (t *Telegram) nameNick(UserName, FirstName string, chatid string) (name str
 	return name
 }
 
-func (t *Telegram) handleDownload(message *tgbotapi.Message) (url string) {
+func (t *Telegram) handleDownload(message *tgbotapi.Message) (url, fileName string) {
 	size := int64(0)
 	switch {
 	case message.Sticker != nil:
@@ -79,12 +81,15 @@ func (t *Telegram) handleDownload(message *tgbotapi.Message) (url string) {
 	case message.Video != nil:
 		url, _ = t.t.GetFileDirectURL(message.Video.FileID)
 		size = message.Video.FileSize
+		fileName = message.Video.FileName
 	case message.Audio != nil:
 		url, _ = t.t.GetFileDirectURL(message.Audio.FileID)
 		size = message.Audio.FileSize
+		fileName = message.Audio.FileName
 	case message.Document != nil:
 		url, _ = t.t.GetFileDirectURL(message.Document.FileID)
 		size = message.Document.FileSize
+		fileName = message.Document.FileName
 	case message.Photo != nil:
 		photos := message.Photo
 		size = int64(photos[len(photos)-1].FileSize)
@@ -94,10 +99,12 @@ func (t *Telegram) handleDownload(message *tgbotapi.Message) (url string) {
 	if size > 25000000 {
 		fmt.Println("big size")
 		message.Text += " файл слишком большой для пересылки"
-		return ""
+		return "", ""
 	}
-
-	return url
+	var urlReplace = "https://api.telegram.org/file/bot" + config.Instance.Token.TokenTelegram
+	url = strings.Replace(url, urlReplace, "http://mentalisit.sytes.net:4243", 1)
+	fmt.Println(url)
+	return url, fileName
 }
 
 func (t *Telegram) handlePoll(message *tgbotapi.Message) {

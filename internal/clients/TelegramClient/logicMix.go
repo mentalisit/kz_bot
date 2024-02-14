@@ -20,7 +20,7 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 	if t.prefixCompendium(m, ChatId) {
 		return
 	}
-	url := t.handleDownload(m)
+
 	if m.Text == "" && m.Caption != "" {
 		m.Text = m.Caption
 	}
@@ -79,15 +79,10 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 	if tg {
 		go func() {
 			if len(m.Text) < 3500 { //игнорируем сообщения большой длины
+				url, fileName := t.handleDownload(m)
 				t.handlePoll(m)
-				if m.Document != nil {
-					url, _ = t.t.GetFileDirectURL(m.Document.FileID)
-					if m.Text == "" {
-						m.Text = m.Document.FileName
-					}
-				}
-				if len(m.Photo) > 0 {
-					url, _ = t.t.GetFileDirectURL(m.Photo[len(m.Photo)-1].FileID)
+				if m.Text == "" {
+					m.Text = fileName
 				}
 				mes := models.BridgeMessage{
 					Text:          m.Text,
@@ -103,12 +98,17 @@ func (t *Telegram) logicMix(m *tgbotapi.Message, edit bool) {
 				}
 
 				if m.ReplyToMessage != nil && m.ReplyToMessage.ForumTopicCreated == nil {
+					url, fileName = t.handleDownload(m.ReplyToMessage)
+
 					mes.Reply = &models.BridgeMessageReply{
 						Text:        m.ReplyToMessage.Text,
 						UserName:    t.nameOrNick(m.ReplyToMessage.From.UserName, m.ReplyToMessage.From.FirstName),
 						TimeMessage: m.ReplyToMessage.Time().Unix(),
 						Avatar:      t.GetAvatar(m.ReplyToMessage.From.ID, m.ReplyToMessage.From.String()),
-						FileUrl:     t.handleDownload(m.ReplyToMessage),
+						FileUrl:     url,
+					}
+					if mes.Reply.Text == "" {
+						mes.Reply.Text = fileName
 					}
 				}
 				if m.ForwardFrom != nil {
