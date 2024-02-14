@@ -4,8 +4,6 @@ import (
 	"kz_bot/internal/clients/DiscordClient"
 	"kz_bot/internal/clients/TelegramClient"
 	"kz_bot/pkg/logger"
-	"time"
-
 	//"kz_bot/internal/clients/WhatsappClient"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
@@ -24,25 +22,20 @@ func NewClients(log *logger.Logger, st *storage.Storage, cfg *config.ConfigBot) 
 
 	c.Tg = TelegramClient.NewTelegram(log, st, cfg)
 
-	go c.deleteMessageTimer()
 	return c
 }
-func (c *Clients) deleteMessageTimer() {
+func (c *Clients) DeleteMessageTimer() {
 	if config.Instance.BotMode != "dev" {
-		for {
-			<-time.After(1 * time.Minute)
-			m := c.storage.Temp.TimerDeleteMessage()
-			if len(m) > 0 {
-				for _, timer := range m {
-					if timer.Dsmesid != "" {
-						go c.Ds.DeleteMesageSecond(timer.Dschatid, timer.Dsmesid, timer.Timed)
-					}
-					if timer.Tgmesid != "" {
-						go c.Tg.DelMessageSecond(timer.Tgchatid, timer.Tgmesid, timer.Timed)
-					}
+		m := c.storage.Temp.TimerDeleteMessage()
+		if len(m) > 0 {
+			for _, timer := range m {
+				if timer.Dsmesid != "" {
+					go c.Ds.DeleteMesageSecond(timer.Dschatid, timer.Dsmesid, timer.Timed)
+				}
+				if timer.Tgmesid != "" {
+					go c.Tg.DelMessageSecond(timer.Tgchatid, timer.Tgmesid, timer.Timed)
 				}
 			}
 		}
 	}
-
 }

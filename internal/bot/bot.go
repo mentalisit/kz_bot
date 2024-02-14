@@ -68,12 +68,17 @@ func (b *Bot) loadInbox() {
 }
 func (b *Bot) RemoveMessage() { //цикл для удаления сообщений
 	for {
-		<-time.After(1 * time.Minute)
-		b.MinusMin() //ежеминутное обновление активной очереди
-		b.Autohelp() //автозапуск справки
-		time.Sleep(1 * time.Second)
-	}
+		now := time.Now()
+		if now.Second() == 0 {
+			b.MinusMin() //ежеминутное обновление активной очереди
+			b.client.DeleteMessageTimer()
 
+			if now.Minute() == 0 {
+				b.Autohelp() //автозапуск справки
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}
 }
 
 // LogicRs логика игры
