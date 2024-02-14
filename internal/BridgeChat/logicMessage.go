@@ -5,7 +5,6 @@ import (
 	"kz_bot/internal/models"
 	"strings"
 	"sync"
-	"time"
 )
 
 func (b *Bridge) logicMessage() {
@@ -64,14 +63,6 @@ func (b *Bridge) logicMessage() {
 			memory.MessageDs = append(memory.MessageDs, value)
 		}
 		memory.Wg.Done()
-	}()
-
-	go func() {
-		time.Sleep(20 * time.Second)
-		if b.in.Text != "" {
-			b.log.InfoStruct("зависло ", b.in)
-			b.log.InfoStruct("Reply", b.in.Reply)
-		}
 	}()
 	memory.Wg.Wait()
 	b.in = models.BridgeMessage{}
