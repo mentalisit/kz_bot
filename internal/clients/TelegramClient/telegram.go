@@ -97,7 +97,7 @@ func (t *Telegram) update() {
 					t.log.InfoStruct("pool ", update.Poll)
 				} else if update.EditedChannelPost != nil {
 
-				} else if update.EditedChannelPost != nil {
+				} else if update.ChannelPost != nil {
 
 				} else {
 					t.log.Info(fmt.Sprintf(" else update: %+v \n", update))
