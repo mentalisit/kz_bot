@@ -99,7 +99,7 @@ func (b *Bot) LogicRs() {
 			//} else if b.SendALLChannel() {
 		} else {
 			b.cleanChat()
-			go b.Transtale()
+			//go b.Transtale()//нужно решить проблему с ошибками
 		}
 
 	} else if b.in.Option.MinusMin {
@@ -150,7 +150,7 @@ func (b *Bot) logicIfText() bool {
 
 func (b *Bot) bridge() bool {
 	if b.in.Config.Forward {
-		go b.Transtale()
+		//go b.Transtale()
 		if b.in.Tip == ds {
 			text := fmt.Sprintf("(DS)%s \n%s", b.in.Name, b.in.Mtext)
 			b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text, 180)
