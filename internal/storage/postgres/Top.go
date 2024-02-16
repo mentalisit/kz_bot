@@ -105,8 +105,8 @@ func (d *Db) TopTemp(ctx context.Context) string {
 func (d *Db) TopTempEvent(ctx context.Context) string {
 	number := 1
 	var (
-		name, message2    string
-		numkz, id, points int
+		name, message2               string
+		numkz, id, points, allpoints int
 	)
 
 	sel := "SELECT * FROM kzbot.temptopevent ORDER BY points DESC"
@@ -120,6 +120,7 @@ func (d *Db) TopTempEvent(ctx context.Context) string {
 		results.Scan(&id, &name, &numkz, &points)
 		message2 = message2 + fmt.Sprintf("%d. %s - %d (%d)\n", number, name, numkz, points)
 		number = number + 1
+		allpoints += points
 	}
 
 	_, err = d.db.Exec(ctx, "DELETE FROM kzbot.temptopevent")
@@ -127,7 +128,7 @@ func (d *Db) TopTempEvent(ctx context.Context) string {
 		d.log.ErrorErr(err)
 		return ""
 	}
-	return message2
+	return fmt.Sprintf("%s\nTotal: %d", message2, allpoints)
 }
 func (d *Db) TopAll(ctx context.Context, CorpName string) bool {
 	good := false
