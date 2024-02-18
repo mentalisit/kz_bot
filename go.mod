@@ -20,6 +20,7 @@ require (
 	github.com/Benau/go_rlottie v0.0.0-20210807002906-98c1b2421989 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/av-elier/go-decimal-to-rational v0.0.0-20191127152832-89e6aad02ecf // indirect
+	github.com/bas24/googletranslatefree v0.0.0-20231117033553-f5859fe54d30 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect

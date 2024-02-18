@@ -2,8 +2,8 @@ package DiscordClient
 
 import (
 	"fmt"
+	gt "github.com/bas24/googletranslatefree"
 	"github.com/bwmarrin/discordgo"
-	"kz_bot/pkg/translator"
 	"regexp"
 	"strconv"
 	"strings"
@@ -220,7 +220,7 @@ func (d *Discord) latinOrNot(m *discordgo.MessageCreate) {
 			if gostPattern.MatchString(channel.Name) {
 				//возможно нужно доп условие
 				go func() {
-					text2 := translator.TranslateAnswer(m.Content, "ru")
+					text2, _ := gt.Translate(m.Content, "auto", "ru")
 					mes := d.SendWebhook(text2, m.Author.Username, m.ChannelID, m.GuildID, m.Author.AvatarURL("128"))
 					d.DeleteMesageSecond(m.ChannelID, mes, 90)
 				}()
@@ -229,7 +229,7 @@ func (d *Discord) latinOrNot(m *discordgo.MessageCreate) {
 	}
 }
 func (d *Discord) transtale(m *discordgo.Message, lang string, r *discordgo.MessageReactionAdd) {
-	text2 := translator.TranslateAnswer(m.Content, lang)
+	text2, _ := gt.Translate(m.Content, "auto", lang)
 	go func() {
 		time.Sleep(30 * time.Second)
 		err := d.s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)

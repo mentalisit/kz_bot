@@ -9,6 +9,8 @@ github.com/Masterminds/semver/v3 v3.1.1 h1:hLg3sBzpNErnxhQtUy/mmLR2I9foDujNK030I
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/av-elier/go-decimal-to-rational v0.0.0-20191127152832-89e6aad02ecf h1:csfEAyvOG4/498Q4SyF48ysFqQC9ESj3o8ppRtg+Rog=
 github.com/av-elier/go-decimal-to-rational v0.0.0-20191127152832-89e6aad02ecf/go.mod h1:POPnOeaYF7U9o3PjLTb9icRfEOxjBNLRXh9BLximJGM=
+github.com/bas24/googletranslatefree v0.0.0-20231117033553-f5859fe54d30 h1:dvq7NKKclmPTAaB4iPRo5L4EBSxCIlVI1nxCRqX8fVA=
+github.com/bas24/googletranslatefree v0.0.0-20231117033553-f5859fe54d30/go.mod h1:ntTdGCe6WzFmHjox8vK2FZ2KLyh0IFxw43B6XCg0zf4=
 github.com/bwmarrin/discordgo v0.27.1 h1:ib9AIc/dom1E/fSIulrBwnez0CToJE113ZGt4HoliGY=
 github.com/bwmarrin/discordgo v0.27.1/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=

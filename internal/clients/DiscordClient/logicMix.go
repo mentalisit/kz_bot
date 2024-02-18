@@ -244,7 +244,7 @@ func (d *Discord) readReactionTranslate(r *discordgo.MessageReactionAdd, m *disc
 		case "🇷🇺":
 			d.transtale(m, "ru", r)
 		case "🇺🇦":
-			d.transtale(m, "ua", r)
+			d.transtale(m, "uk", r)
 		case "🇬🇧":
 			d.transtale(m, "en", r)
 		case "🇧🇾":

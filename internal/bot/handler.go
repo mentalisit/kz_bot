@@ -3,9 +3,9 @@ package bot
 import (
 	"context"
 	"fmt"
+	gt "github.com/bas24/googletranslatefree"
 	"kz_bot/internal/compendiumCli"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/translator"
 	"kz_bot/pkg/utils"
 	"strings"
 )
@@ -232,15 +232,18 @@ func containsSymbolD(s string) (dark bool, result string) {
 }
 
 func (b *Bot) Transtale() {
-	text2 := translator.TranslateAnswer(b.in.Mtext, b.in.Config.Country)
-	if b.in.Mtext != text2 {
-		if b.in.Tip == ds {
-			go func() {
-				m := b.client.Ds.SendWebhook(text2, b.in.Name, b.in.Config.DsChannel, b.in.Config.Guildid, b.in.Ds.Avatar)
-				b.client.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m, 90)
-			}()
-		} else if b.in.Tip == tg {
-			go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text2, 90)
+	text2, err := gt.Translate(b.in.Mtext, "auto", b.in.Config.Country)
+	if err == nil {
+		if b.in.Mtext != text2 {
+			if b.in.Tip == ds {
+				go func() {
+					m := b.client.Ds.SendWebhook(text2, b.in.Name, b.in.Config.DsChannel, b.in.Config.Guildid, b.in.Ds.Avatar)
+					b.client.Ds.DeleteMesageSecond(b.in.Config.DsChannel, m, 90)
+				}()
+			} else if b.in.Tip == tg {
+				go b.client.Tg.SendChannelDelSecond(b.in.Config.TgChannel, text2, 90)
+			}
 		}
 	}
+
 }
