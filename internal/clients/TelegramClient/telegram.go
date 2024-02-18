@@ -107,7 +107,7 @@ func (t *Telegram) update() {
 	}
 }
 func (t *Telegram) ifPrivatMesage(m *tgbotapi.Message) {
-	if m.From.UserName == "Mentalisit" && m.Text == "/update" {
+	if m.From.UserName == "mentalisit" && m.Text == "/update" {
 		utils.UpdateRun()
 	} else {
 		t.SendChannel(strconv.FormatInt(m.Chat.ID, 10), "сорян это в разработке \n"+
