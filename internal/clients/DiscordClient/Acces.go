@@ -34,8 +34,6 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
 		case "паника":
-			killProcces("cmd.exe")
-			killProcces("kz_bot.exe")
 			d.log.Panic("перезагрузка по требованию")
 		case "removeCommand":
 			d.removeCommand(m.GuildID)

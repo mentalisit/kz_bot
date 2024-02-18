@@ -4,15 +4,17 @@ go 1.20
 
 require (
 	github.com/Benau/tgsconverter v0.0.0-20210809170556-99f4a4f6337f
+	github.com/bas24/googletranslatefree v0.0.0-20231117033553-f5859fe54d30
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/fogleman/gg v1.3.0
-	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/matterbridge/telegram-bot-api/v6 v6.5.0
+	github.com/mentalisit/logger v0.0.0-20240218182517-7d7668adb379
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	go.mongodb.org/mongo-driver v1.13.1
+	go.mongodb.org/mongo-driver v1.14.0
 	go.uber.org/zap v1.26.0
 )
 
@@ -20,7 +22,6 @@ require (
 	github.com/Benau/go_rlottie v0.0.0-20210807002906-98c1b2421989 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/av-elier/go-decimal-to-rational v0.0.0-20191127152832-89e6aad02ecf // indirect
-	github.com/bas24/googletranslatefree v0.0.0-20231117033553-f5859fe54d30 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -35,7 +36,6 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kettek/apng v0.0.0-20191108220231-414630eed80f // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/mentalisit/logger v0.0.0-20240218181724-6b5fae8213aa // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sizeofint/webpanimation v0.0.0-20210809145948-1d2b32119882 // indirect
