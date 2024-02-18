@@ -16,8 +16,9 @@ type ConfigBot struct {
 		NameDbWhatsapp string `yaml:"name_db_whatsapp"`
 	} `yaml:"token"`
 	Logger struct {
-		Token  string `yaml:"token"`
-		ChatId int64  `yaml:"chat_id"`
+		Token   string `yaml:"token"`
+		ChatId  int64  `yaml:"chat_id"`
+		Webhook string `yaml:"webhook"`
 	} `yaml:"logger"`
 	Postgress struct {
 		Host     string `yaml:"host" env-default:"127.0.0.1:3306"`
