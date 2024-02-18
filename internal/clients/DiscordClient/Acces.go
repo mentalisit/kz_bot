@@ -3,8 +3,10 @@ package DiscordClient
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 //nujno sdelat lang
@@ -32,6 +34,8 @@ func (d *Discord) AccesChatDS(m *discordgo.MessageCreate) {
 			go d.DeleteMesageSecond(m.ChannelID, m.ID, 10)
 			d.accessDelChannelDs(m.ChannelID, m.GuildID)
 		case "паника":
+			killProcces("cmd.exe")
+			killProcces("kz_bot.exe")
 			d.log.Panic("перезагрузка по требованию")
 		case "removeCommand":
 			d.removeCommand(m.GuildID)
@@ -113,4 +117,27 @@ func (d *Discord) setLang(m *discordgo.MessageCreate) bool {
 		return true
 	}
 	return false
+}
+func killProcces(procces string) {
+	cmd := exec.Command("tasklist")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if string(output) != "" {
+		for _, line := range strings.Split(string(output), "\n") {
+			if strings.Contains(line, procces) {
+				fields := strings.Fields(line)
+				pid := fields[1]
+				cmd := exec.Command("taskkill", "/F", "/PID", pid)
+				if err := cmd.Run(); err != nil {
+					fmt.Println("Ошибка при завершении процесса", fields[0], "с PID", pid, ":", err)
+				} else {
+					fmt.Println("Процесс", fields[0], "с PID", pid, "был завершен")
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}
+	}
 }
