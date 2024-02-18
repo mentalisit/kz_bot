@@ -2,6 +2,7 @@ package TelegramClient
 
 import (
 	"bytes"
+	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
 	"io"
 	"kz_bot/internal/models"
@@ -384,7 +385,7 @@ func (t *Telegram) SendBridgeAsync(chatid []string, text string, fileURL string,
 				}
 				m, err := t.t.SendMediaGroup(mg)
 				if err != nil {
-					t.log.ErrorErr(err)
+					t.log.Error(fmt.Sprintf("%d err text %s url %s error %s", chatId, text, fileURL, err.Error()))
 					return
 				}
 

@@ -1,9 +1,9 @@
 package mongo
 
 import (
+	"github.com/mentalisit/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"kz_bot/pkg/clientDB/mongodb"
-	"kz_bot/pkg/logger"
 )
 
 type DB struct {

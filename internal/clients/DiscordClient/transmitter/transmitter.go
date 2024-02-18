@@ -3,7 +3,7 @@ package transmitter
 import (
 	"errors"
 	"fmt"
-	"kz_bot/pkg/logger"
+	"github.com/mentalisit/logger"
 	"strings"
 	"sync"
 	"time"

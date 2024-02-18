@@ -34,6 +34,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kettek/apng v0.0.0-20191108220231-414630eed80f // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
+	github.com/mentalisit/logger v0.0.0-20240218181724-6b5fae8213aa // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sizeofint/webpanimation v0.0.0-20210809145948-1d2b32119882 // indirect

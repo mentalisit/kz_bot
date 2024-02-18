@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mentalisit/logger"
 	"io/ioutil"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/logger"
 	"net/http"
 )
 

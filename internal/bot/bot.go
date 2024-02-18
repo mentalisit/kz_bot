@@ -2,11 +2,11 @@ package bot
 
 import (
 	"fmt"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
-	"kz_bot/pkg/logger"
 	"kz_bot/pkg/utils"
 	"strconv"
 	"strings"

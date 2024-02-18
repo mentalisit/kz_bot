@@ -1,9 +1,9 @@
 package Compendium
 
 import (
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/compendiumCli/bot_api"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/logger"
 	"time"
 )
 

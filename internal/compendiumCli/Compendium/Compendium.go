@@ -3,8 +3,8 @@ package Compendium
 import (
 	"encoding/json"
 	"errors"
+	"github.com/mentalisit/logger"
 	"io/ioutil"
-	"kz_bot/pkg/logger"
 
 	//"kz_bot/internal/compendiumCli"
 	"kz_bot/internal/compendiumCli/bot_api"

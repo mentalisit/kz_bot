@@ -2,13 +2,13 @@ package storage
 
 import (
 	"fmt"
+	"github.com/mentalisit/logger"
 	"go.uber.org/zap"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage/mongo"
 	"kz_bot/internal/storage/postgres"
 	"kz_bot/internal/storage/words"
-	"kz_bot/pkg/logger"
 )
 
 type Storage struct {

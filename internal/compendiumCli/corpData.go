@@ -3,9 +3,9 @@ package compendiumCli
 import (
 	"errors"
 	"fmt"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/compendiumCli/Compendium"
 	"kz_bot/internal/models"
-	"kz_bot/pkg/logger"
 )
 
 type CompendiumData struct {

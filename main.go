@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/BridgeChat"
 	"kz_bot/internal/bot"
 	"kz_bot/internal/clients"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
-	"kz_bot/pkg/logger"
 	"kz_bot/pkg/utils"
 	"os"
 	"os/signal"
@@ -32,7 +32,7 @@ func RunNew() error {
 	cfg := config.InitConfig()
 
 	//создаем логгер
-	log := logger.LoggerZap(cfg.Logger.Token, cfg.Logger.ChatId)
+	log := logger.LoggerZap(cfg.Logger.Token, cfg.Logger.ChatId, cfg.Logger.Webhook)
 
 	if cfg.BotMode == "dev" {
 		log = logger.LoggerZapDEV()

@@ -2,11 +2,11 @@ package DiscordClient
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/config"
 	"kz_bot/internal/models"
 	"kz_bot/internal/storage"
 	"kz_bot/pkg/clientDiscord"
-	"kz_bot/pkg/logger"
 )
 
 type Discord struct {

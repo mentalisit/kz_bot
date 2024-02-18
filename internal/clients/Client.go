@@ -1,10 +1,9 @@
 package clients
 
 import (
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/clients/DiscordClient"
 	"kz_bot/internal/clients/TelegramClient"
-	"kz_bot/pkg/logger"
-	//"kz_bot/internal/clients/WhatsappClient"
 	"kz_bot/internal/config"
 	"kz_bot/internal/storage"
 )

@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"context"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/config"
 	"kz_bot/pkg/clientDB/postgresLocal"
-	"kz_bot/pkg/logger"
 )
 
 type Db struct {

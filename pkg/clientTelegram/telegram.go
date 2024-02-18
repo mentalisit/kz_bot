@@ -3,8 +3,8 @@ package clientTelegram
 import (
 	"fmt"
 	tgbotapi "github.com/matterbridge/telegram-bot-api/v6"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/config"
-	"kz_bot/pkg/logger"
 )
 
 func NewTelegram(log *logger.Logger, cfg *config.ConfigBot) (*tgbotapi.BotAPI, error) {

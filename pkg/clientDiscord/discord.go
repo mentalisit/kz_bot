@@ -3,8 +3,8 @@ package clientDiscord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/mentalisit/logger"
 	"kz_bot/internal/config"
-	"kz_bot/pkg/logger"
 )
 
 func NewDiscord(log *logger.Logger, cfg *config.ConfigBot) (*discordgo.Session, error) {
