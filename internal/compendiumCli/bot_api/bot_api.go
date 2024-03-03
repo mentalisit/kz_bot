@@ -56,9 +56,8 @@ func (c *CompendiumApiClient) CheckIdentity(code string) (*models.IdentityGET, e
 	if err != nil {
 		return &models.IdentityGET{}, err
 	}
-	c.log.Info(string(body))
-	if len(body) < 50 {
 
+	if len(body) < 50 {
 		return &models.IdentityGET{}, errors.New("Invalid User Id")
 	}
 
@@ -160,7 +159,6 @@ func (c *CompendiumApiClient) RefreshConnection(token string) (*models.Identity,
 
 // CorpData retrieves various data for all members in the corp
 func (c *CompendiumApiClient) CorpData(token string, roleID string) (*models.CorpData, error) {
-	roleID = roleID
 	endpoint := fmt.Sprintf("%s/cmd/corpdata?roleId=%s", c.URL, roleID)
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
@@ -228,7 +226,6 @@ func (c *CompendiumApiClient) Sync(token string, mode string, currentTech map[in
 	if err != nil {
 		return models.SyncData{}, err
 	}
-	//c.log.Info(string(body))
 	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
 		return models.SyncData{}, errors.New("Server Error")
 	}
